@@ -1,1 +1,20 @@
-pip install flask-cors
+# Flask & Server
+Flask==3.0.2
+Flask-Cors==4.0.0
+Werkzeug==3.0.1
+
+# Database
+Flask-SQLAlchemy==3.1.1
+SQLAlchemy==2.0.25
+
+# # AI & Data Processing (Cho Chatbox & Recommender)
+# google-generativeai==0.4.0
+# pandas==2.2.1
+# numpy==1.26.4
+# scikit-learn==1.4.1.post1
+
+# Utils & Security
+python-dotenv==1.0.1
+requests==2.31.0
+PyJWT==2.8.0
+bcrypt==4.1.2
