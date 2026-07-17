@@ -1,3 +1,5 @@
+import { useMsal } from "@azure/msal-react";
+import { loginRequest } from './authConfig';
 import { useState, useRef, useEffect } from "react";
 import {
   User, BookOpen, ClipboardList, CalendarDays, CreditCard, Bell,
@@ -433,8 +435,82 @@ function AdminApp({ onLogout }: { onLogout: () => void }) {
 }
 
 // ─── Login Page ───────────────────────────────────────────────────────────────
+// function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
+//   const [showPicker, setShowPicker] = useState(false);
+
+//   return (
+//     <div
+//       className="min-h-screen flex items-center justify-center"
+//       style={{ backgroundImage: `url(${hcmusBg})`, backgroundSize: "cover", backgroundPosition: "center" }}
+//     >
+//       <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.45)" }} />
+
+//       {showPicker && <AccountPickerModal onLogin={onLogin} />}
+
+//       <div className="relative z-10 bg-white shadow-2xl px-10 py-10 flex flex-col items-center w-full max-w-sm rounded-[10px]" style={{ minHeight: 400 }}>
+//         <div
+//           className="w-20 h-20 rounded-full flex items-center justify-center mb-4 border-2"
+//           style={{ borderColor: "#3E4B8E", background: "#eef2ff" }}
+//         >
+//           <GraduationCap className="w-9 h-9" style={{ color: "#3E4B8E" }} />
+//         </div>
+
+//         <h1 className="text-2xl font-bold mb-1 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#3E4B8E" }}>
+//           CampUS
+//         </h1>
+//         <p className="text-xs text-gray-400 mb-6 tracking-widest font-medium">ĐĂNG NHẬP</p>
+
+//         <button
+//           onClick={() => setShowPicker(true)}
+//           className="w-full flex items-center justify-center gap-3 border-2 border-gray-200 rounded-lg py-2.5 px-4 text-sm font-semibold hover:bg-gray-50 transition-colors"
+//           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}
+//         >
+//           <svg width="18" height="18" viewBox="0 0 21 21" fill="none">
+//             <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+//             <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+//             <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+//             <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+//           </svg>
+//           Đăng nhập với Microsoft
+//         </button>
+
+//         <p className="text-gray-400 text-center mt-5 leading-relaxed text-[10px]">
+//           Vui lòng sử dụng email chính thức nhà trường đã cung cấp<br />
+//           <span className="font-medium">(@student.hcmus.edu.vn)</span>
+//         </p>
+
+//         <p className="text-[9px] text-gray-300 text-center mt-6 tracking-wide">©GROUP 3 - AMONG US</p>
+//       </div>
+//     </div>
+//   );
+// }
+
 function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
-  const [showPicker, setShowPicker] = useState(false);
+  const { instance, accounts, inProgress } = useMsal(); 
+
+  // Khi Microsoft chuyển hướng cả trang web trở lại localhost:5173, đoạn này sẽ chạy
+  useEffect(() => {
+    // Nếu quá trình MSAL đã xử lý xong và có tài khoản trả về
+    if (inProgress === "none" && accounts.length > 0) {
+      const userEmail = accounts[0].username || "";
+      
+      // Chặn nếu không phải mail sinh viên
+      if (!userEmail.endsWith("@student.hcmus.edu.vn")) {
+          alert("Hệ thống chỉ hỗ trợ đăng nhập bằng email sinh viên (@student.hcmus.edu.vn). Vui lòng thử lại.");
+          instance.logoutRedirect(); // Dùng logoutRedirect thay vì logoutPopup
+          return;
+      }
+      
+      // HỢP LỆ -> VÀO THẲNG DASHBOARD
+      console.log("Đăng nhập thành công với:", userEmail);
+      onLogin("student"); 
+    }
+  }, [inProgress, accounts, instance, onLogin]);
+
+  const handleRealLogin = () => {
+    // Không dùng loginPopup nữa, chuyển cả trang web sang Microsoft
+    instance.loginRedirect(loginRequest);
+  };
 
   return (
     <div
@@ -443,7 +519,7 @@ function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }
     >
       <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.45)" }} />
 
-      {showPicker && <AccountPickerModal onLogin={onLogin} />}
+      {/* ĐÃ XÓA DÒNG AccountPickerModal Ở ĐÂY */}
 
       <div className="relative z-10 bg-white shadow-2xl px-10 py-10 flex flex-col items-center w-full max-w-sm rounded-[10px]" style={{ minHeight: 400 }}>
         <div
@@ -459,7 +535,7 @@ function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }
         <p className="text-xs text-gray-400 mb-6 tracking-widest font-medium">ĐĂNG NHẬP</p>
 
         <button
-          onClick={() => setShowPicker(true)}
+          onClick={handleRealLogin} // <--- ĐÃ THAY SỰ KIỆN CLICK BẰNG HÀM LOGIC MSAL
           className="w-full flex items-center justify-center gap-3 border-2 border-gray-200 rounded-lg py-2.5 px-4 text-sm font-semibold hover:bg-gray-50 transition-colors"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}
         >
@@ -1387,6 +1463,7 @@ function ProfileSection() {
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { instance } = useMsal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"student" | "admin">("student");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -1399,7 +1476,7 @@ export default function App() {
   const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-
+  
   function handleLogin(role: "admin" | "student") {
     setUserRole(role);
     setIsLoggedIn(true);
@@ -1411,6 +1488,9 @@ export default function App() {
     setTimeout(() => {
       setShowLogoutSuccess(false);
       setIsLoggedIn(false);
+      instance.logoutRedirect({
+        postLogoutRedirectUri: window.location.origin
+      });
     }, 1800);
   }
 
@@ -1426,7 +1506,10 @@ export default function App() {
   const unread = NOTIFICATIONS.filter(n => !n.read).length;
 
   if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
-  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} />;
+  if (userRole === "admin") return <AdminApp onLogout={() => {
+    setIsLoggedIn(false);
+    instance.logoutRedirect({ postLogoutRedirectUri: window.location.origin });
+  }} />;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
