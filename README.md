@@ -5,6 +5,11 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+<br>
+![Python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 
 Dự án **CampUS** là một hệ thống web toàn diện, hỗ trợ sinh viên và quản trị viên nhà trường trong việc theo dõi tiến độ học tập, hồ sơ cá nhân, học phí, lịch học/thi và xử lý các nghiệp vụ nội bộ. Hệ thống được tích hợp Trí tuệ Nhân tạo (AI) để hỗ trợ tư vấn (Chatbot) và gợi ý học tập.
 
