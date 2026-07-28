@@ -2,9 +2,6 @@
 -- KHỞI TẠO DATABASE
 -- =========================================================================
 
--- Lưu ý: Lệnh USE master, GO, và tạo/xóa database bằng script bên dưới 
--- dành cho các hệ CSDL quan hệ. Nếu bạn dùng công cụ tạo file .db (như SQLite), 
--- bạn có thể bỏ qua phần master này và bắt đầu chạy từ phần CREATE TABLE.
 
 -- =========================================================================
 -- GIAI ĐOẠN 1: TẠO BẢNG VÀ KHỞI TẠO KHÓA CHÍNH & KHÓA NGOẠI
