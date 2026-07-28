@@ -1,0 +1,446 @@
+-- =========================================================================
+-- KHỞI TẠO DATABASE
+-- =========================================================================
+
+PRAGMA foreign_keys = ON;
+
+-- =========================================================================
+-- GIAI ĐOẠN 1: TẠO BẢNG VÀ KHỞI TẠO KHÓA CHÍNH
+-- =========================================================================
+
+-- -------------------------------------------------------------------------
+-- A. NHÓM THÔNG TIN CHUNG & HỒ SƠ CÁ NHÂN
+-- -------------------------------------------------------------------------
+
+CREATE TABLE KHOA (
+    MAKHOA varchar(15) primary key,
+    TENKHOA text not null
+);
+
+CREATE TABLE NGANH (
+    MANGANH varchar(15) primary key,
+    TENNGANH text not null,
+    MAKHOA varchar(15),
+    FOREIGN KEY (MAKHOA) REFERENCES KHOA(MAKHOA)
+); 
+
+CREATE TABLE CHUYENNGANH (
+    MACN varchar(15) primary key,
+    TENCN text not null,
+    MANGANH varchar(15),
+    FOREIGN KEY (MANGANH) REFERENCES NGANH(MANGANH)
+); 
+
+CREATE TABLE SINHVIEN (
+    MSSV char(8) primary key,
+    HOTEN text not null,
+    LOAISV text,
+    NGAYSINH text,
+    NOISINH text,
+    GIOITINH text check(GIOITINH in ('Nam', 'Nữ')),
+    NIENKHOA varchar(9),
+    BACDAOTAO text,
+    LOAIDAOTAO text,
+    CCCD varchar(12) unique,
+    NGAYCAP text,
+    NOICAP text,
+    QUOCTICH text,
+    DANTOC text,
+    TONGIAO text,
+    DCTHUONGTRU text,
+    DIENTHOAI varchar(15),
+    MAILCANHAN varchar(50),
+    DCHIENNAY text,
+    NGAYVAODOAN text,
+    NGAYVAODANG text,
+    MAILTRUONG varchar(50) unique,
+    SOTHENH varchar(50),
+    TENNH text,
+    NGUOILIENLAC text,
+    DCLIENLAC text,
+    SDTLIENLAC varchar(15),
+    MAILLIENLAC varchar(50),
+    QUANHE_NLL text,
+    MANGANH varchar(15),
+    MACN varchar(15),
+    FOREIGN KEY (MANGANH) REFERENCES NGANH(MANGANH),
+    FOREIGN KEY (MACN) REFERENCES CHUYENNGANH(MACN)
+); 
+
+CREATE TABLE NGUOITHAN (
+    MANT varchar(10) primary key,
+    MSSV char(8),
+    HOTEN text not null,
+    NAMSINH int,
+    QUANHE text,
+    NGHENGHIEP text,
+    NOILAMVIEC text,
+    SDT varchar(15),
+    MAIL varchar(50),
+    DANTOC text,
+    TONGIAO text,
+    QUOCTICH text,
+    TINHTHANH text,
+    PHUONGXA text,
+    HKTHUONGTRU text,
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV)
+); 
+
+
+-- -------------------------------------------------------------------------
+-- B. NHÓM MÔN HỌC & HỌC PHẦN
+-- -------------------------------------------------------------------------
+
+CREATE TABLE NHOMHOCPHAN (
+    MANHOM varchar(10) primary key,
+    TENNHOM text not null
+); 
+
+CREATE TABLE MONHOC (
+    MAMH varchar(10) primary key, 
+    TENMH text not null,
+    SOTC int DEFAULT(0),
+    SOTIET int DEFAULT(0),
+    MANHOM varchar(10),
+    FOREIGN KEY (MANHOM) REFERENCES NHOMHOCPHAN(MANHOM)
+); 
+
+CREATE TABLE LOPHOCPHAN (
+    MALHP varchar(10) primary key,
+    MAMH varchar(10),
+    NAMHOC varchar(10),
+    HOCKY varchar(10),
+    TENLOP text,
+    TENGV text,
+    MAILGV varchar(80),
+    NGONNGU text,
+    FOREIGN KEY (MAMH) REFERENCES MONHOC(MAMH)
+); 
+
+
+-- -------------------------------------------------------------------------
+-- C. NHÓM KẾT QUẢ & TIẾN ĐỘ HỌC TẬP
+-- -------------------------------------------------------------------------
+
+CREATE TABLE KETQUA_HOCTAP (
+    MSSV char(8), 
+    MALHP varchar(10),
+    DIEMGK decimal(4,1),
+    DIEMCK decimal(4,1),
+    DIEMTB_HE10 decimal(4,1), 
+    LOAIDIEM_HECHU varchar(5), 
+    primary key (MSSV, MALHP),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MALHP) REFERENCES LOPHOCPHAN(MALHP)
+); 
+
+CREATE TABLE TIENDO_HOCTAP (
+    MSSV char(8) primary key,
+    
+    -- Khối Giáo dục đại cương
+    TC_GDDC_DAT int default(0),
+    TC_GDDC_YC int default(0),
+    TRANGTHAI_GDDC text CHECK (TRANGTHAI_GDDC IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT ('Chưa đạt'),
+    
+    -- Khối Cơ sở ngành
+    TC_CSN_DAT int default(0),
+    TC_CSN_YC int default(0),
+    TRANGTHAI_CSN text CHECK (TRANGTHAI_CSN IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT ('Chưa đạt'),
+    
+    -- Khối Chuyên ngành
+    TC_CN_DAT int default(0),
+    TC_CN_YC int default(0),
+    TRANGTHAI_CN text CHECK (TRANGTHAI_CN IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT ('Chưa đạt'),
+    
+    -- Khối Tốt nghiệp
+    TC_TN_DAT int default(0),
+    TC_TN_YC int default(0),
+    TRANGTHAI_TN text CHECK (TRANGTHAI_TN IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT ('Chưa đạt'),
+    
+    -- Các trạng thái phụ khác
+    TRANGTHAI_GDTC text,
+    TRANGTHAI_GDQP text,
+    TRANGTHAI_TDNN text,
+    
+    -- Thuộc tính tính toán tự động: Tổng tín chỉ đạt & yêu cầu
+    TONG_TC_DAT INTEGER GENERATED ALWAYS AS (TC_GDDC_DAT + TC_CSN_DAT + TC_CN_DAT + TC_TN_DAT) VIRTUAL,
+    TONG_TC_YC INTEGER GENERATED ALWAYS AS (TC_GDDC_YC + TC_CSN_YC + TC_CN_YC + TC_TN_YC) VIRTUAL,
+    
+    -- Điểm trung bình tích lũy hệ 10
+    DIEM_TB_TICHLUY decimal(4,2),
+    
+    -- Điều kiện tốt nghiệp (Điểm TB > 5.0 và các khối đạt/miễn)
+    DUDIEUKIENTN varchar(50),
+    
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV)
+); 
+
+CREATE TABLE TIENDO_NHOMHOCPHAN (
+    MSSV char(8), 
+    MANHOM varchar(10), 
+    TC_DAT int default(0),
+    TC_YEUCAU int default(0),
+    primary key (MSSV, MANHOM),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MANHOM) REFERENCES NHOMHOCPHAN(MANHOM)
+); 
+
+
+-- -------------------------------------------------------------------------
+-- D. NHÓM LỊCH HỌC, LỊCH THI & HỌC PHÍ
+-- -------------------------------------------------------------------------
+
+CREATE TABLE LICH_HOC (
+    MALICHHOC varchar(10) primary key,
+    MALHP varchar(10),
+    TUAN text,
+    NGAYBATDAU text,
+    NGAYKETTHUC text,
+    THU text,
+    THOIGIAN_BD text,
+    THOIGIAN_KT text,
+    PHONGHOC text,
+    HINHTHUCHOC text,
+    FOREIGN KEY (MALHP) REFERENCES LOPHOCPHAN(MALHP)
+); 
+
+CREATE TABLE LICH_THI (
+    MALICHTHI varchar(10) primary key,
+    MALHP varchar(10),
+    NGAYTHI text,
+    GIOTHI text,
+    THOIGIANLAMBAI int,
+    PHONGTHI text,
+    FOREIGN KEY (MALHP) REFERENCES LOPHOCPHAN(MALHP)
+); 
+
+CREATE TABLE HOCPHI (
+    MSSV char(8), 
+    MALHP varchar(10),
+    SOTCHP int default(0),
+    HOCPHI_GOC decimal(12,2) default(0),
+    MUCGIAM decimal(12,2) default(0),
+    HOTRO decimal(12,2) default(0),
+    CHIPHIKHAC decimal(12,2) default(0),
+    THUCDONG NUMERIC GENERATED ALWAYS AS (HOCPHI_GOC - MUCGIAM - HOTRO + CHIPHIKHAC) VIRTUAL,
+    GHICHU TEXT,
+    TRANGTHAI_THANHTOAN varchar(50),
+    NGAYTHANHTOAN text,
+    primary key (MSSV, MALHP),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MALHP) REFERENCES LOPHOCPHAN(MALHP)
+); 
+
+
+-- -------------------------------------------------------------------------
+-- E. NHÓM KHẢO SÁT & THÔNG BÁO
+-- -------------------------------------------------------------------------
+
+CREATE TABLE KHAOSAT (
+    MAKS varchar(20) primary key,
+    TENKS text not null,
+    NOIDUNG TEXT,
+    HANDON text
+); 
+
+CREATE TABLE SV_KHAOSAT (
+    MSSV char(8), 
+    MAKS varchar(20),
+    TRANGTHAI_LAM varchar(50),
+    THOIGIAN_NOP text,
+    primary key (MSSV, MAKS),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MAKS) REFERENCES KHAOSAT(MAKS)
+); 
+
+CREATE TABLE CAUHOI_KHAOSAT (
+    MACH varchar(20) primary key,
+    MAKS varchar(20),
+    NOIDUNG_CAUHOI TEXT not null,
+    LOAI_CAUHOI varchar(50),
+    THUTU int,
+    FOREIGN KEY (MAKS) REFERENCES KHAOSAT(MAKS)
+); 
+
+CREATE TABLE TRALOI_KHAOSAT (
+    MACH varchar(20),
+    MSSV char(8), 
+    NOIDUNG_TRALOI TEXT,
+    THOIGIAN_TRALOI text DEFAULT CURRENT_TIMESTAMP,
+    primary key (MACH, MSSV),
+    FOREIGN KEY (MACH) REFERENCES CAUHOI_KHAOSAT(MACH),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV)
+); 
+
+CREATE TABLE THONGBAO (
+    MATB varchar(20) primary key,
+    TIEUDE text not null,
+    NOIDUNG TEXT,
+    NGAYDANG text DEFAULT CURRENT_TIMESTAMP,
+    MAKHOA varchar(15),
+    FOREIGN KEY (MAKHOA) REFERENCES KHOA(MAKHOA)
+); 
+
+CREATE TABLE SV_THONGBAO (
+    MSSV char(8), 
+    MATB varchar(20),
+    TRANGTHAI_DOC INTEGER default(0), 
+    THOIGIAN_DOC text,
+    primary key (MSSV, MATB),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MATB) REFERENCES THONGBAO(MATB)
+); 
+
+
+-- -------------------------------------------------------------------------
+-- F. NHÓM CHATBOT
+-- -------------------------------------------------------------------------
+
+CREATE TABLE CHATBOT_SESSION (
+    MASESSION varchar(10) primary key,
+    MSSV char(8), 
+    THOIGIAN_BATDAU text DEFAULT CURRENT_TIMESTAMP,
+    THOIGIAN_KETTHUC text,
+    MUCDO_HAILONG int,
+    TRANGTHAI_GIAIQUYET varchar(50),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV)
+); 
+
+CREATE TABLE CHATBOT_MESSAGE (
+    MAMSG varchar(10) primary key,
+    MASESSION varchar(10),
+    NGUOIGUI char(8),
+    NOIDUNG_TINNHAN TEXT,
+    THOIGIAN_GUI text DEFAULT CURRENT_TIMESTAMP,
+    LOAI_TINNHAN text,
+    INTENT_PHATHIEN text,
+    FOREIGN KEY (MASESSION) REFERENCES CHATBOT_SESSION(MASESSION)
+); 
+
+
+-- -------------------------------------------------------------------------
+-- G. NHÓM ADMIN & LƯU VẾT HỆ THỐNG
+-- -------------------------------------------------------------------------
+
+CREATE TABLE ADMIN_GIAOVU (
+    MAGV char(10) primary key,
+    HOTEN text not null,
+    EMAIL varchar(100) UNIQUE,
+    VAITRO varchar(100),
+    MAKHOA varchar(15),
+    TRANGTHAI varchar(50),
+    FOREIGN KEY (MAKHOA) REFERENCES KHOA(MAKHOA)
+); 
+
+CREATE TABLE GIANGVIEN (
+    MAGV_GD char(10) primary key,
+    HOTEN text not null,
+    DIENTHOAI varchar(20),
+    MAIL varchar(100),
+    CHUYENMON varchar(80),
+    MAKHOA varchar(15),
+    FOREIGN KEY (MAKHOA) REFERENCES KHOA(MAKHOA)
+); 
+
+CREATE TABLE CHUONGTRINH_DAOTAO (
+    MANGANH varchar(15),
+    MAMH varchar(10),
+    HOCKY_KIENGHI varchar(50),
+    TICHCHOTOTNGHIEP int default(0),
+    LOAIMON varchar(100),
+    primary key (MANGANH, MAMH),
+    FOREIGN KEY (MANGANH) REFERENCES NGANH(MANGANH),
+    FOREIGN KEY (MAMH) REFERENCES MONHOC(MAMH)
+); 
+
+CREATE TABLE QUANLY_TINHTRANG_SV (
+    MAQUYETDINH varchar(20) primary key,
+    MSSV char(8),
+    TINHTRANG_MOI varchar(100),
+    NGAYKY_QD text,
+    HOCKY_APDUNG varchar(10),
+    NAMHOC_APDUNG varchar(20),
+    MAGV_THUCHIEN char(10),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MAGV_THUCHIEN) REFERENCES ADMIN_GIAOVU(MAGV)
+); 
+
+CREATE TABLE DOT_CAPNHAT_HOSO (
+    MADOT varchar(20) primary key,
+    TENDOT text not null,
+    THOIGIAN_BATDAU text,
+    THOIGIAN_KETTHUC text,
+    NAMHOC varchar(20),
+    HOCKY varchar(10),
+    TRANGTHAI_MO INTEGER DEFAULT 1
+); 
+
+CREATE TABLE LICHSU_CHINHSUA (
+    MALOG varchar(50) primary key,
+    MSSV char(8),
+    MAGV char(10),
+    THOIGIAN_SUA text DEFAULT CURRENT_TIMESTAMP,
+    BANG_BI_SUA varchar(100),
+    DULIEU_CU TEXT,
+    DULIEU_MOI TEXT,
+    NGUOITHUCHIEN char(10),
+    FOREIGN KEY (MSSV) REFERENCES SINHVIEN(MSSV),
+    FOREIGN KEY (MAGV) REFERENCES ADMIN_GIAOVU(MAGV)
+); 
+
+CREATE TABLE LICHSU_IMPORT_FILE (
+    MA_IMPORT varchar(50) primary key,
+    TEN_FILE varchar(80),
+    LOAI_DULIEU varchar(100),
+    THOIGIAN_UP text DEFAULT CURRENT_TIMESTAMP,
+    KETQUA_THANHCONG int default(0),
+    KETQUA_THATBAI int default(0),
+    FILE_LOAI_TRU varchar(80),
+    MAGV_UP char(10),
+    FOREIGN KEY (MAGV_UP) REFERENCES ADMIN_GIAOVU(MAGV)
+); 
+
+
+-- =========================================================================
+-- GIAI ĐOẠN 2: THIẾT LẬP KHÓA NGOẠI 
+-- =========================================================================
+
+-- 1. Nhóm thông tin chung & Hồ sơ cá nhân
+-- 2. Nhóm học tập, Tiến độ & Môn học
+-- 3. Nhóm lịch học & Lịch thi
+-- 4. Nhóm học phí
+-- 5. Nhóm khảo sát & Thông báo
+-- 6. Nhóm Chatbot
+-- 7. Phần Admin & Lưu vết hệ thống
+
+
+-- =========================================================================
+-- 1. CẬP NHẬT ĐIỂM TRUNG BÌNH TÍCH LŨY (DIEM_TB_TICHLUY)
+-- Công thức: Tổng(Điểm hệ 10 của môn * Số tín chỉ môn đó) / Tổng(Số tín chỉ các môn đã có điểm)
+-- =========================================================================
+UPDATE TIENDO_HOCTAP
+SET DIEM_TB_TICHLUY = (
+    SELECT CAST(SUM(kq.DIEMTB_HE10 * mh.SOTC) * 1.0 / NULLIF(SUM(mh.SOTC), 0) AS DECIMAL(4,2))
+    FROM KETQUA_HOCTAP kq
+    JOIN LOPHOCPHAN lhp ON kq.MALHP = lhp.MALHP
+    JOIN MONHOC mh ON lhp.MAMH = mh.MAMH
+    WHERE kq.MSSV = TIENDO_HOCTAP.MSSV 
+      AND kq.DIEMTB_HE10 IS NOT NULL 
+      AND mh.SOTC > 0
+);
+
+-- =========================================================================
+-- 2. CẬP NHẬT ĐIỀU KIỆN TỐT NGHIỆP (DUDIEUKIENTN)
+-- Điều kiện: Điểm tích lũy > 5.0 VÀ tất cả các khối tín chỉ (GDDC, CSN, CN, TN) 
+-- đều đạt trạng thái 'Đạt' hoặc 'Miễn'. Nếu đúng: 'Đã đủ điều kiện tốt nghiệp', ngược lại: 'Chưa đủ điều kiện tốt nghiệp'
+-- =========================================================================
+UPDATE TIENDO_HOCTAP
+SET DUDIEUKIENTN = CASE 
+    WHEN COALESCE(DIEM_TB_TICHLUY, 0) > 5.0 
+         AND TRANGTHAI_GDDC IN ('Đạt', 'Miễn')
+         AND TRANGTHAI_CSN  IN ('Đạt', 'Miễn')
+         AND TRANGTHAI_CN   IN ('Đạt', 'Miễn')
+         AND TRANGTHAI_TN   IN ('Đạt', 'Miễn')
+    THEN 'Đã đủ điều kiện tốt nghiệp'
+    ELSE 'Chưa đủ điều kiện tốt nghiệp'
+END;
