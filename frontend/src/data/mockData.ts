@@ -238,6 +238,22 @@ export const TUITION_DATA: TuitionSemester[] = [
   },
 ];
 
+// ─── Accounts ────────────────────────────────────────────────────────────────
+
+export type Account = {
+  username: string;
+  label: string;
+  email: string;
+  initials: string;
+  pass: string;
+  role: "admin" | "student";
+};
+
+export const ACCOUNTS: Account[] = [
+  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin" },
+  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" },
+];
+
 // ─── Notifications ────────────────────────────────────────────────────────────
 
 export type Notification = {
@@ -246,6 +262,8 @@ export type Notification = {
   body: string;
   time: string;
   read: boolean;
+  khoa: string;   // e.g. "Khoa CNTT", "Khoa Toán - Tin học", "" if N/A
+  phong: string;  // e.g. "Phòng Đào tạo", "Ban Giám hiệu", "" if N/A
 };
 
 export const NOTIFICATIONS: Notification[] = [
@@ -255,6 +273,8 @@ export const NOTIFICATIONS: Notification[] = [
     body: "Sinh viên vui lòng đăng ký học phần học kỳ 1 năm học 2025-2026 từ ngày 10/07 đến 20/07/2025 trên hệ thống. Lưu ý kiểm tra điều kiện tiên quyết trước khi đăng ký.",
     time: "1 giờ 45 phút trước",
     read: false,
+    khoa: "",
+    phong: "Phòng Đào tạo",
   },
   {
     id: 2,
@@ -262,6 +282,8 @@ export const NOTIFICATIONS: Notification[] = [
     body: "Phòng Đào tạo thông báo lịch thi cuối kỳ HK2/2024-2025 đã được cập nhật. Một số môn có thay đổi phòng thi, sinh viên kiểm tra lại trên cổng thông tin.",
     time: "1 ngày 1 giờ trước",
     read: false,
+    khoa: "",
+    phong: "Phòng Đào tạo",
   },
   {
     id: 3,
@@ -269,6 +291,8 @@ export const NOTIFICATIONS: Notification[] = [
     body: "Bạn đã nộp bài tập lớn môn Cơ sở dữ liệu - Assignment 3 thành công lúc 23:00 ngày 07/07/2025.",
     time: "2 ngày 22 giờ trước",
     read: false,
+    khoa: "Khoa CNTT",
+    phong: "",
   },
   {
     id: 4,
@@ -276,6 +300,8 @@ export const NOTIFICATIONS: Notification[] = [
     body: "Danh sách sinh viên nhận học bổng Khuyến khích Học tập HK2/2024-2025 đã được công bố. Sinh viên có thể kiểm tra kết quả tại Phòng Công tác sinh viên.",
     time: "3 ngày 1 giờ trước",
     read: true,
+    khoa: "",
+    phong: "Phòng Công tác SV",
   },
   {
     id: 5,
@@ -283,5 +309,312 @@ export const NOTIFICATIONS: Notification[] = [
     body: "Nhà trường kính mời sinh viên hoàn thành phiếu khảo sát giảng dạy cuối kỳ HK2/2024-2025 trước ngày 15/07/2025. Ý kiến của bạn giúp nâng cao chất lượng đào tạo.",
     time: "9 ngày 22 giờ trước",
     read: true,
+    khoa: "",
+    phong: "Ban Giám hiệu",
+  },
+  {
+    id: 6,
+    title: "Thực tập doanh nghiệp HK1/2025-2026",
+    body: "Khoa CNTT thông báo danh sách doanh nghiệp nhận sinh viên thực tập HK1/2025-2026 đã được cập nhật. Sinh viên đủ điều kiện đăng ký trước ngày 25/07/2025.",
+    time: "5 ngày 3 giờ trước",
+    read: true,
+    khoa: "Khoa CNTT",
+    phong: "",
+  },
+  {
+    id: 7,
+    title: "Gia hạn nộp học phí HK1/2025-2026",
+    body: "Phòng Kế hoạch – Tài chính thông báo hạn nộp học phí HK1/2025-2026 được gia hạn đến 05/08/2025. Sinh viên chưa nộp vui lòng hoàn thành trước hạn để tránh bị khoá tài khoản.",
+    time: "6 ngày 12 giờ trước",
+    read: true,
+    khoa: "",
+    phong: "Phòng Tài chính",
+  },
+  {
+    id: 8,
+    title: "Thông báo nghỉ lễ 27/07",
+    body: "Nhà trường thông báo lịch nghỉ lễ ngày Thương binh Liệt sĩ 27/07/2025. Toàn bộ hoạt động học tập và hành chính sẽ nghỉ 01 ngày.",
+    time: "7 ngày trước",
+    read: true,
+    khoa: "",
+    phong: "Ban Giám hiệu",
+  },
+  {
+    id: 9,
+    title: "Lịch seminar nghiên cứu khoa học T8/2025",
+    body: "Khoa Toán – Tin học tổ chức chuỗi seminar nghiên cứu khoa học tháng 8/2025. Sinh viên quan tâm đăng ký tham dự qua form online trước ngày 28/07.",
+    time: "8 ngày trước",
+    read: true,
+    khoa: "Khoa Toán – Tin học",
+    phong: "",
+  },
+  {
+    id: 10,
+    title: "Cập nhật quy chế đánh giá học phần 2025",
+    body: "Phòng Khảo thí & ĐBCL thông báo quy chế đánh giá học phần năm 2025 đã được cập nhật. Sinh viên vui lòng đọc kỹ trước khi bắt đầu học kỳ mới.",
+    time: "10 ngày trước",
+    read: true,
+    khoa: "",
+    phong: "Phòng Khảo thí & ĐBCL",
+  },
+];
+
+// ─── Admin Survey Data ────────────────────────────────────────────────────────
+
+export const KHOA_LIST = ["Khoa CNTT", "Khoa Toán – Tin", "Khoa Vật lý", "Khoa Hóa học", "Khoa Sinh học", "Khoa Môi trường"];
+
+export type QuestionType = "radio" | "checkbox" | "text" | "rating";
+
+export type SurveyQuestion = {
+  id: string;
+  type: QuestionType;
+  text: string;
+  options: string[];
+  required: boolean;
+};
+
+export type AdminSurveyItem = {
+  id: string;
+  title: string;
+  description: string;
+  questions: SurveyQuestion[];
+  status: "draft" | "open" | "closed";
+  openFrom: string;
+  openTo: string;
+  targetKhoa: string[];
+  responses: number;
+  createdAt: string;
+};
+
+export const MOCK_ADMIN_SURVEYS: AdminSurveyItem[] = [
+  {
+    id: "sv1",
+    title: "Khảo sát chất lượng giảng dạy HK1 2025-2026",
+    description: "Đánh giá chất lượng giảng dạy và học tập trong học kỳ 1 năm học 2025-2026.",
+    questions: [
+      { id: "q1", type: "rating",   text: "Bạn đánh giá chất lượng giảng dạy của giảng viên như thế nào?", options: [], required: true },
+      { id: "q2", type: "radio",    text: "Hình thức học nào bạn thấy hiệu quả nhất?", options: ["Trực tiếp", "Trực tuyến", "Kết hợp"], required: true },
+      { id: "q3", type: "checkbox", text: "Những yếu tố nào ảnh hưởng đến việc học của bạn?", options: ["Tài liệu học tập", "Phương pháp giảng dạy", "Cơ sở vật chất", "Thời gian biểu"], required: false },
+      { id: "q4", type: "text",     text: "Góp ý thêm cho nhà trường (nếu có):", options: [], required: false },
+    ],
+    status: "open",
+    openFrom: "2026-07-13",
+    openTo: "2026-08-09",
+    targetKhoa: ["Khoa CNTT", "Khoa Toán – Tin"],
+    responses: 142,
+    createdAt: "2026-07-10",
+  },
+  {
+    id: "sv2",
+    title: "Khảo sát cơ sở vật chất và dịch vụ sinh viên",
+    description: "Đánh giá mức độ hài lòng với cơ sở vật chất, thư viện, căng tin và các dịch vụ hỗ trợ sinh viên.",
+    questions: [
+      { id: "q1", type: "rating",   text: "Bạn hài lòng với cơ sở vật chất của trường ở mức nào?", options: [], required: true },
+      { id: "q2", type: "checkbox", text: "Bạn thường sử dụng dịch vụ nào của trường?", options: ["Thư viện", "Căng tin", "Phòng máy tính", "Phòng tập thể thao", "Y tế học đường"], required: false },
+      { id: "q3", type: "radio",    text: "Bạn đánh giá chất lượng thư viện như thế nào?", options: ["Rất tốt", "Tốt", "Trung bình", "Cần cải thiện"], required: true },
+      { id: "q4", type: "text",     text: "Bạn muốn trường cải thiện điều gì nhất?", options: [], required: false },
+    ],
+    status: "closed",
+    openFrom: "2026-06-01",
+    openTo: "2026-06-30",
+    targetKhoa: KHOA_LIST,
+    responses: 387,
+    createdAt: "2026-05-28",
+  },
+  {
+    id: "sv3",
+    title: "Khảo sát nhu cầu học bổng và hỗ trợ tài chính",
+    description: "Thu thập thông tin về nhu cầu học bổng và các hỗ trợ tài chính cho sinh viên.",
+    questions: [
+      { id: "q1", type: "radio",  text: "Bạn có đang nhận học bổng không?", options: ["Có", "Không", "Đã nộp đơn, chờ xét duyệt"], required: true },
+      { id: "q2", type: "rating", text: "Mức độ khó khăn tài chính của bạn?", options: [], required: true },
+      { id: "q3", type: "text",   text: "Bạn cần hỗ trợ gì từ nhà trường?", options: [], required: false },
+    ],
+    status: "draft",
+    openFrom: "",
+    openTo: "",
+    targetKhoa: [],
+    responses: 0,
+    createdAt: "2026-07-20",
+  },
+];
+
+export const MOCK_RESULTS: Record<string, { question: SurveyQuestion; data: { label: string; count: number; color: string }[] }[]> = {
+  sv1: [
+    {
+      question: { id: "q1", type: "rating", text: "Bạn đánh giá chất lượng giảng dạy của giảng viên như thế nào?", options: [], required: true },
+      data: [
+        { label: "1 sao", count: 3,  color: "#ef4444" },
+        { label: "2 sao", count: 8,  color: "#f97316" },
+        { label: "3 sao", count: 21, color: "#eab308" },
+        { label: "4 sao", count: 58, color: "#22c55e" },
+        { label: "5 sao", count: 52, color: "#3E4B8E" },
+      ],
+    },
+    {
+      question: { id: "q2", type: "radio", text: "Hình thức học nào bạn thấy hiệu quả nhất?", options: ["Trực tiếp", "Trực tuyến", "Kết hợp"], required: true },
+      data: [
+        { label: "Trực tiếp",  count: 84, color: "#3E4B8E" },
+        { label: "Trực tuyến", count: 23, color: "#c14954" },
+        { label: "Kết hợp",    count: 35, color: "#6366f1" },
+      ],
+    },
+    {
+      question: { id: "q3", type: "checkbox", text: "Những yếu tố nào ảnh hưởng đến việc học của bạn?", options: ["Tài liệu học tập", "Phương pháp giảng dạy", "Cơ sở vật chất", "Thời gian biểu"], required: false },
+      data: [
+        { label: "Tài liệu học tập",      count: 98,  color: "#3E4B8E" },
+        { label: "Phương pháp giảng dạy", count: 115, color: "#c14954" },
+        { label: "Cơ sở vật chất",        count: 67,  color: "#6366f1" },
+        { label: "Thời gian biểu",        count: 80,  color: "#06b6d4" },
+      ],
+    },
+  ],
+  sv2: [
+    {
+      question: { id: "q1", type: "rating", text: "Bạn hài lòng với cơ sở vật chất của trường ở mức nào?", options: [], required: true },
+      data: [
+        { label: "1 sao", count: 12,  color: "#ef4444" },
+        { label: "2 sao", count: 28,  color: "#f97316" },
+        { label: "3 sao", count: 97,  color: "#eab308" },
+        { label: "4 sao", count: 145, color: "#22c55e" },
+        { label: "5 sao", count: 105, color: "#3E4B8E" },
+      ],
+    },
+    {
+      question: { id: "q2", type: "checkbox", text: "Bạn thường sử dụng dịch vụ nào của trường?", options: [], required: false },
+      data: [
+        { label: "Thư viện",           count: 289, color: "#3E4B8E" },
+        { label: "Căng tin",           count: 334, color: "#c14954" },
+        { label: "Phòng máy tính",     count: 201, color: "#6366f1" },
+        { label: "Phòng tập thể thao", count: 98,  color: "#06b6d4" },
+        { label: "Y tế học đường",     count: 45,  color: "#22c55e" },
+      ],
+    },
+    {
+      question: { id: "q3", type: "radio", text: "Bạn đánh giá chất lượng thư viện như thế nào?", options: [], required: true },
+      data: [
+        { label: "Rất tốt",       count: 89,  color: "#3E4B8E" },
+        { label: "Tốt",           count: 178, color: "#6366f1" },
+        { label: "Trung bình",    count: 95,  color: "#eab308" },
+        { label: "Cần cải thiện", count: 25,  color: "#ef4444" },
+      ],
+    },
+  ],
+};
+
+// ─── Admin Academic / Grade Data ──────────────────────────────────────────────
+
+export type GradeStatus = "pending" | "uploaded" | "locked";
+
+export type AdminCourseItem = {
+  id: string; maMon: string; tenMon: string; lop: string; soTC: number;
+  giangVien: string; emailGV: string; soSV: number; khoa: string;
+  status: GradeStatus; namHoc: string; hocKy: number; ngayNopDiem?: string;
+};
+
+export type StudentGradeRow = {
+  mssv: string; hoTen: string;
+  diemCC: number | null; diemGK: number | null; diemCK: number | null;
+  diemTK: number | null; ghiChu: string;
+};
+
+export const ACADEMIC_COURSES: AdminCourseItem[] = [
+  { id:"c1",  namHoc:"25-26", hocKy:3, maMon:"CSC10006", tenMon:"Cơ sở dữ liệu",                 lop:"24C07", soTC:4, giangVien:"TS. Võ Thị Minh Hằng",  emailGV:"vtmhang@fit.hcmus.edu.vn", soSV:45,  khoa:"CNTT",           status:"uploaded", ngayNopDiem:"20/07/2026" },
+  { id:"c2",  namHoc:"25-26", hocKy:3, maMon:"BAA00012", tenMon:"Kinh tế CT Mác-Lênin",           lop:"24C04", soTC:2, giangVien:"TS. Nguyễn Thị Lan",    emailGV:"ntlan@hcmus.edu.vn",       soSV:120, khoa:"Đại cương",      status:"pending" },
+  { id:"c3",  namHoc:"25-26", hocKy:3, maMon:"CSC10002", tenMon:"Nhập môn Công nghệ Phần mềm",    lop:"24C07", soTC:4, giangVien:"TS. Nguyễn Vũ",         emailGV:"nvu@fit.hcmus.edu.vn",     soSV:48,  khoa:"CNTT",           status:"locked",   ngayNopDiem:"15/07/2026" },
+  { id:"c4",  namHoc:"25-26", hocKy:3, maMon:"BAA00022", tenMon:"Thể dục 2",                      lop:"24C07", soTC:2, giangVien:"GV. Đặng Thế Quang",    emailGV:"dtquang@hcmus.edu.vn",     soSV:48,  khoa:"Đại cương",      status:"pending" },
+  { id:"c5",  namHoc:"25-26", hocKy:3, maMon:"MTH00057", tenMon:"Toán ứng dụng & Thống kê CNTT", lop:"24C05", soTC:4, giangVien:"TS. Võ Quang Hoàng",    emailGV:"vqhoang@fit.hcmus.edu.vn", soSV:90,  khoa:"Toán - Tin học", status:"uploaded", ngayNopDiem:"18/07/2026" },
+  { id:"c6",  namHoc:"24-25", hocKy:2, maMon:"CSC10004", tenMon:"Cấu trúc dữ liệu & Giải thuật", lop:"24C07", soTC:4, giangVien:"PGS.TS. Lê Hoài Bắc",  emailGV:"lhbac@fit.hcmus.edu.vn",  soSV:45,  khoa:"CNTT",           status:"locked",   ngayNopDiem:"10/03/2025" },
+  { id:"c7",  namHoc:"24-25", hocKy:2, maMon:"PHY00005", tenMon:"Vật lý đại cương 1",            lop:"24C05", soTC:4, giangVien:"TS. Phạm Văn Đức",      emailGV:"pvduc@hcmus.edu.vn",       soSV:90,  khoa:"Vật lý - VLKT",  status:"locked",   ngayNopDiem:"12/03/2025" },
+  { id:"c8",  namHoc:"24-25", hocKy:2, maMon:"MTH00058", tenMon:"Toán học tổ hợp",               lop:"24C05", soTC:4, giangVien:"TS. Nguyễn Trọng Tiến", emailGV:"nttien@fit.hcmus.edu.vn",  soSV:85,  khoa:"Toán - Tin học", status:"locked",   ngayNopDiem:"11/03/2025" },
+  { id:"c9",  namHoc:"24-25", hocKy:1, maMon:"CSC00004", tenMon:"Nhập môn Công nghệ Thông tin",  lop:"24C07", soTC:4, giangVien:"TS. Trần Minh Triết",   emailGV:"tmtriet@fit.hcmus.edu.vn", soSV:48,  khoa:"CNTT",           status:"locked",   ngayNopDiem:"15/09/2024" },
+  { id:"c10", namHoc:"24-25", hocKy:1, maMon:"CSC10012", tenMon:"Cơ sở lập trình",               lop:"24C07", soTC:4, giangVien:"TS. Dương Tuấn Anh",    emailGV:"dtanh@fit.hcmus.edu.vn",   soSV:48,  khoa:"CNTT",           status:"locked",   ngayNopDiem:"14/09/2024" },
+];
+
+export function makeMockGrades(courseId: string): StudentGradeRow[] {
+  const students = [
+    { mssv:"24127001", hoTen:"Nguyễn Văn An" },    { mssv:"24127002", hoTen:"Trần Thị Bích" },
+    { mssv:"24127003", hoTen:"Lê Minh Cường" },     { mssv:"24127050", hoTen:"Đinh Thị Hoa" },
+    { mssv:"24127088", hoTen:"Mai Thị Ngọc" },      { mssv:"23127045", hoTen:"Phạm Thị Dung" },
+    { mssv:"23127089", hoTen:"Hoàng Văn Em" },      { mssv:"23127120", hoTen:"Bùi Văn Phúc" },
+    { mssv:"22127011", hoTen:"Ngô Thị Phương" },    { mssv:"22127034", hoTen:"Vũ Đức Giang" },
+    { mssv:"22127067", hoTen:"Đặng Thị Kim Anh" },  { mssv:"21127008", hoTen:"Lý Minh Long" },
+  ];
+  const seed = courseId.charCodeAt(courseId.length - 1);
+  return students.map((s, i) => {
+    const pick = (offset: number) => {
+      const v = ((seed * 31 + i * 17 + offset) % 61 + 40) / 10;
+      return Math.round(Math.min(10, Math.max(3.5, v)) * 10) / 10;
+    };
+    const cc = pick(0); const gk = pick(5); const ck = pick(9);
+    const tk = Math.round((cc * 0.1 + gk * 0.3 + ck * 0.6) * 10) / 10;
+    return { ...s, diemCC: cc, diemGK: gk, diemCK: ck, diemTK: tk, ghiChu: "" };
+  });
+}
+
+// ─── Progress / Credit Group Data ────────────────────────────────────────────
+
+export const CREDIT_GROUPS_DATA = [
+  { code: "LL_CT",    name: "Lý luận chính trị - Pháp luật",          req: 14, done: 14 },
+  { code: "XH_TC",    name: "Khoa học xã hội - Kinh tế - Kỹ năng",    req: 2,  done: 0  },
+  { code: "TN_BB",    name: "Toán - KHTN - Công nghệ - MT (BB)",       req: 26, done: 20 },
+  { code: "TN_TC1",   name: "Toán - KHTN - Công nghệ - MT (TC1)",      req: 4,  done: 4  },
+  { code: "TN_TC2",   name: "Toán - KHTN - Công nghệ - MT (TC2)",      req: 8,  done: 0  },
+  { code: "TH_BB",    name: "Tin học cơ sở",                           req: 4,  done: 4  },
+  { code: "GD_TC",    name: "Giáo dục thể chất",                       req: 4,  done: 4  },
+  { code: "GD_QP",    name: "Giáo dục quốc phòng – an ninh",           req: 4,  done: 4  },
+  { code: "CN_CS",    name: "Kiến thức cơ sở ngành",                   req: 38, done: 18 },
+  { code: "CN_TN_TC", name: "Kiến thức tốt nghiệp TC",                 req: 4,  done: 0  },
+  { code: "CN_NG",    name: "Kiến thức bắt buộc ngành (N1)",           req: 16, done: 5  },
+  { code: "CN_TC",    name: "Kiến thức tự chọn ngành (M1)",            req: 8,  done: 0  },
+  { code: "CN_TD",    name: "Kiến thức tự chọn tự do",                 req: 0,  done: 0  },
+  { code: "CN_TN_BB", name: "Kiến thức tốt nghiệp BB",                 req: 6,  done: 0  },
+];
+
+export const RADAR_AXES = [
+  { subject: "Toán học",    score: 7.5, fullMark: 10 },
+  { subject: "Lập trình",   score: 8.2, fullMark: 10 },
+  { subject: "Hệ thống",    score: 6.8, fullMark: 10 },
+  { subject: "Trí tuệ NT",  score: 7.0, fullMark: 10 },
+  { subject: "Mạng & CSDL", score: 6.5, fullMark: 10 },
+  { subject: "Phần mềm",    score: 7.8, fullMark: 10 },
+];
+
+// ─── Student Surveys ──────────────────────────────────────────────────────────
+
+export type Survey = {
+  id: string;
+  title: string;
+  description: string;
+  deadline: string;
+  courses: { id: string; code: string; name: string }[];
+};
+
+export const AVAILABLE_SURVEYS: Survey[] = [
+  {
+    id: "sv_gd_2526",
+    title: "Khảo sát về hoạt động giảng dạy trong năm học 2025–2026",
+    description: "Nhằm nâng cao chất lượng giảng dạy, học tập và hỗ trợ sinh viên, nhà trường thực hiện khảo sát ý kiến phản hồi về hoạt động giảng dạy trong năm học 2025–2026. Chúng tôi trân trọng sự tham gia của anh/chị và cam kết sử dụng kết quả một cách khách quan, có trách nhiệm.",
+    deadline: "31/07/2026",
+    courses: [
+      { id: "24C07_TD",   code: "24C07", name: "Thể dục 2" },
+      { id: "24C04_KT",   code: "24C04", name: "Kinh tế chính trị Mác – Lênin" },
+      { id: "24C07_PM",   code: "24C07", name: "Nhập môn công nghệ phần mềm" },
+      { id: "24C04_TK",   code: "24C04", name: "Toán ứng dụng và thống kê cho Công nghệ thông tin" },
+      { id: "24C05_CSDL", code: "24C05", name: "Cơ sở dữ liệu" },
+      { id: "24C06_MMT",  code: "24C06", name: "Mạng máy tính" },
+    ],
+  },
+  {
+    id: "sv_csvc_2526",
+    title: "Khảo sát mức độ hài lòng về cơ sở vật chất năm học 2025–2026",
+    description: "Khảo sát này thu thập ý kiến sinh viên về chất lượng phòng học, thư viện, phòng thực hành và các tiện ích phục vụ học tập tại trường nhằm cải thiện môi trường học tập.",
+    deadline: "15/08/2026",
+    courses: [
+      { id: "csvc_ph",  code: "—", name: "Phòng học & giảng đường" },
+      { id: "csvc_tv",  code: "—", name: "Thư viện & tài liệu" },
+      { id: "csvc_lab", code: "—", name: "Phòng thực hành & máy tính" },
+      { id: "csvc_wf",  code: "—", name: "Wifi & hạ tầng mạng" },
+    ],
   },
 ];
