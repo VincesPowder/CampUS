@@ -127,7 +127,7 @@ export function TKBCellCard({ entry }: { entry: TKBEntry }) {
           <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100">EN</span>
         )}
       </div>
-      <div className="font-bold text-[11px] leading-snug" style={{ color: "#3E4B8E" }}>{entry.tenMon}</div>
+      <div className="font-bold text-[11px] leading-snug" style={{ color: "var(--primary)" }}>{entry.tenMon}</div>
       <div className="text-[10px] text-gray-400">Tiết {entry.tiet}</div>
       <div className="text-[10px] text-gray-500">LHP: <span className="font-mono">{entry.maNhom}</span></div>
       {entry.gv && <div className="text-[10px] text-gray-500 truncate">GV: {entry.gv}</div>}
