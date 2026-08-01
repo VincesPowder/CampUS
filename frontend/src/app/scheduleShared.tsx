@@ -1,0 +1,141 @@
+// ─── Shared schedule types, data, and TKBCellCard ────────────────────────────
+// Used by both ScheduleSection (student) and AdminScheduleSection (admin)
+
+export type HinhThuc = "TẬP TRUNG" | "TRỰC TUYẾN" | "HỌC BÙ TRỰC TIẾP" | "HỌC BÙ TRỰC TUYẾN";
+
+export type TKBEntry = {
+  tenMon: string; maNhom: string; tiet: string; gv: string; email: string;
+  hinhThuc: HinhThuc; ngonNgu: string; phong: string; isLab?: boolean; span?: number;
+};
+
+export type TKBCell = TKBEntry | "span" | null;
+
+export type ExamEntry = {
+  tenMon: string; maNhom: string; ngayThi: string; thu: string;
+  ca: string; gio: string; phong: string; soThi: number; hinhThuc: string;
+};
+
+const E = {
+  td:   (note = ""): TKBEntry => ({ tenMon: "Thể dục 2"                        + (note ? ` (${note})` : ""), maNhom: "24C07", tiet: "1–5",  gv: "Đ.T.Quang",           email: "dtquang@hcmus.edu.vn",    hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Việt", phong: "Sân thể dục", span: 2 }),
+  ktlt: (note = ""): TKBEntry => ({ tenMon: "Kinh tế CT Mác – Lênin"            + (note ? ` (${note})` : ""), maNhom: "24C04", tiet: "1–5",  gv: "M.T.K.Trinh",         email: "mktrinh@hcmus.edu.vn",    hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Việt", phong: "C.33",        span: 2 }),
+  cslt: (note = ""): TKBEntry => ({ tenMon: "Cơ sở dữ liệu"                    + (note ? ` (${note})` : ""), maNhom: "24C07", tiet: "1–5",  gv: "V.T.M.Hằng",          email: "vtmhang@fit.hcmus.edu.vn",hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Anh",  phong: "I.42",        span: 2 }),
+  csth: (note = ""): TKBEntry => ({ tenMon: "Cơ sở dữ liệu [TH]"               + (note ? ` (${note})` : ""), maNhom: "24C07", tiet: "3–5",  gv: "T.N.H.Đức / L.H.Cơ", email: "tnhduc@fit.hcmus.edu.vn", hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Anh",  phong: "I.52", isLab: true, span: 1 }),
+  nmlt: (note = ""): TKBEntry => ({ tenMon: "Nhập môn CN phần mềm"             + (note ? ` (${note})` : ""), maNhom: "24C07", tiet: "6–10", gv: "N.Vũ",               email: "nvu@fit.hcmus.edu.vn",    hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Anh",  phong: "I.32",        span: 2 }),
+  talt: (note = ""): TKBEntry => ({ tenMon: "Toán ứng dụng & TK CNTT"          + (note ? ` (${note})` : ""), maNhom: "24C04", tiet: "6–10", gv: "V.Q.Hoàng",           email: "vqhoang@fit.hcmus.edu.vn",hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Việt", phong: "I.35",        span: 2 }),
+  tath: (note = ""): TKBEntry => ({ tenMon: "Toán ứng dụng & TK CNTT [TH]"     + (note ? ` (${note})` : ""), maNhom: "24C04", tiet: "1–3",  gv: "T.T.T.Nhi / N.N.Toàn",email: "tttnhi@fit.hcmus.edu.vn", hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Việt", phong: "I.52", isLab: true, span: 1 }),
+};
+
+export function makeWeek(overrides: Partial<Record<number, (TKBCell | undefined)[]>> = {}): Record<number, TKBCell[]> {
+  const base: Record<number, (TKBEntry | null)[]> = {
+    0: [E.td(),   null,     null,     null],
+    1: [E.cslt(), null,     null,     null],
+    2: [null,     E.csth(), E.talt(), null],
+    3: [null,     null,     E.nmlt(), null],
+    4: [E.tath(), null,     null,     null],
+    5: [E.ktlt(), null,     null,     null],
+  };
+  for (const [d, slots] of Object.entries(overrides)) {
+    const di = Number(d);
+    if (!base[di]) base[di] = [null, null, null, null];
+    (slots as (TKBCell | undefined)[]).forEach((s, i) => {
+      if (s !== undefined) (base[di] as TKBCell[])[i] = s as TKBEntry | null;
+    });
+  }
+  const result: Record<number, TKBCell[]> = {};
+  for (const [d, slots] of Object.entries(base)) {
+    const di = Number(d);
+    const row: TKBCell[] = [null, null, null, null];
+    for (let i = 0; i < 4; i++) {
+      const e = slots[i] as TKBEntry | null;
+      if (!e) continue;
+      row[i] = e;
+      const sp = e.span ?? 1;
+      for (let j = 1; j < sp && i + j < 4; j++) row[i + j] = "span";
+    }
+    result[di] = row;
+  }
+  return result;
+}
+
+export const TKB_DATA: Record<number, Record<number, TKBCell[]>> = {
+  28: makeWeek(),
+  29: makeWeek(),
+  30: makeWeek(),
+  31: makeWeek({ 0: [null, null, null, null] }),
+  32: makeWeek({ 1: [E.cslt("Kiểm tra GK"), null, null, null] }),
+  33: makeWeek(),
+  34: makeWeek({ 5: [null, null, null, null] }),
+  35: makeWeek({ 2: [null, E.csth("Kiểm tra GK"), E.talt("KT GK"), null], 3: [null, null, E.nmlt("Kiểm tra GK"), null] }),
+  36: makeWeek(),
+  37: makeWeek({ 1: [E.cslt("Ôn tập CK"), null, null, null], 2: [null, E.csth("Ôn tập"), E.talt("Ôn tập CK"), null], 3: [null, null, E.nmlt("Ôn tập CK"), null] }),
+  38: makeWeek({ 1: [null,null,null,null], 2:[null,null,null,null], 3:[null,null,null,null], 4:[null,null,null,null] }),
+};
+
+export const EXAM_DATA: ExamEntry[] = [
+  { tenMon: "Thể dục 2",                    maNhom: "24C07", ngayThi: "24/11/2025", thu: "Thứ hai",  ca: "Ca 1", gio: "07:30 – 09:30", phong: "Sân thể dục", soThi: 48,  hinhThuc: "Thực hành" },
+  { tenMon: "Kinh tế CT Mác – Lênin",       maNhom: "24C04", ngayThi: "26/11/2025", thu: "Thứ tư",  ca: "Ca 1", gio: "07:30 – 09:30", phong: "C.33",        soThi: 120, hinhThuc: "Tự luận" },
+  { tenMon: "Cơ sở dữ liệu",               maNhom: "24C07", ngayThi: "28/11/2025", thu: "Thứ sáu", ca: "Ca 2", gio: "09:30 – 11:30", phong: "I.42",        soThi: 90,  hinhThuc: "Tự luận" },
+  { tenMon: "Cơ sở dữ liệu [TH]",          maNhom: "24C07", ngayThi: "29/11/2025", thu: "Thứ bảy", ca: "Ca 1", gio: "07:30 – 09:30", phong: "I.52",        soThi: 45,  hinhThuc: "Thực hành" },
+  { tenMon: "Nhập môn CN phần mềm",         maNhom: "24C07", ngayThi: "01/12/2025", thu: "Thứ hai", ca: "Ca 3", gio: "13:30 – 15:30", phong: "I.32",        soThi: 60,  hinhThuc: "Thực hành" },
+  { tenMon: "Toán ứng dụng & TK CNTT",      maNhom: "24C04", ngayThi: "03/12/2025", thu: "Thứ tư",  ca: "Ca 3", gio: "13:30 – 15:30", phong: "I.35",        soThi: 100, hinhThuc: "Tự luận" },
+  { tenMon: "Toán ứng dụng & TK CNTT [TH]", maNhom: "24C04", ngayThi: "05/12/2025", thu: "Thứ sáu", ca: "Ca 1", gio: "07:30 – 09:30", phong: "I.52",        soThi: 50,  hinhThuc: "Thực hành" },
+];
+
+export const DAYS = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"];
+
+export const CA_LABELS = [
+  { label: "Ca 1", time: "07:30 – 09:30", tiet: "Tiết 1–3" },
+  { label: "Ca 2", time: "09:30 – 11:30", tiet: "Tiết 3–5" },
+  { label: "Ca 3", time: "13:30 – 15:30", tiet: "Tiết 6–8" },
+  { label: "Ca 4", time: "15:30 – 17:30", tiet: "Tiết 8–10" },
+];
+
+const YEAR_START = new Date(2026, 0, 5);
+
+export function getWeekDates(week: number): string[] {
+  const d = new Date(YEAR_START);
+  d.setDate(YEAR_START.getDate() + (week - 1) * 7);
+  return Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(d);
+    day.setDate(d.getDate() + i);
+    return `${String(day.getDate()).padStart(2, "0")}/${String(day.getMonth() + 1).padStart(2, "0")}`;
+  });
+}
+
+export const HINH_THUC_STYLE: Record<HinhThuc, { bg: string; text: string; label: string }> = {
+  "TẬP TRUNG":          { bg: "bg-gray-100",  text: "text-gray-500",   label: "Tập trung" },
+  "TRỰC TUYẾN":         { bg: "bg-blue-50",   text: "text-blue-600",   label: "Trực tuyến" },
+  "HỌC BÙ TRỰC TIẾP":  { bg: "bg-amber-50",  text: "text-amber-700",  label: "Học bù (TT)" },
+  "HỌC BÙ TRỰC TUYẾN": { bg: "bg-purple-50", text: "text-purple-600", label: "Học bù (OL)" },
+};
+
+export function TKBCellCard({ entry }: { entry: TKBEntry }) {
+  const isEn = entry.ngonNgu === "Tiếng Anh";
+  const htStyle = HINH_THUC_STYLE[entry.hinhThuc];
+  return (
+    <div className="text-[11px] leading-tight space-y-1 min-w-0 h-full">
+      <div className="flex items-center gap-1 flex-wrap">
+        {entry.phong && (
+          <span className="inline-block font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">
+            {entry.phong}
+          </span>
+        )}
+        {entry.isLab && (
+          <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 border border-orange-200">TH</span>
+        )}
+        {isEn && (
+          <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100">EN</span>
+        )}
+      </div>
+      <div className="font-bold text-[11px] leading-snug" style={{ color: "#3E4B8E" }}>{entry.tenMon}</div>
+      <div className="text-[10px] text-gray-400">Tiết {entry.tiet}</div>
+      <div className="text-[10px] text-gray-500">LHP: <span className="font-mono">{entry.maNhom}</span></div>
+      {entry.gv && <div className="text-[10px] text-gray-500 truncate">GV: {entry.gv}</div>}
+      {entry.email && <div className="text-[10px] text-gray-400 truncate">{entry.email}</div>}
+      <div className="text-[9px] text-gray-400 pt-0.5 space-y-0.5">
+        <div>Hình thức học: {htStyle.label}</div>
+        <div>Ngôn ngữ: {entry.ngonNgu}</div>
+      </div>
+    </div>
+  );
+}
