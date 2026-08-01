@@ -62,7 +62,7 @@ function FamilyModal({ member, onClose, onSave }: {
     { label: "Hộ Khẩu Thường Trú", key: "address", wide: true },
   ];
 
-  const inputCls = "w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-background outline-none focus:border-[#3E4B8E] transition-colors";
+  const inputCls = "w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-background outline-none focus:border-primary transition-colors";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose}>
@@ -94,10 +94,10 @@ function FamilyModal({ member, onClose, onSave }: {
             ))}
           </div>
         </div>
-        <div className="flex justify-end gap-3 px-5 py-4 border-t border-border" style={{ background: "#fafbff" }}>
+        <div className="flex justify-end gap-3 px-5 py-4 border-t border-border" style={{ background: "var(--background)" }}>
           <button onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-muted transition-colors"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#64748b" }}>
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--muted-foreground)" }}>
             Hủy
           </button>
           <button onClick={() => { onSave(draft); onClose(); }}
@@ -217,16 +217,16 @@ export function TuitionSection() {
         <div className="flex items-center gap-2">
           <label className="text-sm font-semibold whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
           <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)}
-            className="border rounded-lg px-3 py-1.5 text-sm bg-background outline-none focus:border-[#3E4B8E] transition-colors"
-            style={{ borderColor: "#c7d0e8", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#3E4B8E", fontWeight: 600 }}>
+            className="border rounded-lg px-3 py-1.5 text-sm bg-background outline-none focus:border-primary transition-colors"
+            style={{ borderColor: "#C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)", fontWeight: 600 }}>
             {uniqueNamHoc.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-2">
           <label className="text-sm font-semibold whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
           <select value={selHK} onChange={e => setSelHK(e.target.value)}
-            className="border rounded-lg px-3 py-1.5 text-sm bg-background outline-none focus:border-[#3E4B8E] transition-colors"
-            style={{ borderColor: "#c7d0e8", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#3E4B8E", fontWeight: 600 }}>
+            className="border rounded-lg px-3 py-1.5 text-sm bg-background outline-none focus:border-primary transition-colors"
+            style={{ borderColor: "#C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)", fontWeight: 600 }}>
             {hksForYear.map(h => <option key={h} value={h}>{h}</option>)}
           </select>
         </div>
@@ -243,7 +243,7 @@ export function TuitionSection() {
             </thead>
             <tbody>
               {semester.rows.map((row, i) => (
-                <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#EEF2FF" }} className="hover:brightness-95 transition-all">
+                <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#E8E0CC" }} className="hover:brightness-95 transition-all">
                   <td className={cellCls + " text-muted-foreground"}>{row.stt}</td>
                   <td className={cellCls}>{row.nhHk}</td>
                   <td className="px-3 py-2.5 text-xs">
@@ -256,12 +256,12 @@ export function TuitionSection() {
                   <td className={cellCls + " font-medium"}>{fmt(row.hocPhi)}</td>
                   <td className={cellCls}>{row.giam}</td>
                   <td className={cellCls}>{row.hoTro}</td>
-                  <td className={cellCls + " font-semibold"} style={{ color: "#3E4B8E" }}>{fmt(row.hocPhiThucDong)}</td>
+                  <td className={cellCls + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.hocPhiThucDong)}</td>
                   <td className={cellCls}>{row.chiPhi}</td>
                   <td className={cellCls}>{row.ghiChu || "—"}</td>
                 </tr>
               ))}
-              <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "2px solid #c7d0e8" }}>
+              <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7" }}>
                 <td colSpan={3} className="px-3 py-2.5 text-right text-xs font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng Cộng:</td>
                 <td className={cellCls + " font-bold"}>{totalTC.toFixed(1)}</td>
                 <td className={cellCls + " font-bold"}>{totalTiet}</td>
@@ -269,7 +269,7 @@ export function TuitionSection() {
                 <td className={cellCls + " font-bold"}>{fmt(totalHocPhi)}</td>
                 <td className={cellCls + " font-bold"}>{totalGiam}</td>
                 <td className={cellCls + " font-bold"}>{totalHoTro}</td>
-                <td className={cellCls + " font-bold"} style={{ color: "#3E4B8E" }}>{fmt(totalThucDong)}</td>
+                <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
                 <td className={cellCls + " font-bold"}>{totalChiPhi}</td>
                 <td />
               </tr>
@@ -280,7 +280,7 @@ export function TuitionSection() {
       <div className="flex flex-col items-end gap-1">
         <div className="flex items-center gap-4 bg-card rounded-xl border border-border px-6 py-3">
           <span className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng số tiền phải đóng:</span>
-          <span className="text-base font-bold" style={{ color: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)}</span>
+          <span className="text-base font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)}</span>
         </div>
         <p className="text-xs text-muted-foreground pr-1">Ngày cập nhật: {semester.ngayCapNhat}</p>
       </div>
@@ -309,9 +309,9 @@ export function ProgressSection() {
   const totalLeft = totalReq - totalDone - totalDebt;
 
   const PIE_DATA = [
-    { name: "Hoàn thành", value: totalDone, color: "#3E4B8E" },
-    { name: "Còn thiếu",  value: totalLeft, color: "#c7d0e8" },
-    { name: "Đang nợ",    value: totalDebt, color: "#c14954" },
+    { name: "Hoàn thành", value: totalDone, color: "var(--primary)" },
+    { name: "Còn thiếu",  value: totalLeft, color: "#C5CCB7" },
+    { name: "Đang nợ",    value: totalDebt, color: "var(--accent)" },
   ];
 
   const years = Array.from(new Set(COURSE_DATA.map(c => c.namHoc)));
@@ -358,14 +358,14 @@ export function ProgressSection() {
   const feasible   = ckNeeded !== null && ckNeeded <= 10;
   const weightSum  = ccWeight + gkWeight + ckWeight;
 
-  const selectCls = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#3E4B8E] bg-white";
-  const inputCls  = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#3E4B8E]";
+  const selectCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-[var(--input-background)]";
+  const inputCls  = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary";
 
   return (
     <div className="flex flex-col md:flex-row gap-5 min-w-0">
       <div className="w-full md:flex-[0_0_26%] md:min-w-[180px] md:max-w-[280px] space-y-4 overflow-hidden">
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="px-4 py-2.5 text-xs font-bold text-white text-center" style={{ background: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="px-4 py-2.5 text-xs font-bold text-white text-center" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Thông tin chung
           </div>
           <table className="w-full text-xs" style={{ borderCollapse: "collapse", fontFamily: "'Inter', sans-serif" }}>
@@ -384,10 +384,10 @@ export function ProgressSection() {
                 ["Điểm TB tích lũy",  "2.85"],
                 ["Đủ ĐK tốt nghiệp", "Chưa"],
               ] as [string, string][]).map(([label, value], i) => (
-                <tr key={label} style={{ background: i % 2 === 0 ? "#fff" : "#f5f7ff" }}>
-                  <td className="px-3 py-2 text-gray-500 border-b border-gray-100 leading-tight">{label}</td>
-                  <td className="px-3 py-2 border-b border-gray-100 text-right font-medium leading-tight"
-                    style={{ color: label === "Tổng TC tích lũy" ? "#3E4B8E" : label === "Đủ ĐK tốt nghiệp" ? "#c14954" : "#1e293b", fontWeight: label === "Tổng TC tích lũy" ? 700 : 500 }}>
+                <tr key={label} style={{ background: i % 2 === 0 ? "#fff" : "#EDE5D0" }}>
+                  <td className="px-3 py-2 text-muted-foreground border-b border-border leading-tight">{label}</td>
+                  <td className="px-3 py-2 border-b border-border text-right font-medium leading-tight"
+                    style={{ color: label === "Tổng TC tích lũy" ? "#11284D" : label === "Đủ ĐK tốt nghiệp" ? "#D5B370" : "#101A2C", fontWeight: label === "Tổng TC tích lũy" ? 700 : 500 }}>
                     {value}
                   </td>
                 </tr>
@@ -396,7 +396,7 @@ export function ProgressSection() {
           </table>
         </div>
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="px-4 py-2.5 text-xs font-bold text-white text-center" style={{ background: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="px-4 py-2.5 text-xs font-bold text-white text-center" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Nhóm học phần
           </div>
           <div className="divide-y divide-gray-100">
@@ -404,14 +404,14 @@ export function ProgressSection() {
               const pct = (g.done / g.req) * 100;
               const done = g.done >= g.req;
               return (
-                <div key={g.code} className="px-3 py-2.5" style={{ background: i % 2 === 0 ? "#fff" : "#f5f7ff" }}>
+                <div key={g.code} className="px-3 py-2.5" style={{ background: i % 2 === 0 ? "#fff" : "#EDE5D0" }}>
                   <div className="flex justify-between items-baseline mb-0.5">
-                    <span className="text-[10px] font-mono text-gray-400">{g.code}</span>
-                    <span className="text-[10px] font-bold" style={{ color: done ? "#22c55e" : "#3E4B8E" }}>{g.done}/{g.req}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">{g.code}</span>
+                    <span className="text-[10px] font-bold" style={{ color: done ? "#22c55e" : "#11284D" }}>{g.done}/{g.req}</span>
                   </div>
-                  <div className="text-[11px] text-gray-700 mb-1.5 leading-tight">{g.name}</div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#e8ecf8" }}>
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: done ? "#22c55e" : "#3E4B8E", transition: "width 0.4s" }} />
+                  <div className="text-[11px] text-foreground mb-1.5 leading-tight">{g.name}</div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#DDD3BC" }}>
+                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: done ? "#22c55e" : "#11284D", transition: "width 0.4s" }} />
                   </div>
                 </div>
               );
@@ -422,8 +422,8 @@ export function ProgressSection() {
 
       <div className="flex-1 space-y-3 min-w-0">
         <div className="bg-card rounded-xl border border-border p-4">
-          <h3 className="text-sm font-bold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#3E4B8E" }}>Tiến độ tín chỉ</h3>
-          <p className="text-xs text-gray-400 mb-2">Hoàn thành / Còn thiếu / Đang nợ</p>
+          <h3 className="text-sm font-bold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>Tiến độ tín chỉ</h3>
+          <p className="text-xs text-muted-foreground mb-2">Hoàn thành / Còn thiếu / Đang nợ</p>
           {(() => {
             const cx = 90, cy = 90, outerR = 82, innerR = 54;
             const total = PIE_DATA.reduce((s, d) => s + d.value, 0);
@@ -447,14 +447,14 @@ export function ProgressSection() {
               <div className="flex flex-col items-center w-full">
                 <svg width="100%" viewBox="0 0 180 180" style={{ display: "block", maxWidth: 200, margin: "0 auto" }}>
                   {slices.map((s, i) => <path key={`donut-${i}`} d={s.path} fill={s.color} />)}
-                  <text x="90" y="84" textAnchor="middle" fontSize="22" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif" fill="#3E4B8E">{totalDone}</text>
-                  <text x="90" y="103" textAnchor="middle" fontSize="11" fill="#94a3b8">/{totalReq} TC</text>
+                  <text x="90" y="84" textAnchor="middle" fontSize="22" fontWeight="bold" fontFamily="Plus Jakarta Sans, sans-serif" fill="#11284D">{totalDone}</text>
+                  <text x="90" y="103" textAnchor="middle" fontSize="11" fill="#718096">/{totalReq} TC</text>
                 </svg>
                 <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
                   {PIE_DATA.map(d => (
                     <div key={d.name} className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                      <span className="text-[11px] text-gray-500">{d.name}</span>
+                      <span className="text-[11px] text-muted-foreground">{d.name}</span>
                       <span className="text-[11px] font-bold" style={{ color: d.color }}>{d.value}</span>
                     </div>
                   ))}
@@ -465,8 +465,8 @@ export function ProgressSection() {
         </div>
 
         <div className="bg-card rounded-xl border border-border p-4">
-          <h3 className="text-sm font-bold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#3E4B8E" }}>Chỉ số phù hợp chuyên ngành</h3>
-          <p className="text-xs text-gray-400 mb-2">Dựa trên điểm các nhóm môn học</p>
+          <h3 className="text-sm font-bold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>Chỉ số phù hợp chuyên ngành</h3>
+          <p className="text-xs text-muted-foreground mb-2">Dựa trên điểm các nhóm môn học</p>
           {(() => {
             const cx = 110, cy = 105, r = 75;
             const n = RADAR_AXES.length;
@@ -478,14 +478,14 @@ export function ProgressSection() {
             const labelR = r + 22;
             return (
               <svg width="100%" viewBox="0 0 220 210" style={{ display: "block", maxWidth: 260, margin: "0 auto" }}>
-                {levels.map((lvl, i) => <polygon key={`grid-lvl-${i}`} points={gridPts(lvl)} fill="none" stroke="#e8ecf8" strokeWidth="1" />)}
-                {RADAR_AXES.map((_, i) => <line key={`axis-${i}`} x1={cx} y1={cy} x2={cx + r * Math.cos(angles[i])} y2={cy + r * Math.sin(angles[i])} stroke="#e8ecf8" strokeWidth="1" />)}
-                <polygon points={scorePts} fill="#3E4B8E" fillOpacity="0.22" stroke="#3E4B8E" strokeWidth="2" />
-                {dotPts.map((pt, i) => <circle key={`dot-${i}`} cx={pt.x} cy={pt.y} r="3.5" fill="#3E4B8E" />)}
+                {levels.map((lvl, i) => <polygon key={`grid-lvl-${i}`} points={gridPts(lvl)} fill="none" stroke="#DDD3BC" strokeWidth="1" />)}
+                {RADAR_AXES.map((_, i) => <line key={`axis-${i}`} x1={cx} y1={cy} x2={cx + r * Math.cos(angles[i])} y2={cy + r * Math.sin(angles[i])} stroke="#DDD3BC" strokeWidth="1" />)}
+                <polygon points={scorePts} fill="#11284D" fillOpacity="0.22" stroke="#11284D" strokeWidth="2" />
+                {dotPts.map((pt, i) => <circle key={`dot-${i}`} cx={pt.x} cy={pt.y} r="3.5" fill="#11284D" />)}
                 {RADAR_AXES.map((d, i) => {
                   const lx = cx + labelR * Math.cos(angles[i]);
                   const ly = cy + labelR * Math.sin(angles[i]);
-                  return <text key={`lbl-${i}`} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fill="#64748b" fontFamily="Inter, sans-serif">{d.subject}</text>;
+                  return <text key={`lbl-${i}`} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="9.5" fill="#4A5568" fontFamily="Inter, sans-serif">{d.subject}</text>;
                 })}
               </svg>
             );
@@ -493,32 +493,32 @@ export function ProgressSection() {
         </div>
 
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "#3E4B8E" }}>
+          <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "var(--primary)" }}>
             <BarChart2 className="w-4 h-4 text-white/70" />
             <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Dự Đoán Điểm Số</h3>
           </div>
           <div className="p-4 flex flex-col sm:flex-row gap-5 flex-wrap">
             <div className="w-full sm:flex-[0_0_200px] sm:min-w-[160px] space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-gray-500 mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học</label>
-                <select value={selYear} onChange={e => { setSelYear(e.target.value); const s = Array.from(new Set(COURSE_DATA.filter(c => c.namHoc === e.target.value).map(c => c.hocKy))).sort(); setSelSem(s[0]); }} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học</label>
+                <select value={selYear} onChange={e => { setSelYear(e.target.value); const s = Array.from(new Set(COURSE_DATA.filter(c => c.namHoc === e.target.value).map(c => c.hocKy))).sort(); setSelSem(s[0]); }} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
                   {years.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-gray-500 mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ</label>
-                <select value={validSem} onChange={e => setSelSem(Number(e.target.value))} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ</label>
+                <select value={validSem} onChange={e => setSelSem(Number(e.target.value))} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
                   {semsForYear.map(s => <option key={s} value={s}>Học kỳ {s}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-gray-500 mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Môn học</label>
-                <select value={validCourse} onChange={e => setSelCourse(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b" }}>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Môn học</label>
+                <select value={validCourse} onChange={e => setSelCourse(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
                   {coursesInSem.map(c => <option key={c.maMon} value={c.maMon}>{c.tenMon || c.maMon}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-gray-500 mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Mục tiêu điểm (hệ 10)</label>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Mục tiêu điểm (hệ 10)</label>
                 <input type="number" min={0} max={10} step={0.5} value={targetScore10}
                   onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) setTargetScore10(Math.min(10, Math.max(0, v))); }}
                   placeholder="0 – 10" className={inputCls} style={{ fontFamily: "'Inter', sans-serif" }} />
@@ -526,7 +526,7 @@ export function ProgressSection() {
                   {[5.5, 6.5, 7.0, 7.5, 8.5].map(t => (
                     <button key={t} onClick={() => setTargetScore10(t)}
                       className="flex-1 py-1 rounded-md text-[10px] font-bold transition-all"
-                      style={{ background: targetScore10 === t ? "#3E4B8E" : "#f1f4fc", color: targetScore10 === t ? "#fff" : "#94a3b8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      style={{ background: targetScore10 === t ? "#11284D" : "#EEF2FF", color: targetScore10 === t ? "#fff" : "#718096", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       {t}
                     </button>
                   ))}
@@ -534,31 +534,31 @@ export function ProgressSection() {
               </div>
             </div>
             <div className="flex-1 min-w-[240px] space-y-3">
-              <div className="rounded-xl border border-gray-100 overflow-hidden" style={{ background: "#f8f9ff" }}>
-                <div className="grid grid-cols-[1fr_80px] gap-0 border-b border-gray-100">
-                  <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm (0 – 10)</div>
-                  <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wide text-center border-l border-gray-100" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tỉ lệ (%)</div>
+              <div className="rounded-xl border border-border overflow-hidden" style={{ background: "#EEE9E0" }}>
+                <div className="grid grid-cols-[1fr_80px] gap-0 border-b border-border">
+                  <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm (0 – 10)</div>
+                  <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wide text-center border-l border-border" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tỉ lệ (%)</div>
                 </div>
                 {[
                   { label: "Quá trình", score: ccScore, setScore: setCcScore, weight: ccWeight, setWeight: (v: number) => setCcWeight(Math.min(100, Math.max(0, v))), editable: true },
                   { label: "Giữa kỳ",  score: gkScore, setScore: setGkScore, weight: gkWeight, setWeight: (v: number) => setGkWeight(Math.min(100, Math.max(0, v))), editable: true },
                   { label: "Cuối kỳ",  score: ckScore, setScore: setCkScore, weight: ckWeight, setWeight: null, editable: false },
                 ].map((row, i) => (
-                  <div key={row.label} className="grid grid-cols-[1fr_80px] gap-0 border-b border-gray-100 last:border-0" style={{ background: i % 2 === 0 ? "#fff" : "#f8f9ff" }}>
+                  <div key={row.label} className="grid grid-cols-[1fr_80px] gap-0 border-b border-border last:border-0" style={{ background: i % 2 === 0 ? "#fff" : "#EEE9E0" }}>
                     <div className="px-3 py-2.5 flex flex-col gap-1">
-                      <label className="text-[10px] font-semibold text-gray-500" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm {row.label}</label>
+                      <label className="text-[10px] font-semibold text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm {row.label}</label>
                       <input type="number" min={0} max={10} step={0.1} value={row.score} onChange={e => row.setScore(e.target.value)} placeholder="0 – 10"
-                        className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#3E4B8E] bg-white" style={{ fontFamily: "'Inter', sans-serif" }} />
+                        className="w-full border border-border rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-primary bg-[var(--input-background)]" style={{ fontFamily: "'Inter', sans-serif" }} />
                     </div>
-                    <div className="border-l border-gray-100 px-2 py-2.5 flex flex-col gap-1 items-center justify-center">
+                    <div className="border-l border-border px-2 py-2.5 flex flex-col gap-1 items-center justify-center">
                       {row.editable ? (
                         <input type="number" min={0} max={100} step={5} value={row.weight} onChange={e => row.setWeight!(Number(e.target.value))}
-                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center font-bold focus:outline-none focus:border-[#3E4B8E] bg-white"
-                          style={{ fontFamily: "'Inter', sans-serif", color: "#3E4B8E" }} />
+                          className="w-full border border-border rounded-lg px-2 py-1.5 text-xs text-center font-bold focus:outline-none focus:border-primary bg-[var(--input-background)]"
+                          style={{ fontFamily: "'Inter', sans-serif", color: "var(--primary)" }} />
                       ) : (
                         <div className="text-center">
-                          <span className="text-sm font-bold" style={{ color: ckWeight < 0 ? "#c14954" : "#475569", fontFamily: "'Inter', sans-serif" }}>{ckWeight}%</span>
-                          <div className="text-[9px] text-gray-400 mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>tự động</div>
+                          <span className="text-sm font-bold" style={{ color: ckWeight < 0 ? "#D5B370" : "#475569", fontFamily: "'Inter', sans-serif" }}>{ckWeight}%</span>
+                          <div className="text-[9px] text-muted-foreground mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>tự động</div>
                         </div>
                       )}
                     </div>
@@ -572,41 +572,41 @@ export function ProgressSection() {
                   </div>
                 )}
               </div>
-              <div className="rounded-xl p-3" style={{ background: "#f0f3ff" }}>
+              <div className="rounded-xl p-3" style={{ background: "#E0D8C4" }}>
                 <div className="flex items-end gap-4 flex-wrap">
                   <div>
-                    <div className="text-[11px] text-gray-500 mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm tổng kết (hệ 10)</div>
+                    <div className="text-[11px] text-muted-foreground mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm tổng kết (hệ 10)</div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold leading-none" style={{ color: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{totalScore !== null ? totalScore.toFixed(2) : "—"}</span>
-                      <span className="text-sm text-gray-400">/10</span>
+                      <span className="text-4xl font-bold leading-none" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{totalScore !== null ? totalScore.toFixed(2) : "—"}</span>
+                      <span className="text-sm text-muted-foreground">/10</span>
                     </div>
                   </div>
-                  <div className="h-10 w-px bg-gray-200 self-center hidden sm:block" />
+                  <div className="h-10 w-px bg-[#D8D3C9] self-center hidden sm:block" />
                   <div>
-                    <div className="text-[11px] text-gray-500 mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>GPA ước tính</div>
+                    <div className="text-[11px] text-muted-foreground mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>GPA ước tính</div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: gpaEst === null ? "#94a3b8" : gpaEst >= 3.0 ? "#22c55e" : gpaEst >= 2.0 ? "#f59e0b" : "#c14954" }}>
+                      <span className="text-2xl font-bold leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: gpaEst === null ? "#718096" : gpaEst >= 3.0 ? "#22c55e" : gpaEst >= 2.0 ? "#f59e0b" : "#D5B370" }}>
                         {gpaEst !== null ? gpaEst.toFixed(1) : "—"}
                       </span>
-                      <span className="text-xs text-gray-400">/4.0</span>
+                      <span className="text-xs text-muted-foreground">/4.0</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="rounded-xl p-3" style={{ background: ckNeeded !== null && !feasible ? "#fff5f5" : "#f0f3ff", border: `1px dashed ${ckNeeded !== null && !feasible ? "#fca5a5" : "#c7d0e8"}` }}>
-                <p className="text-[11px] font-semibold text-gray-600 mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <div className="rounded-xl p-3" style={{ background: ckNeeded !== null && !feasible ? "#fff5f5" : "#E0D8C4", border: `1px dashed ${ckNeeded !== null && !feasible ? "#fca5a5" : "#C5CCB7"}` }}>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                   Cần điểm Cuối kỳ bao nhiêu để đạt {targetScore10.toFixed(1)}/10?
                 </p>
                 {ckWeight <= 0 ? (
-                  <p className="text-xs text-gray-400">Tỉ lệ điểm CK bằng 0%, không thể dự đoán.</p>
+                  <p className="text-xs text-muted-foreground">Tỉ lệ điểm CK bằng 0%, không thể dự đoán.</p>
                 ) : !hasAny ? (
-                  <p className="text-xs text-gray-400">Nhập ít nhất một điểm để xem dự đoán.</p>
+                  <p className="text-xs text-muted-foreground">Nhập ít nhất một điểm để xem dự đoán.</p>
                 ) : feasible ? (
-                  <p className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}>
-                    Cần ít nhất{" "}<span className="font-bold text-base" style={{ color: "#3E4B8E" }}>{Math.max(0, ckNeeded!).toFixed(1)}</span>{" "}/10 để đạt tổng kết {targetScore10.toFixed(1)}/10
+                  <p className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>
+                    Cần ít nhất{" "}<span className="font-bold text-base" style={{ color: "var(--primary)" }}>{Math.max(0, ckNeeded!).toFixed(1)}</span>{" "}/10 để đạt tổng kết {targetScore10.toFixed(1)}/10
                   </p>
                 ) : (
-                  <p className="text-sm font-semibold" style={{ color: "#c14954", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  <p className="text-sm font-semibold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                     Không thể đạt {targetScore10.toFixed(1)}/10 với điểm GK hiện tại. Hãy điều chỉnh mục tiêu.
                   </p>
                 )}
@@ -655,9 +655,9 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
         {(["summary", "progress"] as const).map(t => (
           <button key={t} onClick={() => setSubTab(t)}
             className="px-5 py-2.5 text-sm font-semibold transition-colors relative"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: subTab === t ? "#3E4B8E" : "#64748B", background: "none" }}>
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: subTab === t ? "#11284D" : "#64748B", background: "none" }}>
             {t === "summary" ? "Tổng kết" : "Tiến độ học tập"}
-            {subTab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "#3E4B8E", marginBottom: -1 }} />}
+            {subTab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "var(--primary)", marginBottom: -1 }} />}
           </button>
         ))}
       </div>
@@ -667,12 +667,12 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
             <div className="relative" ref={yearRef}>
               <button onClick={() => { setYearOpen(o => !o); setTermOpen(false); }}
                 className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
-                style={{ border: "1px solid #c7d0e8", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
+                style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
                 <span className="flex-1 text-left">{filterYear === "Tất cả" ? "Tất cả năm học" : `Năm học ${filterYear}`}</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: yearOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
               </button>
               {yearOpen && (
-                <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #c7d0e8", minWidth: 200 }}>
+                <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 200 }}>
                   {years.map(y => (
                     <button key={y} onClick={() => { setFilterYear(y); setFilterTerm("Tất cả"); setYearOpen(false); }}
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
@@ -686,12 +686,12 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
             <div className="relative" ref={termRef}>
               <button onClick={() => { setTermOpen(o => !o); setYearOpen(false); }}
                 className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
-                style={{ border: "1px solid #c7d0e8", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
+                style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
                 <span className="flex-1 text-left">{filterTerm === "Tất cả" ? "Tất cả học kỳ" : `Học kỳ ${filterTerm}`}</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: termOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
               </button>
               {termOpen && (
-                <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #c7d0e8", minWidth: 200 }}>
+                <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 200 }}>
                   {terms.map(t => (
                     <button key={t} onClick={() => { setFilterTerm(t); setTermOpen(false); }}
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
@@ -729,7 +729,7 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
               </thead>
               <tbody>
                 {filtered.map((row, i) => (
-                  <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#EEF2FF" }} className="hover:brightness-95 transition-all">
+                  <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#E8E0CC" }} className="hover:brightness-95 transition-all">
                     <td className="px-2 py-2 text-center text-muted-foreground">{row.stt}</td>
                     <td className="px-2 py-2 text-center">{row.namHoc}</td>
                     <td className="px-2 py-2 text-center">{row.hocKy}</td>
@@ -786,8 +786,8 @@ export function ProfileSection() {
         <div className="text-xs text-muted-foreground mb-1">{label}</div>
         <input value={draft[fieldKey] as string}
           onChange={e => setDraft(prev => ({ ...prev, [fieldKey]: e.target.value }))}
-          className="w-full border rounded-lg px-2 py-1.5 text-sm outline-none focus:border-[#3E4B8E] transition-colors"
-          style={{ borderColor: "#c7d0e8", fontFamily: "'Inter', sans-serif", color: "#1e293b" }} />
+          className="w-full border rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary transition-colors"
+          style={{ borderColor: "#C5CCB7", fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }} />
       </div>
     );
   }
@@ -795,7 +795,7 @@ export function ProfileSection() {
   return (
     <div className="w-full space-y-5">
       <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="px-5 py-3 border-b border-border" style={{ background: "#663e1f" }}>
+        <div className="px-5 py-3 border-b border-border" style={{ background: "#A67A53" }}>
           <h2 className="text-sm font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin chung</h2>
         </div>
         <div className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-6">
@@ -825,7 +825,7 @@ export function ProfileSection() {
         </div>
       </div>
 
-      <div className="bg-card rounded-xl border border-border overflow-hidden" style={{ outline: isEditing ? "2px solid #3E4B8E" : "none" }}>
+      <div className="bg-card rounded-xl border border-border overflow-hidden" style={{ outline: isEditing ? "2px solid #11284D" : "none" }}>
         <div className="flex items-center border-b border-border">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setInnerTab(t.id)}
@@ -839,11 +839,11 @@ export function ProfileSection() {
             {isEditing ? (
               <>
                 <button onClick={handleCancel}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-200 hover:bg-gray-50 transition-colors"
-                  style={{ color: "#64748b", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Hủy</button>
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border border-border hover:bg-[var(--input-background)] transition-colors"
+                  style={{ color: "var(--muted-foreground)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Hủy</button>
                 <button onClick={handleSave}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90"
-                  style={{ background: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                   <CheckCircle2 className="w-3.5 h-3.5" /> Lưu
                 </button>
               </>
@@ -860,7 +860,7 @@ export function ProfileSection() {
           </div>
         </div>
         {isEditing && (
-          <div className="px-5 py-2 text-xs font-medium" style={{ background: "#eef2ff", color: "#3E4B8E", borderBottom: "1px solid #c7d0e8", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="px-5 py-2 text-xs font-medium" style={{ background: "var(--input-background)", color: "var(--primary)", borderBottom: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Đang ở chế độ chỉnh sửa — nhấn <strong>Lưu</strong> để xác nhận hoặc <strong>Hủy</strong> để thoát.
           </div>
         )}
@@ -911,7 +911,7 @@ export function ProfileSection() {
       <div className="flex justify-end">
         <button onClick={handleExportPdf}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors hover:bg-secondary/60"
-          style={{ borderColor: "#c7d0e8", color: "#64748b", background: "#f8fafc", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          style={{ borderColor: "#C5CCB7", color: "var(--muted-foreground)", background: "#f8fafc", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 16h12" /><path d="M10 3v9" /><path d="M6.5 8.5L10 12l3.5-3.5" />
           </svg>
@@ -926,7 +926,7 @@ export function ProfileSection() {
 const RATING_LABELS: Record<number, string> = { 1: "Rất tệ", 2: "Tệ", 3: "Bình thường", 4: "Tốt", 5: "Rất tốt" };
 type CourseResponse = { rating: number | null; detailed: boolean; comment: string };
 
-function ratingColor(n: number) { return n <= 2 ? "#c14954" : n === 3 ? "#f59e0b" : "#22c55e"; }
+function ratingColor(n: number) { return n <= 2 ? "#D5B370" : n === 3 ? "#f59e0b" : "#22c55e"; }
 
 function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) {
   const [submitted, setSubmitted] = useState(false);
@@ -944,10 +944,10 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
         <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#e8f5e9" }}>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
         </div>
-        <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}>Đã gửi đánh giá thành công!</h2>
-        <p className="text-sm text-gray-500 mb-6">Cảm ơn bạn đã hoàn thành khảo sát. Ý kiến của bạn giúp nhà trường cải thiện chất lượng giảng dạy.</p>
+        <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã gửi đánh giá thành công!</h2>
+        <p className="text-sm text-muted-foreground mb-6">Cảm ơn bạn đã hoàn thành khảo sát. Ý kiến của bạn giúp nhà trường cải thiện chất lượng giảng dạy.</p>
         <button onClick={onDone} className="px-6 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-          style={{ background: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Quay lại</button>
+          style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Quay lại</button>
       </div>
     );
   }
@@ -956,28 +956,28 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
     <div className="space-y-3">
       {/* ── Survey header card ── */}
       <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <div className="px-4 sm:px-6 py-4" style={{ background: "#3E4B8E" }}>
+        <div className="px-4 sm:px-6 py-4" style={{ background: "var(--primary)" }}>
           <h2 className="text-sm sm:text-base font-bold text-white leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{survey.title}</h2>
         </div>
         <div className="px-4 sm:px-6 py-4 space-y-3">
-          <p className="text-sm text-gray-600 leading-relaxed">{survey.description}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{survey.description}</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400">Hạn:</span>
-              <span className="text-xs font-semibold" style={{ color: "#c14954" }}>{survey.deadline}</span>
+              <span className="text-xs text-muted-foreground">Hạn:</span>
+              <span className="text-xs font-semibold" style={{ color: "var(--accent)" }}>{survey.deadline}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400">Đơn vị:</span>
-              <span className="text-xs font-medium text-gray-600">ĐHKHTN, ĐHQG HCM</span>
+              <span className="text-xs text-muted-foreground">Đơn vị:</span>
+              <span className="text-xs font-medium text-muted-foreground">ĐHKHTN, ĐHQG HCM</span>
             </div>
           </div>
           <div className="pt-1 border-t border-border">
-            <p className="text-[11px] text-gray-400 italic mb-2">Thang điểm từ 1 đến 5:</p>
+            <p className="text-[11px] text-muted-foreground italic mb-2">Thang điểm từ 1 đến 5:</p>
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
               {[1,2,3,4,5].map(n => (
                 <div key={n} className="flex items-center gap-1.5">
                   <span className="w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center text-white flex-shrink-0" style={{ background: ratingColor(n) }}>{n}</span>
-                  <span className="text-xs text-gray-500">{RATING_LABELS[n]}</span>
+                  <span className="text-xs text-muted-foreground">{RATING_LABELS[n]}</span>
                 </div>
               ))}
             </div>
@@ -992,11 +992,11 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
         return (
           <div key={course.id} className="bg-card rounded-2xl border border-border overflow-hidden">
             {/* Course header */}
-            <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#f5f7ff" }}>
-              <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "#3E4B8E" }}>{idx + 1}</span>
+            <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#EDE5D0" }}>
+              <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "var(--primary)" }}>{idx + 1}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-800 leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{course.name}</p>
-                {course.code !== "—" && <p className="text-[11px] text-gray-400 font-mono mt-0.5">{course.code}</p>}
+                <p className="text-sm font-bold text-foreground leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{course.name}</p>
+                {course.code !== "—" && <p className="text-[11px] text-muted-foreground font-mono mt-0.5">{course.code}</p>}
               </div>
               {rated && (
                 <span className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -1012,10 +1012,10 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
                 <div>
                   <button className="flex items-start gap-2.5 w-full text-left mb-3" onClick={() => setDetailed(course.id, false)}>
                     <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-                      style={{ borderColor: !res.detailed ? "#3E4B8E" : "#cbd5e1", background: !res.detailed ? "#3E4B8E" : "#fff" }}>
-                      {!res.detailed && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      style={{ borderColor: !res.detailed ? "#11284D" : "#cbd5e1", background: !res.detailed ? "#11284D" : "#fff" }}>
+                      {!res.detailed && <div className="w-1.5 h-1.5 rounded-full bg-[var(--input-background)]" />}
                     </div>
-                    <span className="text-xs font-semibold text-gray-700 leading-relaxed" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đánh giá chung về môn học và giảng viên</span>
+                    <span className="text-xs font-semibold text-foreground leading-relaxed" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đánh giá chung về môn học và giảng viên</span>
                   </button>
                   {/* Rating buttons — larger touch targets on mobile */}
                   <div className="flex gap-2 sm:gap-3 pl-6">
@@ -1025,7 +1025,7 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
                         style={{
                           borderColor: res.rating === n ? ratingColor(n) : "#e2e8f0",
                           background: res.rating === n ? ratingColor(n) : "#fff",
-                          color: res.rating === n ? "#fff" : "#64748b",
+                          color: res.rating === n ? "#fff" : "#4A5568",
                           fontFamily: "'Plus Jakarta Sans', sans-serif",
                         }}>
                         {n}
@@ -1036,20 +1036,20 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
 
                 <button className="flex items-start gap-2.5 w-full text-left" onClick={() => setDetailed(course.id, true)}>
                   <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-                    style={{ borderColor: res.detailed ? "#3E4B8E" : "#cbd5e1", background: res.detailed ? "#3E4B8E" : "#fff" }}>
-                    {res.detailed && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    style={{ borderColor: res.detailed ? "#11284D" : "#cbd5e1", background: res.detailed ? "#11284D" : "#fff" }}>
+                    {res.detailed && <div className="w-1.5 h-1.5 rounded-full bg-[var(--input-background)]" />}
                   </div>
-                  <span className="text-xs text-gray-500 leading-relaxed">Tôi muốn góp ý chi tiết về từng tiêu chí</span>
+                  <span className="text-xs text-muted-foreground leading-relaxed">Tôi muốn góp ý chi tiết về từng tiêu chí</span>
                 </button>
               </div>
 
               {/* Open-ended comment */}
               <div>
-                <p className="text-[11px] font-semibold text-gray-400 mb-1.5 uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Góp ý thêm (không bắt buộc)</p>
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Góp ý thêm (không bắt buộc)</p>
                 <textarea value={res.comment} onChange={e => setComment(course.id, e.target.value)}
                   placeholder="Ý kiến của bạn về môn học, giảng viên..." rows={3}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#3E4B8E] resize-none transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b" }} />
+                  className="w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary resize-none transition-colors"
+                  style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }} />
               </div>
             </div>
           </div>
@@ -1065,7 +1065,7 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
         )}
         <button disabled={!allRated} onClick={() => setSubmitted(true)}
           className="sm:ml-auto px-7 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-          style={{ background: allRated ? "#3E4B8E" : "#c7d0e8", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          style={{ background: allRated ? "#11284D" : "#C5CCB7", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           Gửi đánh giá
         </button>
       </div>
@@ -1081,12 +1081,12 @@ export function SurveySection() {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center text-center gap-4">
-          <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#f0f3ff" }}>
-            <ClipboardList className="w-7 h-7" style={{ color: "#3E4B8E" }} />
+          <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#E0D8C4" }}>
+            <ClipboardList className="w-7 h-7" style={{ color: "var(--primary)" }} />
           </div>
           <div>
-            <p className="font-semibold text-gray-700 mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Không có khảo sát nào cần thực hiện</p>
-            <p className="text-xs text-gray-400">Khi có khảo sát mới, bạn sẽ nhận được thông báo.</p>
+            <p className="font-semibold text-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Không có khảo sát nào cần thực hiện</p>
+            <p className="text-xs text-muted-foreground">Khi có khảo sát mới, bạn sẽ nhận được thông báo.</p>
           </div>
         </div>
       </div>
@@ -1096,22 +1096,22 @@ export function SurveySection() {
     return (
       <div className="w-full max-w-2xl mx-auto space-y-4">
         <div>
-          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}>Khảo sát đang mở</h2>
-          <p className="text-xs text-gray-400">Chọn một khảo sát để bắt đầu.</p>
+          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Khảo sát đang mở</h2>
+          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu.</p>
         </div>
         {AVAILABLE_SURVEYS.map(sv => (
           <button key={sv.id} onClick={() => setSelectedId(sv.id)}
-            className="w-full text-left bg-card rounded-2xl border border-border hover:border-[#3E4B8E] transition-colors overflow-hidden group">
-            <div className="h-1" style={{ background: "#3E4B8E" }} />
+            className="w-full text-left bg-card rounded-2xl border border-border hover:border-primary transition-colors overflow-hidden group">
+            <div className="h-1" style={{ background: "var(--primary)" }} />
             <div className="px-5 py-4">
-              <p className="text-sm font-bold text-gray-800 mb-1 group-hover:text-[#3E4B8E] transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sv.title}</p>
-              <p className="text-xs text-gray-500 line-clamp-2 mb-3">{sv.description}</p>
+              <p className="text-sm font-bold text-foreground mb-1 group-hover:text-primary transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sv.title}</p>
+              <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{sv.description}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <ClipboardList className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-[11px] text-gray-400">{sv.courses.length} môn học</span>
+                  <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học</span>
                 </div>
-                <span className="text-[11px] font-semibold" style={{ color: "#c14954" }}>Hạn: {sv.deadline}</span>
+                <span className="text-[11px] font-semibold" style={{ color: "var(--accent)" }}>Hạn: {sv.deadline}</span>
               </div>
             </div>
           </button>
@@ -1124,7 +1124,7 @@ export function SurveySection() {
       {AVAILABLE_SURVEYS.length > 1 && selected && (
         <button onClick={() => setSelectedId(null)}
           className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity"
-          style={{ color: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
         </button>
       )}
@@ -1142,20 +1142,20 @@ export function ScheduleSection() {
   const TODAY_DAY = 1;
   const weekData = TKB_DATA[tuan] ?? {};
   const dates    = getWeekDates(tuan);
-  const selectCls = "border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#3E4B8E] bg-white";
+  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-[var(--input-background)]";
 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-gray-500 whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
           <select value={namHoc} onChange={e => setNamHoc(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
             <option value="2024-2025">2024-2025</option>
             <option value="2025-2026">2025-2026</option>
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-gray-500 whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
           <select value={hocKy} onChange={e => setHocKy(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
             <option value="HK1">Học kỳ 1</option>
             <option value="HK2">Học kỳ 2</option>
@@ -1163,7 +1163,7 @@ export function ScheduleSection() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-gray-500 whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần:</label>
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần:</label>
           <select value={tuan} onChange={e => setTuan(Number(e.target.value))} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
             {Array.from({ length: 52 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
           </select>
@@ -1178,7 +1178,7 @@ export function ScheduleSection() {
         {([["tkb", "TKB Tuần"], ["thi", "TKB Thi"]] as const).map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)}
             className="px-4 py-2 text-sm font-semibold border-b-2 transition-all -mb-px"
-            style={{ borderColor: tab === id ? "#3E4B8E" : "transparent", color: tab === id ? "#3E4B8E" : "#64748b", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            style={{ borderColor: tab === id ? "#11284D" : "transparent", color: tab === id ? "#11284D" : "#4A5568", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {label}
           </button>
         ))}
@@ -1186,7 +1186,7 @@ export function ScheduleSection() {
       {tab === "tkb" && (
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <div className="px-4 py-2 border-b border-border bg-secondary/30">
-            <span className="text-xs font-semibold text-gray-600" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <span className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {hocKy} {namHoc} – Tuần {tuan} ({dates[0]} → {dates[6]})
             </span>
           </div>
@@ -1194,14 +1194,14 @@ export function ScheduleSection() {
             <table className="w-full border-collapse text-xs" style={{ minWidth: 900, tableLayout: "fixed" }}>
               <thead>
                 <tr>
-                  <th className="border border-border px-3 py-2 text-center font-bold bg-secondary/40 text-gray-600 w-24" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Ca học</th>
+                  <th className="border border-border px-3 py-2 text-center font-bold bg-secondary/40 text-muted-foreground w-24" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Ca học</th>
                   {DAYS.map((day, i) => {
                     const isToday = i === TODAY_DAY;
                     const isSat = i === 5;
                     const isSun = i === 6;
                     return (
                       <th key={day} className="border border-border px-2 py-2 text-center font-bold"
-                        style={{ background: isToday ? "#3E4B8E" : isSat ? "#f59e0b" : isSun ? "#f1f5f9" : "#f5f7ff", color: isToday ? "#fff" : isSat ? "#fff" : "#374151", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 120 }}>
+                        style={{ background: isToday ? "#11284D" : isSat ? "#f59e0b" : isSun ? "#f1f5f9" : "#EDE5D0", color: isToday ? "#fff" : isSat ? "#fff" : "#374151", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 120 }}>
                         <div>{day}</div>
                         <div className="font-normal text-[10px] opacity-80">{dates[i]}</div>
                       </th>
@@ -1211,11 +1211,11 @@ export function ScheduleSection() {
               </thead>
               <tbody style={{ height: 480 }}>
                 {CA_LABELS.map((ca, caIdx) => (
-                  <tr key={caIdx} style={{ background: caIdx % 2 === 0 ? "#fff" : "#fafbff", height: 120 }}>
-                    <td className="border border-border px-2 py-2 text-center align-middle" style={{ background: "#f5f7ff", width: 90 }}>
-                      <div className="font-bold text-gray-700 text-xs" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ca.label}</div>
-                      <div className="text-[10px] text-gray-400 whitespace-nowrap">{ca.time}</div>
-                      <div className="text-[10px] text-gray-400">{ca.tiet}</div>
+                  <tr key={caIdx} style={{ background: caIdx % 2 === 0 ? "#fff" : "#F4EFDF", height: 120 }}>
+                    <td className="border border-border px-2 py-2 text-center align-middle" style={{ background: "#EDE5D0", width: 90 }}>
+                      <div className="font-bold text-foreground text-xs" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ca.label}</div>
+                      <div className="text-[10px] text-muted-foreground whitespace-nowrap">{ca.time}</div>
+                      <div className="text-[10px] text-muted-foreground">{ca.tiet}</div>
                     </td>
                     {DAYS.map((_, dayIdx) => {
                       const cell = weekData[dayIdx]?.[caIdx] ?? null;
@@ -1240,13 +1240,13 @@ export function ScheduleSection() {
       {tab === "tkb" && (
         <div className="flex items-center justify-between">
           <button onClick={() => setTuan(t => Math.max(1, t - 1))} disabled={tuan <= 1}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 bg-white hover:border-[#3E4B8E] hover:text-[#3E4B8E] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-[var(--input-background)] hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <ChevronRight className="w-4 h-4 rotate-180" /> Tuần trước
           </button>
-          <span className="text-xs text-gray-400" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần {tuan} / 52 &nbsp;·&nbsp; {dates[0]} – {dates[6]}</span>
+          <span className="text-xs text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần {tuan} / 52 &nbsp;·&nbsp; {dates[0]} – {dates[6]}</span>
           <button onClick={() => setTuan(t => Math.min(52, t + 1))} disabled={tuan >= 52}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 bg-white hover:border-[#3E4B8E] hover:text-[#3E4B8E] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-[var(--input-background)] hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Tuần sau <ChevronRight className="w-4 h-4" />
           </button>
@@ -1257,7 +1257,7 @@ export function ScheduleSection() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm" style={{ minWidth: 700 }}>
               <thead>
-                <tr style={{ background: "#3E4B8E" }}>
+                <tr style={{ background: "var(--primary)" }}>
                   {["STT", "Môn học", "Mã nhóm", "Thứ", "Ngày thi", "Ca thi", "Giờ thi", "Phòng thi", "Số thí sinh", "Hình thức"].map(h => (
                     <th key={h} className="px-3 py-3 text-left text-xs font-bold text-white border-r border-white/10 last:border-r-0 whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{h}</th>
                   ))}
@@ -1265,18 +1265,18 @@ export function ScheduleSection() {
               </thead>
               <tbody>
                 {EXAM_DATA.map((ex, i) => (
-                  <tr key={i} className="hover:bg-secondary/40 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#f5f7ff" }}>
-                    <td className="px-3 py-3 border-b border-border text-center font-mono text-gray-500">{i + 1}</td>
-                    <td className="px-3 py-3 border-b border-border font-semibold text-gray-800" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
-                    <td className="px-3 py-3 border-b border-border font-mono text-xs text-gray-500">{ex.maNhom}</td>
-                    <td className="px-3 py-3 border-b border-border text-gray-600">{ex.thu}</td>
-                    <td className="px-3 py-3 border-b border-border font-semibold text-gray-800">{ex.ngayThi}</td>
-                    <td className="px-3 py-3 border-b border-border text-gray-600">{ex.ca}</td>
-                    <td className="px-3 py-3 border-b border-border text-gray-600 whitespace-nowrap">{ex.gio}</td>
+                  <tr key={i} className="hover:bg-secondary/40 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#EDE5D0" }}>
+                    <td className="px-3 py-3 border-b border-border text-center font-mono text-muted-foreground">{i + 1}</td>
+                    <td className="px-3 py-3 border-b border-border font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
+                    <td className="px-3 py-3 border-b border-border font-mono text-xs text-muted-foreground">{ex.maNhom}</td>
+                    <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.thu}</td>
+                    <td className="px-3 py-3 border-b border-border font-semibold text-foreground">{ex.ngayThi}</td>
+                    <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.ca}</td>
+                    <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.gio}</td>
                     <td className="px-3 py-3 border-b border-border">
-                      <span className="font-bold px-2 py-0.5 rounded" style={{ background: "#f0f3ff", color: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
+                      <span className="font-bold px-2 py-0.5 rounded" style={{ background: "#E0D8C4", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
                     </td>
-                    <td className="px-3 py-3 border-b border-border text-center text-gray-600">{ex.soThi}</td>
+                    <td className="px-3 py-3 border-b border-border text-center text-muted-foreground">{ex.soThi}</td>
                     <td className="px-3 py-3 border-b border-border">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap ${ex.hinhThuc === "Thực hành" ? "bg-green-50 text-green-700" : ex.hinhThuc === "Trắc nghiệm" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}
                         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.hinhThuc}</span>
@@ -1330,7 +1330,7 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
   function NotifTags({ n }: { n: Notification }) {
     return (
       <div className="flex gap-1 flex-wrap mt-0.5">
-        {n.khoa  && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#f0f3ff", color: "#3E4B8E" }}>{n.khoa}</span>}
+        {n.khoa  && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#E0D8C4", color: "var(--primary)" }}>{n.khoa}</span>}
         {n.phong && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#fdf4ff", color: "#7c3aed" }}>{n.phong}</span>}
       </div>
     );
@@ -1348,9 +1348,9 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
           </div>
           <div className="p-6">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              {selectedNotif.khoa  && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#f0f3ff", color: "#3E4B8E" }}>{selectedNotif.khoa}</span>}
+              {selectedNotif.khoa  && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#E0D8C4", color: "var(--primary)" }}>{selectedNotif.khoa}</span>}
               {selectedNotif.phong && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#fdf4ff", color: "#7c3aed" }}>{selectedNotif.phong}</span>}
-              {!selectedNotif.read && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#fff0f1", color: "#c14954" }}>Chưa đọc</span>}
+              {!selectedNotif.read && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--background)", color: "var(--accent)" }}>Chưa đọc</span>}
             </div>
             <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{selectedNotif.title}</h3>
             <p className="text-xs text-muted-foreground mb-4">{selectedNotif.time}</p>
@@ -1369,12 +1369,12 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
       </div>
       <div className="flex gap-2">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm thông báo..."
-            className="w-full pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-[#3E4B8E] bg-card transition-colors"
-            style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b" }} />
+            className="w-full pl-9 pr-8 py-2 text-sm border border-border rounded-lg outline-none focus:border-primary bg-card transition-colors"
+            style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }} />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+            <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -1382,7 +1382,7 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
         <div className="relative flex-shrink-0" ref={filterRef}>
           <button onClick={() => setFilterOpen(o => !o)}
             className="flex items-center gap-2 px-3.5 py-2 rounded-lg border text-sm font-semibold transition-all"
-            style={{ borderColor: activeCount > 0 ? "#3E4B8E" : "#e2e8f0", background: activeCount > 0 ? "#3E4B8E" : "#fff", color: activeCount > 0 ? "#fff" : "#475569", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            style={{ borderColor: activeCount > 0 ? "#11284D" : "#e2e8f0", background: activeCount > 0 ? "#11284D" : "#fff", color: activeCount > 0 ? "#fff" : "#475569", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <Filter className="w-4 h-4" />
             <span>Lọc</span>
             {activeCount > 0 && <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "rgba(255,255,255,0.25)", color: "#fff" }}>{activeCount}</span>}
@@ -1390,20 +1390,20 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
           {filterOpen && (
             <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                <span className="text-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}>Lọc thông báo</span>
-                {activeCount > 0 && <button onClick={clearAll} className="text-xs font-semibold hover:opacity-70 transition-opacity" style={{ color: "#c14954" }}>Xoá tất cả</button>}
+                <span className="text-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Lọc thông báo</span>
+                {activeCount > 0 && <button onClick={clearAll} className="text-xs font-semibold hover:opacity-70 transition-opacity" style={{ color: "var(--accent)" }}>Xoá tất cả</button>}
               </div>
               <div className="px-4 pt-3 pb-2">
-                <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Khoa / Bộ môn</p>
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Khoa / Bộ môn</p>
                 <div className="space-y-1">
                   {ALL_KHOA.map(k => (
                     <label key={k} className="flex items-center gap-2.5 cursor-pointer group py-1">
                       <div onClick={() => toggleKhoa(k)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                        style={{ borderColor: selKhoa.includes(k) ? "#3E4B8E" : "#cbd5e1", background: selKhoa.includes(k) ? "#3E4B8E" : "#fff" }}>
+                        style={{ borderColor: selKhoa.includes(k) ? "#11284D" : "#cbd5e1", background: selKhoa.includes(k) ? "#11284D" : "#fff" }}>
                         {selKhoa.includes(k) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                       </div>
-                      <span className="text-sm text-gray-700 select-none group-hover:text-gray-900 transition-colors" onClick={() => toggleKhoa(k)} style={{ fontFamily: "'Inter', sans-serif" }}>{k}</span>
-                      <span className="ml-auto text-[11px] text-gray-400">{NOTIFICATIONS.filter(n => n.khoa === k).length}</span>
+                      <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => toggleKhoa(k)} style={{ fontFamily: "'Inter', sans-serif" }}>{k}</span>
+                      <span className="ml-auto text-[11px] text-muted-foreground">{NOTIFICATIONS.filter(n => n.khoa === k).length}</span>
                     </label>
                   ))}
                 </div>
@@ -1418,8 +1418,8 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
                         style={{ borderColor: selPhong.includes(p) ? "#7c3aed" : "#cbd5e1", background: selPhong.includes(p) ? "#7c3aed" : "#fff" }}>
                         {selPhong.includes(p) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                       </div>
-                      <span className="text-sm text-gray-700 select-none group-hover:text-gray-900 transition-colors" onClick={() => togglePhong(p)} style={{ fontFamily: "'Inter', sans-serif" }}>{p}</span>
-                      <span className="ml-auto text-[11px] text-gray-400">{NOTIFICATIONS.filter(n => n.phong === p).length}</span>
+                      <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => togglePhong(p)} style={{ fontFamily: "'Inter', sans-serif" }}>{p}</span>
+                      <span className="ml-auto text-[11px] text-muted-foreground">{NOTIFICATIONS.filter(n => n.phong === p).length}</span>
                     </label>
                   ))}
                 </div>
@@ -1430,14 +1430,14 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
       </div>
       {activeCount > 0 && (
         <div className="flex gap-1.5 flex-wrap">
-          {selKhoa.map(k => <button key={k} onClick={() => toggleKhoa(k)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#f0f3ff", color: "#3E4B8E", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{k} <X className="w-3 h-3" /></button>)}
+          {selKhoa.map(k => <button key={k} onClick={() => toggleKhoa(k)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#E0D8C4", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{k} <X className="w-3 h-3" /></button>)}
           {selPhong.map(p => <button key={p} onClick={() => togglePhong(p)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#fdf4ff", color: "#7c3aed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{p} <X className="w-3 h-3" /></button>)}
         </div>
       )}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         {filtered.length === 0 ? (
           <div className="px-5 py-12 text-center">
-            <Search className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+            <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">Không tìm thấy thông báo phù hợp.</p>
           </div>
         ) : (
