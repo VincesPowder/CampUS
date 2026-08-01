@@ -21,7 +21,9 @@ CREATE TABLE HOCKY_NAMHOC (
     MA_HOCKY varchar(10) primary key,
     TEN_HOCKY nvarchar(50) not null,
     NAMHOC varchar(20),
-    NGAYBATDAU date
+    TRANGTHAI TEXT,
+    NGAYBATDAU date,
+    NGAYKETTHUC date
 );
 
 -- Bảng Khảo sát
