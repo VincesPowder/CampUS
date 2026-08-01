@@ -3,12 +3,13 @@ import {
   User, ChevronRight, LogOut, X,
   ChevronsLeft, ChevronsRight, Bell,
   MessageCircle, Send, Sparkles, ChevronDown, Minimize2,
+  HelpCircle, Mail,
 } from "lucide-react";
+import bgImage from "@/imports/bg.jpg";
 import {
   NOTIFICATIONS, STUDENT_PROFILE,
   type Notification,
 } from "../data/mockData";
-import hcmusBg from "../imports/image-14.png";
 import { AdminApp } from "./AdminSections";
 import {
   NAV_ITEMS, SECTION_TITLES,
@@ -27,11 +28,11 @@ const ACCOUNTS = [
 function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-gray-100">
+      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#C8C0A8]">
           <div>
-            <p className="text-xs text-gray-400 mb-0.5">Chọn tài khoản để tiếp tục với</p>
-            <h2 className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#3E4B8E" }}>
+            <p className="text-xs text-[#718096] mb-0.5">Chọn tài khoản để tiếp tục với</p>
+            <h2 className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>
               CampUS — HCMUS
             </h2>
           </div>
@@ -42,35 +43,35 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
               <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
               <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
             </svg>
-            <span className="text-xs font-semibold text-gray-500">Microsoft</span>
+            <span className="text-xs font-semibold text-[#4A6080]">Microsoft</span>
           </div>
         </div>
         <div className="px-6 py-5 space-y-3">
-          <p className="text-sm font-semibold text-gray-700" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <p className="text-sm font-semibold text-[#1E2D42]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Chọn tài khoản
           </p>
           {ACCOUNTS.map(acc => (
             <button
               key={acc.username}
               onClick={() => onLogin(acc.role)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-[#3E4B8E] hover:bg-[#f0f3ff] transition-all text-left group"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#E0D8C4] transition-all text-left group"
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                style={{ background: acc.role === "admin" ? "#3E4B8E" : "#c14954", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                style={{ background: acc.role === "admin" ? "#11284D" : "#D5B370", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {acc.initials}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm text-gray-800 group-hover:text-[#3E4B8E]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <div className="font-semibold text-sm text-[#101A2C] group-hover:text-[#11284D]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                   {acc.label}
                 </div>
-                <div className="text-xs text-gray-400 truncate">{acc.email}</div>
+                <div className="text-xs text-[#718096] truncate">{acc.email}</div>
               </div>
-              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#3E4B8E] flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-[#B0AA90] group-hover:text-[#11284D] flex-shrink-0" />
             </button>
           ))}
         </div>
         <div className="px-6 pb-4 text-center">
-          <p className="text-[10px] text-gray-300">©GROUP 3 - AMONG US · HCMUS</p>
+          <p className="text-[10px] text-[#B0AA90]">©GROUP 3 - AMONG US · HCMUS</p>
         </div>
       </div>
     </div>
@@ -80,59 +81,62 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
 // ─── Login Page ───────────────────────────────────────────────────────────────
 function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
   const [showPicker, setShowPicker] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    const found = ACCOUNTS.find(a => a.username === username && a.pass === password);
-    if (!found) { setError("Tên đăng nhập hoặc mật khẩu không đúng."); return; }
-    setLoading(true);
-    setTimeout(() => { setLoading(false); onLogin(found.role); }, 800);
-  }
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${hcmusBg})`, filter: "brightness(0.35)" }} />
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden">
-          <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100" style={{ background: "linear-gradient(135deg,#3E4B8E 0%,#5563a8 100%)" }}>
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>C</span>
+      {/* Background photo */}
+      <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      {/* Dark overlay */}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,22,40,0.55) 0%, rgba(10,22,40,0.72) 100%)" }} />
+
+      <div className="relative z-10 w-full max-w-sm mx-4">
+        {/* Card */}
+        <div className="rounded-2xl shadow-2xl overflow-hidden">
+
+          {/* ── Top: Navy branding ── */}
+          <div className="px-8 pt-8 pb-7 text-center" style={{ background: "linear-gradient(135deg,#11284D 0%,#264B6F 100%)" }}>
+            <div className="w-16 h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl font-bold text-white" style={PJS}>C</span>
             </div>
-            <h1 className="text-xl font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>CampUS</h1>
-            <p className="text-white/60 text-xs mt-1">Trường ĐH Khoa học Tự nhiên — ĐHQG HCM</p>
+            <h1 className="text-xl font-bold text-white" style={PJS}>CampUS</h1>
+            <p className="text-white/55 text-xs mt-1">Trường ĐH Khoa học Tự nhiên — ĐHQG HCM</p>
           </div>
-          <form onSubmit={handleSubmit} className="px-8 py-6 space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tên đăng nhập</label>
-              <input value={username} onChange={e => setUsername(e.target.value)} placeholder="admin / student"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#3E4B8E] transition-colors"
-                style={{ fontFamily: "'Inter', sans-serif" }} autoComplete="username" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Mật khẩu</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="abc / 123"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#3E4B8E] transition-colors"
-                style={{ fontFamily: "'Inter', sans-serif" }} autoComplete="current-password" />
-            </div>
-            {error && <p className="text-xs text-red-600 font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{error}</p>}
-            <button type="submit" disabled={loading}
-              className="w-full py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-60"
-              style={{ background: "linear-gradient(135deg,#3E4B8E 0%,#5563a8 100%)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+
+          {/* ── Bottom: White, image-3 style ── */}
+          <div className="bg-white pt-7 pb-3 flex flex-col items-center">
+            <h2 className="font-bold mb-6 text-center text-[15px]" style={{ ...PJS, color: "var(--primary)" }}>ĐĂNG NHẬP</h2>
+
+            {/* Microsoft button */}
+            <button
+              onClick={() => setShowPicker(true)}
+              className="inline-flex items-center gap-3 px-4 py-3 rounded border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#F4EFDF]/60 transition-all group"
+            >
+              {/* Windows logo */}
+              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" className="flex-shrink-0">
+                <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
+                <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
+                <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
+                <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              </svg>
+              <span className="text-sm font-semibold group-hover:text-[#11284D] transition-colors" style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
+                Đăng nhập với Microsoft
+              </span>
             </button>
-            <div className="text-center">
-              <button type="button" onClick={() => setShowPicker(true)} className="text-xs text-gray-400 hover:text-[#3E4B8E] transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Hoặc chọn tài khoản nhanh
-              </button>
-            </div>
-          </form>
+
+            {/* Note */}
+            <p className="text-center text-[11px] mt-8 leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
+              Vui lòng sử dụng email chính thức nhà trường đã cung cấp
+              <br />
+              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn)</span>
+            </p>
+
+            {/* Footer inside white section */}
+            <p className="text-center text-[10px] mt-4" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
+          </div>
         </div>
       </div>
+
       {showPicker && <AccountPickerModal onLogin={role => { setShowPicker(false); onLogin(role); }} />}
     </div>
   );
@@ -142,15 +146,15 @@ function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }
 function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#fff0f1" }}>
-          <LogOut className="w-6 h-6" style={{ color: "#c14954" }} />
+      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "var(--background)" }}>
+          <LogOut className="w-6 h-6" style={{ color: "var(--accent)" }} />
         </div>
-        <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}>Đăng xuất?</h3>
-        <p className="text-sm text-gray-500 mb-5">Bạn có chắc muốn đăng xuất khỏi hệ thống?</p>
+        <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đăng xuất?</h3>
+        <p className="text-sm text-[#4A6080] mb-5">Bạn có chắc muốn đăng xuất khỏi hệ thống?</p>
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2 rounded-lg text-sm font-semibold border border-gray-200 hover:bg-gray-50 transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#64748b" }}>Hủy</button>
-          <button onClick={onConfirm} className="flex-1 py-2 rounded-lg text-sm font-bold text-white hover:opacity-90 transition-opacity" style={{ background: "#c14954", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đăng xuất</button>
+          <button onClick={onCancel} className="flex-1 py-2 rounded-lg text-sm font-semibold border border-[#BFBB9A] hover:bg-[#E8E0CC] transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--muted-foreground)" }}>Hủy</button>
+          <button onClick={onConfirm} className="flex-1 py-2 rounded-lg text-sm font-bold text-white hover:opacity-90 transition-opacity" style={{ background: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đăng xuất</button>
         </div>
       </div>
     </div>
@@ -161,11 +165,11 @@ function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 function LogoutSuccess() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
+      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#f0fdf4" }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
-        <p className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "#1e293b" }}>Đã đăng xuất thành công!</p>
+        <p className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã đăng xuất thành công!</p>
       </div>
     </div>
   );
@@ -225,7 +229,7 @@ function renderBotText(text: string) {
 function AIChatbot() {
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
-  const PRIMARY = "#3E4B8E";
+  const PRIMARY = "#11284D";
 
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
@@ -269,7 +273,7 @@ function AIChatbot() {
     <>
       <div className="fixed bottom-[88px] md:bottom-20 right-5 z-40 flex flex-col rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 origin-bottom-right"
         style={{
-          width: "min(360px, calc(100vw - 24px))", background: "#f8f9fc",
+          width: "min(360px, calc(100vw - 24px))", background: "var(--background)",
           maxHeight: minimized ? 56 : 520,
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -277,7 +281,7 @@ function AIChatbot() {
           border: "1px solid rgba(62,75,142,0.15)",
         }}>
         <div className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #5563a8 100%)` }}>
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #264B6F 100%)` }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.2)" }}>
             <Sparkles className="w-4 h-4 text-white" />
           </div>
@@ -311,7 +315,7 @@ function AIChatbot() {
                     <div className="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm"
                       style={{
                         background: m.role === "user" ? PRIMARY : "#fff",
-                        color: m.role === "user" ? "#fff" : "#1e293b",
+                        color: m.role === "user" ? "#fff" : "#101A2C",
                         borderBottomRightRadius: m.role === "user" ? 4 : undefined,
                         borderBottomLeftRadius:  m.role === "bot"  ? 4 : undefined,
                         border: m.role === "bot" ? "1px solid #e2e8f0" : undefined,
@@ -319,7 +323,7 @@ function AIChatbot() {
                       {m.role === "bot" ? renderBotText(m.text) : m.text}
                     </div>
                     {m.time && (
-                      <p className="text-xs text-gray-400 mt-1 px-1" style={{ textAlign: m.role === "user" ? "right" : "left" }}>{m.time}</p>
+                      <p className="text-xs text-[#718096] mt-1 px-1" style={{ textAlign: m.role === "user" ? "right" : "left" }}>{m.time}</p>
                     )}
                   </div>
                 </div>
@@ -329,9 +333,9 @@ function AIChatbot() {
                   <div className="w-7 h-7 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: PRIMARY }}>
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-slate-100 flex items-center gap-1">
+                  <div className="bg-[#F4EFDF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-[#C8C0A8] flex items-center gap-1">
                     {[0,1,2].map(d => (
-                      <span key={d} className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"
+                      <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
                         style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
                     ))}
                   </div>
@@ -349,7 +353,7 @@ function AIChatbot() {
                 ))}
               </div>
             )}
-            <div className="px-3 py-3 border-t border-gray-100 bg-white flex items-end gap-2">
+            <div className="px-3 py-3 border-t border-[#C8C0A8] bg-[#F4EFDF] flex items-end gap-2">
               <textarea ref={inputRef} rows={1} value={input}
                 onChange={e => {
                   setInput(e.target.value);
@@ -358,7 +362,7 @@ function AIChatbot() {
                 }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Nhập câu hỏi... (Enter để gửi)"
-                className="flex-1 resize-none rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 leading-relaxed"
+                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-[#E8E0CC] leading-relaxed"
                 style={{ ...INTER, maxHeight: 96, overflowY: "auto" }} />
               <button onClick={() => send()} disabled={!input.trim() || typing}
                 className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center text-white transition-all"
@@ -371,7 +375,7 @@ function AIChatbot() {
       </div>
       <button onClick={() => setOpen(v => !v)}
         className="fixed bottom-[68px] md:bottom-5 right-5 z-50 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
-        style={{ background: open ? "#5563a8" : `linear-gradient(135deg, ${PRIMARY} 0%, #5563a8 100%)` }}
+        style={{ background: open ? "#264B6F" : `linear-gradient(135deg, ${PRIMARY} 0%, #264B6F 100%)` }}
         title="Trợ lý AI">
         <div className="relative">
           {open ? <X className="w-6 h-6 text-white" /> : <MessageCircle className="w-6 h-6 text-white" />}
@@ -385,6 +389,60 @@ function AIChatbot() {
         }
       `}</style>
     </>
+  );
+}
+
+// ─── Help Button ─────────────────────────────────────────────────────────────
+const CONTACTS = [
+  { label: "Phòng đào tạo", mail: "daotao@hcmus.edu.vn" },
+  { label: "Phòng giáo vụ", mail: "giaovu@hcmus.edu.vn" },
+  { label: "Phòng kỹ thuật", mail: "kythuat@hcmus.edu.vn" },
+];
+
+function HelpButton() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+        title="Liên hệ hỗ trợ"
+      >
+        <HelpCircle className="w-5 h-5" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50, whiteSpace: "nowrap" }}>
+          <div className="px-4 py-2.5 border-b border-border">
+            <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Liên hệ hỗ trợ</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {CONTACTS.map(c => (
+              <div key={c.label} className="px-4 py-2.5 flex items-center gap-4 hover:bg-secondary/40 transition-colors">
+                <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{c.label}:</span>
+                <a
+                  href={`mailto:${c.mail}`}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  <Mail className="w-3.5 h-3.5 shrink-0" />
+                  {c.mail}
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -464,7 +522,7 @@ export default function App() {
                 style={{ background: active ? "rgba(255,255,255,0.15)" : "transparent", color: active ? "#fff" : "rgba(255,255,255,0.8)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: active ? 600 : 500, justifyContent: sidebarOpen ? "flex-start" : "center" }}
                 onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.95)"; } }}
                 onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.8)"; } }}>
-                <Icon className="w-5 h-5 flex-shrink-0" style={{ color: active ? "#f1999d" : "inherit" }} />
+                <Icon className="w-5 h-5 flex-shrink-0" style={{ color: active ? "#D5B370" : "inherit" }} />
                 {sidebarOpen && (
                   <>
                     <span className={`flex-1 text-left whitespace-nowrap text-white ${active ? "text-[14px]" : "text-[13px]"}`}>{item.label}</span>
@@ -482,7 +540,7 @@ export default function App() {
         </nav>
         <div className="mx-4 mt-2 h-px bg-white/10" />
         <div className={`p-4 flex items-center gap-3 flex-shrink-0 ${sidebarOpen ? "" : "justify-center"}`}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(193,73,84,0.12)", border: "2px solid rgba(193,73,84,0.3)" }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
             <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</span>
           </div>
           {sidebarOpen && (
@@ -524,6 +582,7 @@ export default function App() {
             )}
           </div>
           <div className="ml-auto flex items-center gap-1.5">
+            <HelpButton />
             <div className="relative" ref={notifRef}>
               <button onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
                 <Bell className="w-5 h-5" />
@@ -555,13 +614,13 @@ export default function App() {
               )}
             </div>
             <div className="relative" ref={avatarRef}>
-              <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(193,73,84,0.12)", color: "var(--accent)", border: "2px solid rgba(193,73,84,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
+              <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
                 NV
               </button>
               {avatarOpen && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
                   <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(193,73,84,0.12)", color: "var(--accent)", border: "2px solid rgba(193,73,84,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</div>
                     <div className="min-w-0">
                       <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{STUDENT_PROFILE.fullName}</div>
                       <div className="text-xs text-muted-foreground truncate">{STUDENT_PROFILE.officialEmail}</div>
@@ -603,7 +662,7 @@ export default function App() {
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 className="flex-1 flex flex-col items-center gap-0.5 pt-2 pb-2.5 px-0.5 transition-colors"
-                style={{ color: active ? "var(--primary)" : "#94a3b8" }}>
+                style={{ color: active ? "var(--primary)" : "#718096" }}>
                 <div className="relative">
                   <Icon className="w-5 h-5" />
                   {item.badge && (
