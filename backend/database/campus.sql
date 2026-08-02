@@ -21,7 +21,9 @@ CREATE TABLE HOCKY_NAMHOC (
     MA_HOCKY varchar(10) primary key,
     TEN_HOCKY nvarchar(50) not null,
     NAMHOC varchar(20),
-    NGAYBATDAU date
+    TRANGTHAI TEXT,
+    NGAYBATDAU date,
+    NGAYKETTHUC date
 );
 
 -- Bảng Khảo sát
@@ -284,19 +286,19 @@ CREATE TABLE TIENDO_HOCTAP (
     MSSV char(8) primary key,
     TC_GDDC_DAT int default 0,
     TC_GDDC_YC int default 0,
-    TRANGTHAI_GDDC nvarchar(20) CHECK (TRANGTHAI_GDDC IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT 'Chưa đạt',
+    TRANGTHAI_GDDC nvarchar(20) DEFAULT 'Chưa đạt',
     TC_CSN_DAT int default 0,
     TC_CSN_YC int default 0,
-    TRANGTHAI_CSN nvarchar(20) CHECK (TRANGTHAI_CSN IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT 'Chưa đạt',
+    TRANGTHAI_CSN nvarchar(20) DEFAULT 'Chưa đạt',
     TC_CN_DAT int default 0,
     TC_CN_YC int default 0,
-    TRANGTHAI_CN nvarchar(20) CHECK (TRANGTHAI_CN IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT 'Chưa đạt',
+    TRANGTHAI_CN nvarchar(20) DEFAULT 'Chưa đạt',
     TC_TN_DAT int default 0,
     TC_TN_YC int default 0,
-    TRANGTHAI_TN nvarchar(20) CHECK (TRANGTHAI_TN IN ('Đạt', 'Chưa đạt', 'Miễn')) DEFAULT 'Chưa đạt',
-    TRANGTHAI_GDTC nvarchar(30) CHECK (TRANGTHAI_GDTC IN ('Đạt', 'Chưa đạt', 'Miễn')),
-    TRANGTHAI_GDQP nvarchar(30) CHECK (TRANGTHAI_GDQP IN ('Đạt', 'Chưa đạt', 'Miễn')),
-    TRANGTHAI_TDNN nvarchar(30) CHECK (TRANGTHAI_TDNN IN ('Đạt', 'Chưa đạt', 'Miễn')),
+    TRANGTHAI_TN nvarchar(20) DEFAULT 'Chưa đạt',
+    TRANGTHAI_GDTC nvarchar(30),
+    TRANGTHAI_GDQP nvarchar(30),
+    TRANGTHAI_TDNN nvarchar(30),
     TONG_TC_DAT INT,
     TONG_TC_YC INT,
     DIEM_TB_TICHLUY decimal(4,2),
