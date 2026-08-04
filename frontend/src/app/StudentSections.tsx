@@ -76,12 +76,12 @@ function FamilyModal({ member, onClose, onSave }: {
           </button>
         </div>
         <div className="p-5 max-h-[70vh] overflow-y-auto">
-          <p className="text-xs mb-4" style={{ color: "var(--accent)" }}>* Tất cả trường bắt buộc điền</p>
+          <p className="text-xs mb-4" style={{ color: "#dc2626" }}>* Tất cả trường bắt buộc điền</p>
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             {fields.map(f => (
               <div key={f.key} className={f.wide ? "col-span-2" : ""}>
                 <label className="block text-xs font-medium text-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  {f.label} <span style={{ color: "var(--accent)" }}>*</span>
+                  {f.label} <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   value={draft[f.key]}
@@ -97,7 +97,7 @@ function FamilyModal({ member, onClose, onSave }: {
         <div className="flex justify-end gap-3 px-5 py-4 border-t border-border" style={{ background: "var(--background)" }}>
           <button onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-muted transition-colors"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--muted-foreground)" }}>
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--muted-foreground)", background: "#fff" }}>
             Hủy
           </button>
           <button onClick={() => { onSave(draft); onClose(); }}
@@ -189,13 +189,22 @@ export function TuitionSection() {
   const parsed       = TUITION_DATA.map(d => ({ nhHk: d.nhHk, ...parseNhHk(d.nhHk) }));
   const uniqueNamHoc = Array.from(new Set(parsed.map(p => p.namHoc)));
   const [selNamHoc, setSelNamHoc] = useState(uniqueNamHoc[0]);
-  const hksForYear   = parsed.filter(p => p.namHoc === selNamHoc).map(p => p.hocKy);
-  const [selHK, setSelHK] = useState(hksForYear[0]);
+  const ALL_HKS = ["HK1", "HK2", "HK3"] as const;
+  const [selHK, setSelHK] = useState<string>("HK3");
+  const [yearOpen, setYearOpen] = useState(false);
+  const [hkOpen,   setHkOpen]   = useState(false);
+  const yearRef = useRef<HTMLDivElement>(null);
+  const hkRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const hks = parsed.filter(p => p.namHoc === selNamHoc).map(p => p.hocKy);
-    if (!hks.includes(selHK)) setSelHK(hks[0]);
-  }, [selNamHoc]);
+    function handler(e: MouseEvent) {
+      if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false);
+      if (hkRef.current  && !hkRef.current.contains(e.target as Node))   setHkOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
 
   const matchNhHk = parsed.find(p => p.namHoc === selNamHoc && p.hocKy === selHK)?.nhHk ?? TUITION_DATA[0].nhHk;
   const semester = TUITION_DATA.find(d => d.nhHk === matchNhHk)!;
@@ -213,22 +222,44 @@ export function TuitionSection() {
   return (
     <div className="space-y-5 w-full">
       <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tra Cứu Học Phí</h1>
-      <div className="bg-card rounded-xl border border-border px-5 py-4 flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-semibold whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
-          <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)}
-            className="border rounded-lg px-3 py-1.5 text-sm bg-background outline-none focus:border-primary transition-colors"
-            style={{ borderColor: "#C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)", fontWeight: 600 }}>
-            {uniqueNamHoc.map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative" ref={yearRef}>
+          <button onClick={() => { setYearOpen(o => !o); setHkOpen(false); }}
+            className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
+            style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
+            <span className="flex-1 text-left">Năm học {selNamHoc}</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: yearOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
+          </button>
+          {yearOpen && (
+            <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 180 }}>
+              {uniqueNamHoc.map(y => (
+                <button key={y} onClick={() => { setSelNamHoc(y); setYearOpen(false); }}
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
+                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: selNamHoc === y ? 600 : 400, color: selNamHoc === y ? "var(--primary)" : "var(--foreground)", background: selNamHoc === y ? "var(--secondary)" : undefined }}>
+                  Năm học {y}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-semibold whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
-          <select value={selHK} onChange={e => setSelHK(e.target.value)}
-            className="border rounded-lg px-3 py-1.5 text-sm bg-background outline-none focus:border-primary transition-colors"
-            style={{ borderColor: "#C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)", fontWeight: 600 }}>
-            {hksForYear.map(h => <option key={h} value={h}>{h}</option>)}
-          </select>
+        <div className="relative" ref={hkRef}>
+          <button onClick={() => { setHkOpen(o => !o); setYearOpen(false); }}
+            className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
+            style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 140 }}>
+            <span className="flex-1 text-left">Học kỳ {selHK.replace("HK", "")}</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: hkOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
+          </button>
+          {hkOpen && (
+            <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 160 }}>
+              {ALL_HKS.map(h => (
+                <button key={h} onClick={() => { setSelHK(h); setHkOpen(false); }}
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
+                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: selHK === h ? 600 : 400, color: selHK === h ? "var(--primary)" : "var(--foreground)", background: selHK === h ? "var(--secondary)" : undefined }}>
+                  Học kỳ {h.replace("HK", "")}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -243,7 +274,7 @@ export function TuitionSection() {
             </thead>
             <tbody>
               {semester.rows.map((row, i) => (
-                <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#E8E0CC" }} className="hover:brightness-95 transition-all">
+                <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
                   <td className={cellCls + " text-muted-foreground"}>{row.stt}</td>
                   <td className={cellCls}>{row.nhHk}</td>
                   <td className="px-3 py-2.5 text-xs">
@@ -384,7 +415,7 @@ export function ProgressSection() {
                 ["Điểm TB tích lũy",  "2.85"],
                 ["Đủ ĐK tốt nghiệp", "Chưa"],
               ] as [string, string][]).map(([label, value], i) => (
-                <tr key={label} style={{ background: i % 2 === 0 ? "#fff" : "#EDE5D0" }}>
+                <tr key={label} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
                   <td className="px-3 py-2 text-muted-foreground border-b border-border leading-tight">{label}</td>
                   <td className="px-3 py-2 border-b border-border text-right font-medium leading-tight"
                     style={{ color: label === "Tổng TC tích lũy" ? "#11284D" : label === "Đủ ĐK tốt nghiệp" ? "#D5B370" : "#101A2C", fontWeight: label === "Tổng TC tích lũy" ? 700 : 500 }}>
@@ -404,7 +435,7 @@ export function ProgressSection() {
               const pct = (g.done / g.req) * 100;
               const done = g.done >= g.req;
               return (
-                <div key={g.code} className="px-3 py-2.5" style={{ background: i % 2 === 0 ? "#fff" : "#EDE5D0" }}>
+                <div key={g.code} className="px-3 py-2.5" style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
                   <div className="flex justify-between items-baseline mb-0.5">
                     <span className="text-[10px] font-mono text-muted-foreground">{g.code}</span>
                     <span className="text-[10px] font-bold" style={{ color: done ? "#22c55e" : "#11284D" }}>{g.done}/{g.req}</span>
@@ -651,13 +682,13 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex items-center border-b border-border">
         {(["summary", "progress"] as const).map(t => (
           <button key={t} onClick={() => setSubTab(t)}
-            className="px-5 py-2.5 text-sm font-semibold transition-colors relative"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: subTab === t ? "#11284D" : "#64748B", background: "none" }}>
+            className="px-6 py-2.5 text-sm font-medium transition-colors relative"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: subTab === t ? "var(--primary)" : "var(--muted-foreground)", fontWeight: subTab === t ? 600 : 400, background: "transparent" }}>
             {t === "summary" ? "Tổng kết" : "Tiến độ học tập"}
-            {subTab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: "var(--primary)", marginBottom: -1 }} />}
+            {subTab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--primary)", marginBottom: -1 }} />}
           </button>
         ))}
       </div>
@@ -729,7 +760,7 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
               </thead>
               <tbody>
                 {filtered.map((row, i) => (
-                  <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#E8E0CC" }} className="hover:brightness-95 transition-all">
+                  <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
                     <td className="px-2 py-2 text-center text-muted-foreground">{row.stt}</td>
                     <td className="px-2 py-2 text-center">{row.namHoc}</td>
                     <td className="px-2 py-2 text-center">{row.hocKy}</td>
@@ -761,6 +792,15 @@ export function ProfileSection() {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState({ ...STUDENT_PROFILE });
   const [saved, setSaved] = useState({ ...STUDENT_PROFILE });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setAvatarUrl(url);
+  }
 
   const tabs = [
     { id: "personal", label: "Thông tin cá nhân" },
@@ -798,20 +838,33 @@ export function ProfileSection() {
         <div className="px-5 py-3 border-b border-border" style={{ background: "#A67A53" }}>
           <h2 className="text-sm font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin chung</h2>
         </div>
-        <div className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-6">
-          <div className="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-2 flex-shrink-0">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full flex items-center justify-center border-4 text-xl sm:text-2xl font-bold"
-              style={{ borderColor: "var(--primary)", background: "rgba(37,52,79,0.08)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              NV
+        <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-4">
+          {/* Col 1: avatar + tên */}
+          <div className="flex sm:flex-col items-center gap-3 sm:gap-2">
+            <div className="relative group flex-shrink-0">
+              {avatarUrl
+                ? <img src={avatarUrl} alt="avatar" className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4" style={{ borderColor: "var(--primary)" }} />
+                : <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-4 text-xl font-bold"
+                    style={{ borderColor: "var(--primary)", background: "rgba(37,52,79,0.08)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    NV
+                  </div>
+              }
+              <button onClick={() => avatarInputRef.current?.click()}
+                className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: "rgba(0,0,0,0.45)" }}
+                title="Đổi ảnh đại diện">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </button>
+              <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </div>
-            <div className="text-center">
+            <div className="text-center sm:text-center">
               <div className="text-sm font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{saved.fullName}</div>
               <div className="text-xs text-muted-foreground">{saved.role}</div>
               <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full text-white font-medium" style={{ background: "var(--accent)" }}>{saved.status}</span>
             </div>
           </div>
-          <div className="hidden sm:block w-px bg-border flex-shrink-0" />
-          <div className="flex-1 grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-3 sm:gap-y-4">
+          {/* Cols 2-4: fields, 3 per row */}
+          <div className="sm:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 sm:gap-y-4">
             <Field label="MSSV"                value={saved.mssv} />
             <Field label="Ngày sinh"           value={saved.dob} />
             <Field label="Nơi sinh"            value={saved.placeOfBirth} />
@@ -830,9 +883,8 @@ export function ProfileSection() {
           {tabs.map(t => (
             <button key={t.id} onClick={() => setInnerTab(t.id)}
               className="px-6 py-3 text-sm font-medium transition-colors relative"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: innerTab === t.id ? "var(--primary)" : "var(--muted-foreground)", fontWeight: innerTab === t.id ? 600 : 400 }}>
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: innerTab === t.id ? "#fff" : "var(--muted-foreground)", fontWeight: innerTab === t.id ? 600 : 400, background: innerTab === t.id ? "#A67A53" : "transparent" }}>
               {t.label}
-              {innerTab === t.id && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t" style={{ background: "var(--primary)" }} />}
             </button>
           ))}
           <div className="ml-auto pr-4 flex items-center gap-2">
@@ -926,9 +978,11 @@ export function ProfileSection() {
 const RATING_LABELS: Record<number, string> = { 1: "Rất tệ", 2: "Tệ", 3: "Bình thường", 4: "Tốt", 5: "Rất tốt" };
 type CourseResponse = { rating: number | null; detailed: boolean; comment: string };
 
-function ratingColor(n: number) { return n <= 2 ? "#D5B370" : n === 3 ? "#f59e0b" : "#22c55e"; }
+function ratingColor(n: number) {
+  return n === 1 ? "#E8384D" : n === 2 ? "#F4703A" : n === 3 ? "#F9C02B" : n === 4 ? "#2ABDA8" : "#4BC06B";
+}
 
-function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) {
+function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) => void }) {
   const [submitted, setSubmitted] = useState(false);
   const [responses, setResponses] = useState<Record<string, CourseResponse>>(
     Object.fromEntries(survey.courses.map(c => [c.id, { rating: null, detailed: false, comment: "" }]))
@@ -946,7 +1000,7 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
         </div>
         <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã gửi đánh giá thành công!</h2>
         <p className="text-sm text-muted-foreground mb-6">Cảm ơn bạn đã hoàn thành khảo sát. Ý kiến của bạn giúp nhà trường cải thiện chất lượng giảng dạy.</p>
-        <button onClick={onDone} className="px-6 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+        <button onClick={() => onDone(survey.id)} className="px-6 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
           style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Quay lại</button>
       </div>
     );
@@ -992,7 +1046,7 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
         return (
           <div key={course.id} className="bg-card rounded-2xl border border-border overflow-hidden">
             {/* Course header */}
-            <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#EDE5D0" }}>
+            <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#dde4f5" }}>
               <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "var(--primary)" }}>{idx + 1}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-foreground leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{course.name}</p>
@@ -1010,15 +1064,9 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
               {/* Rating choice */}
               <div className="space-y-3">
                 <div>
-                  <button className="flex items-start gap-2.5 w-full text-left mb-3" onClick={() => setDetailed(course.id, false)}>
-                    <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-                      style={{ borderColor: !res.detailed ? "#11284D" : "#cbd5e1", background: !res.detailed ? "#11284D" : "#fff" }}>
-                      {!res.detailed && <div className="w-1.5 h-1.5 rounded-full bg-[var(--input-background)]" />}
-                    </div>
-                    <span className="text-xs font-semibold text-foreground leading-relaxed" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đánh giá chung về môn học và giảng viên</span>
-                  </button>
+                  <p className="text-xs font-semibold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>Đánh giá chung về môn học và giảng viên</p>
                   {/* Rating buttons — larger touch targets on mobile */}
-                  <div className="flex gap-2 sm:gap-3 pl-6">
+                  <div className="flex gap-2 sm:gap-3">
                     {[1,2,3,4,5].map(n => (
                       <button key={n} onClick={() => { setRating(course.id, n); setDetailed(course.id, false); }} title={RATING_LABELS[n]}
                         className="flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all active:scale-95"
@@ -1034,13 +1082,6 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
                   </div>
                 </div>
 
-                <button className="flex items-start gap-2.5 w-full text-left" onClick={() => setDetailed(course.id, true)}>
-                  <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
-                    style={{ borderColor: res.detailed ? "#11284D" : "#cbd5e1", background: res.detailed ? "#11284D" : "#fff" }}>
-                    {res.detailed && <div className="w-1.5 h-1.5 rounded-full bg-[var(--input-background)]" />}
-                  </div>
-                  <span className="text-xs text-muted-foreground leading-relaxed">Tôi muốn góp ý chi tiết về từng tiêu chí</span>
-                </button>
               </div>
 
               {/* Open-ended comment */}
@@ -1075,7 +1116,13 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: () => void }) 
 
 export function SurveySection() {
   const [selectedId, setSelectedId] = useState<string | null>(AVAILABLE_SURVEYS.length === 1 ? AVAILABLE_SURVEYS[0].id : null);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const selected = AVAILABLE_SURVEYS.find(s => s.id === selectedId) ?? null;
+
+  function handleDone(id: string) {
+    setCompletedIds(prev => new Set([...prev, id]));
+    setSelectedId(null);
+  }
 
   if (AVAILABLE_SURVEYS.length === 0) {
     return (
@@ -1099,23 +1146,29 @@ export function SurveySection() {
           <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Khảo sát đang mở</h2>
           <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu.</p>
         </div>
-        {AVAILABLE_SURVEYS.map(sv => (
-          <button key={sv.id} onClick={() => setSelectedId(sv.id)}
-            className="w-full text-left bg-card rounded-2xl border border-border hover:border-primary transition-colors overflow-hidden group">
-            <div className="h-1" style={{ background: "var(--primary)" }} />
-            <div className="px-5 py-4">
-              <p className="text-sm font-bold text-foreground mb-1 group-hover:text-primary transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sv.title}</p>
-              <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{sv.description}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học</span>
+        {AVAILABLE_SURVEYS.map(sv => {
+          const done = completedIds.has(sv.id);
+          return (
+            <button key={sv.id} onClick={() => setSelectedId(sv.id)}
+              className="w-full text-left bg-card rounded-2xl border overflow-hidden group transition-colors"
+              style={{ borderColor: done ? "#22c55e" : "var(--border)" }}>
+              <div className="h-1" style={{ background: done ? "#22c55e" : "var(--primary)" }} />
+              <div className="px-5 py-4">
+                <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sv.title}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{sv.description}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học</span>
+                  </div>
+                  <span className="text-[11px] font-semibold" style={{ color: done ? "#22c55e" : "var(--accent)" }}>
+                    {done ? "Hoàn thành" : `Hạn: ${sv.deadline}`}
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold" style={{ color: "var(--accent)" }}>Hạn: {sv.deadline}</span>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     );
   }
@@ -1128,7 +1181,7 @@ export function SurveySection() {
           <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
         </button>
       )}
-      <SurveyForm survey={selected ?? AVAILABLE_SURVEYS[0]} onDone={() => setSelectedId(null)} />
+      <SurveyForm survey={selected ?? AVAILABLE_SURVEYS[0]} onDone={handleDone} />
     </div>
   );
 }
@@ -1142,7 +1195,7 @@ export function ScheduleSection() {
   const TODAY_DAY = 1;
   const weekData = TKB_DATA[tuan] ?? {};
   const dates    = getWeekDates(tuan);
-  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-[var(--input-background)]";
+  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white";
 
   return (
     <div className="w-full space-y-4">
@@ -1165,7 +1218,7 @@ export function ScheduleSection() {
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần:</label>
           <select value={tuan} onChange={e => setTuan(Number(e.target.value))} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
-            {Array.from({ length: 52 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
+            {Array.from({ length: 10 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
           </select>
         </div>
         <div className="ml-auto">
@@ -1174,49 +1227,46 @@ export function ScheduleSection() {
           </button>
         </div>
       </div>
-      <div className="flex gap-0 border-b border-border">
+      <div className="flex items-center border-b border-border">
         {([["tkb", "TKB Tuần"], ["thi", "TKB Thi"]] as const).map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)}
-            className="px-4 py-2 text-sm font-semibold border-b-2 transition-all -mb-px"
-            style={{ borderColor: tab === id ? "#11284D" : "transparent", color: tab === id ? "#11284D" : "#4A5568", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            className="px-6 py-2.5 text-sm font-medium transition-colors relative"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: tab === id ? "var(--primary)" : "var(--muted-foreground)", fontWeight: tab === id ? 600 : 400, background: "transparent" }}>
             {label}
+            {tab === id && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--primary)", marginBottom: -1 }} />}
           </button>
         ))}
       </div>
       {tab === "tkb" && (
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="px-4 py-2 border-b border-border bg-secondary/30">
-            <span className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              {hocKy} {namHoc} – Tuần {tuan} ({dates[0]} → {dates[6]})
-            </span>
+          <div className="px-6 py-3 border-b border-border flex items-center justify-center gap-6" style={{ background: "#1e3a5f" }}>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{hocKy}</span>
+            <span className="text-white opacity-40 text-xs">|</span>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{namHoc}</span>
+            <span className="text-white opacity-40 text-xs">|</span>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần {tuan}</span>
+            <span className="text-white opacity-40 text-xs">|</span>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{dates[0]} → {dates[6]}</span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs" style={{ minWidth: 900, tableLayout: "fixed" }}>
+            <table className="w-full border-collapse text-xs" style={{ minWidth: 700, tableLayout: "fixed" }}>
               <thead>
                 <tr>
-                  <th className="border border-border px-3 py-2 text-center font-bold bg-secondary/40 text-muted-foreground w-24" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Ca học</th>
                   {DAYS.map((day, i) => {
                     const isToday = i === TODAY_DAY;
-                    const isSat = i === 5;
-                    const isSun = i === 6;
                     return (
-                      <th key={day} className="border border-border px-2 py-2 text-center font-bold"
-                        style={{ background: isToday ? "#11284D" : isSat ? "#f59e0b" : isSun ? "#f1f5f9" : "#EDE5D0", color: isToday ? "#fff" : isSat ? "#fff" : "#374151", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 120 }}>
-                        <div>{day}</div>
-                        <div className="font-normal text-[10px] opacity-80">{dates[i]}</div>
+                      <th key={day} className="border-2 border-border px-2 py-2 text-center"
+                        style={{ background: isToday ? "#fff7ed" : "#fff", color: isToday ? "#d97706" : "#1e3a5f", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 120 }}>
+                        <div style={{ fontSize: 12, fontWeight: 800 }}>{day}</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.6 }}>{dates[i]}</div>
                       </th>
                     );
                   })}
                 </tr>
               </thead>
-              <tbody style={{ height: 480 }}>
+              <tbody>
                 {CA_LABELS.map((ca, caIdx) => (
-                  <tr key={caIdx} style={{ background: caIdx % 2 === 0 ? "#fff" : "#F4EFDF", height: 120 }}>
-                    <td className="border border-border px-2 py-2 text-center align-middle" style={{ background: "#EDE5D0", width: 90 }}>
-                      <div className="font-bold text-foreground text-xs" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ca.label}</div>
-                      <div className="text-[10px] text-muted-foreground whitespace-nowrap">{ca.time}</div>
-                      <div className="text-[10px] text-muted-foreground">{ca.tiet}</div>
-                    </td>
+                  <tr key={caIdx} style={{ background: "#fff" }}>
                     {DAYS.map((_, dayIdx) => {
                       const cell = weekData[dayIdx]?.[caIdx] ?? null;
                       if (cell === "span") return null;
@@ -1224,9 +1274,9 @@ export function ScheduleSection() {
                       const isToday = dayIdx === TODAY_DAY;
                       const spanRows = entry?.span ?? 1;
                       return (
-                        <td key={dayIdx} rowSpan={spanRows} className="border border-border px-2 py-1.5 align-top"
-                          style={{ background: isToday && entry ? "#eef1ff" : undefined }}>
-                          {entry ? <TKBCellCard entry={entry} /> : null}
+                        <td key={dayIdx} rowSpan={spanRows} className="border-2 border-border px-2 py-1.5 align-top"
+                          style={{ height: 130, background: isToday && entry ? "rgba(245,158,11,0.1)" : undefined }}>
+                          {entry ? <TKBCellCard entry={entry} caTime={ca.time} /> : null}
                         </td>
                       );
                     })}
@@ -1240,13 +1290,13 @@ export function ScheduleSection() {
       {tab === "tkb" && (
         <div className="flex items-center justify-between">
           <button onClick={() => setTuan(t => Math.max(1, t - 1))} disabled={tuan <= 1}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-[var(--input-background)] hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             <ChevronRight className="w-4 h-4 rotate-180" /> Tuần trước
           </button>
-          <span className="text-xs text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần {tuan} / 52 &nbsp;·&nbsp; {dates[0]} – {dates[6]}</span>
-          <button onClick={() => setTuan(t => Math.min(52, t + 1))} disabled={tuan >= 52}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-[var(--input-background)] hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          
+          <button onClick={() => setTuan(t => Math.min(10, t + 1))} disabled={tuan >= 10}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Tuần sau <ChevronRight className="w-4 h-4" />
           </button>
@@ -1258,25 +1308,24 @@ export function ScheduleSection() {
             <table className="w-full border-collapse text-sm" style={{ minWidth: 700 }}>
               <thead>
                 <tr style={{ background: "var(--primary)" }}>
-                  {["STT", "Môn học", "Mã nhóm", "Thứ", "Ngày thi", "Ca thi", "Giờ thi", "Phòng thi", "Số thí sinh", "Hình thức"].map(h => (
+                  {["STT", "Môn học", "Mã Lớp", "Thứ", "Ngày thi", "Giờ thi", "Thời gian", "Phòng thi", "Hình thức"].map(h => (
                     <th key={h} className="px-3 py-3 text-left text-xs font-bold text-white border-r border-white/10 last:border-r-0 whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {EXAM_DATA.map((ex, i) => (
-                  <tr key={i} className="hover:bg-secondary/40 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#EDE5D0" }}>
+                  <tr key={i} className="hover:bg-blue-100/60 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#EBF4FF" }}>
                     <td className="px-3 py-3 border-b border-border text-center font-mono text-muted-foreground">{i + 1}</td>
                     <td className="px-3 py-3 border-b border-border font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
                     <td className="px-3 py-3 border-b border-border font-mono text-xs text-muted-foreground">{ex.maNhom}</td>
                     <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.thu}</td>
                     <td className="px-3 py-3 border-b border-border font-semibold text-foreground">{ex.ngayThi}</td>
-                    <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.ca}</td>
                     <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.gio}</td>
+                    <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.thoiGian}</td>
                     <td className="px-3 py-3 border-b border-border">
-                      <span className="font-bold px-2 py-0.5 rounded" style={{ background: "#E0D8C4", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
+                      <span className="font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
                     </td>
-                    <td className="px-3 py-3 border-b border-border text-center text-muted-foreground">{ex.soThi}</td>
                     <td className="px-3 py-3 border-b border-border">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap ${ex.hinhThuc === "Thực hành" ? "bg-green-50 text-green-700" : ex.hinhThuc === "Trắc nghiệm" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}
                         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.hinhThuc}</span>
@@ -1296,9 +1345,10 @@ export function ScheduleSection() {
 const ALL_KHOA  = Array.from(new Set(NOTIFICATIONS.map(n => n.khoa).filter(Boolean))).sort();
 const ALL_PHONG = Array.from(new Set(NOTIFICATIONS.map(n => n.phong).filter(Boolean))).sort();
 
-export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
+export function NotificationsSection({ selectedNotif, setSelectedNotif, readIds = new Set<number>() }: {
   selectedNotif: Notification | null;
   setSelectedNotif: (n: Notification | null) => void;
+  readIds?: Set<number>;
 }) {
   const [search,     setSearch]     = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -1442,20 +1492,28 @@ export function NotificationsSection({ selectedNotif, setSelectedNotif }: {
           </div>
         ) : (
           <div className="divide-y divide-border">
-            {filtered.map(n => (
+            {filtered.map(n => {
+              const isUnread = !readIds.has(n.id);
+              return (
               <div key={n.id} onClick={() => setSelectedNotif(n)}
-                className={`px-5 py-4 cursor-pointer hover:bg-secondary/40 transition-colors flex items-start gap-3 ${!n.read ? "bg-secondary/20" : ""}`}>
+                className="px-5 py-4 cursor-pointer transition-colors flex items-start gap-3"
+                style={{ background: isUnread ? "#dde4f5" : "transparent" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "#dde4f580"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = isUnread ? "#dde4f5" : "transparent"; }}>
                 <div className="flex-shrink-0 mt-1.5">
-                  {!n.read ? <span className="w-2 h-2 rounded-full block" style={{ background: "var(--accent)" }} /> : <span className="w-2 h-2 block" />}
+                  {isUnread
+                    ? <span className="w-2 h-2 rounded-full block" style={{ background: "var(--primary)" }} />
+                    : <span className="w-2 h-2 block" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${!n.read ? "font-semibold" : "font-medium"} text-foreground mb-0.5`}>{n.title}</p>
+                  <p className={`text-sm mb-0.5 ${isUnread ? "font-bold text-foreground" : "font-normal text-muted-foreground"}`}>{n.title}</p>
                   <NotifTags n={n} />
                   <p className="text-xs text-muted-foreground truncate mt-1">{n.body}</p>
                   <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
