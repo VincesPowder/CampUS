@@ -554,7 +554,7 @@ function AdminSurveySection() {
                 </div>
                 {q.type === "radio" && <div className="space-y-2 pl-1">{q.options.map((opt, oi) => (<label key={oi} className="flex items-center gap-2.5 cursor-pointer"><div className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0" /><span className="text-sm text-foreground">{opt}</span></label>))}</div>}
                 {q.type === "checkbox" && <div className="space-y-2 pl-1">{q.options.map((opt, oi) => (<label key={oi} className="flex items-center gap-2.5 cursor-pointer"><div className="w-4 h-4 rounded border-2 border-border flex-shrink-0" /><span className="text-sm text-foreground">{opt}</span></label>))}</div>}
-                {q.type === "rating" && <div className="flex gap-2 pl-1">{[1,2,3,4,5].map(s => (<button key={s} className="w-10 h-10 rounded-full border-2 border-border text-sm font-bold text-muted-foreground hover:border-primary hover:text-primary transition-colors">{s}</button>))}</div>}
+                {q.type === "rating" && <div className="flex gap-2 pl-1">{[1,2,3,4,5].map(s => { const c = s===1?"#E8384D":s===2?"#F4703A":s===3?"#F9C02B":s===4?"#2ABDA8":"#4BC06B"; return (<button key={s} className="w-10 h-10 rounded-full border-2 text-sm font-bold text-white transition-colors" style={{ background: c, borderColor: c }}>{s}</button>); })}</div>}
                 {q.type === "text" && <textarea rows={3} placeholder="Nhập câu trả lời..." className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary resize-none transition-colors" readOnly />}
               </div>
             ))}
@@ -610,7 +610,7 @@ function AdminSurveySection() {
                     </button>
                   </div>
                 )}
-                {q.type === "rating" && <div className="flex gap-2 pl-2">{[1,2,3,4,5].map(s => <div key={s} className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-xs font-bold text-muted-foreground">{s}</div>)}</div>}
+                {q.type === "rating" && <div className="flex gap-2 pl-2">{[1,2,3,4,5].map(s => { const c = s===1?"#E8384D":s===2?"#F4703A":s===3?"#F9C02B":s===4?"#2ABDA8":"#4BC06B"; return <div key={s} className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: c }}>{s}</div>; })}</div>}
                 {q.type === "text" && <div className="pl-2"><div className="border-b border-border text-xs text-muted-foreground py-1">Câu trả lời dài...</div></div>}
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">

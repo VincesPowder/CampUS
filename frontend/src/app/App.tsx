@@ -132,7 +132,7 @@ function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }
             </p>
 
             {/* Footer inside white section */}
-            <p className="text-center text-[10px] mt-4" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
+            <p className="text-center text-[10px] mt-5" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
           </div>
         </div>
       </div>
@@ -273,7 +273,7 @@ function AIChatbot() {
     <>
       <div className="fixed bottom-[88px] md:bottom-20 right-5 z-40 flex flex-col rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 origin-bottom-right"
         style={{
-          width: "min(360px, calc(100vw - 24px))", background: "var(--background)",
+          width: "min(360px, calc(100vw - 24px))", background: "#ffffff",
           maxHeight: minimized ? 56 : 520,
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -314,7 +314,7 @@ function AIChatbot() {
                   <div className="max-w-[76%]">
                     <div className="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm"
                       style={{
-                        background: m.role === "user" ? PRIMARY : "#fff",
+                        background: m.role === "user" ? PRIMARY : "#EBF4FF",
                         color: m.role === "user" ? "#fff" : "#101A2C",
                         borderBottomRightRadius: m.role === "user" ? 4 : undefined,
                         borderBottomLeftRadius:  m.role === "bot"  ? 4 : undefined,
@@ -333,7 +333,7 @@ function AIChatbot() {
                   <div className="w-7 h-7 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: PRIMARY }}>
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="bg-[#F4EFDF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-[#C8C0A8] flex items-center gap-1">
+                  <div className="bg-[#EBF4FF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-blue-100 flex items-center gap-1">
                     {[0,1,2].map(d => (
                       <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
                         style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
@@ -353,7 +353,7 @@ function AIChatbot() {
                 ))}
               </div>
             )}
-            <div className="px-3 py-3 border-t border-[#C8C0A8] bg-[#F4EFDF] flex items-end gap-2">
+            <div className="px-3 py-3 border-t border-gray-100 bg-white flex items-end gap-2">
               <textarea ref={inputRef} rows={1} value={input}
                 onChange={e => {
                   setInput(e.target.value);
@@ -362,7 +362,7 @@ function AIChatbot() {
                 }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Nhập câu hỏi... (Enter để gửi)"
-                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-[#E8E0CC] leading-relaxed"
+                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 leading-relaxed bg-[#ffffff]"
                 style={{ ...INTER, maxHeight: 96, overflowY: "auto" }} />
               <button onClick={() => send()} disabled={!input.trim() || typing}
                 className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center text-white transition-all"
@@ -458,7 +458,12 @@ export default function App() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
+  const [readIds, setReadIds] = useState<Set<number>>(new Set(NOTIFICATIONS.filter(n => n.read).map(n => n.id)));
   const notifRef  = useRef<HTMLDivElement>(null);
+
+  function markRead(id: number) {
+    setReadIds(prev => new Set([...prev, id]));
+  }
   const avatarRef = useRef<HTMLDivElement>(null);
 
   function handleLogin(role: "admin" | "student") {
@@ -484,7 +489,7 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const unread = NOTIFICATIONS.filter(n => !n.read).length;
+  const unread = NOTIFICATIONS.filter(n => !readIds.has(n.id)).length;
 
   if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
   if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} />;
@@ -594,18 +599,21 @@ export default function App() {
                     <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
                   </div>
                   <div className="max-h-80 overflow-y-auto divide-y divide-border">
-                    {NOTIFICATIONS.map(n => (
-                      <div key={n.id} className={`px-4 py-3 hover:bg-secondary/50 transition-colors ${!n.read ? "bg-secondary/30" : ""}`}>
-                        <div className="flex items-start gap-2 mb-1">
-                          {!n.read && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                          <p className={`text-xs leading-snug flex-1 ${!n.read ? "font-semibold text-foreground" : "text-foreground"}`}>{n.title}</p>
+                    {NOTIFICATIONS.map(n => {
+                      const isUnread = !readIds.has(n.id);
+                      return (
+                        <div key={n.id} className={`px-4 py-3 hover:bg-secondary/50 transition-colors ${isUnread ? "bg-secondary/30" : ""}`}>
+                          <div className="flex items-start gap-2 mb-1">
+                            {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
+                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.title}</p>
+                          </div>
+                          <div className="flex items-center justify-between mt-1 pl-4">
+                            <span className="text-xs text-muted-foreground">{n.time}</span>
+                            <button onClick={() => { markRead(n.id); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between mt-1 pl-4">
-                          <span className="text-xs text-muted-foreground">{n.time}</span>
-                          <button onClick={() => { setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="border-t border-border">
                     <button onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} className="w-full py-3 text-sm font-semibold hover:bg-secondary/50 transition-colors" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tất cả</button>
@@ -649,7 +657,7 @@ export default function App() {
           {activeSection === "survey"         && <SurveySection />}
           {activeSection === "schedule"       && <ScheduleSection />}
           {activeSection === "tuition"        && <TuitionSection />}
-          {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={setSelectedNotif} />}
+          {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={(n) => { if (n) markRead(n.id); setSelectedNotif(n); }} readIds={readIds} />}
         </main>
       </div>
 
