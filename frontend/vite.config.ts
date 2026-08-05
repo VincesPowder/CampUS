@@ -31,6 +31,17 @@ export default defineConfig({
     },
   },
 
+  server: {
+    proxy: {
+      // Mọi request bắt đầu bằng /api sẽ được Vite tự động chuyển hướng sang Backend
+      '/api': {
+        target: 'http://127.0.0.1:5000', // Cổng chạy Flask của bạn
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  },
+
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 })

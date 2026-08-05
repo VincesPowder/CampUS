@@ -343,6 +343,19 @@ export default function App() {
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
+  const activeAccount = accounts[0];
+  const fullName = activeAccount?.name || STUDENT_PROFILE.fullName;
+  const email = activeAccount?.username || STUDENT_PROFILE.officialEmail;
+  const mssv = activeAccount?.username ? activeAccount.username.split('@')[0] : STUDENT_PROFILE.mssv;
+  const nameParts = fullName.trim().split(/\s+/);
+  const initials = nameParts.length > 1 
+    ? (nameParts[nameParts.length - 2][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    : fullName.substring(0, 2).toUpperCase();
+  const shortName = nameParts.length > 1
+    ? nameParts.slice(0, -1).map(p => p[0].toUpperCase() + ".").join("") + nameParts[nameParts.length - 1]
+    : fullName;
+
+
   function handleLogin(role: "admin" | "student", method: "local" | "msal") {
     setUserRole(role);
     setLoginMethod(method);
@@ -455,12 +468,22 @@ export default function App() {
         <div className="mx-4 mt-2 h-px bg-white/10" />
         <div className={`p-4 flex items-center gap-3 flex-shrink-0 ${sidebarOpen ? "" : "justify-center"}`}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
-            <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</span>
+            <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              {initials}
+            </span>
           </div>
           {sidebarOpen && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Nguyễn Văn An</div>
-              <div className="text-xs text-white/40 truncate font-mono">21127001</div>
+              <div 
+                className="text-sm font-semibold text-white truncate" 
+                title={fullName}
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                {shortName}
+              </div>
+              <div className="text-xs text-white/40 truncate font-mono">
+                {mssv}
+              </div>
             </div>
           )}
         </div>
@@ -528,16 +551,25 @@ export default function App() {
               )}
             </div>
             <div className="relative" ref={avatarRef}>
+              {/* Nút Avatar */}
               <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
-                NV
+                {initials}
               </button>
+
+              {/* Menu Dropdown */}
               {avatarOpen && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
                   <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {initials}
+                    </div>
                     <div className="min-w-0">
-                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{STUDENT_PROFILE.fullName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{STUDENT_PROFILE.officialEmail}</div>
+                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {fullName}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {email}
+                      </div>
                     </div>
                   </div>
                   <div className="py-1">
