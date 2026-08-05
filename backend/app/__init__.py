@@ -1,6 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS # Thêm dòng này
+from flask_cors import CORS 
+import os
+from dotenv import load_dotenv
+
+# 1. GỌI HÀM NÀY ĐỂ MÁY ĐỌC FILE .env
+load_dotenv()
 
 db = SQLAlchemy()
 
@@ -10,15 +15,15 @@ def create_app():
     # Cho phép Frontend (localhost:5173) gọi API thoải mái
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
     
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instances/campus.db'
-    # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # 2. ÉP FLASK ĐỌC ĐÚNG FILE DB CỦA BẠN (DÙNG ĐƯỜNG DẪN TUYỆT ĐỐI)
+    basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__))) # Trỏ ra thư mục backend/
+    db_path = os.path.join(basedir, 'database', 'campus.db')              # Nối với thư mục database/
     
-    # db.init_app(app)
+    # Đọc từ .env, nếu không có thì dùng đường dẫn tuyệt đối vừa tạo
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # # Tạo database nếu chưa có (Chạy 1 lần đầu tiên)
-    # with app.app_context():
-    #     from app.models.user import User
-    #     db.create_all()
+    db.init_app(app)
     
     # Đăng ký Blueprints
     from app.routes.auth_routes import auth_bp
