@@ -1,5 +1,5 @@
 
-  # Build CampUS Student Portal
+  #CampUS
 
   This is a code bundle for Build CampUS Student Portal. The original project is available at https://www.figma.com/design/uoSCUa51mNjjdCo9fYyK7t/Build-CampUS-Student-Portal.
 

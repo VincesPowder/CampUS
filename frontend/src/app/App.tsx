@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 import {
   User, ChevronRight, LogOut, X,
   ChevronsLeft, ChevronsRight, Bell,
@@ -18,130 +19,9 @@ import {
   type NavSection,
 } from "./StudentSections";
 
-// ─── Accounts ────────────────────────────────────────────────────────────────
-const ACCOUNTS = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin"   as const },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
-];
-
-// ─── Account Picker Modal ─────────────────────────────────────────────────────
-function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#C8C0A8]">
-          <div>
-            <p className="text-xs text-[#718096] mb-0.5">Chọn tài khoản để tiếp tục với</p>
-            <h2 className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>
-              CampUS — HCMUS
-            </h2>
-          </div>
-          <div className="flex items-center gap-1">
-            <svg width="16" height="16" viewBox="0 0 21 21" fill="none">
-              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-              <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-              <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-            </svg>
-            <span className="text-xs font-semibold text-[#4A6080]">Microsoft</span>
-          </div>
-        </div>
-        <div className="px-6 py-5 space-y-3">
-          <p className="text-sm font-semibold text-[#1E2D42]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Chọn tài khoản
-          </p>
-          {ACCOUNTS.map(acc => (
-            <button
-              key={acc.username}
-              onClick={() => onLogin(acc.role)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#E0D8C4] transition-all text-left group"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                style={{ background: acc.role === "admin" ? "#11284D" : "#D5B370", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                {acc.initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm text-[#101A2C] group-hover:text-[#11284D]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  {acc.label}
-                </div>
-                <div className="text-xs text-[#718096] truncate">{acc.email}</div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#B0AA90] group-hover:text-[#11284D] flex-shrink-0" />
-            </button>
-          ))}
-        </div>
-        <div className="px-6 pb-4 text-center">
-          <p className="text-[10px] text-[#B0AA90]">©GROUP 3 - AMONG US · HCMUS</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import Login from "./components/Login";
 
 // ─── Login Page ───────────────────────────────────────────────────────────────
-function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
-  const [showPicker, setShowPicker] = useState(false);
-  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background photo */}
-      <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-      {/* Dark overlay */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,22,40,0.55) 0%, rgba(10,22,40,0.72) 100%)" }} />
-
-      <div className="relative z-10 w-full max-w-sm mx-4">
-        {/* Card */}
-        <div className="rounded-2xl shadow-2xl overflow-hidden">
-
-          {/* ── Top: Navy branding ── */}
-          <div className="px-8 pt-8 pb-7 text-center" style={{ background: "linear-gradient(135deg,#11284D 0%,#264B6F 100%)" }}>
-            <div className="w-16 h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl font-bold text-white" style={PJS}>C</span>
-            </div>
-            <h1 className="text-xl font-bold text-white" style={PJS}>CampUS</h1>
-            <p className="text-white/55 text-xs mt-1">Trường ĐH Khoa học Tự nhiên — ĐHQG HCM</p>
-          </div>
-
-          {/* ── Bottom: White, image-3 style ── */}
-          <div className="bg-white pt-7 pb-3 flex flex-col items-center">
-            <h2 className="font-bold mb-6 text-center text-[15px]" style={{ ...PJS, color: "var(--primary)" }}>ĐĂNG NHẬP</h2>
-
-            {/* Microsoft button */}
-            <button
-              onClick={() => setShowPicker(true)}
-              className="inline-flex items-center gap-3 px-4 py-3 rounded border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#F4EFDF]/60 transition-all group"
-            >
-              {/* Windows logo */}
-              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" className="flex-shrink-0">
-                <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
-                <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
-                <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
-                <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-              </svg>
-              <span className="text-sm font-semibold group-hover:text-[#11284D] transition-colors" style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
-                Đăng nhập với Microsoft
-              </span>
-            </button>
-
-            {/* Note */}
-            <p className="text-center text-[11px] mt-8 leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
-              Vui lòng sử dụng email chính thức nhà trường đã cung cấp
-              <br />
-              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn)</span>
-            </p>
-
-            {/* Footer inside white section */}
-            <p className="text-center text-[10px] mt-4" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
-          </div>
-        </div>
-      </div>
-
-      {showPicker && <AccountPickerModal onLogin={role => { setShowPicker(false); onLogin(role); }} />}
-    </div>
-  );
-}
-
 // ─── Logout Confirm ───────────────────────────────────────────────────────────
 function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
@@ -448,8 +328,10 @@ function HelpButton() {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { instance, accounts } = useMsal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"student" | "admin">("student");
+  const [loginMethod, setLoginMethod] = useState<"local" | "msal">("local");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState<NavSection>("profile");
@@ -461,10 +343,12 @@ export default function App() {
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  function handleLogin(role: "admin" | "student") {
+  function handleLogin(role: "admin" | "student", method: "local" | "msal") {
     setUserRole(role);
+    setLoginMethod(method);
     setIsLoggedIn(true);
   }
+
 
   function handleLogoutConfirm() {
     setShowLogoutConfirm(false);
@@ -472,6 +356,21 @@ export default function App() {
     setTimeout(() => {
       setShowLogoutSuccess(false);
       setIsLoggedIn(false);
+      localStorage.removeItem("campus_token");
+      // Gỡ tài khoản hiện tại ra khỏi MSAL để tránh kẹt
+      if (instance.getAllAccounts().length > 0) {
+        instance.setActiveAccount(null);
+      }
+
+      try {
+        instance.logoutRedirect({
+          postLogoutRedirectUri: window.location.origin
+        });
+      } catch (error) {
+        // FALLBACK: Nếu MSAL bị lỗi ở lần 1, ép trình duyệt xóa sạch cache và nhảy sang trang Logout
+        sessionStorage.clear();
+        window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      }
     }, 1800);
   }
 
@@ -486,8 +385,23 @@ export default function App() {
 
   const unread = NOTIFICATIONS.filter(n => !n.read).length;
 
-  if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
-  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} />;
+  
+  if (!isLoggedIn) return <Login onLogin={handleLogin} />;
+  if (userRole === "admin") return <AdminApp onLogout={() => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("campus_token");
+    
+    if (instance.getAllAccounts().length > 0) {
+      instance.setActiveAccount(null);
+    }
+
+    try {
+      instance.logoutRedirect({ postLogoutRedirectUri: window.location.origin });
+    } catch (e) {
+      sessionStorage.clear();
+      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    }
+  }} />;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
