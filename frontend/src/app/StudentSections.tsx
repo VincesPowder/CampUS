@@ -96,13 +96,13 @@ function FamilyModal({ member, onClose, onSave }: {
         </div>
         <div className="flex justify-end gap-3 px-5 py-4 border-t border-border" style={{ background: "var(--background)" }}>
           <button onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-muted transition-colors"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--muted-foreground)", background: "#fff" }}>
+            className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:opacity-80 transition-opacity"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)", background: "rgba(37,52,79,0.1)" }}>
             Hủy
           </button>
           <button onClick={() => { onSave(draft); onClose(); }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-80 transition-opacity"
+            style={{ background: "rgba(37,52,79,0.1)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif", border: "1px solid rgba(37,52,79,0.2)" }}>
             <CheckCircle2 className="w-4 h-4" />
             Lưu thay đổi
           </button>
@@ -127,7 +127,7 @@ function FamilyTab() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr style={{ background: "var(--secondary)" }}>
+              <tr style={{ background: "rgba(37,52,79,0.2)" }}>
                 {["Họ tên", "Ngày sinh", "Quan hệ", "Nghề nghiệp", "Nơi làm việc", "SĐT", "Mail"].map(col => (
                   <th key={col} className="border border-border px-3 py-2 text-left font-semibold"
                     style={{ fontSize: "11.5px", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -138,7 +138,10 @@ function FamilyTab() {
             </thead>
             <tbody>
               {members.map((row, i) => (
-                <tr key={i} className="hover:bg-secondary/60 transition-colors cursor-pointer group" onClick={() => setSelected(row)} title="Nhấn để chỉnh sửa">
+                <tr key={i} className="transition-colors cursor-pointer group" onClick={() => setSelected(row)} title="Nhấn để chỉnh sửa"
+                  style={{ background: selected?.name === row.name ? "rgba(37,52,79,0.1)" : undefined }}
+                  onMouseEnter={e => { if (selected?.name !== row.name) (e.currentTarget as HTMLElement).style.background = "rgba(37,52,79,0.06)"; }}
+                  onMouseLeave={e => { if (selected?.name !== row.name) (e.currentTarget as HTMLElement).style.background = ""; }}>
                   <td className="border border-border px-3 py-2.5 font-medium text-foreground">
                     <span className="flex items-center gap-2">
                       {row.name}
@@ -191,19 +194,6 @@ export function TuitionSection() {
   const [selNamHoc, setSelNamHoc] = useState(uniqueNamHoc[0]);
   const ALL_HKS = ["HK1", "HK2", "HK3"] as const;
   const [selHK, setSelHK] = useState<string>("HK3");
-  const [yearOpen, setYearOpen] = useState(false);
-  const [hkOpen,   setHkOpen]   = useState(false);
-  const yearRef = useRef<HTMLDivElement>(null);
-  const hkRef   = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false);
-      if (hkRef.current  && !hkRef.current.contains(e.target as Node))   setHkOpen(false);
-    }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
 
   const matchNhHk = parsed.find(p => p.namHoc === selNamHoc && p.hocKy === selHK)?.nhHk ?? TUITION_DATA[0].nhHk;
@@ -223,43 +213,19 @@ export function TuitionSection() {
     <div className="space-y-5 w-full">
       <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tra Cứu Học Phí</h1>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative" ref={yearRef}>
-          <button onClick={() => { setYearOpen(o => !o); setHkOpen(false); }}
-            className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
-            style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
-            <span className="flex-1 text-left">Năm học {selNamHoc}</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: yearOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
-          </button>
-          {yearOpen && (
-            <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 180 }}>
-              {uniqueNamHoc.map(y => (
-                <button key={y} onClick={() => { setSelNamHoc(y); setYearOpen(false); }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: selNamHoc === y ? 600 : 400, color: selNamHoc === y ? "var(--primary)" : "var(--foreground)", background: selNamHoc === y ? "var(--secondary)" : undefined }}>
-                  Năm học {y}
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
+          <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+            {uniqueNamHoc.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
         </div>
-        <div className="relative" ref={hkRef}>
-          <button onClick={() => { setHkOpen(o => !o); setYearOpen(false); }}
-            className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
-            style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 140 }}>
-            <span className="flex-1 text-left">Học kỳ {selHK.replace("HK", "")}</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: hkOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
-          </button>
-          {hkOpen && (
-            <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 160 }}>
-              {ALL_HKS.map(h => (
-                <button key={h} onClick={() => { setSelHK(h); setHkOpen(false); }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: selHK === h ? 600 : 400, color: selHK === h ? "var(--primary)" : "var(--foreground)", background: selHK === h ? "var(--secondary)" : undefined }}>
-                  Học kỳ {h.replace("HK", "")}
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
+          <select value={selHK} onChange={e => setSelHK(e.target.value)}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+            {ALL_HKS.map(h => <option key={h} value={h}>Học kỳ {h.replace("HK", "")}</option>)}
+          </select>
         </div>
       </div>
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -654,19 +620,6 @@ export function ProgressSection() {
 export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "progress"; setSubTab: (t: "summary" | "progress") => void }) {
   const [filterYear, setFilterYear] = useState("Tất cả");
   const [filterTerm, setFilterTerm] = useState("Tất cả");
-  const [yearOpen, setYearOpen] = useState(false);
-  const [termOpen, setTermOpen] = useState(false);
-  const yearRef = useRef<HTMLDivElement>(null);
-  const termRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false);
-      if (termRef.current && !termRef.current.contains(e.target as Node)) setTermOpen(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   const allYears = Array.from(new Set(COURSE_DATA.map(c => c.namHoc)));
   const years = ["Tất cả", ...allYears];
@@ -695,43 +648,19 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
       {subTab === "summary" && (
         <>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative" ref={yearRef}>
-              <button onClick={() => { setYearOpen(o => !o); setTermOpen(false); }}
-                className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
-                style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
-                <span className="flex-1 text-left">{filterYear === "Tất cả" ? "Tất cả năm học" : `Năm học ${filterYear}`}</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: yearOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
-              </button>
-              {yearOpen && (
-                <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 200 }}>
-                  {years.map(y => (
-                    <button key={y} onClick={() => { setFilterYear(y); setFilterTerm("Tất cả"); setYearOpen(false); }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
-                      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: filterYear === y ? 600 : 400, color: filterYear === y ? "var(--primary)" : "var(--foreground)", background: filterYear === y ? "var(--secondary)" : undefined }}>
-                      {y === "Tất cả" ? "Tất cả năm học" : `Năm học ${y}`}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
+              <select value={filterYear} onChange={e => { setFilterYear(e.target.value); setFilterTerm("Tất cả"); }}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {years.map(y => <option key={y} value={y}>{y === "Tất cả" ? "Tất cả năm học" : `Năm học ${y}`}</option>)}
+              </select>
             </div>
-            <div className="relative" ref={termRef}>
-              <button onClick={() => { setTermOpen(o => !o); setYearOpen(false); }}
-                className="flex items-center gap-2 bg-card rounded-lg px-4 py-2 text-sm font-medium hover:bg-secondary/50 transition-colors"
-                style={{ border: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 160 }}>
-                <span className="flex-1 text-left">{filterTerm === "Tất cả" ? "Tất cả học kỳ" : `Học kỳ ${filterTerm}`}</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" style={{ transform: termOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
-              </button>
-              {termOpen && (
-                <div className="absolute left-0 top-full mt-1 bg-card rounded-xl shadow-xl overflow-hidden z-20" style={{ border: "1px solid #C5CCB7", minWidth: 200 }}>
-                  {terms.map(t => (
-                    <button key={t} onClick={() => { setFilterTerm(t); setTermOpen(false); }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors"
-                      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: filterTerm === t ? 600 : 400, color: filterTerm === t ? "var(--primary)" : "var(--foreground)", background: filterTerm === t ? "var(--secondary)" : undefined }}>
-                      {t === "Tất cả" ? "Tất cả học kỳ" : `Học kỳ ${t}`}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
+              <select value={filterTerm} onChange={e => setFilterTerm(e.target.value)}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {terms.map(t => <option key={t} value={t}>{t === "Tất cả" ? "Tất cả học kỳ" : `Học kỳ ${t}`}</option>)}
+              </select>
             </div>
             <span className="text-xs text-muted-foreground">{filtered.length} môn học</span>
           </div>
@@ -835,7 +764,7 @@ export function ProfileSection() {
   return (
     <div className="w-full space-y-5">
       <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="px-5 py-3 border-b border-border" style={{ background: "#A67A53" }}>
+        <div className="px-5 py-3 border-b border-border" style={{ background: "#11284D" }}>
           <h2 className="text-sm font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin chung</h2>
         </div>
         <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-4">
@@ -883,7 +812,7 @@ export function ProfileSection() {
           {tabs.map(t => (
             <button key={t.id} onClick={() => setInnerTab(t.id)}
               className="px-6 py-3 text-sm font-medium transition-colors relative"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: innerTab === t.id ? "#fff" : "var(--muted-foreground)", fontWeight: innerTab === t.id ? 600 : 400, background: innerTab === t.id ? "#A67A53" : "transparent" }}>
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: innerTab === t.id ? "#fff" : "var(--muted-foreground)", fontWeight: innerTab === t.id ? 600 : 400, background: innerTab === t.id ? "#11284D" : "transparent" }}>
               {t.label}
             </button>
           ))}
@@ -891,8 +820,8 @@ export function ProfileSection() {
             {isEditing ? (
               <>
                 <button onClick={handleCancel}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border border-border hover:bg-[var(--input-background)] transition-colors"
-                  style={{ color: "var(--muted-foreground)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Hủy</button>
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors hover:opacity-80"
+                  style={{ background: "rgba(37,52,79,0.1)", borderColor: "rgba(37,52,79,0.2)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Hủy</button>
                 <button onClick={handleSave}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90"
                   style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -901,8 +830,8 @@ export function ProfileSection() {
               </>
             ) : (
               <button onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors hover:bg-secondary/60"
-                style={{ borderColor: "var(--primary)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors hover:opacity-80"
+                style={{ background: "rgba(37,52,79,0.1)", borderColor: "rgba(37,52,79,0.2)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 16L8.5 15 16.5 7a1.414 1.414 0 0 0-2-2L6.5 13 4 16z" />
                 </svg>
@@ -912,7 +841,7 @@ export function ProfileSection() {
           </div>
         </div>
         {isEditing && (
-          <div className="px-5 py-2 text-xs font-medium" style={{ background: "var(--input-background)", color: "var(--primary)", borderBottom: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="px-5 py-2 text-xs font-medium" style={{ background: "rgba(37,52,79,0.1)", color: "var(--primary)", borderBottom: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Đang ở chế độ chỉnh sửa — nhấn <strong>Lưu</strong> để xác nhận hoặc <strong>Hủy</strong> để thoát.
           </div>
         )}
@@ -1187,8 +1116,7 @@ export function SurveySection() {
 }
 
 // ─── Schedule Section ─────────────────────────────────────────────────────────
-export function ScheduleSection() {
-  const [tab,    setTab]    = useState<"tkb" | "thi">("tkb");
+export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (t: "tkb" | "thi") => void }) {
   const [namHoc, setNamHoc] = useState("2025-2026");
   const [hocKy,  setHocKy]  = useState("HK1");
   const [tuan,   setTuan]   = useState(28);

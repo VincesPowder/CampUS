@@ -146,7 +146,7 @@ function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }
 function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
+      <div className="rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center bg-[#ffffff]">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "var(--background)" }}>
           <LogOut className="w-6 h-6" style={{ color: "var(--accent)" }} />
         </div>
@@ -165,7 +165,7 @@ function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 function LogoutSuccess() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
+      <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#f0fdf4" }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
@@ -454,6 +454,7 @@ export default function App() {
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState<NavSection>("profile");
   const [academicSubTab, setAcademicSubTab] = useState<"summary" | "progress">("summary");
+  const [scheduleTab, setScheduleTab] = useState<"tkb" | "thi">("tkb");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -573,7 +574,6 @@ export default function App() {
           </div>
           {/* Desktop: breadcrumb */}
           <div className="hidden md:flex items-center gap-1.5">
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {SECTION_TITLES[activeSection]}
             </span>
@@ -582,6 +582,14 @@ export default function App() {
                 <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                   {academicSubTab === "summary" ? "Tổng kết" : "Tiến độ học tập"}
+                </span>
+              </>
+            )}
+            {activeSection === "schedule" && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {scheduleTab === "tkb" ? "TKB Tuần" : "TKB Thi"}
                 </span>
               </>
             )}
@@ -655,7 +663,7 @@ export default function App() {
           {activeSection === "profile"        && <ProfileSection />}
           {activeSection === "academic"       && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
           {activeSection === "survey"         && <SurveySection />}
-          {activeSection === "schedule"       && <ScheduleSection />}
+          {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
           {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={(n) => { if (n) markRead(n.id); setSelectedNotif(n); }} readIds={readIds} />}
         </main>
