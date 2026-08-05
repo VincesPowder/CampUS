@@ -29,4 +29,8 @@ def create_app():
     from app.routes.auth_routes import auth_bp
     app.register_blueprint(auth_bp)
     
+    # 3. THÊM DÒNG NÀY ĐỂ ĐĂNG KÝ CÁC API CỦA PROFILE (UC 2.5, 2.6)
+    from app.routes.student_routes import profile_bp
+    app.register_blueprint(profile_bp)
+    
     return app
