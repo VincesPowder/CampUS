@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 import {
   User, ChevronRight, LogOut, X,
   ChevronsLeft, ChevronsRight, Bell,
@@ -18,65 +19,7 @@ import {
   type NavSection,
 } from "./StudentSections";
 
-// ─── Accounts ────────────────────────────────────────────────────────────────
-const ACCOUNTS = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin"   as const },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
-];
-
-// ─── Account Picker Modal ─────────────────────────────────────────────────────
-function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#C8C0A8]">
-          <div>
-            <p className="text-xs text-[#718096] mb-0.5">Chọn tài khoản để tiếp tục với</p>
-            <h2 className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>
-              CampUS — HCMUS
-            </h2>
-          </div>
-          <div className="flex items-center gap-1">
-            <svg width="16" height="16" viewBox="0 0 21 21" fill="none">
-              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-              <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-              <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-            </svg>
-            <span className="text-xs font-semibold text-[#4A6080]">Microsoft</span>
-          </div>
-        </div>
-        <div className="px-6 py-5 space-y-3">
-          <p className="text-sm font-semibold text-[#1E2D42]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Chọn tài khoản
-          </p>
-          {ACCOUNTS.map(acc => (
-            <button
-              key={acc.username}
-              onClick={() => onLogin(acc.role)}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#E0D8C4] transition-all text-left group"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                style={{ background: acc.role === "admin" ? "#11284D" : "#D5B370", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                {acc.initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm text-[#101A2C] group-hover:text-[#11284D]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  {acc.label}
-                </div>
-                <div className="text-xs text-[#718096] truncate">{acc.email}</div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#B0AA90] group-hover:text-[#11284D] flex-shrink-0" />
-            </button>
-          ))}
-        </div>
-        <div className="px-6 pb-4 text-center">
-          <p className="text-[10px] text-[#B0AA90]">©GROUP 3 - AMONG US · HCMUS</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import Login from "./components/Login";
 
 // ─── Login Page ───────────────────────────────────────────────────────────────
 function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
@@ -448,8 +391,10 @@ function HelpButton() {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { instance, accounts } = useMsal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"student" | "admin">("student");
+  const [loginMethod, setLoginMethod] = useState<"local" | "msal">("local");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState<NavSection>("profile");
@@ -467,10 +412,25 @@ export default function App() {
   }
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  function handleLogin(role: "admin" | "student") {
+  const activeAccount = accounts[0];
+  const fullName = activeAccount?.name || STUDENT_PROFILE.fullName;
+  const email = activeAccount?.username || STUDENT_PROFILE.officialEmail;
+  const mssv = activeAccount?.username ? activeAccount.username.split('@')[0] : STUDENT_PROFILE.mssv;
+  const nameParts = fullName.trim().split(/\s+/);
+  const initials = nameParts.length > 1 
+    ? (nameParts[nameParts.length - 2][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    : fullName.substring(0, 2).toUpperCase();
+  const shortName = nameParts.length > 1
+    ? nameParts.slice(0, -1).map(p => p[0].toUpperCase() + ".").join("") + nameParts[nameParts.length - 1]
+    : fullName;
+
+
+  function handleLogin(role: "admin" | "student", method: "local" | "msal") {
     setUserRole(role);
+    setLoginMethod(method);
     setIsLoggedIn(true);
   }
+
 
   function handleLogoutConfirm() {
     setShowLogoutConfirm(false);
@@ -478,6 +438,21 @@ export default function App() {
     setTimeout(() => {
       setShowLogoutSuccess(false);
       setIsLoggedIn(false);
+      localStorage.removeItem("campus_token");
+      // Gỡ tài khoản hiện tại ra khỏi MSAL để tránh kẹt
+      if (instance.getAllAccounts().length > 0) {
+        instance.setActiveAccount(null);
+      }
+
+      try {
+        instance.logoutRedirect({
+          postLogoutRedirectUri: window.location.origin
+        });
+      } catch (error) {
+        // FALLBACK: Nếu MSAL bị lỗi ở lần 1, ép trình duyệt xóa sạch cache và nhảy sang trang Logout
+        sessionStorage.clear();
+        window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      }
     }, 1800);
   }
 
@@ -492,8 +467,23 @@ export default function App() {
 
   const unread = NOTIFICATIONS.filter(n => !readIds.has(n.id)).length;
 
-  if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
-  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} />;
+  
+  if (!isLoggedIn) return <Login onLogin={handleLogin} />;
+  if (userRole === "admin") return <AdminApp onLogout={() => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("campus_token");
+    
+    if (instance.getAllAccounts().length > 0) {
+      instance.setActiveAccount(null);
+    }
+
+    try {
+      instance.logoutRedirect({ postLogoutRedirectUri: window.location.origin });
+    } catch (e) {
+      sessionStorage.clear();
+      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    }
+  }} />;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -547,12 +537,22 @@ export default function App() {
         <div className="mx-4 mt-2 h-px bg-white/10" />
         <div className={`p-4 flex items-center gap-3 flex-shrink-0 ${sidebarOpen ? "" : "justify-center"}`}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
-            <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</span>
+            <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              {initials}
+            </span>
           </div>
           {sidebarOpen && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Nguyễn Văn An</div>
-              <div className="text-xs text-white/40 truncate font-mono">21127001</div>
+              <div 
+                className="text-sm font-semibold text-white truncate" 
+                title={fullName}
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                {shortName}
+              </div>
+              <div className="text-xs text-white/40 truncate font-mono">
+                {mssv}
+              </div>
             </div>
           )}
         </div>
@@ -630,16 +630,25 @@ export default function App() {
               )}
             </div>
             <div className="relative" ref={avatarRef}>
+              {/* Nút Avatar */}
               <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
-                NV
+                {initials}
               </button>
+
+              {/* Menu Dropdown */}
               {avatarOpen && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
                   <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {initials}
+                    </div>
                     <div className="min-w-0">
-                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{STUDENT_PROFILE.fullName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{STUDENT_PROFILE.officialEmail}</div>
+                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {fullName}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {email}
+                      </div>
                     </div>
                   </div>
                   <div className="py-1">
