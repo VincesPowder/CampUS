@@ -3,7 +3,7 @@
 /* ── Ocean Theme: Deep navy + Warm cream + Gold ── */
 :root {
   --font-size: 15px;
-  --background: #F4EFDF;
+  --background: rgba(244, 239, 223, 0.15);
   --foreground: #101A2C;
   --card: #FFFFFF;
   --card-foreground: #101A2C;

@@ -1,7 +1,7 @@
 // ─── Shared schedule types, data, and TKBCellCard ────────────────────────────
 // Used by both ScheduleSection (student) and AdminScheduleSection (admin)
 
-export type HinhThuc = "TẬP TRUNG" | "TRỰC TUYẾN" | "HỌC BÙ TRỰC TIẾP" | "HỌC BÙ TRỰC TUYẾN";
+export type HinhThuc = "TẬP TRUNG" | "TRỰC TUYẾN" | "HỌC BÙ TRỰC TIẾP" | "HỌC BÙ TRỰC TUYẾN" | "NGHỈ";
 
 export type TKBEntry = {
   tenMon: string; maNhom: string; tiet: string; gv: string; email: string;
@@ -12,7 +12,7 @@ export type TKBCell = TKBEntry | "span" | null;
 
 export type ExamEntry = {
   tenMon: string; maNhom: string; ngayThi: string; thu: string;
-  ca: string; gio: string; phong: string; soThi: number; hinhThuc: string;
+  ca: string; gio: string; thoiGian: string; phong: string; soThi: number; hinhThuc: string;
 };
 
 const E = {
@@ -72,13 +72,13 @@ export const TKB_DATA: Record<number, Record<number, TKBCell[]>> = {
 };
 
 export const EXAM_DATA: ExamEntry[] = [
-  { tenMon: "Thể dục 2",                    maNhom: "24C07", ngayThi: "24/11/2025", thu: "Thứ hai",  ca: "Ca 1", gio: "07:30 – 09:30", phong: "Sân thể dục", soThi: 48,  hinhThuc: "Thực hành" },
-  { tenMon: "Kinh tế CT Mác – Lênin",       maNhom: "24C04", ngayThi: "26/11/2025", thu: "Thứ tư",  ca: "Ca 1", gio: "07:30 – 09:30", phong: "C.33",        soThi: 120, hinhThuc: "Tự luận" },
-  { tenMon: "Cơ sở dữ liệu",               maNhom: "24C07", ngayThi: "28/11/2025", thu: "Thứ sáu", ca: "Ca 2", gio: "09:30 – 11:30", phong: "I.42",        soThi: 90,  hinhThuc: "Tự luận" },
-  { tenMon: "Cơ sở dữ liệu [TH]",          maNhom: "24C07", ngayThi: "29/11/2025", thu: "Thứ bảy", ca: "Ca 1", gio: "07:30 – 09:30", phong: "I.52",        soThi: 45,  hinhThuc: "Thực hành" },
-  { tenMon: "Nhập môn CN phần mềm",         maNhom: "24C07", ngayThi: "01/12/2025", thu: "Thứ hai", ca: "Ca 3", gio: "13:30 – 15:30", phong: "I.32",        soThi: 60,  hinhThuc: "Thực hành" },
-  { tenMon: "Toán ứng dụng & TK CNTT",      maNhom: "24C04", ngayThi: "03/12/2025", thu: "Thứ tư",  ca: "Ca 3", gio: "13:30 – 15:30", phong: "I.35",        soThi: 100, hinhThuc: "Tự luận" },
-  { tenMon: "Toán ứng dụng & TK CNTT [TH]", maNhom: "24C04", ngayThi: "05/12/2025", thu: "Thứ sáu", ca: "Ca 1", gio: "07:30 – 09:30", phong: "I.52",        soThi: 50,  hinhThuc: "Thực hành" },
+  { tenMon: "Thể dục 2",                    maNhom: "24C07", ngayThi: "24/11/2025", thu: "Thứ hai",  ca: "Ca 1", gio: "07:30 – 09:30", thoiGian: "120 phút", phong: "Sân thể dục", soThi: 48,  hinhThuc: "Thực hành" },
+  { tenMon: "Kinh tế CT Mác – Lênin",       maNhom: "24C04", ngayThi: "26/11/2025", thu: "Thứ tư",  ca: "Ca 1", gio: "07:30 – 09:30", thoiGian: "90 phút",  phong: "C.33",        soThi: 120, hinhThuc: "Tự luận" },
+  { tenMon: "Cơ sở dữ liệu",               maNhom: "24C07", ngayThi: "28/11/2025", thu: "Thứ sáu", ca: "Ca 2", gio: "09:30 – 11:30", thoiGian: "90 phút",  phong: "I.42",        soThi: 90,  hinhThuc: "Tự luận" },
+  { tenMon: "Cơ sở dữ liệu [TH]",          maNhom: "24C07", ngayThi: "29/11/2025", thu: "Thứ bảy", ca: "Ca 1", gio: "07:30 – 09:30", thoiGian: "90 phút",  phong: "I.52",        soThi: 45,  hinhThuc: "Thực hành" },
+  { tenMon: "Nhập môn CN phần mềm",         maNhom: "24C07", ngayThi: "01/12/2025", thu: "Thứ hai", ca: "Ca 3", gio: "13:30 – 15:30", thoiGian: "90 phút",  phong: "I.32",        soThi: 60,  hinhThuc: "Thực hành" },
+  { tenMon: "Toán ứng dụng & TK CNTT",      maNhom: "24C04", ngayThi: "03/12/2025", thu: "Thứ tư",  ca: "Ca 3", gio: "13:30 – 15:30", thoiGian: "90 phút",  phong: "I.35",        soThi: 100, hinhThuc: "Tự luận" },
+  { tenMon: "Toán ứng dụng & TK CNTT [TH]", maNhom: "24C04", ngayThi: "05/12/2025", thu: "Thứ sáu", ca: "Ca 1", gio: "07:30 – 09:30", thoiGian: "90 phút",  phong: "I.52",        soThi: 50,  hinhThuc: "Thực hành" },
 ];
 
 export const DAYS = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"];
@@ -107,11 +107,14 @@ export const HINH_THUC_STYLE: Record<HinhThuc, { bg: string; text: string; label
   "TRỰC TUYẾN":         { bg: "bg-blue-50",   text: "text-blue-600",   label: "Trực tuyến" },
   "HỌC BÙ TRỰC TIẾP":  { bg: "bg-amber-50",  text: "text-amber-700",  label: "Học bù (TT)" },
   "HỌC BÙ TRỰC TUYẾN": { bg: "bg-purple-50", text: "text-purple-600", label: "Học bù (OL)" },
+  "NGHỈ":               { bg: "bg-red-50",    text: "text-red-600",    label: "Nghỉ" },
 };
 
-export function TKBCellCard({ entry }: { entry: TKBEntry }) {
+export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: string }) {
   const isEn = entry.ngonNgu === "Tiếng Anh";
+  const isNghi = entry.hinhThuc === "NGHỈ";
   const htStyle = HINH_THUC_STYLE[entry.hinhThuc];
+  const textColor = "rgba(0,0,0,0.9)";
   return (
     <div className="text-[11px] leading-tight space-y-1 min-w-0 h-full">
       <div className="flex items-center gap-1 flex-wrap">
@@ -128,13 +131,18 @@ export function TKBCellCard({ entry }: { entry: TKBEntry }) {
         )}
       </div>
       <div className="font-bold text-[11px] leading-snug" style={{ color: "var(--primary)" }}>{entry.tenMon}</div>
-      <div className="text-[10px] text-gray-400">Tiết {entry.tiet}</div>
-      <div className="text-[10px] text-gray-500">LHP: <span className="font-mono">{entry.maNhom}</span></div>
-      {entry.gv && <div className="text-[10px] text-gray-500 truncate">GV: {entry.gv}</div>}
-      {entry.email && <div className="text-[10px] text-gray-400 truncate">{entry.email}</div>}
-      <div className="text-[9px] text-gray-400 pt-0.5 space-y-0.5">
-        <div>Hình thức học: {htStyle.label}</div>
-        <div>Ngôn ngữ: {entry.ngonNgu}</div>
+      <div className="text-[10px]" style={{ color: textColor }}>Tiết {entry.tiet}{caTime ? <span className="ml-1 text-muted-foreground">· {caTime}</span> : null}</div>
+      <div className="text-[10px]" style={{ color: textColor }}>LHP: <span className="font-mono">{entry.maNhom}</span></div>
+      {entry.gv && <div className="text-[10px] truncate" style={{ color: textColor }}>GV: {entry.gv}</div>}
+      {entry.email && <div className="text-[10px] truncate" style={{ color: textColor }}>{entry.email}</div>}
+      <div className="text-[9px] pt-0.5 space-y-0.5" style={{ color: textColor }}>
+        <div>
+          Hình thức học:{" "}
+          {isNghi
+            ? <span className="font-bold text-red-600" style={{ fontSize: 11 }}>Nghỉ</span>
+            : htStyle.label}
+        </div>
+        <div style={{ color: textColor }}>Ngôn ngữ: {entry.ngonNgu}</div>
       </div>
     </div>
   );
