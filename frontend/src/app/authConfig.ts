@@ -7,14 +7,15 @@ export const msalConfig: Configuration = {
         // Dùng tenant cụ thể của trường KHTN hoặc 'organizations'
         authority: "https://login.microsoftonline.com/40127cd4-45f3-49a3-b05d-315a43a9f033", 
         // Đường dẫn trả về sau khi login thành công
-        redirectUri: "http://localhost:5173", 
+        redirectUri: "http://localhost:5173",
     },
     cache: {
-        cacheLocation: "sessionStorage", // Lưu cache trong session
+        cacheLocation: "localStorage",
         storeAuthStateInCookie: false, 
     }
 };
 
 export const loginRequest = {
-    scopes: ["User.Read"]
+    scopes: ["User.Read"],
+    prompt: "select_account"
 };

@@ -1,12 +1,16 @@
 # Dependencies
 node_modules/
-venv/
+
+*.db
+__pycache__/
+*.pyc
 
 # Build
 dist/
 build/
 
 # Environment variables
+venv/
 .env
 .env.local
 .env.*.local
@@ -24,3 +28,4 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
