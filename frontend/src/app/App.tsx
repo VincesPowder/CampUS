@@ -22,11 +22,74 @@ import {
 import Login from "./components/Login";
 
 // ─── Login Page ───────────────────────────────────────────────────────────────
+function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
+  const [showPicker, setShowPicker] = useState(false);
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Background photo */}
+      <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      {/* Dark overlay */}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,22,40,0.55) 0%, rgba(10,22,40,0.72) 100%)" }} />
+
+      <div className="relative z-10 w-full max-w-sm mx-4">
+        {/* Card */}
+        <div className="rounded-2xl shadow-2xl overflow-hidden">
+
+          {/* ── Top: Navy branding ── */}
+          <div className="px-8 pt-8 pb-7 text-center" style={{ background: "linear-gradient(135deg,#11284D 0%,#264B6F 100%)" }}>
+            <div className="w-16 h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl font-bold text-white" style={PJS}>C</span>
+            </div>
+            <h1 className="text-xl font-bold text-white" style={PJS}>CampUS</h1>
+            <p className="text-white/55 text-xs mt-1">Trường ĐH Khoa học Tự nhiên — ĐHQG HCM</p>
+          </div>
+
+          {/* ── Bottom: White, image-3 style ── */}
+          <div className="bg-white pt-7 pb-3 flex flex-col items-center">
+            <h2 className="font-bold mb-6 text-center text-[15px]" style={{ ...PJS, color: "var(--primary)" }}>ĐĂNG NHẬP</h2>
+
+            {/* Microsoft button */}
+            <button
+              onClick={() => setShowPicker(true)}
+              className="inline-flex items-center gap-3 px-4 py-3 rounded border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#F4EFDF]/60 transition-all group"
+            >
+              {/* Windows logo */}
+              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" className="flex-shrink-0">
+                <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
+                <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
+                <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
+                <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              </svg>
+              <span className="text-sm font-semibold group-hover:text-[#11284D] transition-colors" style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
+                Đăng nhập với Microsoft
+              </span>
+            </button>
+
+            {/* Note */}
+            <p className="text-center text-[11px] mt-8 leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
+              Vui lòng sử dụng email chính thức nhà trường đã cung cấp
+              <br />
+              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn)</span>
+            </p>
+
+            {/* Footer inside white section */}
+            <p className="text-center text-[10px] mt-5" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
+          </div>
+        </div>
+      </div>
+
+      {showPicker && <AccountPickerModal onLogin={role => { setShowPicker(false); onLogin(role); }} />}
+    </div>
+  );
+}
+
 // ─── Logout Confirm ───────────────────────────────────────────────────────────
 function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
+      <div className="rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center bg-[#ffffff]">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "var(--background)" }}>
           <LogOut className="w-6 h-6" style={{ color: "var(--accent)" }} />
         </div>
@@ -45,7 +108,7 @@ function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 function LogoutSuccess() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
+      <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#f0fdf4" }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
@@ -153,7 +216,7 @@ function AIChatbot() {
     <>
       <div className="fixed bottom-[88px] md:bottom-20 right-5 z-40 flex flex-col rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 origin-bottom-right"
         style={{
-          width: "min(360px, calc(100vw - 24px))", background: "var(--background)",
+          width: "min(360px, calc(100vw - 24px))", background: "#ffffff",
           maxHeight: minimized ? 56 : 520,
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -194,7 +257,7 @@ function AIChatbot() {
                   <div className="max-w-[76%]">
                     <div className="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm"
                       style={{
-                        background: m.role === "user" ? PRIMARY : "#fff",
+                        background: m.role === "user" ? PRIMARY : "#EBF4FF",
                         color: m.role === "user" ? "#fff" : "#101A2C",
                         borderBottomRightRadius: m.role === "user" ? 4 : undefined,
                         borderBottomLeftRadius:  m.role === "bot"  ? 4 : undefined,
@@ -213,7 +276,7 @@ function AIChatbot() {
                   <div className="w-7 h-7 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: PRIMARY }}>
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="bg-[#F4EFDF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-[#C8C0A8] flex items-center gap-1">
+                  <div className="bg-[#EBF4FF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-blue-100 flex items-center gap-1">
                     {[0,1,2].map(d => (
                       <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
                         style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
@@ -233,7 +296,7 @@ function AIChatbot() {
                 ))}
               </div>
             )}
-            <div className="px-3 py-3 border-t border-[#C8C0A8] bg-[#F4EFDF] flex items-end gap-2">
+            <div className="px-3 py-3 border-t border-gray-100 bg-white flex items-end gap-2">
               <textarea ref={inputRef} rows={1} value={input}
                 onChange={e => {
                   setInput(e.target.value);
@@ -242,7 +305,7 @@ function AIChatbot() {
                 }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Nhập câu hỏi... (Enter để gửi)"
-                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-[#E8E0CC] leading-relaxed"
+                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 leading-relaxed bg-[#ffffff]"
                 style={{ ...INTER, maxHeight: 96, overflowY: "auto" }} />
               <button onClick={() => send()} disabled={!input.trim() || typing}
                 className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center text-white transition-all"
@@ -336,11 +399,17 @@ export default function App() {
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState<NavSection>("profile");
   const [academicSubTab, setAcademicSubTab] = useState<"summary" | "progress">("summary");
+  const [scheduleTab, setScheduleTab] = useState<"tkb" | "thi">("tkb");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
+  const [readIds, setReadIds] = useState<Set<number>>(new Set(NOTIFICATIONS.filter(n => n.read).map(n => n.id)));
   const notifRef  = useRef<HTMLDivElement>(null);
+
+  function markRead(id: number) {
+    setReadIds(prev => new Set([...prev, id]));
+  }
   const avatarRef = useRef<HTMLDivElement>(null);
 
   const activeAccount = accounts[0];
@@ -396,7 +465,7 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const unread = NOTIFICATIONS.filter(n => !n.read).length;
+  const unread = NOTIFICATIONS.filter(n => !readIds.has(n.id)).length;
 
   
   if (!isLoggedIn) return <Login onLogin={handleLogin} />;
@@ -505,7 +574,6 @@ export default function App() {
           </div>
           {/* Desktop: breadcrumb */}
           <div className="hidden md:flex items-center gap-1.5">
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {SECTION_TITLES[activeSection]}
             </span>
@@ -514,6 +582,14 @@ export default function App() {
                 <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                 <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                   {academicSubTab === "summary" ? "Tổng kết" : "Tiến độ học tập"}
+                </span>
+              </>
+            )}
+            {activeSection === "schedule" && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {scheduleTab === "tkb" ? "TKB Tuần" : "TKB Thi"}
                 </span>
               </>
             )}
@@ -531,18 +607,21 @@ export default function App() {
                     <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
                   </div>
                   <div className="max-h-80 overflow-y-auto divide-y divide-border">
-                    {NOTIFICATIONS.map(n => (
-                      <div key={n.id} className={`px-4 py-3 hover:bg-secondary/50 transition-colors ${!n.read ? "bg-secondary/30" : ""}`}>
-                        <div className="flex items-start gap-2 mb-1">
-                          {!n.read && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                          <p className={`text-xs leading-snug flex-1 ${!n.read ? "font-semibold text-foreground" : "text-foreground"}`}>{n.title}</p>
+                    {NOTIFICATIONS.map(n => {
+                      const isUnread = !readIds.has(n.id);
+                      return (
+                        <div key={n.id} className={`px-4 py-3 hover:bg-secondary/50 transition-colors ${isUnread ? "bg-secondary/30" : ""}`}>
+                          <div className="flex items-start gap-2 mb-1">
+                            {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
+                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.title}</p>
+                          </div>
+                          <div className="flex items-center justify-between mt-1 pl-4">
+                            <span className="text-xs text-muted-foreground">{n.time}</span>
+                            <button onClick={() => { markRead(n.id); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between mt-1 pl-4">
-                          <span className="text-xs text-muted-foreground">{n.time}</span>
-                          <button onClick={() => { setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="border-t border-border">
                     <button onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} className="w-full py-3 text-sm font-semibold hover:bg-secondary/50 transition-colors" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tất cả</button>
@@ -593,9 +672,9 @@ export default function App() {
           {activeSection === "profile"        && <ProfileSection />}
           {activeSection === "academic"       && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
           {activeSection === "survey"         && <SurveySection />}
-          {activeSection === "schedule"       && <ScheduleSection />}
+          {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
-          {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={setSelectedNotif} />}
+          {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={(n) => { if (n) markRead(n.id); setSelectedNotif(n); }} readIds={readIds} />}
         </main>
       </div>
 
