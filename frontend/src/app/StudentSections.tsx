@@ -872,8 +872,17 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
                 <EField label="Email cá nhân"    fieldKey="personalEmail" />
                 <EField label="Email chính thức" fieldKey="officialEmail" readOnly />
                 <EField label="Ngày vào trường"  fieldKey="enrolledDate" readOnly />
-                <EField label="Người cố vấn"     fieldKey="advisor" readOnly />
-                <EField label="SĐT người cố vấn" fieldKey="advisorPhone" readOnly />
+                <EField label="Ngày vào Đoàn"    fieldKey="joinUnionDate" />
+                <EField label="Ngày vào Đảng"    fieldKey="joinPartyDate" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1.5 border-b border-border" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin người liên lạc</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
+                <EField label="Tên người liên hệ"   fieldKey="advisor" readOnly />
+                <EField label="SĐT người liên hệ"   fieldKey="advisorPhone" readOnly />
+                <EField label="Email người liên hệ" fieldKey="advisorEmail" readOnly />
+                <EField label="Quan hệ"             fieldKey="advisorRelation" readOnly />
               </div>
             </div>
             <div>
