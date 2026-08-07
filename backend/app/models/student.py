@@ -24,29 +24,56 @@ class DotCapNhatHoSo(db.Model):
 
 class SinhVien(db.Model):
     __tablename__ = 'SINHVIEN'
+    
+    # Thông tin cơ bản
     mssv = db.Column(db.String(20), primary_key=True, name='MSSV')
     hoten = db.Column(db.String(100), name='HOTEN')
+    loaisv = db.Column(db.String(50), name='LOAISV')
     ngaysinh = db.Column(db.Date, name='NGAYSINH')
     noisinh = db.Column(db.String(100), name='NOISINH')
     gioitinh = db.Column(db.String(10), name='GIOITINH')
     nienkhoa = db.Column(db.String(20), name='NIENKHOA')
     bacdaotao = db.Column(db.String(50), name='BACDAOTAO')
     loaidaotao = db.Column(db.String(50), name='LOAIDAOTAO')
+    
+    # Định danh
     cccd = db.Column(db.String(20), name='CCCD')
     ngaycap = db.Column(db.Date, name='NGAYCAP')
     noicap = db.Column(db.String(100), name='NOICAP')
     quoctich = db.Column(db.String(50), name='QUOCTICH')
     dantoc = db.Column(db.String(50), name='DANTOC')
     tongiao = db.Column(db.String(50), name='TONGIAO')
+    
+    # Liên hệ cá nhân
     dcthuongtru = db.Column(db.String(200), name='DCTHUONGTRU')
     dienthoai = db.Column(db.String(20), name='DIENTHOAI')
     mailcanhan = db.Column(db.String(100), name='MAILCANHAN')
     dchiennay = db.Column(db.String(200), name='DCHIENNAY')
+    
+    # Thông tin Đoàn/Đảng & Trường
+    ngayvaodoan = db.Column(db.Date, name='NGAYVAODOAN')
+    ngayvaodang = db.Column(db.Date, name='NGAYVAODANG')
     mailtruong = db.Column(db.String(100), name='MAILTRUONG')
-    loaisv = db.Column(db.String(50), name='LOAISV')
-    avatar = db.Column(db.String(255), name='AVATAR')
+    
+    # Thông tin ngân hàng
+    sothenh = db.Column(db.String(50), name='SOTHENH')
+    tennh = db.Column(db.String(100), name='TENNH')
+    
+    # Liên lạc khẩn cấp (Người liên lạc)
+    nguoilienlac = db.Column(db.String(100), name='NGUOILIENLAC')
+    dclienlac = db.Column(db.String(200), name='DCLIENLAC')
+    sdtlienlac = db.Column(db.String(20), name='SDTLIENLAC')
+    maillienlac = db.Column(db.String(100), name='MAILLIENLAC')
+    quanhe_nll = db.Column(db.String(50), name='QUANHE_NLL')
+    
+    # Ngành / Chuyên ngành
     manganh = db.Column(db.String(20), db.ForeignKey('NGANH.MANGANH'), name='MANGANH')
+    macn = db.Column(db.String(20), name='MACN')
+    
+    # Khác
+    avatar = db.Column(db.String(255), name='AVATAR')
 
+    # Relationships
     nganh = db.relationship('Nganh', backref='sinhviens')
     
 class NguoiThan(db.Model):

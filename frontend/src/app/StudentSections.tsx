@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 import {
   User, BookOpen, ClipboardList, CalendarDays, CreditCard, Bell,
   ChevronRight, X, Search, Filter, Download, CheckCircle2,
@@ -168,12 +169,13 @@ function FamilyTab() {
   );
 }
 
-// ─── Field helper ────────────────────────────────────────────────────────────
-function Field({ label, value }: { label: string; value: string }) {
+// ─── Field helper (ReadOnly for Top Section) ─────────────────────────────────
+function Field({ label, value }: { label: string; value: string | undefined }) {
+  const displayValue = value ? value : <span className="text-muted-foreground opacity-60 italic">Chưa cập nhật</span>;
   return (
     <div>
-      <div className="text-xs text-muted-foreground mb-1">{label}</div>
-      <div className="text-sm font-medium text-foreground">{value || "—"}</div>
+      <div className="text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{label}</div>
+      <div className="text-sm font-medium text-foreground">{displayValue}</div>
     </div>
   );
 }
@@ -715,12 +717,17 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
   );
 }
 
-// ─── Profile Section ─────────────────────────────────────────────────────────
+
+// ─── Profile Section (Hoàn thiện API & Giao diện Figma 100%) ────────────────
 export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: string | null; onAvatarChange: (url: string) => void }) {
+  const [loading, setLoading] = useState(true);
+  const [canUpdate, setCanUpdate] = useState(false);
+  const { accounts } = useMsal();
   const [innerTab, setInnerTab] = useState<"personal" | "family">("personal");
   const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState({ ...STUDENT_PROFILE });
-  const [saved, setSaved] = useState({ ...STUDENT_PROFILE });
+  const [draft, setDraft] = useState<any>({ ...STUDENT_PROFILE });
+  const [saved, setSaved] = useState<any>({ ...STUDENT_PROFILE });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -730,50 +737,111 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
     onAvatarChange(url);
   }
 
+  // Tự động lấy MSSV từ Microsoft Entra ID
+  const activeAccount = accounts[0];
+  const currentMssv = activeAccount?.username ? activeAccount.username.split('@')[0] : STUDENT_PROFILE.mssv; 
+
+  useEffect(() => {
+    fetch(`/api/profile/${currentMssv}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Lỗi kết nối Backend");
+        return res.json();
+      })
+      .then(data => {
+        setSaved(data);
+        setDraft(data);
+        setCanUpdate(data.canUpdate ?? false);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi:", err);
+        setLoading(false);
+      });
+  }, [currentMssv]);
+
   const tabs = [
     { id: "personal", label: "Thông tin cá nhân" },
     { id: "family",   label: "Thông tin gia đình" },
   ] as const;
 
+  async function handleSave() {
+    try {
+      const res = await fetch(`/api/profile/${currentMssv}/update`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentAddress: draft.currentAddress,
+          phone: draft.phone,
+          personalEmail: draft.personalEmail
+        })
+      });
+      if (res.ok) {
+        setSaved({ ...draft });
+        setIsEditing(false);
+      } else {
+        alert("Lỗi cập nhật từ Backend.");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   function handleSave() { setSaved({ ...draft }); setIsEditing(false); }
   function handleCancel() { setDraft({ ...saved }); setIsEditing(false); }
   function handleExportPdf() { window.print(); }
 
-  function EField({ label, fieldKey, readOnly = false }: { label: string; fieldKey: keyof typeof draft; readOnly?: boolean }) {
-    const value = saved[fieldKey] as string;
+  // Field tĩnh có làm mờ khi thiếu dữ liệu
+  function Field({ label, value }: { label: string; value: string | undefined }) {
+    const displayValue = value ? value : <span className="text-muted-foreground opacity-60 italic">Chưa cập nhật</span>;
+    return (
+      <div>
+        <div className="text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{label}</div>
+        <div className="text-sm font-medium text-foreground">{displayValue}</div>
+      </div>
+    );
+  }
+
+  // Field linh động hỗ trợ Edit & ReadOnly
+  function EField({ label, fieldKey, readOnly = false }: { label: string; fieldKey: string; readOnly?: boolean }) {
+    const value = saved[fieldKey as keyof typeof saved] as string;
+    const displayValue = value ? value : <span className="text-muted-foreground opacity-60 italic">Chưa cập nhật</span>;
+
     if (!isEditing || readOnly) {
       return (
         <div>
-          <div className="text-xs text-muted-foreground mb-1">{label}</div>
-          <div className="text-sm font-medium text-foreground">{value || "—"}</div>
+          <div className="text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{label}</div>
+          <div className="text-sm font-medium text-foreground">{displayValue}</div>
         </div>
       );
     }
     return (
       <div>
-        <div className="text-xs text-muted-foreground mb-1">{label}</div>
-        <input value={draft[fieldKey] as string}
-          onChange={e => setDraft(prev => ({ ...prev, [fieldKey]: e.target.value }))}
-          className="w-full border rounded-lg px-2 py-1.5 text-sm outline-none focus:border-primary transition-colors"
-          style={{ borderColor: "#C5CCB7", fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }} />
+        <div className="text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{label}</div>
+        <input value={(draft[fieldKey as keyof typeof draft] as string) || ""}
+          onChange={e => setDraft((prev: any)  => ({ ...prev, [fieldKey]: e.target.value }))}
+          className="w-full border rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-primary transition-colors"
+          style={{ borderColor: "#C5CCB7", fontFamily: "'Inter', sans-serif", color: "var(--foreground)", background: "var(--input-background, #fff)" }} />
       </div>
     );
   }
 
+  if (loading) return <div className="p-5 text-center text-sm text-muted-foreground">Đang tải dữ liệu từ cơ sở dữ liệu...</div>;
+
   return (
     <div className="w-full space-y-5">
+      {/* ── Khối Thông tin chung ── */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="px-5 py-3 border-b border-border" style={{ background: "#11284D" }}>
           <h2 className="text-sm font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin chung</h2>
         </div>
-        <div className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-4">
-          {/* Col 1: avatar + tên */}
-          <div className="flex sm:flex-col items-center gap-3 sm:gap-2">
-            <div className="relative group flex-shrink-0">
+        <div className="p-5 flex flex-col sm:flex-row gap-6 sm:gap-10 items-center sm:items-start">
+          {/* Avatar Area */}
+          <div className="flex flex-col items-center justify-center sm:w-48 flex-shrink-0">
+            <div className="relative group mb-3">
               {avatarUrl
-                ? <img src={avatarUrl} alt="avatar" className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4" style={{ borderColor: "var(--primary)" }} />
-                : <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center border-4 text-xl font-bold"
-                    style={{ borderColor: "var(--primary)", background: "rgba(37,52,79,0.08)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                ? <img src={avatarUrl} alt="avatar" className="w-20 h-20 rounded-full object-cover border-4" style={{ borderColor: "#11284D" }} />
+                : <div className="w-20 h-20 rounded-full flex items-center justify-center border-4 text-xl font-bold"
+                    style={{ borderColor: "#11284D", background: "#fff", color: "#11284D", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                     NV
                   </div>
               }
@@ -785,20 +853,29 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
               </button>
               <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </div>
-            <div className="text-center sm:text-center">
-              <div className="text-sm font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{saved.fullName}</div>
-              <div className="text-xs text-muted-foreground">{saved.role}</div>
-              <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full text-white font-medium" style={{ background: "var(--accent)" }}>{saved.status}</span>
+            <div className="text-center">
+              <div className="text-base font-bold text-foreground mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{saved.fullName}</div>
+              <div className="text-[11px] text-muted-foreground mb-2">Sinh viên</div>
+              <div className="inline-block px-4 py-1 rounded-full text-[11px] font-bold text-white shadow-sm"
+                   style={{ background: "#D5B370", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                {saved.status || "Đang học"}
+              </div>
             </div>
           </div>
-          {/* Cols 2-4: fields, 3 per row */}
-          <div className="sm:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 sm:gap-y-4">
+          
+          {/* Vertical Divider */}
+          <div className="hidden sm:block w-px bg-border self-stretch flex-shrink-0" />
+          
+          {/* Lưới 9 ô dữ liệu (3x3) */}
+          <div className="flex-1 w-full grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
             <Field label="MSSV"                value={saved.mssv} />
             <Field label="Ngày sinh"           value={saved.dob} />
             <Field label="Nơi sinh"            value={saved.placeOfBirth} />
+            
             <Field label="Giới tính"           value={saved.gender} />
             <Field label="Khóa"                value={saved.course} />
             <Field label="Bậc đào tạo"         value={saved.level} />
+            
             <Field label="Ngành"               value={saved.major} />
             <Field label="Loại hình đào tạo"   value={saved.trainingType} />
             <Field label="Chuyên ngành"        value={saved.specialization} />
@@ -806,6 +883,7 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
         </div>
       </div>
 
+      {/* ── Khối Thông tin cá nhân / Gia đình ── */}
       <div className="bg-card rounded-xl border border-border overflow-hidden" style={{ outline: isEditing ? "2px solid #11284D" : "none" }}>
         <div className="flex items-center border-b border-border">
           {tabs.map(t => (
@@ -828,8 +906,8 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
                 </button>
               </>
             ) : (
-              <button onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors hover:opacity-80"
+              <button onClick={() => setIsEditing(true)} disabled={!canUpdate}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors ${canUpdate ? "hover:opacity-80" : "opacity-50 cursor-not-allowed"}`}
                 style={{ background: "rgba(37,52,79,0.1)", borderColor: "rgba(37,52,79,0.2)", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 16L8.5 15 16.5 7a1.414 1.414 0 0 0-2-2L6.5 13 4 16z" />
@@ -839,22 +917,30 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
             )}
           </div>
         </div>
+        
+        {!canUpdate && (
+           <div className="px-5 py-2.5 text-[11.5px] font-semibold bg-red-50 text-red-600 border-b border-red-100" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+             Thời gian cập nhật hồ sơ đã kết thúc.
+           </div>
+        )}
+
         {isEditing && (
           <div className="px-5 py-2 text-xs font-medium" style={{ background: "rgba(37,52,79,0.1)", color: "var(--primary)", borderBottom: "1px solid #C5CCB7", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Đang ở chế độ chỉnh sửa — nhấn <strong>Lưu</strong> để xác nhận hoặc <strong>Hủy</strong> để thoát.
           </div>
         )}
+        
         {innerTab === "personal" && (
           <div className="p-5 space-y-6 [&_.text-sm]:text-[11.5px] [&_.text-xs]:text-[10px]">
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1.5 border-b border-border" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>CCCD / Giấy tờ tùy thân</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
                 <EField label="Số CCCD"    fieldKey="cccd" />
-                <EField label="Ngày cấp"  fieldKey="issuedDate" />
-                <EField label="Nơi cấp"   fieldKey="issuedPlace" />
-                <EField label="Quốc tịch" fieldKey="nationality" readOnly />
-                <EField label="Dân tộc"   fieldKey="ethnic" />
-                <EField label="Tôn giáo"  fieldKey="religion" />
+                <EField label="Ngày cấp"   fieldKey="issuedDate" />
+                <EField label="Nơi cấp"    fieldKey="issuedPlace" />
+                <EField label="Quốc tịch"  fieldKey="nationality" readOnly />
+                <EField label="Dân tộc"    fieldKey="ethnic" />
+                <EField label="Tôn giáo"   fieldKey="religion" />
               </div>
             </div>
             <div>
