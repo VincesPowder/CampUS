@@ -618,3 +618,37 @@ export const AVAILABLE_SURVEYS: Survey[] = [
     ],
   },
 ];
+
+// ─── AI Chatbot data ──────────────────────────────────────────────────────────
+
+export const BOT_GREET_TEXT = "Xin chào! Tôi là **HCMUS AI** — trợ lý học vụ của bạn.\nTôi có thể giúp tra cứu lịch học, điểm số, học phí và các thắc mắc học vụ. Bạn cần hỗ trợ gì?";
+
+export const CHAT_SUGGESTIONS = [
+  "Lịch học hôm nay?",
+  "Học phí còn bao nhiêu?",
+  "Khi nào đăng ký môn?",
+  "Cách xem điểm thi?",
+];
+
+export function mockReply(q: string): string {
+  const s = q.toLowerCase();
+  if (s.includes("học phí") || s.includes("đóng tiền") || s.includes("còn bao nhiêu"))
+    return "Học phí học kỳ 3 năm 2025-2026 có hạn đóng đến **15/08/2026**. Số tiền còn lại bạn có thể xem tại mục **Học phí** trong sidebar. Thanh toán qua cổng trực tuyến hoặc tại phòng Tài vụ (B002).";
+  if (s.includes("lịch học") || s.includes("thời khóa biểu") || s.includes("hôm nay"))
+    return "Thời khóa biểu tuần hiện tại của bạn có thể xem tại mục **Lịch học & Thi**. Hôm nay bạn có buổi học Cơ sở dữ liệu lúc 7:30 tại phòng B201. Kiểm tra chi tiết tại tab Lịch học nhé!";
+  if (s.includes("điểm") || s.includes("kết quả") || s.includes("xem điểm"))
+    return "Điểm các môn học được cập nhật tại mục **Học tập → Tiến độ**. Nếu có thắc mắc về điểm, bạn nên liên hệ giảng viên phụ trách hoặc nộp đơn **phúc khảo** qua Phòng Đào tạo.";
+  if (s.includes("đăng ký môn") || s.includes("đăng ký học"))
+    return "Lịch đăng ký môn học kỳ tới sẽ được thông báo qua **Thông báo hệ thống**. Thông thường mở từ tuần 14–16 của học kỳ. Hãy kiểm tra mục Thông báo thường xuyên để không bỏ lỡ!";
+  if (s.includes("khảo sát"))
+    return "Bạn có các **khảo sát chưa hoàn thành**. Vui lòng vào mục **Khảo sát** và điền trước thời hạn — nếu không sẽ bị khóa quyền đăng ký môn của học kỳ tiếp theo.";
+  if (s.includes("nghỉ học") || s.includes("xin nghỉ") || s.includes("vắng"))
+    return "Để xin nghỉ có phép, bạn cần nộp đơn tại **Phòng Đào tạo (B001)** trước buổi học. Lưu ý: vắng quá **20% số buổi** sẽ bị cấm thi cuối kỳ theo quy chế.";
+  if (s.includes("thư viện"))
+    return "Thư viện HCMUS mở cửa **7:30–21:30** các ngày trong tuần (thứ 7 đến 17:00). Cần thẻ sinh viên để mượn sách. Tra cứu đầu sách tại **lib.hcmus.edu.vn**.";
+  if (s.includes("wifi") || s.includes("mạng"))
+    return "Sinh viên có thể kết nối WiFi **HCMUS-EDU** bằng tài khoản MSSV và mật khẩu cổng thông tin. Nếu không kết nối được, liên hệ Phòng CNTT tại A205.";
+  if (s.includes("cảm ơn") || s.includes("thanks") || s.includes("ok"))
+    return "Không có gì, rất vui được hỗ trợ bạn! Nếu còn câu hỏi nào khác, tôi luôn ở đây. Chúc bạn học tốt!";
+  return "Tôi ghi nhận câu hỏi của bạn. Để được hỗ trợ chi tiết hơn, bạn có thể:\n• Đến **Phòng Đào tạo** (B001, Cơ sở 1)\n• Email: **daotao@hcmus.edu.vn**\n• Hotline: **(028) 3835 4266**\n\nTôi có thể giúp gì thêm không?";
+}
