@@ -12,7 +12,7 @@ import {
 } from "../data/mockData";
 import {
   TKB_DATA, EXAM_DATA, DAYS, CA_LABELS, TKBCellCard, getWeekDates,
-} from "./scheduleShared";
+} from "./shared";
 
 // ─── Nav types ────────────────────────────────────────────────────────────────
 export type NavSection = "profile" | "academic" | "survey" | "schedule" | "tuition" | "notifications";
@@ -717,8 +717,9 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
   );
 }
 
+
 // ─── Profile Section (Hoàn thiện API & Giao diện Figma 100%) ────────────────
-export function ProfileSection() {
+export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: string | null; onAvatarChange: (url: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [canUpdate, setCanUpdate] = useState(false);
   const { accounts } = useMsal();
@@ -733,7 +734,7 @@ export function ProfileSection() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    setAvatarUrl(url);
+    onAvatarChange(url);
   }
 
   // Tự động lấy MSSV từ Microsoft Entra ID
@@ -785,6 +786,7 @@ export function ProfileSection() {
     }
   }
 
+  function handleSave() { setSaved({ ...draft }); setIsEditing(false); }
   function handleCancel() { setDraft({ ...saved }); setIsEditing(false); }
   function handleExportPdf() { window.print(); }
 
@@ -956,18 +958,25 @@ export function ProfileSection() {
                 <EField label="Email cá nhân"    fieldKey="personalEmail" />
                 <EField label="Email chính thức" fieldKey="officialEmail" readOnly />
                 <EField label="Ngày vào trường"  fieldKey="enrolledDate" readOnly />
-                <EField label="Người cố vấn"     fieldKey="advisor" readOnly />
-                <EField label="SĐT người cố vấn" fieldKey="advisorPhone" readOnly />
+                <EField label="Ngày vào Đoàn"    fieldKey="joinUnionDate" />
+                <EField label="Ngày vào Đảng"    fieldKey="joinPartyDate" />
               </div>
             </div>
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1.5 border-b border-border" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Thông tin ngân hàng
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1.5 border-b border-border" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin người liên lạc</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
-                <EField label="Số thẻ ngân hàng" fieldKey="bankCard" />
-                <EField label="Ngân hàng liên kết" fieldKey="bankName" />
-                <EField label="Chi nhánh" fieldKey="bankBranch" />
+                <EField label="Tên người liên hệ"   fieldKey="advisor" readOnly />
+                <EField label="SĐT người liên hệ"   fieldKey="advisorPhone" readOnly />
+                <EField label="Email người liên hệ" fieldKey="advisorEmail" readOnly />
+                <EField label="Quan hệ"             fieldKey="advisorRelation" readOnly />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider mb-3 pb-1.5 border-b border-border" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông tin ngân hàng</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
+                <EField label="Số thẻ ngân hàng"  fieldKey="bankNumber" />
+                <EField label="Ngân hàng liên kết" fieldKey="bank" />
+                <EField label="Chi nhánh"          fieldKey="bankBranch" />
               </div>
             </div>
           </div>
@@ -1283,7 +1292,7 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
                     {DAYS.map((_, dayIdx) => {
                       const cell = weekData[dayIdx]?.[caIdx] ?? null;
                       if (cell === "span") return null;
-                      const entry = cell as import("./scheduleShared").TKBEntry | null;
+                      const entry = cell as import("./shared").TKBEntry | null;
                       const isToday = dayIdx === TODAY_DAY;
                       const spanRows = entry?.span ?? 1;
                       return (
