@@ -727,7 +727,6 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<any>({ ...STUDENT_PROFILE });
   const [saved, setSaved] = useState<any>({ ...STUDENT_PROFILE });
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -786,7 +785,6 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
     }
   }
 
-  function handleSave() { setSaved({ ...draft }); setIsEditing(false); }
   function handleCancel() { setDraft({ ...saved }); setIsEditing(false); }
   function handleExportPdf() { window.print(); }
 

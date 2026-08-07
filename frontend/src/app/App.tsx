@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 import {
   User, ChevronRight, LogOut, X,
   ChevronsLeft, ChevronsRight, Bell,
   MessageCircle, Send, Sparkles, ChevronDown, Minimize2,
 } from "lucide-react";
-import bgImage from "@/imports/bg.jpg";
 import logoImg from "@/imports/Artboard_5.png";
 import {
   NOTIFICATIONS, STUDENT_PROFILE,
@@ -19,7 +19,7 @@ import {
   SurveySection, ScheduleSection, NotificationsSection,
   type NavSection,
 } from "./StudentSections";
-
+import Login from "./components/Login";
 // ─── Accounts ────────────────────────────────────────────────────────────────
 const ACCOUNTS = [
   { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin"   as const },
@@ -301,6 +301,7 @@ function AIChatbot() {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { instance } = useMsal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"student" | "admin">("student");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -327,13 +328,26 @@ export default function App() {
   }
 
   function handleLogoutConfirm() {
-    setShowLogoutConfirm(false);
-    setShowLogoutSuccess(true);
-    setTimeout(() => {
-      setShowLogoutSuccess(false);
-      setIsLoggedIn(false);
-    }, 1800);
-  }
+  setShowLogoutConfirm(false);
+  setShowLogoutSuccess(true);
+  
+  setTimeout(() => {
+    setShowLogoutSuccess(false);
+    setIsLoggedIn(false);
+    localStorage.removeItem("campus_token");
+    if (instance.getAllAccounts().length > 0) {
+      instance.setActiveAccount(null);
+    }
+    try {
+      instance.logoutRedirect({
+        postLogoutRedirectUri: window.location.origin
+      });
+    } catch (error) {
+      sessionStorage.clear();
+      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    }
+  }, 1800);
+}
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -346,7 +360,7 @@ export default function App() {
 
   const unread = NOTIFICATIONS.filter(n => !readIds.has(n.id)).length;
 
-  if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
+  if (!isLoggedIn) return <Login onLogin={handleLogin} />;
   if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} HelpButton={HelpButton} />;
 
   return (
