@@ -43,8 +43,12 @@ export type StudentProfile = {
   personalEmail: string;
   officialEmail: string;
   enrolledDate: string;
+  joinUnionDate: string;
+  joinPartyDate: string;
   advisor: string;
   advisorPhone: string;
+  advisorEmail: string;
+  advisorRelation: string;
   bankNumber: string;
   bank: string;
   bankBranch: string;
@@ -79,8 +83,12 @@ export const STUDENT_PROFILE: StudentProfile = {
   personalEmail:    "nguyenvanan@gmail.com",
   officialEmail:    "21127001@student.hcmus.edu.vn",
   enrolledDate:     "01/09/2024",
+  joinUnionDate:    "15/03/2022",
+  joinPartyDate:    "—",
   advisor:          "TS. Trần Văn Bình",
   advisorPhone:     "0912 345 678",
+  advisorEmail:     "tvbinh@hcmus.edu.vn",
+  advisorRelation:  "Giảng viên cố vấn",
   bankNumber:       "9704 1234 5678 9012",
   bank:             "Vietcombank",
   bankBranch:       "TP. Hồ Chí Minh",
