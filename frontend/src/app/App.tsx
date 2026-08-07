@@ -301,7 +301,7 @@ function AIChatbot() {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const { instance } = useMsal();
+  const { instance, accounts } = useMsal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"student" | "admin">("student");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -313,14 +313,51 @@ export default function App() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [studentAvatarUrl, setStudentAvatarUrl] = useState<string | null>(null);
-  const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
-  const [readIds, setReadIds] = useState<Set<number>>(new Set(NOTIFICATIONS.filter(n => n.read).map(n => n.id)));
+  const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
+  const [notifs, setNotifs] = useState<any[]>([]);
   const notifRef  = useRef<HTMLDivElement>(null);
-
-  function markRead(id: number) {
-    setReadIds(prev => new Set([...prev, id]));
-  }
   const avatarRef = useRef<HTMLDivElement>(null);
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+
+  // Fetch thông báo khi vừa đăng nhập
+  useEffect(() => {
+    if (isLoggedIn && userRole === "student") {
+      fetch(`/api/students/${currentMssv}/notifications`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            setNotifs(data.data);
+          }
+        })
+        .catch(err => console.error("Lỗi fetch thông báo:", err));
+    }
+  }, [isLoggedIn, userRole, currentMssv]);
+
+  // Hàm gọi API đánh dấu Đã đọc 1 thông báo
+  const markRead = async (matb: string) => {
+    const target = notifs.find(n => n.matb === matb);
+    if (target && target.trangthai_doc === 0) {
+      // Cập nhật UI ngay lập tức
+      setNotifs(prev => prev.map(n => n.matb === matb ? { ...n, trangthai_doc: 1, thoigian_doc: "Vừa xong" } : n));
+      try {
+        await fetch(`/api/students/${currentMssv}/notifications/${matb}/read`, { method: 'POST' });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  // Hàm gọi API đánh dấu Đã đọc tất cả
+  const markAllRead = async () => {
+    setNotifs(prev => prev.map(n => ({ ...n, trangthai_doc: 1, thoigian_doc: "Vừa xong" })));
+    try {
+      await fetch(`/api/students/${currentMssv}/notifications/read-all`, { method: 'POST' });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const unread = notifs.filter(n => n.trangthai_doc === 0).length;
 
   function handleLogin(role: "admin" | "student") {
     setUserRole(role);
@@ -357,8 +394,6 @@ export default function App() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
-  const unread = NOTIFICATIONS.filter(n => !readIds.has(n.id)).length;
 
   if (!isLoggedIn) return <Login onLogin={handleLogin} />;
   if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} HelpButton={HelpButton} />;
@@ -475,17 +510,17 @@ export default function App() {
                     <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
                   </div>
                   <div className="max-h-80 overflow-y-auto divide-y divide-border">
-                    {NOTIFICATIONS.map(n => {
-                      const isUnread = !readIds.has(n.id);
+                    {notifs.map(n => {
+                      const isUnread = n.trangthai_doc === 0;
                       return (
-                        <div key={n.id} className={`px-4 py-3 hover:bg-secondary/23 transition-colors ${isUnread ? "bg-secondary/50" : ""}`}>
+                        <div key={n.matb} className={`px-4 py-3 hover:bg-secondary/23 transition-colors ${isUnread ? "bg-secondary/50" : ""}`}>
                           <div className="flex items-start gap-2 mb-1">
                             {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.title}</p>
+                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.tieude}</p>
                           </div>
                           <div className="flex items-center justify-between mt-1 pl-4">
-                            <span className="text-xs text-muted-foreground">{n.time}</span>
-                            <button onClick={() => { markRead(n.id); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
+                            <span className="text-xs text-muted-foreground">{n.thoigian_doc}</span>
+                            <button onClick={() => { markRead(n.matb); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
                           </div>
                         </div>
                       );
@@ -535,7 +570,17 @@ export default function App() {
           {activeSection === "survey"         && <SurveySection />}
           {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
-          {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={(n) => { if (n) markRead(n.id); setSelectedNotif(n); }} readIds={readIds} />}
+          {activeSection === "notifications" && (
+            <NotificationsSection 
+              notifs={notifs}
+              selectedNotif={selectedNotif} 
+              setSelectedNotif={(n: any) => { 
+                if (n) markRead(n.matb); 
+                setSelectedNotif(n); 
+              }} 
+              markAllRead={markAllRead}
+            />
+          )}
         </main>
       </div>
 
