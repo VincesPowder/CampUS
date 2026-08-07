@@ -9,7 +9,7 @@ import {
 import {
   TKBCellCard, TKBEntry, TKBCell, ExamEntry, TKB_DATA, EXAM_DATA, DAYS, CA_LABELS,
   HINH_THUC_STYLE, getWeekDates, HinhThuc,
-} from "./scheduleShared";
+} from "./shared";
 import {
   NOTIFICATIONS, ADMIN_STUDENTS, TUITION_DATA,
   type AdminStudent, type Notification,
@@ -217,15 +217,15 @@ function StudentManagement() {
         </div>
         <button onClick={() => setFilterOpen(o => !o)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
-          style={{ borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", background: "var(--card)", color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          style={{ borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", background: "#fff", color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Filter className="w-4 h-4" /> Bộ lọc
           {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
         </button>
         <div className="hidden sm:flex flex-1" />
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card transition-colors text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Download className="w-4 h-4" /> Xuất
         </button>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card transition-colors text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Upload className="w-4 h-4" /> Nhập
         </button>
         <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -962,20 +962,20 @@ function AdminAcademicSection() {
           })}
         </div>
         <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <select value={filterNamHoc} onChange={e => setFilterNamHoc(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-card focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
+          <select value={filterNamHoc} onChange={e => setFilterNamHoc(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
             {namHocOptions.map(n => <option key={n} value={n}>Năm học {n}</option>)}
           </select>
-          <select value={String(filterHK)} onChange={e => setFilterHK(e.target.value === "all" ? "all" : Number(e.target.value))} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-card focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
+          <select value={String(filterHK)} onChange={e => setFilterHK(e.target.value === "all" ? "all" : Number(e.target.value))} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
             <option value="all">Tất cả học kỳ</option>
             {[1,2,3].map(h => <option key={h} value={h}>Học kỳ {h}</option>)}
           </select>
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as GradeStatus | "all")} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-card focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as GradeStatus | "all")} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
             <option value="all">Tất cả trạng thái</option>
             <option value="pending">Đang chờ</option>
             <option value="uploaded">Đã tải lên</option>
             <option value="locked">Đã khóa</option>
           </select>
-          <select value={filterKhoa} onChange={e => setFilterKhoa(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-card focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
+          <select value={filterKhoa} onChange={e => setFilterKhoa(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
             <option value="all">Tất cả khoa</option>
             {khoaOptions.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
@@ -1093,7 +1093,7 @@ function AdminAcademicSection() {
           <input value={gradeSearch} onChange={e => setGradeSearch(e.target.value)} placeholder="Tìm MSSV hoặc tên sinh viên..."
             className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" style={INTER} />
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground hover:bg-card transition-colors" style={PJS}>
+        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground transition-colors" style={{ background: "#fff", ...PJS }}>
           <Download className="w-3.5 h-3.5" /> Xuất Excel
         </button>
       </div>
@@ -1353,7 +1353,7 @@ function AdminScheduleSection() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Lớp:</span>
-              <select value={filterLop} onChange={e => setFilterLop(e.target.value)} className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <select value={filterLop} onChange={e => setFilterLop(e.target.value)} className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
                 {allLops.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>
@@ -1361,7 +1361,7 @@ function AdminScheduleSection() {
               <button onClick={() => setAddSlotOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}>
                 <Plus className="w-3.5 h-3.5" /> Thêm tiết học
               </button>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium hover:bg-card text-muted-foreground" style={PJS}>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}>
                 <Download className="w-3.5 h-3.5" /> Xuất Excel
               </button>
             </div>
@@ -1444,7 +1444,7 @@ function AdminScheduleSection() {
               <input value={examSearch} onChange={e => setExamSearch(e.target.value)} placeholder="Tìm theo môn, lớp, phòng..."
                 className="w-full pl-9 pr-4 py-2 border border-border rounded-lg text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }} />
             </div>
-            <select value={filterHinhThuc} onChange={e => setFilterHinhThuc(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <select value={filterHinhThuc} onChange={e => setFilterHinhThuc(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
               <option value="">Tất cả hình thức</option>
               {allHinhThuc.map(h => <option key={h} value={h}>{h}</option>)}
             </select>
@@ -1452,8 +1452,8 @@ function AdminScheduleSection() {
             <button onClick={() => setExamModal("new")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}>
               <Plus className="w-4 h-4" /> Thêm lịch thi
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card text-muted-foreground" style={PJS}><Upload className="w-4 h-4" /> Nhập</button>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card text-muted-foreground" style={PJS}><Download className="w-4 h-4" /> Xuất</button>
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}><Upload className="w-4 h-4" /> Nhập</button>
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}><Download className="w-4 h-4" /> Xuất</button>
           </div>
           <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
             <div className="overflow-auto h-full">
@@ -1998,11 +1998,28 @@ const ADMIN_NAV: { id: AdminSection; label: string; icon: React.ElementType }[] 
   { id: "notifications", label: "Thông báo",         icon: Bell },
 ];
 
-export function AdminApp({ onLogout }: { onLogout: () => void }) {
+export function AdminApp({ onLogout, HelpButton }: { onLogout: () => void; HelpButton: React.ComponentType }) {
   const [section, setSection] = useState<AdminSection>("students");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [readSurveyIds, setReadSurveyIds] = useState<Set<string>>(new Set());
+  const notifRef = useRef<HTMLDivElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const surveyNotifs = MOCK_ADMIN_SURVEYS.filter(s => s.status === "open" && s.responses > 0);
+  const unreadNotifs = surveyNotifs.filter(s => !readSurveyIds.has(s.id));
 
   function handleLogout() {
     setShowLogoutConfirm(false);
@@ -2041,9 +2058,18 @@ export function AdminApp({ onLogout }: { onLogout: () => void }) {
       )}
 
       <aside className="hidden md:flex flex-shrink-0 flex-col transition-all duration-300 ease-in-out overflow-hidden shadow-xl" style={{ width: sidebarOpen ? 220 : 56, background: "var(--primary)" }}>
-        <div className="flex items-center gap-3 px-4 py-5 flex-shrink-0" style={{ justifyContent: sidebarOpen ? "flex-start" : "center" }}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.15)" }}><Shield className="w-5 h-5 text-white" /></div>
-          {sidebarOpen && <div><div className="font-bold text-white text-sm leading-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>CampUS Admin</div><div className="text-white/40 text-[10px] leading-tight">HCMUS</div></div>}
+        <div className="flex flex-col items-center pt-5 pb-4 px-3 flex-shrink-0">
+          <div className="relative flex-shrink-0" style={{ width: sidebarOpen ? 100 : 44, height: sidebarOpen ? 100 : 44, transition: "all 0.3s" }}>
+            <svg width="100%" height="100%" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+            </svg>
+          </div>
+          {sidebarOpen && (
+            <div className="text-center mt-3">
+              <div className="font-bold text-white leading-tight tracking-wide text-[14px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>CampUS Admin</div>
+              <div className="text-xs text-white/45 mt-1.5 leading-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>TRƯỜNG ĐH KHOA HỌC TỰ NHIÊN</div>
+            </div>
+          )}
         </div>
         <div className="mx-3 h-px bg-card/10 flex-shrink-0" />
         <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
@@ -2088,8 +2114,81 @@ export function AdminApp({ onLogout }: { onLogout: () => void }) {
             <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sectionLabel[section]}</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AD</div>
-            <button onClick={() => setShowLogoutConfirm(true)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-accent" title="Đăng xuất"><LogOut className="w-4 h-4" /></button>
+            {/* Help */}
+            <HelpButton />
+            {/* Survey notification bell */}
+            <div className="relative" ref={notifRef}>
+              <button onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }}
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+                <Bell className="w-5 h-5" />
+                {unreadNotifs.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}>
+                    {unreadNotifs.length}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
+                  <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
+                    <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Kết quả khảo sát</h3>
+                    {unreadNotifs.length > 0 && (
+                      <button onClick={() => setReadSurveyIds(new Set(surveyNotifs.map(s => s.id)))}
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        Đánh dấu đã đọc
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-72 overflow-y-auto divide-y divide-border">
+                    {surveyNotifs.length === 0 ? (
+                      <p className="px-4 py-6 text-sm text-center text-muted-foreground">Không có thông báo mới</p>
+                    ) : surveyNotifs.map(s => {
+                      const isUnread = !readSurveyIds.has(s.id);
+                      return (
+                        <div key={s.id} className="px-4 py-3 flex items-start gap-3 hover:bg-secondary/40 transition-colors cursor-pointer"
+                          onClick={() => { setReadSurveyIds(prev => new Set([...prev, s.id])); setSection("survey"); setNotifOpen(false); }}>
+                          {isUnread && <span className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0" style={{ background: "var(--accent)" }} />}
+                          {!isUnread && <span className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0 opacity-0" />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-foreground leading-snug truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{s.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">Có thêm <span className="font-bold text-foreground">{s.responses}</span> lượt phản hồi</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="border-t border-border px-4 py-2">
+                    <button onClick={() => { setSection("survey"); setNotifOpen(false); }}
+                      className="w-full text-center text-xs font-semibold py-1 hover:text-primary transition-colors"
+                      style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      Xem tất cả khảo sát
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Admin avatar dropdown */}
+            <div className="relative" ref={avatarRef}>
+              <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }}
+                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs hover:opacity-80 transition-opacity"
+                style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                AD
+              </button>
+              {avatarOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
+                  <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0" style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AD</div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-foreground truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Administrator</p>
+                      <p className="text-xs text-muted-foreground truncate">admin@hcmus.edu.vn</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Logout */}
+            <button onClick={() => setShowLogoutConfirm(true)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-destructive" title="Đăng xuất">
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
         <main className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
