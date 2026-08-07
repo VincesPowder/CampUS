@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from '../authConfig';
-import bgImage from "../../imports/bg.jpg"; 
+import bgImage from "@imports/bg.jpg"; 
 
 type LoginProps = {
   onLogin: (role: "admin" | "student", method: "local" | "msal") => void;
