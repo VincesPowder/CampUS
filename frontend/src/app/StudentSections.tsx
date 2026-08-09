@@ -188,109 +188,166 @@ export function TuitionSection() {
   const { accounts } = useMsal();
   const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
   
-  const [tuitionList, setTuitionList] = useState<any[]>([]);
+  const [allTuitionData, setAllTuitionData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [filterYear, setFilterYear] = useState<string>("Tất cả");
+  const [filterSem, setFilterSem] = useState<string>("Tất cả");
 
   useEffect(() => {
     fetch(`/api/students/${currentMssv}/tuition`)
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'success') {
-          setTuitionList(data.data);
+        if (data.status === 'success' || Array.isArray(data)) {
+          const rawData = Array.isArray(data) ? data : (data.data || []);
+          setAllTuitionData(rawData);
         }
         setLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.error("Lỗi khi tải học phí:", err);
         setLoading(false);
       });
   }, [currentMssv]);
 
-  const handlePay = async (malhp: string) => {
-    try {
-      const res = await fetch(`/api/students/${currentMssv}/tuition/${malhp}/pay`, { method: 'POST' });
-      const json = await res.json();
-      if (json.status === 'success') {
-        alert('Thanh toán thành công!');
-        // Cập nhật lại UI sau khi thanh toán
-        setTuitionList(prev => prev.map(t => 
-          t.malhp === malhp ? { ...t, trangthai_thanhtoan: 'Đã thanh toán', ngaythanhtoan: json.data.ngaythanhtoan } : t
-        ));
-      } else {
-        alert(json.message);
-      }
-    } catch (e) {
-      alert('Đã xảy ra lỗi khi thanh toán');
-    }
-  };
+  const fmt = (n: number | undefined | null) => (n || 0).toLocaleString("vi-VN");
 
-  const headerCls = "px-3 py-2.5 font-semibold text-white text-center whitespace-nowrap";
-  const cellCls   = "px-3 py-2.5 text-center text-xs border-b border-border";
+  if (loading) {
+    return <div className="p-5 text-center text-muted-foreground text-sm font-medium">Đang tải dữ liệu học phí từ hệ thống...</div>;
+  }
 
-  if (loading) return <div className="p-5 text-center text-muted-foreground text-sm">Đang tải dữ liệu học phí...</div>;
+  // Khởi tạo danh sách bộ lọc động
+  const availableYears = ["Tất cả", ...Array.from(new Set(allTuitionData.map(d => d.namHoc).filter(y => y && y !== "—"))).sort()];
+  const availableSems = ["Tất cả", ...Array.from(new Set(allTuitionData.map(d => d.tenHocKy).filter(s => s && s !== "—"))).sort()];
 
-  const totalTcHocPhi = tuitionList.reduce((s, r) => s + (r.sotchp || 0), 0);
-  const totalHocPhi = tuitionList.reduce((s, r) => s + (r.hocphi_goc || 0), 0);
-  const totalThucDong = tuitionList.reduce((s, r) => s + (r.thucdong || 0), 0);
+  // Lọc dữ liệu
+  const filteredData = allTuitionData.filter(d => {
+    if (filterYear !== "Tất cả" && d.namHoc !== filterYear) return false;
+    if (filterSem !== "Tất cả" && d.tenHocKy !== filterSem) return false;
+    return true;
+  });
+
+  // Tính tổng
+  const totalTc = filteredData.reduce((s, r) => s + (Number(r.soTc) || 0), 0);
+  const totalTiet = filteredData.reduce((s, r) => s + (Number(r.soTiet) || 0), 0);
+  const totalTcHocPhi = filteredData.reduce((s, r) => s + (Number(r.soTcHocPhi) || 0), 0);
+  const totalHocPhi = filteredData.reduce((s, r) => s + (Number(r.hocPhiGoc) || 0), 0);
+  const totalGiam = filteredData.reduce((s, r) => s + (Number(r.mucGiam) || 0), 0);
+  const totalHoTro = filteredData.reduce((s, r) => s + (Number(r.hoTro) || 0), 0);
+  const totalChiPhi = filteredData.reduce((s, r) => s + (Number(r.chiPhiKhac) || 0), 0);
+  const totalThucDong = filteredData.reduce((s, r) => s + (Number(r.thucDong) || 0), 0);
+
+  const headerCls = "px-3 py-3 text-center text-xs font-semibold text-white border-r border-white/10 whitespace-nowrap";
+  const cellCls = "px-3 py-3 text-center text-xs border-r border-border/50";
 
   return (
-    <div className="space-y-5 w-full">
-      <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tra Cứu Học Phí</h1>
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+    <div className="space-y-6 w-full">
+      <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>Tra Cứu Học Phí</h1>
+      
+      {/* Bộ lọc */}
+      <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</span>
+          <select 
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white outline-none focus:border-primary shadow-sm transition-colors" 
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</span>
+          <select 
+            value={filterSem}
+            onChange={(e) => setFilterSem(e.target.value)}
+            className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white outline-none focus:border-primary shadow-sm transition-colors" 
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            {availableSems.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Bảng dữ liệu */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12 }}>
+          <table className="w-full" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--primary)" }}>
-                <th className={headerCls} style={{ fontSize: 11 }}>Mã LHP</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Tên Lớp</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Số TC HP</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Học Phí Gốc</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Thực Đóng</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Ngày Thanh Toán</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Trạng Thái</th>
-                <th className={headerCls} style={{ fontSize: 11 }}>Hành động</th>
+                <th className={headerCls}>STT</th>
+                <th className={headerCls}>NH/HK</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-white border-r border-white/10 whitespace-nowrap">Mã MH / Lớp / Môn Học</th>
+                <th className={headerCls}>Số TC</th>
+                <th className={headerCls}>Số Tiết</th>
+                <th className={headerCls}>Số TC Học Phí</th>
+                <th className={headerCls}>Học Phí</th>
+                <th className={headerCls}>Giảm</th>
+                <th className={headerCls}>Hỗ Trợ Học Phí</th>
+                <th className={headerCls}>Học Phí Thực Đóng</th>
+                <th className={headerCls}>Chi Phí</th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-white whitespace-nowrap">Ghi Chú</th>
               </tr>
             </thead>
             <tbody>
-              {tuitionList.map((row, i) => (
-                <tr key={row.malhp} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
-                  <td className={cellCls + " font-medium"} style={{ color: "var(--primary)" }}>{row.malhp}</td>
-                  <td className={cellCls + " text-left"}>{row.tenlop}</td>
-                  <td className={cellCls}>{row.sotchp}</td>
-                  <td className={cellCls}>{fmt(row.hocphi_goc)}</td>
-                  <td className={cellCls + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.thucdong)}</td>
-                  <td className={cellCls}>{row.ngaythanhtoan || "—"}</td>
-                  <td className={cellCls}>
-                    <span className={`px-2 py-1 rounded font-semibold text-[10px] ${row.trangthai_thanhtoan === 'Đã thanh toán' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {row.trangthai_thanhtoan}
-                    </span>
-                  </td>
-                  <td className={cellCls}>
-                    {row.trangthai_thanhtoan !== 'Đã thanh toán' && (
-                      <button onClick={() => handlePay(row.malhp)} 
-                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold transition-colors">
-                        Thanh toán
-                      </button>
-                    )}
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={12} className="px-4 py-6 text-center text-sm text-muted-foreground bg-white">
+                    Không có dữ liệu học phí cho bộ lọc này.
                   </td>
                 </tr>
-              ))}
-              <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7" }}>
-                <td colSpan={2} className="px-3 py-2.5 text-right text-xs font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng Cộng:</td>
-                <td className={cellCls + " font-bold"}>{totalTcHocPhi}</td>
-                <td className={cellCls + " font-bold"}>{fmt(totalHocPhi)}</td>
-                <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
-                <td colSpan={3} className={cellCls}></td>
-              </tr>
+              ) : (
+                filteredData.map((row, i) => (
+                  <tr key={row.maLhp + i} style={{ background: i % 2 === 0 ? "#ffffff" : "#dde4f5" }}>
+                    <td className={cellCls + " text-muted-foreground"}>{i + 1}</td>
+                    <td className={cellCls}>{row.nhhk}</td>
+                    <td className="px-4 py-3 border-r border-border/50 text-left">
+                      <div className="text-xs text-muted-foreground font-mono mb-0.5">[{row.maMh}/{row.maLhp}]</div>
+                      <div className="text-xs font-medium text-foreground">{row.tenMon}</div>
+                    </td>
+                    <td className={cellCls}>{Number(row.soTc) > 0 ? Number(row.soTc).toFixed(1) : "—"}</td>
+                    <td className={cellCls}>{row.soTiet || "—"}</td>
+                    <td className={cellCls}>{Number(row.soTcHocPhi).toFixed(2)}</td>
+                    <td className={cellCls + " font-medium"}>{fmt(row.hocPhiGoc)}</td>
+                    <td className={cellCls}>{fmt(row.mucGiam)}</td>
+                    <td className={cellCls}>{fmt(row.hoTro)}</td>
+                    <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(row.thucDong)}</td>
+                    <td className={cellCls}>{fmt(row.chiPhiKhac)}</td>
+                    <td className="px-3 py-3 text-center text-xs">{row.ghiChu}</td>
+                  </tr>
+                ))
+              )}
+              
+              {/* Hàng tổng cộng */}
+              {filteredData.length > 0 && (
+                <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "1px solid var(--border)" }}>
+                  <td colSpan={3} className="px-4 py-3 text-right text-xs font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng Cộng:</td>
+                  <td className={cellCls}>{totalTc > 0 ? totalTc.toFixed(1) : "0.0"}</td>
+                  <td className={cellCls}>{totalTiet > 0 ? totalTiet : "0"}</td>
+                  <td className={cellCls}>{totalTcHocPhi > 0 ? totalTcHocPhi.toFixed(2) : "0.00"}</td>
+                  <td className={cellCls}>{fmt(totalHocPhi)}</td>
+                  <td className={cellCls}>{fmt(totalGiam)}</td>
+                  <td className={cellCls}>{fmt(totalHoTro)}</td>
+                  <td className={cellCls} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
+                  <td className={cellCls}>{fmt(totalChiPhi)}</td>
+                  <td className="px-3 py-3 text-center text-xs"></td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-1">
-        <div className="flex items-center gap-4 bg-card rounded-xl border border-border px-6 py-3">
-          <span className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng số tiền thực đóng:</span>
-          <span className="text-base font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)}</span>
+      
+      {/* Box tổng số tiền */}
+      <div className="flex flex-col items-end gap-1.5 mt-4">
+        <div className="flex items-center gap-3 bg-white rounded-full border border-border px-6 py-3 shadow-sm">
+          <span className="text-sm font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng số tiền phải đóng:</span>
+          <span className="text-[17px] font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)}</span>
         </div>
+        <span className="text-[11px] text-muted-foreground mr-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+          Ngày cập nhật: {new Date().toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}
+        </span>
       </div>
     </div>
   );
@@ -1371,27 +1428,93 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
 }
 
 // ─── Notifications Section ────────────────────────────────────────────────────
-const ALL_KHOA  = Array.from(new Set(NOTIFICATIONS.map(n => n.khoa).filter(Boolean))).sort();
-const ALL_PHONG = Array.from(new Set(NOTIFICATIONS.map(n => n.phong).filter(Boolean))).sort();
+export function NotificationsSection() {
+  const { accounts } = useMsal();
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
 
-export function NotificationsSection({ 
-  notifs, 
-  selectedNotif, 
-  setSelectedNotif, 
-  markAllRead 
-}: {
-  notifs: any[];
-  selectedNotif: any | null;
-  setSelectedNotif: (n: any | null) => void;
-  markAllRead: () => void;
-}) {
+  const [notifs, setNotifs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
+
   const [search, setSearch] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [selKhoa, setSelKhoa] = useState<string[]>([]);
+  const [selPhong, setSelPhong] = useState<string[]>([]);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Gọi API lấy dữ liệu thông báo thật
+  useEffect(() => {
+    fetch(`/api/students/${currentMssv}/notifications`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          setNotifs(data.data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi khi tải thông báo:", err);
+        setLoading(false);
+      });
+  }, [currentMssv]);
+
+  // Click ra ngoài để đóng filter popup
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  // Xử lý Click mở thông báo & Đánh dấu đã đọc xuống Backend
+  const handleNotifClick = async (n: any) => {
+    setSelectedNotif(n);
+    if (n.trangThaiDoc === 0) {
+      try {
+        const res = await fetch(`/api/students/${currentMssv}/notifications/${n.maTb}/read`, { method: 'POST' });
+        if (res.ok) {
+          setNotifs(prev => prev.map(item => 
+            item.maTb === n.maTb ? { ...item, trangThaiDoc: 1 } : item
+          ));
+        }
+      } catch (error) {
+        console.error("Lỗi khi đánh dấu đã đọc:", error);
+      }
+    }
+  };
+
+  // Trích xuất list Khoa/Phòng để làm Bộ Lọc Động
+  const ALL_KHOA  = Array.from(new Set(notifs.map(n => n.khoa).filter(Boolean))).sort() as string[];
+  const ALL_PHONG = Array.from(new Set(notifs.map(n => n.phong).filter(Boolean))).sort() as string[];
+
+  function toggleKhoa(v: string) { setSelKhoa(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]); }
+  function togglePhong(v: string) { setSelPhong(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]); }
+  function clearAll() { setSelKhoa([]); setSelPhong([]); }
+  const activeCount = selKhoa.length + selPhong.length;
 
   const filtered = notifs.filter(n => {
     const q = search.trim().toLowerCase();
-    return !q || n.tieude.toLowerCase().includes(q) || (n.noidung && n.noidung.toLowerCase().includes(q));
+    const matchSearch = !q || n.tieuDe.toLowerCase().includes(q) || n.noiDung.toLowerCase().includes(q);
+    const matchKhoa   = selKhoa.length === 0  || (n.khoa  && selKhoa.includes(n.khoa));
+    const matchPhong  = selPhong.length === 0 || (n.phong && selPhong.includes(n.phong));
+    return matchSearch && matchKhoa && matchPhong;
   });
 
+  function NotifTags({ n }: { n: any }) {
+    return (
+      <div className="flex gap-1 flex-wrap mt-0.5">
+        {n.khoa  && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#E0D8C4", color: "var(--primary)" }}>{n.khoa}</span>}
+        {n.phong && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#fdf4ff", color: "#7c3aed" }}>{n.phong}</span>}
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="p-5 text-center text-muted-foreground text-sm font-medium">Đang tải thông báo...</div>;
+  }
+
+  // --- Màn hình chi tiết ---
   if (selectedNotif) {
     return (
       <div className="w-full max-w-3xl mx-auto">
@@ -1404,27 +1527,24 @@ export function NotificationsSection({
           </div>
           <div className="p-6">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              {selectedNotif.trangthai_doc === 0 && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--background)", color: "var(--accent)" }}>Chưa đọc</span>}
+              {selectedNotif.khoa  && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#E0D8C4", color: "var(--primary)" }}>{selectedNotif.khoa}</span>}
+              {selectedNotif.phong && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#fdf4ff", color: "#7c3aed" }}>{selectedNotif.phong}</span>}
             </div>
-            <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{selectedNotif.tieude}</h3>
-            <p className="text-xs text-muted-foreground mb-4">{selectedNotif.ngaydang}</p>
-            <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">{selectedNotif.noidung}</p>
+            <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{selectedNotif.tieuDe}</h3>
+            <p className="text-xs text-muted-foreground mb-4">{selectedNotif.ngayDang}</p>
+            <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">{selectedNotif.noiDung}</p>
           </div>
         </div>
       </div>
     );
   }
 
+  // --- Màn hình danh sách ---
   return (
     <div className="w-full max-w-3xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-muted-foreground">{filtered.length}/{notifs.length} thông báo</span>
-          <button onClick={markAllRead} className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
-            Đánh dấu tất cả đã đọc
-          </button>
-        </div>
+        <span className="text-xs text-muted-foreground">{filtered.length}/{notifs.length} thông báo</span>
       </div>
       <div className="flex gap-2">
         <div className="flex-1 relative">
@@ -1438,7 +1558,70 @@ export function NotificationsSection({
             </button>
           )}
         </div>
+        <div className="relative flex-shrink-0" ref={filterRef}>
+          <button onClick={() => setFilterOpen(o => !o)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border text-sm font-semibold transition-all"
+            style={{ borderColor: activeCount > 0 ? "#11284D" : "#e2e8f0", background: activeCount > 0 ? "#11284D" : "#fff", color: activeCount > 0 ? "#fff" : "#475569", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <Filter className="w-4 h-4" />
+            <span>Lọc</span>
+            {activeCount > 0 && <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "rgba(255,255,255,0.25)", color: "#fff" }}>{activeCount}</span>}
+          </button>
+          {filterOpen && (
+            <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <span className="text-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Lọc thông báo</span>
+                {activeCount > 0 && <button onClick={clearAll} className="text-xs font-semibold hover:opacity-70 transition-opacity" style={{ color: "var(--accent)" }}>Xoá tất cả</button>}
+              </div>
+              
+              {ALL_KHOA.length > 0 && (
+                <div className="px-4 pt-3 pb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Khoa / Bộ môn</p>
+                  <div className="space-y-1">
+                    {ALL_KHOA.map(k => (
+                      <label key={k} className="flex items-center gap-2.5 cursor-pointer group py-1">
+                        <div onClick={() => toggleKhoa(k)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                          style={{ borderColor: selKhoa.includes(k) ? "#11284D" : "#cbd5e1", background: selKhoa.includes(k) ? "#11284D" : "#fff" }}>
+                          {selKhoa.includes(k) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        </div>
+                        <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => toggleKhoa(k)} style={{ fontFamily: "'Inter', sans-serif" }}>{k}</span>
+                        <span className="ml-auto text-[11px] text-muted-foreground">{notifs.filter(n => n.khoa === k).length}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {ALL_KHOA.length > 0 && ALL_PHONG.length > 0 && <div className="mx-4 h-px bg-border" />}
+              
+              {ALL_PHONG.length > 0 && (
+                <div className="px-4 pt-3 pb-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "#7c3aed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Phòng / Ban</p>
+                  <div className="space-y-1">
+                    {ALL_PHONG.map(p => (
+                      <label key={p} className="flex items-center gap-2.5 cursor-pointer group py-1">
+                        <div onClick={() => togglePhong(p)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                          style={{ borderColor: selPhong.includes(p) ? "#7c3aed" : "#cbd5e1", background: selPhong.includes(p) ? "#7c3aed" : "#fff" }}>
+                          {selPhong.includes(p) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        </div>
+                        <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => togglePhong(p)} style={{ fontFamily: "'Inter', sans-serif" }}>{p}</span>
+                        <span className="ml-auto text-[11px] text-muted-foreground">{notifs.filter(n => n.phong === p).length}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+            </div>
+          )}
+        </div>
       </div>
+      
+      {activeCount > 0 && (
+        <div className="flex gap-1.5 flex-wrap">
+          {selKhoa.map(k => <button key={k} onClick={() => toggleKhoa(k)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#E0D8C4", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{k} <X className="w-3 h-3" /></button>)}
+          {selPhong.map(p => <button key={p} onClick={() => togglePhong(p)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#fdf4ff", color: "#7c3aed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{p} <X className="w-3 h-3" /></button>)}
+        </div>
+      )}
       
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         {filtered.length === 0 ? (
@@ -1449,9 +1632,9 @@ export function NotificationsSection({
         ) : (
           <div className="divide-y divide-border">
             {filtered.map(n => {
-              const isUnread = n.trangthai_doc === 0;
+              const isUnread = n.trangThaiDoc === 0;
               return (
-              <div key={n.matb} onClick={() => setSelectedNotif(n)}
+              <div key={n.maTb} onClick={() => handleNotifClick(n)}
                 className="px-5 py-4 cursor-pointer transition-colors flex items-start gap-3"
                 style={{ background: isUnread ? "#dde4f5" : "transparent" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#dde4f580"; }}
@@ -1462,9 +1645,10 @@ export function NotificationsSection({
                     : <span className="w-2 h-2 block" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm mb-0.5 ${isUnread ? "font-bold text-foreground" : "font-normal text-muted-foreground"}`}>{n.tieude}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-1">{n.noidung}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{n.ngaydang}</p>
+                  <p className={`text-sm mb-0.5 ${isUnread ? "font-bold text-foreground" : "font-normal text-muted-foreground"}`}>{n.tieuDe}</p>
+                  <NotifTags n={n} />
+                  <p className="text-xs text-muted-foreground truncate mt-1">{n.noiDung}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{n.ngayDang}</p>
                 </div>
               </div>
               );
