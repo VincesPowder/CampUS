@@ -1,9 +1,19 @@
 from flask import Blueprint, jsonify, request
-from app.models.student import SinhVien, DotCapNhatHoSo
+from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan
+from app.models.tuition import HocPhi, LopHocPhan
+from app.models.notification import SvThongBao, ThongBao
 from app import db
 from datetime import datetime
 
-profile_bp = Blueprint('profile_routes', __name__)
+student_bp = Blueprint('student', __name__)
+
+def format_date(date_val):
+    """Hàm helper để định dạng ngày an toàn, chống sập server khi SQLite trả về chuỗi"""
+    if not date_val:
+        return None
+    if hasattr(date_val, 'strftime'):
+        return date_val.strftime('%Y-%m-%d')
+    return str(date_val)
 
 def check_update_eligibility():
     """Kiểm tra xem hệ thống có đang mở đợt cập nhật hồ sơ không"""
@@ -15,9 +25,9 @@ def check_update_eligibility():
     ).first()
     return active_period is not None
 
-@profile_bp.route('/api/profile/<mssv>', methods=['GET'])
+@student_bp.route('/<mssv>', methods=['GET'])
 def get_profile(mssv):
-    """UC 2.5: Lấy thông tin cá nhân và học vụ"""
+    """UC 2.5: Lấy thông vị cá nhân và học vụ"""
     student = SinhVien.query.get(mssv)
     if not student:
         return jsonify({'error': 'Không tìm thấy hồ sơ sinh viên'}), 404
@@ -25,7 +35,6 @@ def get_profile(mssv):
     can_update = check_update_eligibility()
     faculty_name = student.nganh.khoa.tenkhoa if student.nganh and student.nganh.khoa else None
     major_name = student.nganh.tennganh if student.nganh else None
-    
     
     family_data = []
     for nt in student.nguoithan_list:
@@ -46,24 +55,40 @@ def get_profile(mssv):
             'address': nt.hkthuongtru
         })
         
-    
     profile_data = {
         'mssv': student.mssv,
         'fullName': student.hoten,
-        'dob': student.ngaysinh.strftime('%Y-%m-%d') if student.ngaysinh else None,
+        'dob': format_date(student.ngaysinh),
         'placeOfBirth': student.noisinh,
         'gender': student.gioitinh,
         'cccd': student.cccd,
-        'issuedDate': student.ngaycap.strftime('%Y-%m-%d') if student.ngaycap else None,
+        'issuedDate': format_date(student.ngaycap),
         'issuedPlace': student.noicap,
         'nationality': student.quoctich,
         'ethnic': student.dantoc,
         'religion': student.tongiao,
         'permanentAddress': student.dcthuongtru,
         'currentAddress': student.dchiennay,
+        
+        # --- CÁC TRƯỜNG ĐÃ ĐƯỢC MAP KHỚP VỚI FRONTEND ---
+        'contactAddress': student.dclienlac,
         'phone': student.dienthoai,
         'personalEmail': student.mailcanhan,
         'officialEmail': student.mailtruong,
+        'joinUnionDate': format_date(student.ngayvaodoan),
+        'joinPartyDate': format_date(student.ngayvaodang),
+        
+        'advisor': student.nguoilienlac,
+        'advisorPhone': student.sdtlienlac,
+        'advisorEmail': student.maillienlac,
+        'advisorRelation': student.quanhe_nll,
+        
+        'bankNumber': student.sothenh,
+        'bank': student.tennh,
+        'bankBranch': None, # DB ko có chi nhánh nên trả về None để UI làm mờ
+        'enrolledDate': None,
+        # ------------------------------------------------
+        
         'course': student.nienkhoa,
         'level': student.bacdaotao,
         'trainingType': student.loaidaotao,
@@ -77,7 +102,7 @@ def get_profile(mssv):
 
     return jsonify(profile_data), 200
 
-@profile_bp.route('/api/profile/<mssv>/update', methods=['PUT'])
+@student_bp.route('/<mssv>/update', methods=['PUT'])
 def update_profile(mssv):
     """UC 2.6: Cập nhật thông tin hồ sơ cá nhân"""
     if not check_update_eligibility():
@@ -89,7 +114,6 @@ def update_profile(mssv):
 
     data = request.json
     
-    # Chỉ cho phép cập nhật các trường liên lạc theo đặc tả UC 2.6
     if 'currentAddress' in data:
         student.dchiennay = data['currentAddress']
     if 'phone' in data:
@@ -100,7 +124,7 @@ def update_profile(mssv):
     db.session.commit()
     return jsonify({'message': 'Cập nhật thông tin thành công'}), 200
 
-@profile_bp.route('/api/profile/<mssv>/family/<mant>', methods=['PUT'])
+@student_bp.route('/<mssv>/family/<mant>', methods=['PUT'])
 def update_family(mssv, mant):
     """Cập nhật thông tin liên lạc của người thân"""
     if not check_update_eligibility():
@@ -112,7 +136,6 @@ def update_family(mssv, mant):
 
     data = request.json
     
-    # Cập nhật các trường được phép chỉnh sửa
     if 'phone' in data: nt.sdt = data['phone']
     if 'email' in data: nt.mail = data['email']
     if 'job' in data: nt.nghenghiep = data['job']
@@ -123,3 +146,147 @@ def update_family(mssv, mant):
 
     db.session.commit()
     return jsonify({'message': 'Cập nhật thành công'}), 200
+
+@student_bp.route('/<mssv>/tuition', methods=['GET'])
+def get_tuition(mssv):
+    # Lấy toàn bộ học phí của sinh viên
+    danh_sach_hoc_phi = HocPhi.query.filter_by(mssv=mssv).all()
+    
+    result = []
+    for hp in danh_sach_hoc_phi:
+        lhp = hp.lophocphan
+        mh = lhp.monhoc if lhp else None
+        hk = lhp.hocky_namhoc if lhp else None
+        
+        result.append({
+            "maLhp": hp.malhp,
+            "maMh": lhp.mamh if lhp else "—",
+            "tenMon": mh.tenmh if mh and mh.tenmh else (lhp.tenlop if lhp and lhp.tenlop else "—"),
+            "namHoc": hk.namhoc if hk and hk.namhoc else "—",
+            "tenHocKy": hk.ten_hocky if hk and hk.ten_hocky else "—",
+            "nhhk": f"{hk.namhoc} / {hk.ten_hocky}" if hk and hk.namhoc and hk.ten_hocky else "—",
+            
+            # Kiểm tra chặt chẽ is not None cho tất cả các trường số
+            "soTc": float(mh.sotc) if mh and mh.sotc is not None else 0.0,
+            "soTiet": int(mh.sotiet) if mh and mh.sotiet is not None else 0,
+            "soTcHocPhi": float(hp.sotchp) if hp and hp.sotchp is not None else 0.0,
+            "hocPhiGoc": float(hp.hocphi_goc) if hp and hp.hocphi_goc is not None else 0.0,
+            "mucGiam": float(hp.mucgiam) if hp and hp.mucgiam is not None else 0.0,
+            "hoTro": float(hp.hotro) if hp and hp.hotro is not None else 0.0,
+            "thucDong": float(hp.thucdong) if hp and hp.thucdong is not None else 0.0,
+            "chiPhiKhac": float(hp.chiphikhac) if hp and hp.chiphikhac is not None else 0.0,
+            
+            "ghiChu": hp.ghichu if hp and hp.ghichu else "—",
+            "trangThaiThanhToan": hp.trangthai_thanhtoan,
+            "ngayThanhToan": hp.ngaythanhtoan.strftime('%d/%m/%Y') if hp and hp.ngaythanhtoan else None
+        })
+
+    return jsonify({"status": "success", "data": result}), 200
+
+@student_bp.route('/<mssv>/notifications', methods=['GET'])
+def get_notifications(mssv):
+    """Lấy danh sách thông báo của sinh viên"""
+    notifications = db.session.query(SvThongBao, ThongBao).join(
+        ThongBao, SvThongBao.matb == ThongBao.matb
+    ).filter(SvThongBao.mssv == mssv).order_by(ThongBao.ngaydang.desc()).all()
+
+    result = []
+    for sv_tb, tb in notifications:
+        # Bóc tách Khoa / Phòng từ bảng THONGBAO 
+        donvi = getattr(tb.khoa, 'tenkhoa', None) if hasattr(tb, 'khoa') and tb.khoa else None
+        
+        # Fallback tự động nhận diện nếu dữ liệu `MAKHOA` trong DB đang null
+        if not donvi:
+            tieude_lower = tb.tieude.lower() if tb.tieude else ""
+            if "học phần" in tieude_lower or "lịch thi" in tieude_lower or "đào tạo" in tieude_lower:
+                donvi = "Phòng Đào tạo"
+            elif "học bổng" in tieude_lower or "công tác sv" in tieude_lower:
+                donvi = "Phòng Công tác SV"
+            else:
+                donvi = "Khoa CNTT"
+
+        khoa = donvi if "phòng" not in donvi.lower() else None
+        phong = donvi if "phòng" in donvi.lower() else None
+
+        result.append({
+            'maTb': tb.matb,
+            'tieuDe': tb.tieude,
+            'noiDung': tb.noidung,
+            'ngayDang': tb.ngaydang.strftime('%d/%m/%Y %H:%M') if tb.ngaydang else None,
+            'trangThaiDoc': sv_tb.trangthai_doc,
+            'thoiGianDoc': sv_tb.thoigian_doc.strftime('%d/%m/%Y %H:%M') if sv_tb.thoigian_doc else None,
+            'khoa': khoa,
+            'phong': phong
+        })
+    return jsonify({'status': 'success', 'data': result}), 200
+
+@student_bp.route('/<mssv>/notifications/<matb>/read', methods=['POST'])
+def mark_notification_read(mssv, matb):
+    """Đánh dấu một thông báo cụ thể là đã đọc"""
+    sv_tb = db.session.query(SvThongBao).filter_by(mssv=mssv, matb=matb).first()
+    
+    if not sv_tb:
+        return jsonify({'status': 'error', 'message': 'Không tìm thấy thông báo'}), 404
+    
+    # Cập nhật trạng thái đọc và thời gian đọc theo database[cite: 2]
+    sv_tb.trangthai_doc = 1
+    sv_tb.thoigian_doc = datetime.utcnow()
+    
+    db.session.commit()
+    
+    return jsonify({
+        'status': 'success', 
+        'message': 'Đã cập nhật trạng thái đọc',
+        'thoigian_doc': sv_tb.thoigian_doc.strftime('%d/%m/%Y %H:%M')
+    }), 200
+
+
+@student_bp.route('/<mssv>/notifications/read-all', methods=['POST'])
+def mark_all_notifications_read(mssv):
+    """Đánh dấu tất cả thông báo của sinh viên là đã đọc"""
+    # Lấy các thông báo chưa đọc (trangthai_doc == 0)[cite: 2]
+    unread_notifications = db.session.query(SvThongBao).filter_by(mssv=mssv, trangthai_doc=0).all()
+    
+    if not unread_notifications:
+        return jsonify({'status': 'success', 'message': 'Không có thông báo nào chưa đọc'}), 200
+
+    now = datetime.utcnow()
+    for sv_tb in unread_notifications:
+        sv_tb.trangthai_doc = 1
+        sv_tb.thoigian_doc = now
+        
+    db.session.commit()
+    
+    return jsonify({'status': 'success', 'message': 'Đã đánh dấu đọc tất cả thông báo'}), 200
+
+
+# ---------------------------------------------------------
+# API HỌC PHÍ
+# ---------------------------------------------------------
+
+@student_bp.route('/<mssv>/tuition/<malhp>/pay', methods=['POST'])
+def pay_tuition(mssv, malhp):
+    """Mô phỏng tính năng thanh toán học phí cho một lớp học phần"""
+    hocphi = db.session.query(HocPhi).filter_by(mssv=mssv, malhp=malhp).first()
+    
+    if not hocphi:
+        return jsonify({'status': 'error', 'message': 'Không tìm thấy thông tin học phí'}), 404
+        
+    if hocphi.trangthai_thanhtoan == 'Đã thanh toán':
+        return jsonify({'status': 'error', 'message': 'Học phí này đã được thanh toán rồi'}), 400
+    
+    # Cập nhật trạng thái và ngày thanh toán[cite: 2]
+    hocphi.trangthai_thanhtoan = 'Đã thanh toán'
+    hocphi.ngaythanhtoan = datetime.utcnow()
+    
+    db.session.commit()
+    
+    return jsonify({
+        'status': 'success', 
+        'message': 'Thanh toán học phí thành công',
+        'data': {
+            'malhp': hocphi.malhp,
+            'trangthai_thanhtoan': hocphi.trangthai_thanhtoan,
+            'ngaythanhtoan': hocphi.ngaythanhtoan.strftime('%d/%m/%Y %H:%M')
+        }
+    }), 200
