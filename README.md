@@ -10,7 +10,7 @@
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 
-Dự án **CampUS** là một hệ thống web toàn diện, hỗ trợ sinh viên và quản trị viên nhà trường trong việc theo dõi tiến độ học tập, hồ sơ cá nhân, học phí, lịch học/thi và xử lý các nghiệp vụ nội bộ. Hệ thống được tích hợp Trí tuệ Nhân tạo (AI) để hỗ trợ tư vấn (Chatbot) và gợi ý học tập.
+Đồ án môn học Nhập môn Công nghệ phần mềm 2026 HCMUS: **CampUS** là một hệ thống web toàn diện, hỗ trợ sinh viên và quản trị viên nhà trường trong việc theo dõi tiến độ học tập, hồ sơ cá nhân, học phí, lịch học/thi và xử lý các nghiệp vụ nội bộ. Hệ thống được tích hợp Trí tuệ Nhân tạo (AI) để hỗ trợ tư vấn (Chatbot) và gợi ý học tập.
 
 ---
 
@@ -52,9 +52,9 @@ Dự án được chia làm 2 phần độc lập: **Backend** và **Frontend**.
    ```bash
    pip install -r requirements.txt
    ```
-5. *(Tùy chọn)* Khởi tạo cơ sở dữ liệu và dữ liệu mẫu (Mock data):
+5. Khởi tạo cơ sở dữ liệu và dữ liệu mẫu (Mock data) để chạy local bằng file seed.sql:
    ```bash
-   python app/services/mock_data/seed.py
+   sqlite3 database/campus.db < database/seed.sql
    ```
 6. Khởi chạy server Backend:
    ```bash
@@ -111,10 +111,12 @@ GEMINI_API_KEY=your_google_gemini_api_key_here
 CampUS/
 ├── backend/                       # Mã nguồn Backend (Flask)
 │   ├── app/
-│   │   ├── instances/campus.db    # Cơ sở dữ liệu SQLite
 │   │   ├── models/                # Định nghĩa các bảng Database
 │   │   ├── routes/                # Các Endpoints API (auth, users, ai...)
 │   │   └── services/              # Logic xử lý (AI chatbot, recommender)
+│   ├── database/                  # Chứa Database và file SQL
+│   │   ├── campus.db              # Cơ sở dữ liệu SQLite
+│   │   └── seed.sql               # File SQL chứa dữ liệu mẫu để chạy local
 │   ├── requirements.txt           # Danh sách các thư viện Python
 │   └── run.py                     # File khởi động Backend
 │
