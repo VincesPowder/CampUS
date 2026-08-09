@@ -149,23 +149,39 @@ def update_family(mssv, mant):
 
 @student_bp.route('/<mssv>/tuition', methods=['GET'])
 def get_tuition(mssv):
-    """Lấy danh sách học phí của một sinh viên"""
-    hocphi_list = db.session.query(HocPhi, LopHocPhan).join(
-        LopHocPhan, HocPhi.malhp == LopHocPhan.malhp
-    ).filter(HocPhi.mssv == mssv).all()
-
+    # Lấy toàn bộ học phí của sinh viên
+    danh_sach_hoc_phi = HocPhi.query.filter_by(mssv=mssv).all()
+    
     result = []
-    for hp, lhp in hocphi_list:
+    for hp in danh_sach_hoc_phi:
+        lhp = hp.lophocphan
+        mh = lhp.monhoc if lhp else None
+        hk = lhp.hocky_namhoc if lhp else None
+        
         result.append({
-            'malhp': hp.malhp,
-            'tenlop': lhp.tenlop,
-            'sotchp': hp.sotchp,
-            'hocphi_goc': float(hp.hocphi_goc) if hp.hocphi_goc else 0,
-            'thucdong': float(hp.thucdong) if hp.thucdong else 0,
-            'trangthai_thanhtoan': hp.trangthai_thanhtoan,
-            'ngaythanhtoan': hp.ngaythanhtoan.strftime('%d/%m/%Y') if hp.ngaythanhtoan else None
+            "maLhp": hp.malhp,
+            "maMh": lhp.mamh if lhp else "—",
+            "tenMon": mh.tenmh if mh and mh.tenmh else (lhp.tenlop if lhp and lhp.tenlop else "—"),
+            "namHoc": hk.namhoc if hk and hk.namhoc else "—",
+            "tenHocKy": hk.ten_hocky if hk and hk.ten_hocky else "—",
+            "nhhk": f"{hk.namhoc} / {hk.ten_hocky}" if hk and hk.namhoc and hk.ten_hocky else "—",
+            
+            # Kiểm tra chặt chẽ is not None cho tất cả các trường số
+            "soTc": float(mh.sotc) if mh and mh.sotc is not None else 0.0,
+            "soTiet": int(mh.sotiet) if mh and mh.sotiet is not None else 0,
+            "soTcHocPhi": float(hp.sotchp) if hp and hp.sotchp is not None else 0.0,
+            "hocPhiGoc": float(hp.hocphi_goc) if hp and hp.hocphi_goc is not None else 0.0,
+            "mucGiam": float(hp.mucgiam) if hp and hp.mucgiam is not None else 0.0,
+            "hoTro": float(hp.hotro) if hp and hp.hotro is not None else 0.0,
+            "thucDong": float(hp.thucdong) if hp and hp.thucdong is not None else 0.0,
+            "chiPhiKhac": float(hp.chiphikhac) if hp and hp.chiphikhac is not None else 0.0,
+            
+            "ghiChu": hp.ghichu if hp and hp.ghichu else "—",
+            "trangThaiThanhToan": hp.trangthai_thanhtoan,
+            "ngayThanhToan": hp.ngaythanhtoan.strftime('%d/%m/%Y') if hp and hp.ngaythanhtoan else None
         })
-    return jsonify({'status': 'success', 'data': result}), 200
+
+    return jsonify({"status": "success", "data": result}), 200
 
 @student_bp.route('/<mssv>/notifications', methods=['GET'])
 def get_notifications(mssv):
@@ -176,13 +192,31 @@ def get_notifications(mssv):
 
     result = []
     for sv_tb, tb in notifications:
+        # Bóc tách Khoa / Phòng từ bảng THONGBAO 
+        donvi = getattr(tb.khoa, 'tenkhoa', None) if hasattr(tb, 'khoa') and tb.khoa else None
+        
+        # Fallback tự động nhận diện nếu dữ liệu `MAKHOA` trong DB đang null
+        if not donvi:
+            tieude_lower = tb.tieude.lower() if tb.tieude else ""
+            if "học phần" in tieude_lower or "lịch thi" in tieude_lower or "đào tạo" in tieude_lower:
+                donvi = "Phòng Đào tạo"
+            elif "học bổng" in tieude_lower or "công tác sv" in tieude_lower:
+                donvi = "Phòng Công tác SV"
+            else:
+                donvi = "Khoa CNTT"
+
+        khoa = donvi if "phòng" not in donvi.lower() else None
+        phong = donvi if "phòng" in donvi.lower() else None
+
         result.append({
-            'matb': tb.matb,
-            'tieude': tb.tieude,
-            'noidung': tb.noidung,
-            'ngaydang': tb.ngaydang.strftime('%d/%m/%Y %H:%M') if tb.ngaydang else None,
-            'trangthai_doc': sv_tb.trangthai_doc,
-            'thoigian_doc': sv_tb.thoigian_doc.strftime('%d/%m/%Y %H:%M') if sv_tb.thoigian_doc else None
+            'maTb': tb.matb,
+            'tieuDe': tb.tieude,
+            'noiDung': tb.noidung,
+            'ngayDang': tb.ngaydang.strftime('%d/%m/%Y %H:%M') if tb.ngaydang else None,
+            'trangThaiDoc': sv_tb.trangthai_doc,
+            'thoiGianDoc': sv_tb.thoigian_doc.strftime('%d/%m/%Y %H:%M') if sv_tb.thoigian_doc else None,
+            'khoa': khoa,
+            'phong': phong
         })
     return jsonify({'status': 'success', 'data': result}), 200
 
