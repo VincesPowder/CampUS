@@ -1063,21 +1063,68 @@ export function ProfileSection({ avatarUrl, onAvatarChange }: { avatarUrl: strin
 
 // ─── Survey Section ───────────────────────────────────────────────────────────
 const RATING_LABELS: Record<number, string> = { 1: "Rất tệ", 2: "Tệ", 3: "Bình thường", 4: "Tốt", 5: "Rất tốt" };
-type CourseResponse = { rating: number | null; detailed: boolean; comment: string };
 
 function ratingColor(n: number) {
   return n === 1 ? "#E8384D" : n === 2 ? "#F4703A" : n === 3 ? "#F9C02B" : n === 4 ? "#2ABDA8" : "#4BC06B";
 }
 
-function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) => void }) {
+type CourseResponse = { 
+  rating: number | null; 
+  detailed: boolean; 
+  comment: string 
+};
+
+function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: boolean; onDone: (id: string) => void }) {
+  const { accounts } = useMsal();
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+  
   const [submitted, setSubmitted] = useState(false);
-  const [responses, setResponses] = useState<Record<string, CourseResponse>>(
-    Object.fromEntries(survey.courses.map(c => [c.id, { rating: null, detailed: false, comment: "" }]))
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [responses, setResponses] = useState<Record<string, CourseResponse>>({});
+
+  // Khởi tạo responses, hỗ trợ load lại dữ liệu cũ nếu backend trả về (c.rating, c.comment)
+  useEffect(() => {
+    if (survey && survey.courses) {
+      setResponses(
+        Object.fromEntries(survey.courses.map((c: any) => [
+          c.id, 
+          { 
+            rating: c.rating ?? null, // Lấy rating cũ (nếu có)
+            detailed: false, 
+            comment: c.comment ?? ""  // Lấy comment cũ (nếu có)
+          }
+        ]))
+      );
+    }
+  }, [survey]);
+
   const setRating   = (id: string, v: number)  => setResponses(p => ({ ...p, [id]: { ...p[id], rating: v } }));
   const setDetailed = (id: string, v: boolean) => setResponses(p => ({ ...p, [id]: { ...p[id], detailed: v } }));
   const setComment  = (id: string, v: string)  => setResponses(p => ({ ...p, [id]: { ...p[id], comment: v } }));
-  const allRated = survey.courses.every(c => responses[c.id].rating !== null);
+  
+  const allRated = survey.courses && survey.courses.length > 0 && survey.courses.every((c: any) => responses[c.id]?.rating !== null);
+
+  const handleSubmit = async () => {
+    if (!allRated || isReadOnly) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/students/${currentMssv}/surveys/${survey.id}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ responses })
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        alert("Lỗi khi gửi khảo sát.");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Lỗi kết nối server.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (submitted) {
     return (
@@ -1097,8 +1144,13 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) =
     <div className="space-y-3">
       {/* ── Survey header card ── */}
       <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <div className="px-4 sm:px-6 py-4" style={{ background: "var(--primary)" }}>
+        <div className="px-4 sm:px-6 py-4 flex items-center justify-between" style={{ background: "var(--primary)" }}>
           <h2 className="text-sm sm:text-base font-bold text-white leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{survey.title}</h2>
+          {isReadOnly && (
+            <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full whitespace-nowrap">
+              Bản xem trước
+            </span>
+          )}
         </div>
         <div className="px-4 sm:px-6 py-4 space-y-3">
           <p className="text-sm text-muted-foreground leading-relaxed">{survey.description}</p>
@@ -1127,12 +1179,11 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) =
       </div>
 
       {/* ── Course cards ── */}
-      {survey.courses.map((course, idx) => {
-        const res = responses[course.id];
+      {survey.courses.map((course: any, idx: number) => {
+        const res = responses[course.id] || { rating: null, comment: "" };
         const rated = res.rating !== null;
         return (
           <div key={course.id} className="bg-card rounded-2xl border border-border overflow-hidden">
-            {/* Course header */}
             <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#dde4f5" }}>
               <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "var(--primary)" }}>{idx + 1}</span>
               <div className="flex-1 min-w-0">
@@ -1148,15 +1199,19 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) =
             </div>
 
             <div className="px-4 py-4 space-y-4">
-              {/* Rating choice */}
               <div className="space-y-3">
                 <div>
                   <p className="text-xs font-semibold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>Đánh giá chung về môn học và giảng viên</p>
-                  {/* Rating buttons — larger touch targets on mobile */}
                   <div className="flex gap-2 sm:gap-3">
                     {[1,2,3,4,5].map(n => (
-                      <button key={n} onClick={() => { setRating(course.id, n); setDetailed(course.id, false); }} title={RATING_LABELS[n]}
-                        className="flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all active:scale-95"
+                      <button key={n} 
+                        onClick={() => {
+                          if (isReadOnly) return; // Chặn click nếu đang ở chế độ xem
+                          setRating(course.id, n); 
+                          setDetailed(course.id, false); 
+                        }} 
+                        title={RATING_LABELS[n]}
+                        className={`flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all ${isReadOnly ? "cursor-default opacity-90" : "active:scale-95"}`}
                         style={{
                           borderColor: res.rating === n ? ratingColor(n) : "#e2e8f0",
                           background: res.rating === n ? ratingColor(n) : "#fff",
@@ -1168,50 +1223,93 @@ function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) =
                     ))}
                   </div>
                 </div>
-
               </div>
 
-              {/* Open-ended comment */}
               <div>
                 <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Góp ý thêm (không bắt buộc)</p>
-                <textarea value={res.comment} onChange={e => setComment(course.id, e.target.value)}
-                  placeholder="Ý kiến của bạn về môn học, giảng viên..." rows={3}
-                  className="w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary resize-none transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }} />
+                <textarea 
+                  value={res.comment} 
+                  onChange={e => setComment(course.id, e.target.value)}
+                  readOnly={isReadOnly} // Khóa text area
+                  placeholder={isReadOnly ? "Không có góp ý." : "Ý kiến của bạn về môn học, giảng viên..."} 
+                  rows={3}
+                  className={`w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none transition-colors ${isReadOnly ? "bg-gray-50 focus:border-border cursor-default text-muted-foreground" : "focus:border-primary text-foreground"}`}
+                  style={{ fontFamily: "'Inter', sans-serif" }} />
               </div>
             </div>
           </div>
         );
       })}
 
-      {/* ── Submit row ── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pb-4">
-        {!allRated && (
-          <p className="text-xs text-amber-600 font-medium px-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Vui lòng đánh giá tất cả {survey.courses.length} môn học trước khi gửi.
-          </p>
-        )}
-        <button disabled={!allRated} onClick={() => setSubmitted(true)}
-          className="sm:ml-auto px-7 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-          style={{ background: allRated ? "#11284D" : "#C5CCB7", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          Gửi đánh giá
-        </button>
-      </div>
+      {/* ── Submit row (Ẩn hoàn toàn nếu isReadOnly) ── */}
+      {!isReadOnly && (
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pb-4">
+          {!allRated && (
+            <p className="text-xs text-amber-600 font-medium px-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Vui lòng đánh giá tất cả {survey.courses.length} môn học trước khi gửi.
+            </p>
+          )}
+          <button disabled={!allRated || isSubmitting} onClick={handleSubmit}
+            className="sm:ml-auto px-7 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
+            style={{ background: allRated ? "#11284D" : "#C5CCB7", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {isSubmitting ? "Đang gửi..." : "Gửi đánh giá"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 export function SurveySection() {
-  const [selectedId, setSelectedId] = useState<string | null>(AVAILABLE_SURVEYS.length === 1 ? AVAILABLE_SURVEYS[0].id : null);
+  const { accounts } = useMsal();
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-  const selected = AVAILABLE_SURVEYS.find(s => s.id === selectedId) ?? null;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/students/${currentMssv}/surveys`)
+      .then(res => res.json())
+      .then(resData => {
+        if (resData.status === "success" && resData.data) {
+          setSurveys(resData.data);
+          const doneIds = resData.data
+            .filter((s: any) => s.status === "completed")
+            .map((s: any) => s.id);
+          setCompletedIds(new Set(doneIds));
+          
+          // Chỉ tự động mở form nếu có đúng 1 khảo sát VÀ nó chưa được hoàn thành
+          if (resData.data.length === 1 && resData.data[0].status !== "completed") {
+            setSelectedId(resData.data[0].id);
+          }
+        }
+      })
+      .catch(err => console.error("Fetch surveys error:", err))
+      .finally(() => setLoading(false));
+  }, [currentMssv]);
+
+  const selected = surveys.find(s => s.id === selectedId) ?? null;
+  const isSelectedDone = selected ? completedIds.has(selected.id) : false;
 
   function handleDone(id: string) {
     setCompletedIds(prev => new Set([...prev, id]));
+    // Cập nhật trạng thái local
+    setSurveys(prev => prev.map(s => s.id === id ? { ...s, status: "completed" } : s));
     setSelectedId(null);
   }
 
-  if (AVAILABLE_SURVEYS.length === 0) {
+  if (loading) {
+    return (
+      <div className="w-full py-20 text-center text-sm text-muted-foreground">
+        Đang tải danh sách khảo sát...
+      </div>
+    );
+  }
+
+  if (surveys.length === 0) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center text-center gap-4">
@@ -1226,18 +1324,20 @@ export function SurveySection() {
       </div>
     );
   }
-  if (AVAILABLE_SURVEYS.length > 1 && !selected) {
+
+  if (!selected) {
     return (
       <div className="w-full max-w-2xl mx-auto space-y-4">
         <div>
-          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Khảo sát đang mở</h2>
-          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu.</p>
+          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Danh sách khảo sát</h2>
+          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu hoặc xem lại.</p>
         </div>
-        {AVAILABLE_SURVEYS.map(sv => {
+        {surveys.map(sv => {
           const done = completedIds.has(sv.id);
           return (
-            <button key={sv.id} onClick={() => setSelectedId(sv.id)}
-              className="w-full text-left bg-card rounded-2xl border overflow-hidden group transition-colors"
+            <button key={sv.id} 
+              onClick={() => setSelectedId(sv.id)} // LUÔN CHO PHÉP CLICK VÀO KỂ CẢ KHI ĐÃ XONG
+              className="w-full text-left bg-card rounded-2xl border overflow-hidden transition-colors group hover:border-primary"
               style={{ borderColor: done ? "#22c55e" : "var(--border)" }}>
               <div className="h-1" style={{ background: done ? "#22c55e" : "var(--primary)" }} />
               <div className="px-5 py-4">
@@ -1246,10 +1346,10 @@ export function SurveySection() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học</span>
+                    <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học / câu hỏi</span>
                   </div>
                   <span className="text-[11px] font-semibold" style={{ color: done ? "#22c55e" : "var(--accent)" }}>
-                    {done ? "Hoàn thành" : `Hạn: ${sv.deadline}`}
+                    {done ? "Đã Hoàn thành" : `Hạn: ${sv.deadline}`}
                   </span>
                 </div>
               </div>
@@ -1259,20 +1359,21 @@ export function SurveySection() {
       </div>
     );
   }
+
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {AVAILABLE_SURVEYS.length > 1 && selected && (
-        <button onClick={() => setSelectedId(null)}
-          className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity"
-          style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
-        </button>
-      )}
-      <SurveyForm survey={selected ?? AVAILABLE_SURVEYS[0]} onDone={handleDone} />
+      {/* Nút quay lại luôn được hiển thị khi đang trong chế độ form */}
+      <button onClick={() => setSelectedId(null)}
+        className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity"
+        style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
+      </button>
+      
+      {/* Truyền cờ isReadOnly xuống SurveyForm nếu đã hoàn thành */}
+      <SurveyForm survey={selected} isReadOnly={isSelectedDone} onDone={handleDone} />
     </div>
   );
 }
-
 // ─── Schedule Section ─────────────────────────────────────────────────────────
 export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (t: "tkb" | "thi") => void }) {
   const [namHoc, setNamHoc] = useState("2025-2026");
