@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+import re
 from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan
 from app.models.tuition import HocPhi, LopHocPhan
 from app.models.notification import SvThongBao, ThongBao
@@ -228,7 +229,6 @@ def mark_notification_read(mssv, matb):
     if not sv_tb:
         return jsonify({'status': 'error', 'message': 'Không tìm thấy thông báo'}), 404
     
-    # Cập nhật trạng thái đọc và thời gian đọc theo database[cite: 2]
     sv_tb.trangthai_doc = 1
     sv_tb.thoigian_doc = datetime.utcnow()
     
@@ -244,7 +244,6 @@ def mark_notification_read(mssv, matb):
 @student_bp.route('/<mssv>/notifications/read-all', methods=['POST'])
 def mark_all_notifications_read(mssv):
     """Đánh dấu tất cả thông báo của sinh viên là đã đọc"""
-    # Lấy các thông báo chưa đọc (trangthai_doc == 0)[cite: 2]
     unread_notifications = db.session.query(SvThongBao).filter_by(mssv=mssv, trangthai_doc=0).all()
     
     if not unread_notifications:
@@ -258,6 +257,131 @@ def mark_all_notifications_read(mssv):
     db.session.commit()
     
     return jsonify({'status': 'success', 'message': 'Đã đánh dấu đọc tất cả thông báo'}), 200
+
+
+# ---------------------------------------------------------
+# API KHẢO SÁT
+# ---------------------------------------------------------
+
+@student_bp.route('/<mssv>/surveys', methods=['GET'])
+def get_surveys(mssv):
+    """Lấy danh sách khảo sát của sinh viên"""
+    from app.models.survey import SvKhaoSat, KhaoSat, CauHoiKhaoSat, TraLoiKhaoSat
+    sv_surveys = db.session.query(SvKhaoSat, KhaoSat).join(
+        KhaoSat, SvKhaoSat.maks == KhaoSat.maks
+    ).filter(SvKhaoSat.mssv == mssv).all()
+
+    # Nếu chưa có khảo sát nào được gán cho sinh viên này, gán tự động
+    if not sv_surveys:
+        surveys = KhaoSat.query.all()
+        for ks in surveys:
+            # Kiểm tra xem đã tồn tại chưa để tránh lỗi trùng lặp khóa chính
+            exists = SvKhaoSat.query.filter_by(mssv=mssv, maks=ks.maks).first()
+            if not exists:
+                sv_ks = SvKhaoSat(mssv=mssv, maks=ks.maks, trangthai_lam='0')
+                db.session.add(sv_ks)
+        db.session.commit()
+        # Query lại sau khi gán
+        sv_surveys = db.session.query(SvKhaoSat, KhaoSat).join(
+            KhaoSat, SvKhaoSat.maks == KhaoSat.maks
+        ).filter(SvKhaoSat.mssv == mssv).all()
+
+    result = []
+    for sv_ks, ks in sv_surveys:
+        # Nhận diện trạng thái đã hoàn thành hay chưa
+        is_done = sv_ks.trangthai_lam in ['1', 'Hoàn thành', 'Đã hoàn thành']
+        status = "completed" if is_done else "pending"
+
+        # Lấy danh sách câu hỏi của khảo sát này
+        questions = CauHoiKhaoSat.query.filter_by(maks=ks.maks).order_by(CauHoiKhaoSat.thutu).all()
+        courses_list = []
+        
+        for q in questions:
+            course_info = {
+                "id": q.mach,
+                "code": q.loai_cauhoi or "—",
+                "name": q.noidung_cauhoi,
+                "rating": None,
+                "comment": ""
+            }
+            
+            # Bóc tách dữ liệu từ TRALOI_KHAOSAT nếu sinh viên đã làm
+            if is_done:
+                traloi = TraLoiKhaoSat.query.filter_by(mach=q.mach, mssv=mssv).first()
+                if traloi and traloi.noidung_traloi:
+                    match = re.search(r"Rating:\s*(\d+)\.\s*Comment:\s*(.*)", traloi.noidung_traloi, re.IGNORECASE | re.DOTALL)
+                    if match:
+                        course_info["rating"] = int(match.group(1))
+                        course_info["comment"] = match.group(2).strip()
+                    else:
+                        course_info["comment"] = traloi.noidung_traloi
+            
+            courses_list.append(course_info)
+        
+        # Chuyển đổi định dạng ngày tháng hạn nộp của khảo sát
+        deadline_str = format_date(ks.handon) if ks.handon else "2026-08-15"
+        if deadline_str and 'T' in deadline_str:
+            # Định dạng lại chuỗi datetime ISO nếu có
+            try:
+                dt_parts = deadline_str.split('T')[0].split('-')
+                deadline_str = f"{dt_parts[2]}/{dt_parts[1]}/{dt_parts[0]}"
+            except Exception:
+                pass
+        
+        result.append({
+            "id": ks.maks,
+            "title": ks.tenks,
+            "description": ks.noidung or "",
+            "deadline": deadline_str,
+            "status": status,
+            "courses": courses_list
+        })
+
+    return jsonify({"status": "success", "data": result}), 200
+
+@student_bp.route('/<mssv>/surveys/<maks>/submit', methods=['POST'])
+def submit_survey(mssv, maks):
+    """Nộp câu trả lời khảo sát của sinh viên"""
+    from app.models.survey import SvKhaoSat, TraLoiKhaoSat
+    data = request.get_json() or {}
+    responses = data.get('responses', {})
+
+    for mach, res in responses.items():
+        rating = res.get('rating')
+        comment = res.get('comment') or ""
+        # Định dạng câu trả lời lưu trong database
+        noidung = f"Rating: {rating}. Comment: {comment}" if rating else comment
+
+        # Cập nhật hoặc thêm mới câu trả lời
+        traloi = TraLoiKhaoSat.query.filter_by(mach=mach, mssv=mssv).first()
+        if traloi:
+            traloi.noidung_traloi = noidung
+            traloi.thoigian_traloi = datetime.utcnow()
+        else:
+            traloi = TraLoiKhaoSat(
+                mach=mach,
+                mssv=mssv,
+                noidung_traloi=noidung,
+                thoigian_traloi=datetime.utcnow()
+            )
+            db.session.add(traloi)
+
+    # Cập nhật trạng thái làm khảo sát thành '1' (Hoàn thành)
+    sv_ks = SvKhaoSat.query.filter_by(mssv=mssv, maks=maks).first()
+    if sv_ks:
+        sv_ks.trangthai_lam = '1'
+        sv_ks.thoigian_nop = datetime.utcnow()
+    else:
+        sv_ks = SvKhaoSat(
+            mssv=mssv,
+            maks=maks,
+            trangthai_lam='1',
+            thoigian_nop=datetime.utcnow()
+        )
+        db.session.add(sv_ks)
+
+    db.session.commit()
+    return jsonify({"status": "success", "message": "Nộp khảo sát thành công"}), 200
 
 
 # ---------------------------------------------------------
@@ -275,7 +399,6 @@ def pay_tuition(mssv, malhp):
     if hocphi.trangthai_thanhtoan == 'Đã thanh toán':
         return jsonify({'status': 'error', 'message': 'Học phí này đã được thanh toán rồi'}), 400
     
-    # Cập nhật trạng thái và ngày thanh toán[cite: 2]
     hocphi.trangthai_thanhtoan = 'Đã thanh toán'
     hocphi.ngaythanhtoan = datetime.utcnow()
     
