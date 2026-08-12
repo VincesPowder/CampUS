@@ -11,8 +11,8 @@ import {
   HINH_THUC_STYLE, getWeekDates, HinhThuc,
 } from "./shared";
 import {
-  NOTIFICATIONS, ADMIN_STUDENTS, TUITION_DATA,
-  type AdminStudent, type Notification,
+  NOTIFICATIONS, ADMIN_STUDENTS, TUITION_DATA, FAMILY_DATA,
+  type AdminStudent, type Notification, type FamilyMember,
   KHOA_LIST, MOCK_ADMIN_SURVEYS, MOCK_RESULTS, ACADEMIC_COURSES, makeMockGrades,
   type AdminSurveyItem, type SurveyQuestion, type QuestionType,
   type GradeStatus, type AdminCourseItem, type StudentGradeRow,
@@ -20,6 +20,37 @@ import {
 
 // ─── Admin: Student Detail / Edit Modal ──────────────────────────────────────
 type StudentModalMode = "view" | "edit";
+
+type GlobalEditPerm = {
+  enabled: boolean;
+  from: string;
+  to: string;
+  nganhs: string[];
+  khoas: string[];
+};
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div className="text-[11px] font-bold uppercase tracking-wider pb-1.5 mb-3 border-b border-border"
+      style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      {title}
+    </div>
+  );
+}
+
+function MField({ label, value, editable, onChange }: {
+  label: string; value: string; editable?: boolean; onChange?: (v: string) => void;
+}) {
+  const inputCls = "w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-background transition-colors";
+  return (
+    <div>
+      <div className="text-[11px] text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{label}</div>
+      {editable && onChange
+        ? <input value={value} onChange={e => onChange(e.target.value)} className={inputCls} />
+        : <div className="text-sm font-medium text-foreground">{value || "—"}</div>}
+    </div>
+  );
+}
 
 function StudentModal({ student, mode: initMode, onClose, onSave }: {
   student: AdminStudent;
@@ -29,138 +60,232 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
 }) {
   const [mode, setMode] = useState<StudentModalMode>(initMode);
   const [form, setForm] = useState<AdminStudent>({ ...student });
+  const [activeTab, setActiveTab] = useState<"info" | "family">("info");
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-  const inputCls = "w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card transition-colors";
 
+  const idx = parseInt(student.mssv.slice(-1));
   const extra = {
-    ngaySinh:   student.mssv === "24127001" ? "15/03/2006" : `${(parseInt(student.mssv.slice(-2)) % 28 + 1).toString().padStart(2,"0")}/0${(parseInt(student.mssv.slice(-1)) % 9 + 1)}/200${parseInt(student.mssv.slice(-1)) % 6 + 3}`,
-    noiSinh:    ["TP. Hồ Chí Minh","Hà Nội","Đà Nẵng","Cần Thơ","Bình Dương"][parseInt(student.mssv.slice(-1)) % 5],
-    cccd:       `0${student.mssv}${student.mssv.slice(-3)}`,
-    sdt:        `09${student.mssv.slice(-8)}`,
-    diaChi:     `${parseInt(student.mssv.slice(-2))} Nguyễn Văn Cừ, Q.5, TP. Hồ Chí Minh`,
-    trangThai:  "Đang học",
-    nganHang:   "Vietcombank",
-    stk:        `100${student.mssv}`,
+    ngaySinh:        student.mssv === "24127001" ? "15/03/2006" : `${(parseInt(student.mssv.slice(-2)) % 28 + 1).toString().padStart(2,"0")}/0${(idx % 9 + 1)}/200${idx % 6 + 3}`,
+    noiSinh:         ["TP. Hồ Chí Minh","Hà Nội","Đà Nẵng","Cần Thơ","Bình Dương"][idx % 5],
+    cccd:            `07920${student.mssv}`,
+    ngayCap:         `${(idx % 28 + 1).toString().padStart(2,"0")}/08/2024`,
+    noiCap:          "Cục CS QLHC về TTXH",
+    quocTich:        "Việt Nam",
+    danToc:          "Kinh",
+    tonGiao:         "Không",
+    sdt:             `09${student.mssv.slice(-8)}`,
+    personalEmail:   `${student.hoTen.split(" ").slice(-1)[0].toLowerCase()}${student.mssv.slice(-4)}@gmail.com`,
+    ngayVaoTruong:   "01/09/2024",
+    ngayVaoDoan:     idx % 3 === 0 ? "—" : `${(idx % 28 + 1).toString().padStart(2,"0")}/05/202${idx % 3 + 1}`,
+    ngayVaoDang:     "—",
+    thuongTru:       `${parseInt(student.mssv.slice(-2))} Nguyễn Văn Cừ, Q.5, TP. Hồ Chí Minh`,
+    hienNay:         `${parseInt(student.mssv.slice(-2))} Lê Văn Sỹ, Q.3, TP. Hồ Chí Minh`,
+    lienLac:         `${parseInt(student.mssv.slice(-2))} Lê Văn Sỹ, Q.3, TP. Hồ Chí Minh`,
+    cvTen:           ["TS. Trần Văn Bình","PGS. Nguyễn Thị Lan","TS. Lê Minh Hoàng"][idx % 3],
+    cvSdt:           `091${student.mssv.slice(-7)}`,
+    cvEmail:         `cv${idx}@hcmus.edu.vn`,
+    cvQuanHe:        "Giảng viên cố vấn",
+    nganHang:        ["Vietcombank","Techcombank","MB Bank"][idx % 3],
+    stk:             `100${student.mssv}`,
+    chiNhanh:        "TP. Hồ Chí Minh",
   };
 
-  const fields: { label: string; key: keyof AdminStudent; editable?: boolean }[] = [
-    { label: "Họ và tên",      key: "hoTen",       editable: true },
-    { label: "MSSV",           key: "mssv",        editable: false },
-    { label: "Email",          key: "email",       editable: true },
-    { label: "Giới tính",      key: "gioiTinh",    editable: true },
-    { label: "Khoá",           key: "khoa",        editable: true },
-    { label: "Ngành",          key: "nganh",       editable: true },
-    { label: "Bậc đào tạo",    key: "bacDT",       editable: true },
-    { label: "Loại đào tạo",   key: "loaiDT",      editable: true },
-    { label: "Chuyên ngành",   key: "chuyenNganh", editable: true },
+  const editableFields: { label: string; key: keyof AdminStudent }[] = [
+    { label: "Họ và tên",    key: "hoTen" },
+    { label: "MSSV",         key: "mssv" },
+    { label: "Email",        key: "email" },
+    { label: "Giới tính",    key: "gioiTinh" },
+    { label: "Khoá",         key: "khoa" },
+    { label: "Ngành",        key: "nganh" },
+    { label: "Bậc đào tạo",  key: "bacDT" },
+    { label: "Loại đào tạo", key: "loaiDT" },
+    { label: "Chuyên ngành", key: "chuyenNganh" },
+  ];
+
+  const familyData: FamilyMember[] = student.mssv === "24127001"
+    ? FAMILY_DATA
+    : [
+        { name: `${student.hoTen.split(" ")[0]} Văn Cha`, dob: `${1960 + idx % 15}`, rel: "Cha", job: ["Kỹ sư","Giáo viên","Bác sĩ","Kế toán"][idx%4], workplace: "Cơ quan nhà nước", phone: `090${student.mssv.slice(-7)}`, email: `cha${idx}@gmail.com`, ethnic:"Kinh", religion:"Không", nationality:"Việt Nam", province:"TP. Hồ Chí Minh", ward:"Phường 5", address:`${idx+10} Nguyễn Trãi, Q.1, TP.HCM` },
+        { name: `Trần Thị ${student.hoTen.split(" ").slice(-1)[0]}`, dob: `${1963 + idx % 12}`, rel: "Mẹ", job: ["Giáo viên","Nội trợ","Y tá","Kế toán"][(idx+1)%4], workplace: "Trường THPT địa phương", phone: `091${student.mssv.slice(-7)}`, email: `me${idx}@gmail.com`, ethnic:"Kinh", religion:"Phật giáo", nationality:"Việt Nam", province:"TP. Hồ Chí Minh", ward:"Phường 5", address:`${idx+10} Nguyễn Trãi, Q.1, TP.HCM` },
+      ];
+
+  const tabs = [
+    { id: "info"   as const, label: "Hồ sơ sinh viên" },
+    { id: "family" as const, label: "Thông tin gia đình" },
   ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
         <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0" style={{ background: "var(--primary)" }}>
-          <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 bg-card/20 text-white" style={PJS}>
+          <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0 bg-white/15 text-white" style={PJS}>
             {student.hoTen.split(" ").slice(-1)[0][0]}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-white text-base" style={PJS}>{student.hoTen}</div>
-            <div className="text-white/60 text-xs font-mono">{student.mssv}</div>
+            <div className="font-bold text-white text-base leading-tight" style={PJS}>{student.hoTen}</div>
+            <div className="text-white/60 text-xs font-mono mt-0.5">{student.mssv} · {student.nganh}</div>
           </div>
           <div className="flex gap-2">
-            {mode === "view" && (
+            {activeTab === "info" && mode === "view" && (
               <button onClick={() => setMode("edit")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/15 text-white text-xs font-semibold hover:bg-card/25 transition-colors" style={PJS}>
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 text-white text-xs font-semibold hover:bg-white/25 transition-colors" style={PJS}>
                 <Pencil className="w-3.5 h-3.5" /> Chỉnh sửa
               </button>
             )}
-            <button onClick={onClose} className="p-1.5 rounded-lg bg-card/15 text-white hover:bg-card/25 transition-colors"><X className="w-4 h-4" /></button>
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-white/15 text-white hover:bg-white/25 transition-colors"><X className="w-4 h-4" /></button>
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex border-b border-border flex-shrink-0 bg-card px-6">
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => { setActiveTab(t.id); setMode("view"); }}
+              className="py-3 px-1 mr-6 text-sm font-semibold border-b-2 transition-colors"
+              style={{
+                borderColor: activeTab === t.id ? "var(--primary)" : "transparent",
+                color: activeTab === t.id ? "var(--primary)" : "var(--muted-foreground)",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Body */}
         <div className="overflow-y-auto flex-1 p-6">
-          <div className="flex items-center gap-4 mb-5 pb-5 border-b border-border">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0" style={{ background: "var(--primary)", ...PJS }}>
-              {student.hoTen.split(" ").slice(-1)[0][0]}
-            </div>
-            <div>
-              <div className="font-bold text-foreground text-base" style={PJS}>{student.hoTen}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{student.nganh} · {student.bacDT}</div>
-              <div className="mt-1.5 flex gap-2 flex-wrap">
-                <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700" style={PJS}>{extra.trangThai}</span>
-                <span className="inline-block text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{student.loaiDT}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            <div>
-              <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Thông tin học tập</div>
-              <div className="grid grid-cols-2 gap-3">
-                {fields.map(f => (
-                  <div key={f.key}>
-                    <div className="text-[11px] text-muted-foreground mb-1" style={PJS}>{f.label}</div>
-                    {mode === "edit" && f.editable ? (
-                      <input value={form[f.key]} onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                        className={inputCls} />
-                    ) : (
-                      <div className="text-sm font-medium text-foreground">{student[f.key]}</div>
-                    )}
+          {activeTab === "info" && (
+            <div className="space-y-6">
+              {/* Avatar + quick info */}
+              <div className="flex items-center gap-4 pb-5 border-b border-border">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0" style={{ background: "var(--primary)", ...PJS }}>
+                  {student.hoTen.split(" ").slice(-1)[0][0]}
+                </div>
+                <div>
+                  <div className="font-bold text-foreground text-base" style={PJS}>{student.hoTen}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{student.nganh} · {student.bacDT}</div>
+                  <div className="mt-1.5 flex gap-2 flex-wrap">
+                    <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700" style={PJS}>Đang học</span>
+                    <span className="inline-block text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{student.loaiDT}</span>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Thông tin cá nhân</div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Ngày sinh",  val: extra.ngaySinh },
-                  { label: "Nơi sinh",   val: extra.noiSinh },
-                  { label: "CCCD",       val: extra.cccd },
-                  { label: "Số điện thoại", val: extra.sdt },
-                ].map(r => (
-                  <div key={r.label}>
-                    <div className="text-[11px] text-muted-foreground mb-1" style={PJS}>{r.label}</div>
-                    {mode === "edit" ? (
-                      <input defaultValue={r.val} className={inputCls} />
-                    ) : (
-                      <div className="text-sm font-medium text-foreground">{r.val}</div>
-                    )}
-                  </div>
-                ))}
-                <div className="col-span-2">
-                  <div className="text-[11px] text-muted-foreground mb-1" style={PJS}>Địa chỉ thường trú</div>
-                  {mode === "edit" ? (
-                    <input defaultValue={extra.diaChi} className={inputCls} />
-                  ) : (
-                    <div className="text-sm font-medium text-foreground">{extra.diaChi}</div>
-                  )}
+              {/* Thông tin học tập */}
+              <div>
+                <SectionHeader title="Thông tin học tập" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {editableFields.map(f => (
+                    <MField key={f.key} label={f.label}
+                      value={form[f.key]}
+                      editable={mode === "edit" && f.key !== "mssv"}
+                      onChange={v => setForm(p => ({ ...p, [f.key]: v }))} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <SectionHeader title="Thông tin cá nhân" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Ngày sinh",     val: extra.ngaySinh },
+                    { label: "Nơi sinh",      val: extra.noiSinh },
+                    { label: "CCCD",          val: extra.cccd },
+                    { label: "Ngày cấp",      val: extra.ngayCap },
+                    { label: "Nơi cấp",       val: extra.noiCap },
+                    { label: "Quốc tịch",     val: extra.quocTich },
+                    { label: "Dân tộc",       val: extra.danToc },
+                    { label: "Tôn giáo",      val: extra.tonGiao },
+                    { label: "Số điện thoại", val: extra.sdt },
+                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                </div>
+              </div>
+              <div>
+                <SectionHeader title="Địa chỉ" />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Địa chỉ thường trú", val: extra.thuongTru },
+                    { label: "Địa chỉ hiện nay",   val: extra.hienNay },
+                    { label: "Địa chỉ liên lạc",   val: extra.lienLac },
+                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                </div>
+              </div>
+              <div>
+                <SectionHeader title="Thông tin liên hệ" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Email cá nhân",    val: extra.personalEmail },
+                    { label: "Email chính thức", val: student.email },
+                    { label: "Ngày vào trường",  val: extra.ngayVaoTruong },
+                    { label: "Ngày vào Đoàn",    val: extra.ngayVaoDoan },
+                    { label: "Ngày vào Đảng",    val: extra.ngayVaoDang },
+                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                </div>
+              </div>
+              <div>
+                <SectionHeader title="Thông tin người liên lạc" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Tên người liên hệ",  val: extra.cvTen },
+                    { label: "SĐT người liên hệ",  val: extra.cvSdt },
+                    { label: "Email người liên hệ", val: extra.cvEmail },
+                    { label: "Quan hệ",             val: extra.cvQuanHe },
+                  ].map(r => <MField key={r.label} label={r.label} value={r.val} />)}
+                </div>
+              </div>
+              <div>
+                <SectionHeader title="Tài khoản ngân hàng" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
+                  {[
+                    { label: "Ngân hàng",    val: extra.nganHang },
+                    { label: "Số tài khoản", val: extra.stk },
+                    { label: "Chi nhánh",    val: extra.chiNhanh },
+                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
                 </div>
               </div>
             </div>
+          )}
 
-            <div>
-              <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Tài khoản ngân hàng</div>
-              <div className="grid grid-cols-2 gap-3">
-                {[{ label: "Ngân hàng", val: extra.nganHang }, { label: "Số tài khoản", val: extra.stk }].map(r => (
-                  <div key={r.label}>
-                    <div className="text-[11px] text-muted-foreground mb-1" style={PJS}>{r.label}</div>
-                    {mode === "edit" ? (
-                      <input defaultValue={r.val} className={inputCls} />
-                    ) : (
-                      <div className="text-sm font-medium text-foreground">{r.val}</div>
-                    )}
+          {activeTab === "family" && (
+            <div className="space-y-4">
+              {familyData.filter(m => m.name).map((m, i) => (
+                <div key={i} className="rounded-xl border border-border overflow-hidden">
+                  <div className="px-4 py-2.5 flex items-center gap-2 border-b border-border" style={{ background: "rgba(37,52,79,0.06)" }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--primary)" }}>
+                      {m.name[0]}
+                    </div>
+                    <span className="font-semibold text-sm text-foreground" style={PJS}>{m.name}</span>
+                    <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{m.rel}</span>
                   </div>
-                ))}
-              </div>
+                  <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+                    {[
+                      { label: "Ngày sinh",     val: m.dob },
+                      { label: "Nghề nghiệp",   val: m.job },
+                      { label: "Nơi làm việc",  val: m.workplace },
+                      { label: "Số điện thoại", val: m.phone },
+                      { label: "Email",         val: m.email },
+                      { label: "Dân tộc",       val: m.ethnic },
+                      { label: "Tôn giáo",      val: m.religion },
+                      { label: "Quốc tịch",     val: m.nationality },
+                      { label: "Địa chỉ",       val: m.address },
+                    ].map(r => <MField key={r.label} label={r.label} value={r.val} />)}
+                  </div>
+                </div>
+              ))}
+              {familyData.filter(m => m.name).length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-10">Chưa có thông tin gia đình.</p>
+              )}
             </div>
-          </div>
+          )}
         </div>
 
-        {mode === "edit" && (
+        {/* Footer */}
+        {activeTab === "info" && mode === "edit" && (
           <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
-            <button onClick={() => setMode("view")} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-card transition-colors" style={PJS}>Huỷ</button>
-            <button onClick={() => { onSave(form); onClose(); }} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Lưu thay đổi</button>
+            <button onClick={() => { setForm({ ...student }); setMode("view"); }}
+              className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
+            <button onClick={() => { onSave(form); setMode("view"); }}
+              className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Lưu thay đổi</button>
           </div>
         )}
       </div>
@@ -177,6 +302,10 @@ function StudentManagement() {
   });
   const [students, setStudents] = useState<AdminStudent[]>(ADMIN_STUDENTS);
   const [modal, setModal] = useState<{ student: AdminStudent; mode: StudentModalMode } | null>(null);
+  const [permOpen, setPermOpen] = useState(false);
+  const [globalPerm, setGlobalPerm] = useState<GlobalEditPerm>({
+    enabled: false, from: "", to: "", nganhs: [], khoas: [],
+  });
 
   const allKhoa  = Array.from(new Set(students.map(s => s.khoa)));
   const allNganh = Array.from(new Set(students.map(s => s.nganh)));
@@ -228,10 +357,97 @@ function StudentManagement() {
         <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Upload className="w-4 h-4" /> Nhập
         </button>
+        <button onClick={() => setPermOpen(o => !o)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-semibold transition-colors"
+          style={{ borderColor: permOpen || globalPerm.enabled ? "var(--primary)" : "#e2e8f0", background: globalPerm.enabled ? "var(--primary)" : "#fff", color: globalPerm.enabled ? "#fff" : "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <Lock className="w-4 h-4" /> Quyền chỉnh sửa
+          {globalPerm.enabled && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
+        </button>
         <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Plus className="w-4 h-4" /> Thêm
         </button>
       </div>
+
+      {permOpen && (
+        <div className="mb-4 bg-card rounded-xl border border-border overflow-hidden flex-shrink-0">
+          <div className="px-5 py-3 border-b border-border flex items-center justify-between" style={{ background: "var(--primary)" }}>
+            <span className="text-sm font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Quyền chỉnh sửa hồ sơ</span>
+            <div className="flex items-center gap-2">
+              <span className="text-white/70 text-xs" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                {globalPerm.enabled ? "Đang bật" : "Đang tắt"}
+              </span>
+              <button onClick={() => setGlobalPerm(p => ({ ...p, enabled: !p.enabled }))}
+                className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0"
+                style={{ background: globalPerm.enabled ? "#22c55e" : "rgba(255,255,255,0.3)" }}>
+                <span className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform"
+                  style={{ transform: globalPerm.enabled ? "translateX(18px)" : "translateX(2px)" }} />
+              </button>
+            </div>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Từ ngày</label>
+                <input type="date" value={globalPerm.from} onChange={e => setGlobalPerm(p => ({ ...p, from: e.target.value }))}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đến ngày</label>
+                <input type="date" value={globalPerm.to} onChange={e => setGlobalPerm(p => ({ ...p, to: e.target.value }))}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  Áp dụng cho Ngành <span className="font-normal text-muted-foreground">(để trống = tất cả)</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {allNganh.map(n => (
+                    <button key={n} onClick={() => setGlobalPerm(p => ({ ...p, nganhs: p.nganhs.includes(n) ? p.nganhs.filter(x => x !== n) : [...p.nganhs, n] }))}
+                      className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                      style={{
+                        borderColor: globalPerm.nganhs.includes(n) ? "var(--primary)" : "#e2e8f0",
+                        background: globalPerm.nganhs.includes(n) ? "var(--primary)" : "#fff",
+                        color: globalPerm.nganhs.includes(n) ? "#fff" : "var(--muted-foreground)",
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      }}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  Áp dụng cho Khoá <span className="font-normal text-muted-foreground">(để trống = tất cả)</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {allKhoa.map(k => (
+                    <button key={k} onClick={() => setGlobalPerm(p => ({ ...p, khoas: p.khoas.includes(k) ? p.khoas.filter(x => x !== k) : [...p.khoas, k] }))}
+                      className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                      style={{
+                        borderColor: globalPerm.khoas.includes(k) ? "var(--primary)" : "#e2e8f0",
+                        background: globalPerm.khoas.includes(k) ? "var(--primary)" : "#fff",
+                        color: globalPerm.khoas.includes(k) ? "#fff" : "var(--muted-foreground)",
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      }}>
+                      {k}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {globalPerm.enabled && globalPerm.from && globalPerm.to && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium bg-green-50 border border-green-200 text-green-700" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                Sinh viên {globalPerm.nganhs.length > 0 ? globalPerm.nganhs.join(", ") : "tất cả ngành"}
+                {globalPerm.khoas.length > 0 ? ` · ${globalPerm.khoas.join(", ")}` : " · tất cả khoá"}
+                {" "}có thể chỉnh sửa từ {globalPerm.from} đến {globalPerm.to}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {filterOpen && (
         <div className="mb-4 bg-card rounded-xl border border-border px-5 py-4 flex flex-wrap gap-4 items-end flex-shrink-0">
@@ -270,27 +486,40 @@ function StudentManagement() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr><td colSpan={cols.length + 1} className="px-4 py-12 text-center text-muted-foreground text-sm">Không tìm thấy sinh viên phù hợp.</td></tr>
-              ) : filtered.map((s, i) => (
-                <tr key={s.mssv} onClick={() => setModal({ student: s, mode: "view" })}
-                  className="group hover:brightness-95 transition-all cursor-pointer"
-                  style={{ background: "var(--card)" }}>
-                  <td className="px-3 py-2.5 font-medium text-foreground">{s.hoTen}</td>
-                  <td className="px-3 py-2.5 font-mono text-muted-foreground">{s.mssv}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.email}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.gioiTinh}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.khoa}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.bacDT}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.nganh}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.loaiDT}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{s.chuyenNganh}</td>
-                  <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
-                    <button onClick={() => setModal({ student: s, mode: "edit" })}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-card" title="Chỉnh sửa">
-                      <Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              ) : filtered.map((s) => {
+                const now = new Date().toISOString().slice(0, 10);
+                const nganhMatch = globalPerm.nganhs.length === 0 || globalPerm.nganhs.includes(s.nganh);
+                const khoaMatch  = globalPerm.khoas.length === 0  || globalPerm.khoas.includes(s.khoa);
+                const permActive    = globalPerm.enabled && globalPerm.from <= now && now <= globalPerm.to && nganhMatch && khoaMatch;
+                const permScheduled = globalPerm.enabled && globalPerm.from > now && nganhMatch && khoaMatch;
+                return (
+                  <tr key={s.mssv} onClick={() => setModal({ student: s, mode: "view" })}
+                    className="group hover:brightness-95 transition-all cursor-pointer"
+                    style={{ background: "var(--card)" }}>
+                    <td className="px-3 py-2.5 font-medium text-foreground">
+                      <div className="flex items-center gap-2">
+                        {s.hoTen}
+                        {permActive    && <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" title="Đang được chỉnh sửa" />}
+                        {permScheduled && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" title="Sắp mở quyền chỉnh sửa" />}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 font-mono text-muted-foreground">{s.mssv}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.email}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.gioiTinh}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.khoa}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.bacDT}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.nganh}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.loaiDT}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.chuyenNganh}</td>
+                    <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
+                      <button onClick={() => setModal({ student: s, mode: "edit" })}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-card" title="Chỉnh sửa">
+                        <Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
