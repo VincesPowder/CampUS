@@ -299,6 +299,20 @@ function AIChatbot() {
   );
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInitials(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0][0].toUpperCase();
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+}
+
+function abbreviateName(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  return words.map(w => w[0].toUpperCase()).join(".");
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const { instance, accounts } = useMsal();
