@@ -313,6 +313,61 @@ function abbreviateName(fullName: string): string {
   return words.map(w => w[0].toUpperCase()).join(".");
 }
 
+export function getRelativeTime(dateString: string): string {
+  if (!dateString) return "";
+  
+  let date = new Date(dateString);
+  
+  // Nếu JavaScript không hiểu chuỗi ngày (Invalid Date)
+  if (isNaN(date.getTime())) {
+    // Tìm định dạng DD/MM/YYYY HH:mm (Ví dụ: 26/07/2026 00:00)
+    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4})\s?(\d{2})?:?(\d{2})?/);
+    if (parts) {
+      const day = Number(parts[1]);
+      const month = Number(parts[2]) - 1; // Tháng trong JS bắt đầu từ 0
+      const year = Number(parts[3]);
+      const hour = parts[4] ? Number(parts[4]) : 0;
+      const minute = parts[5] ? Number(parts[5]) : 0;
+      date = new Date(year, month, day, hour, minute);
+    }
+  }
+
+  // Nếu vẫn không parse được, đành trả về chuỗi gốc
+  if (isNaN(date.getTime())) return dateString;
+
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInMins = Math.floor(diffInMs / (1000 * 60));
+  
+  if (diffInMins < 60) return `${Math.max(1, diffInMins)} phút trước`;
+  
+  const diffInHours = Math.floor(diffInMins / 60);
+  const remainingMins = diffInMins % 60;
+  
+  if (diffInHours < 24) {
+    return remainingMins > 0 ? `${diffInHours} giờ ${remainingMins} phút trước` : `${diffInHours} giờ trước`;
+  }
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  const remainingHours = diffInHours % 24;
+  
+  if (diffInDays < 30) {
+    return remainingHours > 0 ? `${diffInDays} ngày ${remainingHours} giờ trước` : `${diffInDays} ngày trước`;
+  }
+  
+  return date.toLocaleDateString('vi-VN');
+}
+
+function formatShortcutName(fullName: string): string {
+  if (!fullName) return "";
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0];
+  
+  const lastWord = words.pop();
+  const initials = words.map(w => w[0].toUpperCase()).join(".");
+  return `${initials}.${lastWord}`;
+}
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const { instance, accounts } = useMsal();
@@ -331,8 +386,8 @@ export default function App() {
   const [notifs, setNotifs] = useState<any[]>([]);
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
-
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127023"; // (Có thể đổi fallback thành 24... để khớp với giao diện)
+  const fullName = accounts[0]?.name || "Nguyễn Văn A";
   // Fetch thông báo khi vừa đăng nhập
   useEffect(() => {
     if (isLoggedIn && userRole === "student") {
@@ -348,13 +403,13 @@ export default function App() {
   }, [isLoggedIn, userRole, currentMssv]);
 
   // Hàm gọi API đánh dấu Đã đọc 1 thông báo
-  const markRead = async (matb: string) => {
-    const target = notifs.find(n => n.matb === matb);
-    if (target && target.trangthai_doc === 0) {
+  const markRead = async (maTb: string) => {
+    const target = notifs.find(n => n.maTb === maTb);
+    if (target && target.trangThaiDoc === 0) {
       // Cập nhật UI ngay lập tức
-      setNotifs(prev => prev.map(n => n.matb === matb ? { ...n, trangthai_doc: 1, thoigian_doc: "Vừa xong" } : n));
+      setNotifs(prev => prev.map(n => n.maTb === maTb ? { ...n, trangThaiDoc: 1 } : n));
       try {
-        await fetch(`/api/students/${currentMssv}/notifications/${matb}/read`, { method: 'POST' });
+        await fetch(`/api/students/${currentMssv}/notifications/${maTb}/read`, { method: 'POST' });
       } catch (e) {
         console.error(e);
       }
@@ -363,7 +418,7 @@ export default function App() {
 
   // Hàm gọi API đánh dấu Đã đọc tất cả
   const markAllRead = async () => {
-    setNotifs(prev => prev.map(n => ({ ...n, trangthai_doc: 1, thoigian_doc: "Vừa xong" })));
+    setNotifs(prev => prev.map(n => ({ ...n, trangThaiDoc: 1 })));
     try {
       await fetch(`/api/students/${currentMssv}/notifications/read-all`, { method: 'POST' });
     } catch (e) {
@@ -371,7 +426,9 @@ export default function App() {
     }
   };
 
-  const unread = notifs.filter(n => n.trangthai_doc === 0).length;
+  // Đếm số thông báo chưa đọc
+  const unread = notifs.filter(n => n.trangThaiDoc === 0).length;
+
 
   function handleLogin(role: "admin" | "student") {
     setUserRole(role);
@@ -464,12 +521,18 @@ export default function App() {
           <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
             {studentAvatarUrl
               ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" />
-              : <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</span>}
+              : <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {getInitials(fullName)}
+                </span>}
           </div>
           {sidebarOpen && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Nguyễn Văn An</div>
-              <div className="text-xs text-white/40 truncate font-mono">21127001</div>
+              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                {formatShortcutName(fullName)}
+              </div>
+              <div className="text-xs text-white/40 truncate font-mono">
+                {currentMssv}
+              </div>
             </div>
           )}
         </div>
@@ -513,59 +576,142 @@ export default function App() {
           </div>
           <div className="ml-auto flex items-center gap-1.5">
             <HelpButton />
+            {/* --- ĐOẠN MÃ DROP-DOWN THÔNG BÁO DÀNH CHO APP.TSX (KẾT NỐI API) --- */}
             <div className="relative" ref={notifRef}>
-              <button onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+              <button 
+                onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} 
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+              >
                 <Bell className="w-5 h-5" />
-                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}>{unread}</span>}
+                
+                {/* Badge đếm số lượng thông báo (Khớp màu và position) */}
+                {unread > 0 && (
+                  <span 
+                    className="absolute top-0 right-0 w-4 h-4 rounded-full flex items-center justify-center font-bold text-white shadow-sm" 
+                    style={{ 
+                      background: "#E8384D", // Mã màu đỏ từ Figma
+                      fontSize: "9px", 
+                      border: "1.5px solid white", 
+                      transform: "translate(25%, -25%)" 
+                    }}
+                  >
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                )}
               </button>
+
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
-                  <div className="px-4 py-3 border-b border-border">
-                    <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
+                <div 
+                  className="fixed left-3 right-3 top-[58px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[420px] bg-white border border-[#E2E8F0] rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col" 
+                  style={{ zIndex: 200, maxHeight: "85vh" }}
+                >
+                  
+                  {/* Header */}
+                  <div className="px-5 py-4 flex-shrink-0 bg-white border-b border-[#E2E8F0]">
+                    <h3 className="font-bold text-[15px] text-[#11284D]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      Thông báo
+                    </h3>
                   </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-border">
-                    {notifs.map(n => {
-                      const isUnread = n.trangthai_doc === 0;
-                      return (
-                        <div key={n.matb} className={`px-4 py-3 hover:bg-secondary/23 transition-colors ${isUnread ? "bg-secondary/50" : ""}`}>
-                          <div className="flex items-start gap-2 mb-1">
-                            {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.tieude}</p>
+                  
+                  {/* Danh sách thông báo (Cuộn được) */}
+                  <div className="overflow-y-auto flex-1 bg-white" style={{ maxHeight: "400px" }}>
+                    {notifs.length === 0 ? (
+                       <div className="p-5 text-center text-sm text-gray-500">Không có thông báo nào.</div>
+                    ) : (
+                      notifs.map((n) => {
+                        // Xác định trạng thái chưa đọc từ API (trangThaiDoc === 0)
+                        const isUnread = n.trangThaiDoc === 0;
+                        return (
+                          <div 
+                            key={n.maTb} 
+                            onClick={() => { 
+                              markRead(n.maTb); 
+                              setSelectedNotif(n); 
+                              setActiveSection("notifications"); 
+                              setNotifOpen(false); 
+                            }}
+                            // Cập nhật background cho từng trạng thái: Màu be cho unread, trắng cho read
+                            className={`group px-5 py-4 cursor-pointer flex items-start gap-3 border-b border-[#E2E8F0] last:border-b-0 transition-colors ${
+                              isUnread ? "bg-[#EBE5D5] hover:bg-[#E3DCC8]" : "bg-white hover:bg-gray-50"
+                            }`}
+                          >
+                            <div className="flex-shrink-0 mt-1.5 w-2.5 h-2.5">
+                               {isUnread && (
+                                <span className="w-2.5 h-2.5 rounded-full block" style={{ background: "#D5B370" }} />
+                               )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              {/* Tiêu đề thông báo từ API */}
+                              <p 
+                                className={`text-[13px] mb-1.5 leading-snug ${isUnread ? "font-bold text-[#11284D]" : "font-medium text-[#11284D]"}`} 
+                                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                              >
+                                {n.tieuDe}
+                              </p>
+                              
+                              <div className="flex items-center justify-between">
+                                {/* Thời gian thông báo từ API */}
+                                <span className="text-[12px] text-[#718096]">
+                                  {n.ngayDang ? getRelativeTime(n.ngayDang) : "Vừa xong"}
+                                </span>
+                                {/* Luôn hiển thị Chi tiết */}
+                                <span className="text-[12px] font-semibold text-[#11284D]">
+                                  Chi tiết &rarr;
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between mt-1 pl-4">
-                            <span className="text-xs text-muted-foreground">{n.thoigian_doc}</span>
-                            <button onClick={() => { markRead(n.matb); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
-                  <div className="border-t border-border">
-                    <button onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} className="w-full py-3 text-sm font-semibold hover:bg-secondary/30 transition-colors" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tất cả</button>
+
+                  {/* Nút Xem tất cả */}
+                  <div className="border-t border-[#E2E8F0] flex-shrink-0 bg-white">
+                    <button 
+                      onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} 
+                      className="w-full py-4 text-[14px] font-bold hover:bg-gray-50 transition-colors text-center text-[#11284D]" 
+                      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                    >
+                      Tất cả
+                    </button>
                   </div>
                 </div>
               )}
             </div>
             <div className="relative" ref={avatarRef}>
-              <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
-                {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : "NV"}
+              {/* Nút bấm chỉ hiển thị hình tròn Avatar */}
+              <button 
+                onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} 
+                className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center hover:opacity-80 transition-opacity" 
+                style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}
+              >
+                {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
               </button>
+              
+              {/* Dropdown Menu - Tăng kích thước chiều rộng lên 320px */}
               {avatarOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
-                  <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                      {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : "NV"}
+                <div className="absolute right-0 top-full mt-3 w-[320px] bg-card border border-border rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden" style={{ zIndex: 50 }}>
+                  <div className="px-5 py-4 flex items-center gap-3.5 border-b border-border">
+                    <div className="w-[50px] h-[50px] rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center font-bold text-lg" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{STUDENT_PROFILE.fullName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{STUDENT_PROFILE.officialEmail}</div>
+                    <div className="min-w-0 flex-1">
+                      {/* In hoa tên sinh viên */}
+                      <div className="font-semibold text-[15px] leading-tight text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {fullName.toUpperCase()}
+                      </div>
+                      {/* Bỏ truncate, thiết lập font size phù hợp để email hiện đầy đủ */}
+                      <div className="text-[13px] text-muted-foreground mt-1 tracking-tight">
+                        {currentMssv}@student.hcmus.edu.vn
+                      </div>
                     </div>
                   </div>
-                  <div className="py-1">
-                    <button onClick={() => { setActiveSection("profile"); setAvatarOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/25 transition-colors text-foreground">
+                  <div className="py-2">
+                    <button onClick={() => { setActiveSection("profile"); setAvatarOpen(false); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[15px] hover:bg-secondary/40 transition-colors text-foreground font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <User className="w-4 h-4 text-muted-foreground" /> Hồ sơ cá nhân
                     </button>
-                    <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/25 transition-colors text-destructive">
+                    <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[15px] hover:bg-secondary/40 transition-colors text-destructive font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <LogOut className="w-4 h-4" /> Đăng xuất
                     </button>
                   </div>
@@ -585,15 +731,7 @@ export default function App() {
           {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
           {activeSection === "notifications" && (
-            <NotificationsSection 
-              notifs={notifs}
-              selectedNotif={selectedNotif} 
-              setSelectedNotif={(n: any) => { 
-                if (n) markRead(n.matb); 
-                setSelectedNotif(n); 
-              }} 
-              markAllRead={markAllRead}
-            />
+            <NotificationsSection />
           )}
         </main>
       </div>

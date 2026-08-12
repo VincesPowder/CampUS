@@ -240,113 +240,165 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── fmt helper ───────────────────────────────────────────────────────────────
-function fmt(n: number) { return n.toLocaleString("vi-VN"); }
+// Helper format number
+function fmt(n: number) { 
+  return n.toLocaleString("vi-VN"); 
+}
 
-// ─── Tuition Section ─────────────────────────────────────────────────────────
 export function TuitionSection() {
-  function parseNhHk(nhHk: string) {
-    const yearMatch = nhHk.match(/\d{2,4}-\d{2,4}/);
-    const hkMatch   = nhHk.match(/HK\s*(\d)/i);
-    return { namHoc: yearMatch ? yearMatch[0] : nhHk, hocKy: hkMatch ? `HK${hkMatch[1]}` : nhHk };
+  const { accounts } = useMsal();
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+
+  // 1. GỌI TẤT CẢ HOOKS Ở TRÊN CÙNG
+  const [tuitionList, setTuitionList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selNamHoc, setSelNamHoc] = useState<string>("");
+  const [selHK, setSelHK] = useState<string>("");
+
+  // 2. Fetch dữ liệu từ API
+  useEffect(() => {
+    fetch(`/api/students/${currentMssv}/tuition`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.data && data.data.length > 0) {
+          setTuitionList(data.data);
+          
+          // Tự động set giá trị mặc định cho Dropdown dựa trên data API trả về
+          const uniqueNamHoc = Array.from(new Set(data.data.map((item: any) => item.namHoc))).filter(y => y !== "—").sort((a: any, b: any) => b.localeCompare(a));
+          const uniqueHocKy = Array.from(new Set(data.data.map((item: any) => item.tenHocKy))).filter(hk => hk !== "—").sort();
+          
+          if (uniqueNamHoc.length > 0) setSelNamHoc(uniqueNamHoc[0] as string);
+          if (uniqueHocKy.length > 0) setSelHK(uniqueHocKy[0] as string);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi khi tải dữ liệu học phí:", err);
+        setLoading(false);
+      });
+  }, [currentMssv]);
+
+  // 3. Xử lý UI Đang tải (PHẢI ĐẶT SAU TẤT CẢ CÁC HOOKS)
+  if (loading) {
+    return <div className="p-5 text-center text-muted-foreground">Đang tải dữ liệu học phí...</div>;
   }
 
-  const parsed       = TUITION_DATA.map(d => ({ nhHk: d.nhHk, ...parseNhHk(d.nhHk) }));
-  const uniqueNamHoc = Array.from(new Set(parsed.map(p => p.namHoc)));
-  const [selNamHoc, setSelNamHoc] = useState(uniqueNamHoc[0]);
-  const ALL_HKS = ["HK1", "HK2", "HK3"] as const;
-  const [selHK, setSelHK] = useState<string>("HK3");
+  // 4. Render dữ liệu
+  const uniqueNamHoc = Array.from(new Set(tuitionList.map(item => item.namHoc))).filter(y => y !== "—").sort((a, b) => b.localeCompare(a));
+  const uniqueHocKy = Array.from(new Set(tuitionList.map(item => item.tenHocKy))).filter(hk => hk !== "—").sort();
 
+  const rows = tuitionList.filter(item => item.namHoc === selNamHoc && item.tenHocKy === selHK);
 
-  const matchNhHk = parsed.find(p => p.namHoc === selNamHoc && p.hocKy === selHK)?.nhHk ?? TUITION_DATA[0].nhHk;
-  const semester = TUITION_DATA.find(d => d.nhHk === matchNhHk)!;
-  const totalTC       = semester.rows.reduce((s, r) => s + r.soTC, 0);
-  const totalTiet     = semester.rows.reduce((s, r) => s + r.soTiet, 0);
-  const totalTcHp     = semester.rows.reduce((s, r) => s + r.soTcHocPhi, 0);
-  const totalHocPhi   = semester.rows.reduce((s, r) => s + r.hocPhi, 0);
-  const totalGiam     = semester.rows.reduce((s, r) => s + r.giam, 0);
-  const totalHoTro    = semester.rows.reduce((s, r) => s + r.hoTro, 0);
-  const totalThucDong = semester.rows.reduce((s, r) => s + r.hocPhiThucDong, 0);
-  const totalChiPhi   = semester.rows.reduce((s, r) => s + r.chiPhi, 0);
+  const totalTC       = rows.reduce((s: number, r: any) => s + (r.soTc || 0), 0);
+  const totalTiet     = rows.reduce((s: number, r: any) => s + (r.soTiet || 0), 0);
+  const totalTcHocPhi = rows.reduce((s: number, r: any) => s + (r.soTcHocPhi || 0), 0);
+  const totalHocPhi   = rows.reduce((s: number, r: any) => s + (r.hocPhiGoc || 0), 0);
+  const totalGiam     = rows.reduce((s: number, r: any) => s + (r.mucGiam || 0), 0);
+  const totalHoTro    = rows.reduce((s: number, r: any) => s + (r.hoTro || 0), 0);
+  const totalThucDong = rows.reduce((s: number, r: any) => s + (r.thucDong || 0), 0);
+  const totalChiPhi   = rows.reduce((s: number, r: any) => s + (r.chiPhiKhac || 0), 0);
+  
+  const ngayCapNhat   = rows.length > 0 && rows[0].ngayThanhToan ? rows[0].ngayThanhToan : "Chưa thanh toán/cập nhật";
+
   const headerCls = "px-3 py-2.5 font-semibold text-white text-center whitespace-nowrap";
   const cellCls   = "px-3 py-2.5 text-center text-xs";
 
   return (
     <div className="space-y-5 w-full">
       <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tra Cứu Học Phí</h1>
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
-          <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)}
-            className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-            {uniqueNamHoc.map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+      
+      {tuitionList.length === 0 ? (
+        <div className="p-5 text-center text-muted-foreground bg-card rounded-xl border border-border">
+          Không có dữ liệu học phí nào được tìm thấy trên hệ thống.
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
-          <select value={selHK} onChange={e => setSelHK(e.target.value)}
-            className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-            {ALL_HKS.map(h => <option key={h} value={h}>Học kỳ {h.replace("HK", "")}</option>)}
-          </select>
-        </div>
-      </div>
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: "var(--primary)" }}>
-                {["STT","NH/HK","Mã MH / Lớp / Môn Học","Số TC","Số Tiết","Số TC Học Phí","Học Phí","Giảm","Hỗ Trợ Học Phí","Học Phí Thực Đóng","Chi Phí","Ghi Chú"].map(h => (
-                  <th key={h} className={headerCls} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {semester.rows.map((row, i) => (
-                <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
-                  <td className={cellCls + " text-muted-foreground"}>{row.stt}</td>
-                  <td className={cellCls}>{row.nhHk}</td>
-                  <td className="px-3 py-2.5 text-xs">
-                    <div className="font-medium text-muted-foreground" style={{ fontSize: 10 }}>[{row.maMon}/{row.lop}]</div>
-                    <div className="font-medium">{row.tenMon}</div>
-                  </td>
-                  <td className={cellCls}>{row.soTC.toFixed(1)}</td>
-                  <td className={cellCls}>{row.soTiet}</td>
-                  <td className={cellCls}>{row.soTcHocPhi.toFixed(2)}</td>
-                  <td className={cellCls + " font-medium"}>{fmt(row.hocPhi)}</td>
-                  <td className={cellCls}>{row.giam}</td>
-                  <td className={cellCls}>{row.hoTro}</td>
-                  <td className={cellCls + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.hocPhiThucDong)}</td>
-                  <td className={cellCls}>{row.chiPhi}</td>
-                  <td className={cellCls}>{row.ghiChu || "—"}</td>
-                </tr>
-              ))}
-              <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7" }}>
-                <td colSpan={3} className="px-3 py-2.5 text-right text-xs font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng Cộng:</td>
-                <td className={cellCls + " font-bold"}>{totalTC.toFixed(1)}</td>
-                <td className={cellCls + " font-bold"}>{totalTiet}</td>
-                <td className={cellCls + " font-bold"}>{totalTcHp.toFixed(2)}</td>
-                <td className={cellCls + " font-bold"}>{fmt(totalHocPhi)}</td>
-                <td className={cellCls + " font-bold"}>{totalGiam}</td>
-                <td className={cellCls + " font-bold"}>{totalHoTro}</td>
-                <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
-                <td className={cellCls + " font-bold"}>{totalChiPhi}</td>
-                <td />
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div className="flex flex-col items-end gap-1">
-        <div className="flex items-center gap-4 bg-card rounded-xl border border-border px-6 py-3">
-          <span className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng số tiền phải đóng:</span>
-          <span className="text-base font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)}</span>
-        </div>
-        <p className="text-xs text-muted-foreground pr-1">Ngày cập nhật: {semester.ngayCapNhat}</p>
-      </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
+              <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {uniqueNamHoc.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
+              <select value={selHK} onChange={e => setSelHK(e.target.value)}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {uniqueHocKy.map(h => <option key={h} value={h}>{h}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12 }}>
+                <thead>
+                  <tr style={{ background: "var(--primary)" }}>
+                    {["STT","NH/HK","Mã MH / Lớp / Môn Học","Số TC","Số Tiết","Số TC Học Phí","Học Phí","Giảm","Hỗ Trợ Học Phí","Học Phí Thực Đóng","Chi Phí","Ghi Chú"].map(h => (
+                      <th key={h} className={headerCls} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={12} className="px-3 py-5 text-center text-muted-foreground text-sm">
+                        Không có dữ liệu cho năm học và học kỳ đã chọn.
+                      </td>
+                    </tr>
+                  ) : (
+                    rows.map((row: any, i: number) => (
+                      <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
+                        <td className={cellCls + " text-muted-foreground"}>{i + 1}</td>
+                        <td className={cellCls}>{row.nhhk}</td>
+                        <td className="px-3 py-2.5 text-xs text-left">
+                          <div className="font-medium text-muted-foreground" style={{ fontSize: 10 }}>[{row.maMh}/{row.maLhp}]</div>
+                          <div className="font-medium text-foreground">{row.tenMon}</div>
+                        </td>
+                        <td className={cellCls}>{row.soTc.toFixed(1)}</td>
+                        <td className={cellCls}>{row.soTiet}</td>
+                        <td className={cellCls}>{row.soTcHocPhi.toFixed(2)}</td>
+                        <td className={cellCls + " font-medium"}>{fmt(row.hocPhiGoc)}</td>
+                        <td className={cellCls}>{fmt(row.mucGiam)}</td>
+                        <td className={cellCls}>{fmt(row.hoTro)}</td>
+                        <td className={cellCls + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.thucDong)}</td>
+                        <td className={cellCls}>{fmt(row.chiPhiKhac)}</td>
+                        <td className={cellCls}>{row.ghiChu}</td>
+                      </tr>
+                    ))
+                  )}
+                  
+                  {rows.length > 0 && (
+                    <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7" }}>
+                      <td colSpan={3} className="px-3 py-2.5 text-right text-xs font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng Cộng:</td>
+                      <td className={cellCls + " font-bold"}>{totalTC.toFixed(1)}</td>
+                      <td className={cellCls + " font-bold"}>{totalTiet}</td>
+                      <td className={cellCls + " font-bold"}>{totalTcHocPhi.toFixed(2)}</td>
+                      <td className={cellCls + " font-bold"}>{fmt(totalHocPhi)}</td>
+                      <td className={cellCls + " font-bold"}>{fmt(totalGiam)}</td>
+                      <td className={cellCls + " font-bold"}>{fmt(totalHoTro)}</td>
+                      <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
+                      <td className={cellCls + " font-bold"}>{fmt(totalChiPhi)}</td>
+                      <td />
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-4 bg-card rounded-xl border border-border px-6 py-3 shadow-sm">
+              <span className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng số tiền phải đóng:</span>
+              <span className="text-[17px] font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)} VNĐ</span>
+            </div>
+            <p className="text-xs text-muted-foreground pr-1">Trạng thái/Cập nhật: {ngayCapNhat}</p>
+          </div>
+        </>
+      )}
     </div>
   );
 }
-
 // ─── GPA helpers ──────────────────────────────────────────────────────────────
 function gpaFromScore(s: number) {
   if (s >= 8.5) return 4.0;
