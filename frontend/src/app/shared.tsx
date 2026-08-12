@@ -27,13 +27,13 @@ export function HelpButton() {
         <HelpCircle className="w-5 h-5" />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50, whiteSpace: "nowrap" }}>
+        <div className="fixed left-1/2 -translate-x-1/2 top-[58px] w-max max-w-[calc(100vw-1.5rem)] sm:absolute sm:left-auto sm:translate-x-0 sm:right-0 sm:top-full sm:mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 200 }}>
           <div className="px-4 py-2.5 border-b border-border">
             <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Liên hệ hỗ trợ</h3>
           </div>
           <div className="divide-y divide-border">
             {CONTACTS.map(c => (
-              <div key={c.label} className="px-4 py-2.5 flex items-center gap-4 hover:bg-secondary/40 transition-colors">
+              <div key={c.label} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 hover:bg-secondary/40 transition-colors">
                 <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{c.label}:</span>
                 <a href={`mailto:${c.mail}`} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: "'Inter', sans-serif" }}>
                   <Mail className="w-3.5 h-3.5 shrink-0" />{c.mail}
