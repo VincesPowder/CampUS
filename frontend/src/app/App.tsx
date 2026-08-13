@@ -22,8 +22,8 @@ import {
 import Login from "./components/Login";
 // ─── Accounts ────────────────────────────────────────────────────────────────
 const ACCOUNTS = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin"   as const },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
+  { username: "admin", label: "Quản trị viên", email: "admin@hcmus.edu.vn", initials: "AD", pass: "abc", role: "admin" as const },
+  { username: "student", label: "Sinh viên", email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
 ];
 
 // ─── Account Picker Modal ─────────────────────────────────────────────────────
@@ -43,10 +43,10 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
           </div>
           <div className="flex items-center gap-1">
             <svg width="16" height="16" viewBox="0 0 21 21" fill="none">
-              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-              <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-              <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+              <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+              <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+              <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
             </svg>
             <span className="text-xs font-semibold text-[#4A6080]">Microsoft</span>
           </div>
@@ -84,7 +84,7 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
 }
 
 // ─── Logout Confirm ───────────────────────────────────────────────────────────
-function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+export function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
       <div className="rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center bg-[#ffffff]">
@@ -103,12 +103,12 @@ function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 }
 
 // ─── Logout Success ───────────────────────────────────────────────────────────
-function LogoutSuccess() {
+export function LogoutSuccess() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
       <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#f0fdf4" }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
         </div>
         <p className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã đăng xuất thành công!</p>
       </div>
@@ -145,7 +145,7 @@ function AIChatbot() {
   const [typing, setTyping] = useState(false);
   const [pulse, setPulse] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef  = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -224,7 +224,7 @@ function AIChatbot() {
                         background: m.role === "user" ? PRIMARY : "#EBF4FF",
                         color: m.role === "user" ? "#fff" : "#101A2C",
                         borderBottomRightRadius: m.role === "user" ? 4 : undefined,
-                        borderBottomLeftRadius:  m.role === "bot"  ? 4 : undefined,
+                        borderBottomLeftRadius: m.role === "bot" ? 4 : undefined,
                         border: m.role === "bot" ? "1px solid #e2e8f0" : undefined,
                       }}>
                       {m.role === "bot" ? renderBotText(m.text) : m.text}
@@ -241,7 +241,7 @@ function AIChatbot() {
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
                   <div className="bg-[#EBF4FF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-blue-100 flex items-center gap-1">
-                    {[0,1,2].map(d => (
+                    {[0, 1, 2].map(d => (
                       <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
                         style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
                     ))}
@@ -384,7 +384,7 @@ export default function App() {
   const [studentAvatarUrl, setStudentAvatarUrl] = useState<string | null>(null);
   const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
   const [notifs, setNotifs] = useState<any[]>([]);
-  const notifRef  = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127023"; // (Có thể đổi fallback thành 24... để khớp với giao diện)
   const fullName = accounts[0]?.name || "Nguyễn Văn A";
@@ -436,30 +436,30 @@ export default function App() {
   }
 
   function handleLogoutConfirm() {
-  setShowLogoutConfirm(false);
-  setShowLogoutSuccess(true);
-  
-  setTimeout(() => {
-    setShowLogoutSuccess(false);
-    setIsLoggedIn(false);
-    localStorage.removeItem("campus_token");
-    if (instance.getAllAccounts().length > 0) {
-      instance.setActiveAccount(null);
-    }
-    try {
-      instance.logoutRedirect({
-        postLogoutRedirectUri: window.location.origin
-      });
-    } catch (error) {
-      sessionStorage.clear();
-      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
-    }
-  }, 1800);
-}
+    setShowLogoutConfirm(false);
+    setShowLogoutSuccess(true);
+
+    setTimeout(() => {
+      setShowLogoutSuccess(false);
+      setIsLoggedIn(false);
+      localStorage.removeItem("campus_token");
+      if (instance.getAllAccounts().length > 0) {
+        instance.setActiveAccount(null);
+      }
+      try {
+        instance.logoutRedirect({
+          postLogoutRedirectUri: window.location.origin
+        });
+      } catch (error) {
+        sessionStorage.clear();
+        window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      }
+    }, 1800);
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (notifRef.current  && !notifRef.current.contains(e.target as Node))  setNotifOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
       if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
@@ -725,13 +725,21 @@ export default function App() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 pb-20 md:pb-6 bg-background">
-          {activeSection === "profile"        && <ProfileSection avatarUrl={studentAvatarUrl} onAvatarChange={setStudentAvatarUrl} />}
-          {activeSection === "academic"       && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
-          {activeSection === "survey"         && <SurveySection />}
-          {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
-          {activeSection === "tuition"        && <TuitionSection />}
+          {activeSection === "profile" && <ProfileSection avatarUrl={studentAvatarUrl} onAvatarChange={setStudentAvatarUrl} />}
+          {activeSection === "academic" && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
+          {activeSection === "survey" && <SurveySection />}
+          {activeSection === "schedule" && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
+          {activeSection === "tuition" && <TuitionSection />}
           {activeSection === "notifications" && (
-            <NotificationsSection />
+            <NotificationsSection
+              notifs={notifs}
+              selectedNotif={selectedNotif}
+              setSelectedNotif={(n: any) => {
+                if (n) markRead(n.matb);
+                setSelectedNotif(n);
+              }}
+              markAllRead={markAllRead}
+            />
           )}
         </main>
       </div>
