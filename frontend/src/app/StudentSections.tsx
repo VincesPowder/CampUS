@@ -178,25 +178,61 @@ function FamilyModal({ member, onClose, onSave }: {
   );
 }
 
-// ─── Family Tab ───────────────────────────────────────────────────────────────
-function FamilyTab() {
-  const [members, setMembers] = useState<FamilyMember[]>([...FAMILY_DATA]);
-  const [selected, setSelected] = useState<FamilyMember | null>(null);
+// ─── Family Tab (Đã tích hợp API & Chuẩn UI Figma) ────────────────────────────
+function FamilyTab({ mssv, initialMembers, onUpdateSuccess }: { 
+  mssv: string; 
+  initialMembers: any[]; 
+  onUpdateSuccess: (updated: any) => void 
+}) {
+  const [members, setMembers] = useState<any[]>(initialMembers);
+  const [selected, setSelected] = useState<any | null>(null);
 
-  function handleSave(updated: FamilyMember) {
-    setMembers(prev => prev.map(m => m.name === selected?.name ? updated : m));
+  // Cập nhật state nếu dữ liệu từ API cha (ProfileSection) thay đổi
+  useEffect(() => {
+    setMembers(initialMembers);
+  }, [initialMembers]);
+
+  // Xử lý gọi API PUT cập nhật thông tin người thân
+  async function handleSave(updated: any) {
+    try {
+      const res = await fetch(`/api/students/${mssv}/family/${updated.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: updated.phone,
+          email: updated.email,
+          job: updated.job,
+          workplace: updated.workplace,
+          address: updated.address,
+          province: updated.province,
+          ward: updated.ward
+        })
+      });
+
+      if (res.ok) {
+        // Cập nhật lại UI lập tức
+        setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
+        onUpdateSuccess(updated);
+      } else {
+        alert("Lỗi khi cập nhật thông tin người thân từ Backend.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối đến máy chủ.");
+    }
   }
 
   return (
     <>
-      <div className="p-5" style={{ fontSize: "11.5px" }}>
+      <div className="p-0">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full border-collapse bg-white">
             <thead>
-              <tr style={{ background: "rgba(37,52,79,0.2)" }}>
+              {/* Header màu xám nhạt chuẩn thiết kế */}
+              <tr style={{ background: "#d1d5db" }}> 
                 {["Họ tên", "Ngày sinh", "Quan hệ", "Nghề nghiệp", "Nơi làm việc", "SĐT", "Mail"].map(col => (
-                  <th key={col} className="border border-border px-3 py-2 text-left font-semibold"
-                    style={{ fontSize: "11.5px", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  <th key={col} className="border border-gray-300 px-4 py-3 text-left font-semibold text-slate-800"
+                    style={{ fontSize: "13px", fontFamily: "'Inter', sans-serif" }}>
                     {col}
                   </th>
                 ))}
@@ -204,23 +240,27 @@ function FamilyTab() {
             </thead>
             <tbody>
               {members.map((row, i) => (
-                <tr key={i} className="transition-colors cursor-pointer" onClick={() => setSelected(row)} title="Nhấn để xem chi tiết"
-                  style={{ background: selected?.name === row.name ? "rgba(37,52,79,0.07)" : undefined }}
-                  onMouseEnter={e => { if (selected?.name !== row.name) (e.currentTarget as HTMLElement).style.background = "rgba(37,52,79,0.04)"; }}
-                  onMouseLeave={e => { if (selected?.name !== row.name) (e.currentTarget as HTMLElement).style.background = ""; }}>
-                  <td className="border border-border px-3 py-2.5 font-medium text-foreground">{row.name}</td>
-                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.dob}</td>
-                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.rel}</td>
-                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.job}</td>
-                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.workplace}</td>
-                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.phone}</td>
-                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.email}</td>
+                <tr key={i} className="transition-colors cursor-pointer hover:bg-slate-50" 
+                  onClick={() => setSelected(row)} title="Nhấn để xem chi tiết">
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] font-medium text-slate-900">{row.name}</td>
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.dob}</td>
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.rel}</td>
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.job}</td>
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.workplace}</td>
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.phone}</td>
+                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.email}</td>
                 </tr>
               ))}
+              {/* Dòng trống cuối cùng để UI ôm gọn giống hệt ảnh design */}
+              <tr>
+                {Array.from({ length: 7 }).map((_, idx) => (
+                  <td key={`empty-${idx}`} className="border border-gray-300 px-4 py-5"></td>
+                ))}
+              </tr>
             </tbody>
           </table>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-2">Nhấn vào một dòng để xem chi tiết thông tin.</p>
+        <p className="text-[11px] text-muted-foreground mt-3 px-4 pb-4">Nhấn vào một dòng để xem chi tiết thông tin.</p>
       </div>
       {selected && (
         <FamilyModal member={selected} onClose={() => setSelected(null)} onSave={handleSave} />
@@ -228,7 +268,6 @@ function FamilyTab() {
     </>
   );
 }
-
 
 // ─── Field helper (ReadOnly for Top Section) ─────────────────────────────────
 function Field({ label, value }: { label: string; value: string }) {
@@ -247,7 +286,7 @@ function fmt(n: number) {
 
 export function TuitionSection() {
   const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
 
   // 1. GỌI TẤT CẢ HOOKS Ở TRÊN CÙNG
   const [tuitionList, setTuitionList] = useState<any[]>([]);
@@ -1156,8 +1195,8 @@ async function handleSave() {
         </div>
         <input value={draft[fieldKey] as string}
           onChange={e => {
-            setDraft(prev => ({ ...prev, [fieldKey]: e.target.value }));
-            if (e.target.value.trim()) setFieldErrors(prev => { const s = new Set(prev); s.delete(fieldKey as string); return s; });
+            setDraft((prev: any) => ({ ...prev, [fieldKey]: e.target.value }));
+            if (e.target.value.trim()) setFieldErrors((prev: Set<string>) => { const s = new Set(prev); s.delete(fieldKey as string); return s; });
           }}
           className="w-full rounded-lg px-2 py-1.5 text-sm outline-none transition-colors"
           style={{
@@ -1311,7 +1350,19 @@ async function handleSave() {
             </div>
           </div>
         )}
-        {innerTab === "family" && <FamilyTab />}
+        {innerTab === "family" && (
+          <FamilyTab 
+            mssv={currentMssv} 
+            initialMembers={saved.family || []} 
+            onUpdateSuccess={(updatedMember) => {
+              // Đồng bộ lại state chính của Profile
+              setSaved((prev: any) => ({
+                ...prev,
+                family: prev.family.map((m: any) => m.id === updatedMember.id ? updatedMember : m)
+              }));
+            }} 
+          />
+        )}
       </div>
       <div className="flex justify-end">
         <button onClick={handleExportPdf}
@@ -1342,7 +1393,7 @@ type CourseResponse = {
 
 function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: boolean; onDone: (id: string) => void }) {
   const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
   
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1526,9 +1577,9 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
   );
 }
 
-export function SurveySection() {
+export function SurveySection({ onDone }: { onDone?: () => void }) {
   const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
 
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -1565,6 +1616,7 @@ export function SurveySection() {
     // Cập nhật trạng thái local
     setSurveys(prev => prev.map(s => s.id === id ? { ...s, status: "completed" } : s));
     setSelectedId(null);
+    if (onDone) onDone();
   }
 
   if (loading) {
@@ -1796,9 +1848,9 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
 }
 
 // ─── Notifications Section ────────────────────────────────────────────────────
-export function NotificationsSection() {
+export function NotificationsSection({ onRead }: { onRead?: () => void }) {
   const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
 
   const [notifs, setNotifs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1845,6 +1897,7 @@ export function NotificationsSection() {
           setNotifs(prev => prev.map(item => 
             item.maTb === n.maTb ? { ...item, trangThaiDoc: 1 } : item
           ));
+          if (onRead) onRead();
         }
       } catch (error) {
         console.error("Lỗi khi đánh dấu đã đọc:", error);
