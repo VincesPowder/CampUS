@@ -30,23 +30,80 @@ def mock_db_path(monkeypatch, tmp_path):
     Dùng tmp_path của Pytest để tạo ra 1 file DB riêng biệt cho MỖI test case.
     Sẽ không bao giờ bị lỗi trùng data hay Windows khóa file nữa.
     """
-    # Pytest tự sinh ra đường dẫn file ngẫu nhiên trong thư mục tạm
     test_db_path = str(tmp_path / "test_campus_temp.db")
     
-    # 1. TẠO FILE DB NHÁP
+    # 1. MỞ KẾT NỐI DB NHÁP
     conn = sqlite3.connect(test_db_path)
     cursor = conn.cursor()
     
-    # 2. TẠO BẢNG ADMIN VÀ BƠM DATA
+    # ---------------------------------------------------------
+    # 2. TẠO BẢNG & BƠM DATA: KHOA
+    # ---------------------------------------------------------
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS KHOA (
+            MAKHOA TEXT PRIMARY KEY, 
+            TENKHOA TEXT,
+            MAGV_TRUONGKHOA TEXT
+        )
+    ''')
+    cursor.executescript("""
+        INSERT INTO KHOA (MAKHOA, TENKHOA, MAGV_TRUONGKHOA) VALUES ('CSC', 'Công nghệ thông tin', NULL);
+        INSERT INTO KHOA (MAKHOA, TENKHOA, MAGV_TRUONGKHOA) VALUES ('MTH', 'Toán - Tin', NULL);
+    """)
+
+    # ---------------------------------------------------------
+    # 3. TẠO BẢNG & BƠM DATA: NGANH
+    # ---------------------------------------------------------
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS NGANH (
+            MANGANH TEXT PRIMARY KEY, 
+            TENNGANH TEXT, 
+            MAKHOA TEXT
+        )
+    ''')
+    cursor.executescript("""
+        INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7460101_NN', 'Nhóm ngành Toán học, Toán ứng dụng, Toán tin', 'MTH');
+        INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7460108_NN', 'Nhóm ngành Khoa học dữ liệu, Thống kê', 'MTH');
+        INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480101_TT', 'Khoa học máy tính', 'CSC');
+        INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480107', 'Trí tuệ nhân tạo', 'CSC');
+        INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480201_DKD', 'Công nghệ Thông tin', 'CSC');
+        INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480201_NN', 'Nhóm ngành máy tính và công nghệ thông tin', 'CSC');
+    """)
+
+    # ---------------------------------------------------------
+    # 4. TẠO BẢNG & BƠM DATA: DOT_CAPNHAT_HOSO
+    # ---------------------------------------------------------
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS DOT_CAPNHAT_HOSO (
+            MADOT TEXT PRIMARY KEY, 
+            TENDOT TEXT, 
+            THOIGIAN_BATDAU TEXT, 
+            THOIGIAN_KETTHUC TEXT, 
+            TRANGTHAI_MO INTEGER,
+            MA_HOCKY TEXT
+        )
+    ''')
+    cursor.executescript("""
+        INSERT INTO DOT_CAPNHAT_HOSO (MADOT, TENDOT, THOIGIAN_BATDAU, THOIGIAN_KETTHUC, TRANGTHAI_MO, MA_HOCKY) 
+        VALUES ('DOT01', 'Cập nhật thông tin sinh viên', '2026-08-01T00:00:00.000', '2026-08-31T23:59:00.000', 1, 'HK006');
+    """)
+
+    # ---------------------------------------------------------
+    # 5. TẠO BẢNG & BƠM DATA: ADMIN_GIAOVU
+    # ---------------------------------------------------------
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ADMIN_GIAOVU (
             MAGV TEXT PRIMARY KEY, HOTEN TEXT, EMAIL TEXT, VAITRO TEXT, MAKHOA TEXT, TRANGTHAI INTEGER
         )
     ''')
-    cursor.execute("INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU001', 'Đỗ Thành Vinh', '24127262@student.hcmus.edu.vn', 'Giáo vụ', 'CSC', 1)")
-    cursor.execute("INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU002', 'Tạ Mai Như Ngọc', '24127465@student.hcmus.edu.vn', 'Giáo vụ', 'MTH', 1)")
+    cursor.executescript("""
+        INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU001', 'Đỗ Thành Vinh', '24127262@student.hcmus.edu.vn', 'Giáo vụ', 'CSC', 1);
+        INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU002', 'Tạ Mai Như Ngọc', '24127465@student.hcmus.edu.vn', 'Giáo vụ', 'MTH', 1);
+    """)
     
-    # 3. TẠO BẢNG SINH VIÊN VÀ BƠM DATA
+    # ---------------------------------------------------------
+    # 6. TẠO BẢNG & BƠM DATA: SINHVIEN
+    # ---------------------------------------------------------
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS SINHVIEN (
             MSSV TEXT PRIMARY KEY, HOTEN TEXT, LOAISV TEXT, NGAYSINH TEXT, NOISINH TEXT, 
@@ -58,7 +115,7 @@ def mock_db_path(monkeypatch, tmp_path):
             MAILLIENLAC TEXT, QUANHE_NLL TEXT, MANGANH TEXT, MACN TEXT, AVATAR TEXT
         )
     ''')
-    cursor.execute("""
+    cursor.executescript("""
         INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR) VALUES 
         ('24001001', 'Nguyễn Văn An', 'Sinh viên (Đang học)', '2006-01-10', 'TP.HCM', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050001', '2023-03-12', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'Quận 1, TP.HCM', '0901234501', 'an.ng@gmail.com', 'Quận 1, TP.HCM', '2021-03-26', NULL, '24001001@student.hcmus.edu.vn', '10111001', 'Vietcombank', 'Nguyễn Hữu B', 'Quận 1, TP.HCM', '0911234501', NULL, 'Cha', '7480201_DKD', NULL, NULL),
         ('24001002', 'Trần Thị Bảo', 'Sinh viên (Đang học)', '2006-02-15', 'Hà Nội', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050002', '2023-03-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 3, TP.HCM', '0901234502', 'bao.tr@gmail.com', 'Quận 3, TP.HCM', '2021-03-26', NULL, '24001002@student.hcmus.edu.vn', '10111002', 'Vietcombank', 'Trần Văn C', 'Quận 3, TP.HCM', '0911234502', NULL, 'Cha', '7480201_DKD', NULL, NULL),
@@ -89,14 +146,71 @@ def mock_db_path(monkeypatch, tmp_path):
         ('24002008', 'Bùi Tú Quyên', 'Sinh viên (Đang học)', '2006-06-19', 'Tiền Giang', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050028', '2024-09-29', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234528', 'uyen.bui@gmail.com', 'Quận 5, TP.HCM', '2021-10-02', NULL, '24002008@student.hcmus.edu.vn', '10111028', 'MBBank', 'Bùi Văn I', 'Quận 5, TP.HCM', '0911234527', NULL, 'Cha', '7460101_NN', NULL, NULL),
         ('24002009', 'Hồ Thanh Tùng', 'Sinh Viên (Đang học)', '2006-07-26', 'Lâm Đồng', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050029', '2024-05-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 3, TP.HCM', '0901234529', 'tung.ho@gmail.com', 'Quận 3, TP.HCM', '2021-08-12', NULL, '24002009@student.hcmus.edu.vn', '10111029', 'Vietcombank', 'Hồ Thị K', 'Quận 3, TP.HCM', '0911234528', NULL, 'Mẹ', '7460101_NN', NULL, NULL),
         ('24127132', 'Nguyễn Thị Ngọc Trâm', 'Sinh viên (Đang học)', '2006-02-06', 'Đà Nẵng', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050132', '2023-05-06', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234132', 'tram.ng@gmail.com', 'Quận 5, TP.HCM', '2021-04-06', NULL, '24127132@student.hcmus.edu.vn', '10071981', 'ACB', 'Nguyễn Thị Hoa', 'Quận 5, TP.HCM', '0911234532', NULL, 'Mẹ', '7460101_NN', 'GT', NULL),
-        ('24127158', 'Nguyễn Trần Lan Duy', 'Sinh viên (Đang học)', '2006-07-20', 'Bến Tre', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0548423215', '2023-04-30', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'Xã Tân Thủy, tỉnh Vĩnh Long\n', '0123456789', 'nguyentranlanduy2016@gmail.com', 'phường An Đông, thành phố Hồ Chí Minh', '2021-05-31', NULL, '24127158@student.hcmus.edu.vn', '02101971', 'ACB', 'Trần Thị Thủy', 'Xã Tân Thủy, tỉnh Vĩnh Long\n', '0987654321', NULL, 'Mẹ', '7480201_DKD', 'HTTT', NULL)
+        ('24127158', 'Nguyễn Trần Lan Duy', 'Sinh viên (Đang học)', '2006-07-20', 'Bến Tre', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0548423215', '2023-04-30', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'Xã Tân Thủy, tỉnh Vĩnh Long', '0123456789', 'nguyentranlanduy2016@gmail.com', 'phường An Đông, thành phố Hồ Chí Minh', '2021-05-31', NULL, '24127158@student.hcmus.edu.vn', '02101971', 'ACB', 'Trần Thị Thủy', 'Xã Tân Thủy, tỉnh Vĩnh Long', '0987654321', NULL, 'Mẹ', '7480201_DKD', 'HTTT', NULL);
+    """)
+
+    # ---------------------------------------------------------
+    # 7. TẠO BẢNG & BƠM DATA: NGUOITHAN
+    # ---------------------------------------------------------
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS NGUOITHAN (
+            MANT TEXT PRIMARY KEY, 
+            MSSV TEXT, 
+            HOTEN TEXT, 
+            NAMSINH INTEGER, 
+            QUANHE TEXT, 
+            NGHENGHIEP TEXT, 
+            NOILAMVIEC TEXT, 
+            SDT TEXT, 
+            MAIL TEXT, 
+            DANTOC TEXT, 
+            TONGIAO TEXT, 
+            QUOCTICH TEXT, 
+            TINHTHANH TEXT, 
+            PHUONGXA TEXT, 
+            HKTHUONGTRU TEXT
+        )
+    ''')
+    cursor.executescript("""
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010011', '24001001', 'Nguyễn Hữu B', 1978, 'Cha', 'Thợ mộc', 'Quận 1, TP.HCM', '0911234501', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 1', 'Quận 1, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010021', '24001002', 'Trần Văn C', 1980, 'Cha', 'Bác sĩ', 'Quận 3, TP.HCM', '0911234502', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 3', 'Quận 3, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010031', '24001003', 'Lê Thị D', 1981, 'Mẹ', 'Y tá', 'Quận 5, TP.HCM', '0911234503', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010041', '24001004', 'Phạm Văn E', 1977, 'Cha', 'Giáo viên', 'Quận 7, TP.HCM', '0911234504', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 7', 'Quận 7, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010051', '24001005', 'Hoàng Thị F', 1970, 'Mẹ', 'Ca sĩ', 'Quận 10, TP.HCM', '0911234505', NULL, 'Kinh', 'Thiên Chúa Giáo', 'Việt Nam', 'TP.HCM', 'Quận 10', 'Quận 10, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010061', '24001006', 'Đặng Văn G', 1980, 'Cha', 'Thợ cắt tóc', 'Gò Vấp. TP.HCM', '0911234506', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Gò Vấp', 'Gò Vấp. TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010071', '24001007', 'Vũ Thị H', 1976, 'Mẹ', 'Điều dưỡng', 'Tân Bình, TP.HCM', '0911234507', NULL, 'Kinh', 'Phật Giáo', 'Việt Nam', 'TP.HCM', 'Tân Bình', 'Tân Bình, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010081', '24001008', 'Vũ Văn I', 1975, 'Cha', 'Đầu bếp', 'Bình Tân, TP.HCM', '0911234508', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Bình Tân', 'Bình Tân, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010091', '24001009', 'Phan Thị K', 1978, 'Mẹ', 'Kinh doanh', 'Phú Nhuận, TP.HCM', '0911234509', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Phú Nhuận', 'Phú Nhuận, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010101', '24001010', 'Trương Văn L', 1990, 'Cha', 'Kinh doanh', 'Bình Thạnh, TP.HCM', '0911234510', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Bình Thạnh', 'Bình Thạnh, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010111', '24001011', 'Bùi Thị M', 1989, 'Mẹ', 'Giáo viên', 'Tân Phú, TP.HCM', '0911234511', NULL, 'Kinh', 'Cao Đài', 'Việt Nam', 'TP.HCM', 'Tân Phú', 'Tân Phú, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010121', '24001012', 'Đỗ Văn N', 1990, 'Cha', 'Diễn viên', 'Quận 12, TP.HCM', '0911234512', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 12', 'Quận 12, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010131', '24001013', 'Hồ Thị O', 1979, 'Mẹ', 'Kinh doanh', 'Thủ Đức, TP.HCM', '0911234513', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Thủ Đức', 'Thủ Đức, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010141', '24001014', 'Ngô Văn P', 1980, 'Cha', 'Làm nông', 'Quận 4, TP.HCM', '0911234514', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 4', 'Quận 4, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010151', '24001015', 'Dương Thị Q', 1987, 'Mẹ', 'Kinh doanh', 'Quận 6, TP.HCM', '0911234515', NULL, 'Kinh', 'Phật giáo', 'Việt Nam', 'TP.HCM', 'Quận 6', 'Quận 6, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010161', '24001016', 'Lý Văn R', 1970, 'Cha', 'Giáo viên', 'Quận 8, TP.HCM', '0911234516', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 8', 'Quận 8, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010171', '24001017', 'Phạm Thị S', 1980, 'Mẹ', 'Kinh doanh', 'Quận 11, TP.HCM', '0911234517', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 11', 'Quận 11, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010181', '24001018', 'Trần Văn T', 1975, 'Cha', 'Nông dân', 'Hóc Môn, TP.HCM', '0911234518', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Hóc Môn', 'Hóc Môn, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010191', '24001019', 'Nguyễn Thị V', 1981, 'Mẹ', 'Kinh doanh', 'Củ Chi, TP.HCM', '0911234519', NULL, 'Kinh', 'Thiên Chúa Giáo', 'Việt Nam', 'TP.HCM', 'Củ Chi', 'Củ Chi, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020011', '24002001', 'Lê Văn B', 1967, 'Cha', 'Kinh doanh', 'Quận 7, TP.HCM', '0911234520', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 7', 'Quận 7, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020021', '24002002', 'Trần Văn C', 1985, 'Cha', 'Bác sĩ', 'Gò Vấp, TP.HCM', '0911234521', NULL, 'Kinh', 'Cao Đài', 'Việt Nam', 'TP.HCM', 'Gò Vấp', 'Gò Vấp, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020031', '24002003', 'Phạm Thị D', 1984, 'Mẹ', 'Kinh doanh', 'Thủ Đức, TP.HCM', '0911234522', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Thủ Đức', 'Thủ Đức, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020041', '24002004', 'Nguyễn Văn E', 1986, 'Cha', 'Giáo viên', 'Quận 7, TP.HCM', '0911234523', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 7', 'Quận 7, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020051', '24002005', 'Đinh Thị F', 1980, 'Mẹ', 'Kinh doanh', 'Quận 10, TP.HCM', '0911234524', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 10', 'Quận 10, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020061', '24002006', 'Vũ Văn G', 1969, 'Cha', 'Thợ cắt tóc', 'Tân Bình, TP.HCM', '0911234525', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Tân Bình', 'Tân Bình, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020071', '24002007', 'Huỳnh Thị H', 1985, 'Mẹ', 'Kinh doanh', 'Bình Thạnh, TP.HCM', '0911234526', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Bình Thạnh', 'Bình Thạnh, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020081', '24002008', 'Bùi Văn I', 1967, 'Cha', 'Bác sĩ', 'Quận 5, TP.HCM', '0911234527', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020091', '24002009', 'Hồ Thị K', 1980, 'Mẹ', 'Giáo viên', 'Quận 3, TP.HCM', '0911234528', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 3', 'Quận 3, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('241271321', '24127132', 'Nguyễn Thị Hoa', 1980, 'Mẹ', 'Giáo viên', 'Quận 5, TP.HCM', '0911234532', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
+        INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('241271581', '24127158', 'Trần Thị Thủy', 1978, 'Mẹ', 'Kinh doanh', 'Xã Tân Thủy, Tỉnh Vĩnh Long', '0987654321', NULL, 'Kinh', 'Không', 'Việt Nam', 'Vĩnh Long', 'Xã Tân Thủy', 'Xã Tân Thủy, Tỉnh Vĩnh Long');
     """)
     
+    # ---------------------------------------------------------
+    # 8. LƯU THAY ĐỔI VÀ ĐÓNG KẾT NỐI
+    # ---------------------------------------------------------
     conn.commit()
     conn.close()
 
-    # 4. ÉP CODE GỐC ĐỌC FILE NHÁP
+    # 9. ÉP CODE GỐC ĐỌC FILE NHÁP NÀY
     monkeypatch.setattr("app.routes.auth_routes.DB_PATH", test_db_path)
     
-    # Bỏ luôn đoạn os.remove vì Pytest sẽ tự lo vụ dọn rác
     yield
