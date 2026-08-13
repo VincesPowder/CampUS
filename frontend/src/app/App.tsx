@@ -384,11 +384,15 @@ export default function App() {
   const [studentAvatarUrl, setStudentAvatarUrl] = useState<string | null>(null);
   const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
   const [notifs, setNotifs] = useState<any[]>([]);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [pendingSurveys, setPendingSurveys] = useState(0);
+
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127023"; // (Có thể đổi fallback thành 24... để khớp với giao diện)
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158"; // (Có thể đổi fallback thành 24... để khớp với giao diện)
   const fullName = accounts[0]?.name || "Nguyễn Văn A";
-  // Fetch thông báo khi vừa đăng nhập
+  
+  // Fetch thông báo & khảo sát khi vừa đăng nhập
   useEffect(() => {
     if (isLoggedIn && userRole === "student") {
       fetch(`/api/students/${currentMssv}/notifications`)
@@ -396,18 +400,29 @@ export default function App() {
         .then(data => {
           if (data.status === 'success') {
             setNotifs(data.data);
+            setUnreadNotifs(data.data.filter((n:any) => !n.trangThaiDoc || Number(n.trangThaiDoc) === 0).length);
           }
         })
         .catch(err => console.error("Lỗi fetch thông báo:", err));
+
+      fetch(`/api/students/${currentMssv}/surveys`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success" && data.data) {
+            setPendingSurveys(data.data.filter((s:any) => s.status !== "completed").length);
+          }
+        })
+        .catch(err => console.error("Fetch surveys error:", err));
     }
   }, [isLoggedIn, userRole, currentMssv]);
 
   // Hàm gọi API đánh dấu Đã đọc 1 thông báo
   const markRead = async (maTb: string) => {
     const target = notifs.find(n => n.maTb === maTb);
-    if (target && target.trangThaiDoc === 0) {
+    if (target && (!target.trangThaiDoc || Number(target.trangThaiDoc) === 0)) {
       // Cập nhật UI ngay lập tức
       setNotifs(prev => prev.map(n => n.maTb === maTb ? { ...n, trangThaiDoc: 1 } : n));
+      setUnreadNotifs(u => Math.max(0, u - 1));
       try {
         await fetch(`/api/students/${currentMssv}/notifications/${maTb}/read`, { method: 'POST' });
       } catch (e) {
@@ -419,6 +434,7 @@ export default function App() {
   // Hàm gọi API đánh dấu Đã đọc tất cả
   const markAllRead = async () => {
     setNotifs(prev => prev.map(n => ({ ...n, trangThaiDoc: 1 })));
+    setUnreadNotifs(0);
     try {
       await fetch(`/api/students/${currentMssv}/notifications/read-all`, { method: 'POST' });
     } catch (e) {
@@ -427,7 +443,7 @@ export default function App() {
   };
 
   // Đếm số thông báo chưa đọc
-  const unread = notifs.filter(n => n.trangThaiDoc === 0).length;
+  const unread = unreadNotifs;
 
 
   function handleLogin(role: "admin" | "student") {
@@ -493,6 +509,10 @@ export default function App() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            let badgeCount = 0;
+            if (item.id === "notifications") badgeCount = unreadNotifs;
+            if (item.id === "survey") badgeCount = pendingSurveys;
+
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 title={!sidebarOpen ? item.label : undefined}
@@ -504,12 +524,12 @@ export default function App() {
                 {sidebarOpen && (
                   <>
                     <span className={`flex-1 text-left whitespace-nowrap text-white ${active ? "text-[14px]" : "text-[13px]"}`}>{item.label}</span>
-                    {item.badge && (
-                      <span className="text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: "var(--accent)", fontSize: "10px" }}>{item.badge}</span>
+                    {badgeCount > 0 && (
+                      <span className="text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: "var(--accent)", fontSize: "10px" }}>{badgeCount}</span>
                     )}
                   </>
                 )}
-                {!sidebarOpen && item.badge && (
+                {!sidebarOpen && badgeCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "var(--accent)" }} />
                 )}
               </button>
@@ -587,13 +607,7 @@ export default function App() {
                 {/* Badge đếm số lượng thông báo (Khớp màu và position) */}
                 {unread > 0 && (
                   <span 
-                    className="absolute top-0 right-0 w-4 h-4 rounded-full flex items-center justify-center font-bold text-white shadow-sm" 
-                    style={{ 
-                      background: "#E8384D", // Mã màu đỏ từ Figma
-                      fontSize: "9px", 
-                      border: "1.5px solid white", 
-                      transform: "translate(25%, -25%)" 
-                    }}
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}
                   >
                     {unread > 9 ? '9+' : unread}
                   </span>
@@ -601,80 +615,30 @@ export default function App() {
               </button>
 
               {notifOpen && (
-                <div 
-                  className="fixed left-3 right-3 top-[58px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[420px] bg-white border border-[#E2E8F0] rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col" 
-                  style={{ zIndex: 200, maxHeight: "85vh" }}
-                >
-                  
-                  {/* Header */}
-                  <div className="px-5 py-4 flex-shrink-0 bg-white border-b border-[#E2E8F0]">
-                    <h3 className="font-bold text-[15px] text-[#11284D]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                      Thông báo
-                    </h3>
+                <div className="fixed left-3 right-3 top-[58px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 200 }}>
+                  <div className="px-4 py-3 border-b border-border">
+                    <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
                   </div>
-                  
-                  {/* Danh sách thông báo (Cuộn được) */}
-                  <div className="overflow-y-auto flex-1 bg-white" style={{ maxHeight: "400px" }}>
-                    {notifs.length === 0 ? (
-                       <div className="p-5 text-center text-sm text-gray-500">Không có thông báo nào.</div>
-                    ) : (
-                      notifs.map((n) => {
-                        // Xác định trạng thái chưa đọc từ API (trangThaiDoc === 0)
-                        const isUnread = n.trangThaiDoc === 0;
-                        return (
-                          <div 
-                            key={n.maTb} 
-                            onClick={() => { 
-                              markRead(n.maTb); 
-                              setSelectedNotif(n); 
-                              setActiveSection("notifications"); 
-                              setNotifOpen(false); 
-                            }}
-                            // Cập nhật background cho từng trạng thái: Màu be cho unread, trắng cho read
-                            className={`group px-5 py-4 cursor-pointer flex items-start gap-3 border-b border-[#E2E8F0] last:border-b-0 transition-colors ${
-                              isUnread ? "bg-[#EBE5D5] hover:bg-[#E3DCC8]" : "bg-white hover:bg-gray-50"
-                            }`}
-                          >
-                            <div className="flex-shrink-0 mt-1.5 w-2.5 h-2.5">
-                               {isUnread && (
-                                <span className="w-2.5 h-2.5 rounded-full block" style={{ background: "#D5B370" }} />
-                               )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              {/* Tiêu đề thông báo từ API */}
-                              <p 
-                                className={`text-[13px] mb-1.5 leading-snug ${isUnread ? "font-bold text-[#11284D]" : "font-medium text-[#11284D]"}`} 
-                                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                              >
-                                {n.tieuDe}
-                              </p>
-                              
-                              <div className="flex items-center justify-between">
-                                {/* Thời gian thông báo từ API */}
-                                <span className="text-[12px] text-[#718096]">
-                                  {n.ngayDang ? getRelativeTime(n.ngayDang) : "Vừa xong"}
-                                </span>
-                                {/* Luôn hiển thị Chi tiết */}
-                                <span className="text-[12px] font-semibold text-[#11284D]">
-                                  Chi tiết &rarr;
-                                </span>
-                              </div>
-                            </div>
+                  <div className="max-h-80 overflow-y-auto divide-y divide-border">
+                    {notifs.map(n => {
+                      const isUnread = !n.trangThaiDoc || Number(n.trangThaiDoc) === 0;
+                      return (
+                        <div key={n.maTb} onClick={() => { markRead(n.maTb); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }}
+                          className={`px-4 py-3 hover:bg-secondary/40 transition-colors cursor-pointer ${isUnread ? "bg-secondary/50" : ""}`}>
+                          <div className="flex items-start gap-2 mb-1">
+                            {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
+                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.tieuDe}</p>
                           </div>
-                        );
-                      })
-                    )}
+                          <div className="flex items-center justify-between mt-1 pl-4">
+                            <span className="text-xs text-muted-foreground">{n.ngayDang ? getRelativeTime(n.ngayDang) : "Vừa xong"}</span>
+                            <span className="text-xs font-medium" style={{ color: "var(--primary)" }}>Chi tiết →</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-
-                  {/* Nút Xem tất cả */}
-                  <div className="border-t border-[#E2E8F0] flex-shrink-0 bg-white">
-                    <button 
-                      onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} 
-                      className="w-full py-4 text-[14px] font-bold hover:bg-gray-50 transition-colors text-center text-[#11284D]" 
-                      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                    >
-                      Tất cả
-                    </button>
+                  <div className="border-t border-border">
+                    <button onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} className="w-full py-3 text-sm font-semibold hover:bg-secondary/30 transition-colors" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tất cả</button>
                   </div>
                 </div>
               )}
@@ -727,11 +691,11 @@ export default function App() {
         <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 pb-20 md:pb-6 bg-background">
           {activeSection === "profile"        && <ProfileSection avatarUrl={studentAvatarUrl} onAvatarChange={setStudentAvatarUrl} />}
           {activeSection === "academic"       && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
-          {activeSection === "survey"         && <SurveySection />}
+          {activeSection === "survey"         && <SurveySection onDone={() => setPendingSurveys(s => Math.max(0, s - 1))} />}
           {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
           {activeSection === "notifications" && (
-            <NotificationsSection />
+            <NotificationsSection onRead={() => setUnreadNotifs(u => Math.max(0, u - 1))} />
           )}
         </main>
       </div>
@@ -742,15 +706,19 @@ export default function App() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            let badgeCount = 0;
+            if (item.id === "notifications") badgeCount = unreadNotifs;
+            if (item.id === "survey") badgeCount = pendingSurveys;
+
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 className="flex-1 flex flex-col items-center gap-0.5 pt-2 pb-2.5 px-0.5 transition-colors"
                 style={{ color: active ? "var(--primary)" : "#718096" }}>
                 <div className="relative">
                   <Icon className="w-5 h-5" />
-                  {item.badge && (
+                  {badgeCount > 0 && (
                     <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 rounded-full text-white flex items-center justify-center font-bold"
-                      style={{ background: "var(--accent)", fontSize: "8px" }}>{item.badge}</span>
+                      style={{ background: "var(--accent)", fontSize: "8px" }}>{badgeCount}</span>
                   )}
                 </div>
                 <span className="text-[8.5px] font-medium leading-tight text-center w-full truncate px-0.5"
