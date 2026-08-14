@@ -84,7 +84,7 @@ export function abbreviateName(fullName: string): string {
 export type HinhThuc = "TẬP TRUNG" | "TRỰC TUYẾN" | "HỌC BÙ TRỰC TIẾP" | "HỌC BÙ TRỰC TUYẾN" | "NGHỈ";
 
 export type TKBEntry = {
-  tenMon: string; maNhom: string; tiet: string; gv: string; email: string;
+  tenMon: string; maMon?: string; maNhom: string; tiet: string; gv: string; email: string;
   hinhThuc: HinhThuc; ngonNgu: string; phong: string; isLab?: boolean; span?: number;
 };
 
