@@ -4,16 +4,19 @@ import {
   ChevronRight, LogOut, X, ChevronsLeft, ChevronsRight,
   CheckCircle2, Search, Filter, Download, Upload, Plus, Pencil,
   Users, BarChart2, Shield, Trash2, Check,
-  ArrowLeft, Lock, RotateCcw,
+  ArrowLeft, Lock, RotateCcw, Edit2,
 } from "lucide-react";
 import {
   TKBCellCard, TKBEntry, TKBCell, ExamEntry, TKB_DATA, EXAM_DATA, DAYS, CA_LABELS,
-  HINH_THUC_STYLE, getWeekDates, HinhThuc,
+  HINH_THUC_STYLE, getWeekDates, HinhThuc, SidebarLogo, TKBWeekGrid,
+  getInitials, abbreviateName,
 } from "./shared";
+import type { Account } from "../data/mockData";
 import {
   NOTIFICATIONS, ADMIN_STUDENTS, TUITION_DATA, FAMILY_DATA,
   type AdminStudent, type Notification, type FamilyMember,
   KHOA_LIST, MOCK_ADMIN_SURVEYS, MOCK_RESULTS, ACADEMIC_COURSES, makeMockGrades,
+  CNTT_TKB, LOP_INFO,
   type AdminSurveyItem, type SurveyQuestion, type QuestionType,
   type GradeStatus, type AdminCourseItem, type StudentGradeRow,
 } from "../data/mockData";
@@ -109,6 +112,11 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
         { name: `Trần Thị ${student.hoTen.split(" ").slice(-1)[0]}`, dob: `${1963 + idx % 12}`, rel: "Mẹ", job: ["Giáo viên","Nội trợ","Y tá","Kế toán"][(idx+1)%4], workplace: "Trường THPT địa phương", phone: `091${student.mssv.slice(-7)}`, email: `me${idx}@gmail.com`, ethnic:"Kinh", religion:"Phật giáo", nationality:"Việt Nam", province:"TP. Hồ Chí Minh", ward:"Phường 5", address:`${idx+10} Nguyễn Trãi, Q.1, TP.HCM` },
       ];
 
+  const [contactEdit, setContactEdit] = useState({
+    cvTen: extra.cvTen, cvSdt: extra.cvSdt, cvEmail: extra.cvEmail, cvQuanHe: extra.cvQuanHe,
+  });
+  const [familyEdit, setFamilyEdit] = useState<FamilyMember[]>(familyData);
+
   const tabs = [
     { id: "info"   as const, label: "Hồ sơ sinh viên" },
     { id: "family" as const, label: "Thông tin gia đình" },
@@ -128,7 +136,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
             <div className="text-white/60 text-xs font-mono mt-0.5">{student.mssv} · {student.nganh}</div>
           </div>
           <div className="flex gap-2">
-            {activeTab === "info" && mode === "view" && (
+            {mode === "view" && (
               <button onClick={() => setMode("edit")}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 text-white text-xs font-semibold hover:bg-white/25 transition-colors" style={PJS}>
                 <Pencil className="w-3.5 h-3.5" /> Chỉnh sửa
@@ -225,12 +233,10 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
               <div>
                 <SectionHeader title="Thông tin người liên lạc" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
-                  {[
-                    { label: "Tên người liên hệ",  val: extra.cvTen },
-                    { label: "SĐT người liên hệ",  val: extra.cvSdt },
-                    { label: "Email người liên hệ", val: extra.cvEmail },
-                    { label: "Quan hệ",             val: extra.cvQuanHe },
-                  ].map(r => <MField key={r.label} label={r.label} value={r.val} />)}
+                  <MField label="Tên người liên hệ"   value={contactEdit.cvTen}    editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvTen: v }))} />
+                  <MField label="SĐT người liên hệ"   value={contactEdit.cvSdt}    editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvSdt: v }))} />
+                  <MField label="Email người liên hệ" value={contactEdit.cvEmail}  editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvEmail: v }))} />
+                  <MField label="Quan hệ"             value={contactEdit.cvQuanHe} editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvQuanHe: v }))} />
                 </div>
               </div>
               <div>
@@ -248,7 +254,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
 
           {activeTab === "family" && (
             <div className="space-y-4">
-              {familyData.filter(m => m.name).map((m, i) => (
+              {familyEdit.filter(m => m.name).map((m, i) => (
                 <div key={i} className="rounded-xl border border-border overflow-hidden">
                   <div className="px-4 py-2.5 flex items-center gap-2 border-b border-border" style={{ background: "rgba(37,52,79,0.06)" }}>
                     <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--primary)" }}>
@@ -258,21 +264,25 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
                     <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{m.rel}</span>
                   </div>
                   <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
-                    {[
-                      { label: "Ngày sinh",     val: m.dob },
-                      { label: "Nghề nghiệp",   val: m.job },
-                      { label: "Nơi làm việc",  val: m.workplace },
-                      { label: "Số điện thoại", val: m.phone },
-                      { label: "Email",         val: m.email },
-                      { label: "Dân tộc",       val: m.ethnic },
-                      { label: "Tôn giáo",      val: m.religion },
-                      { label: "Quốc tịch",     val: m.nationality },
-                      { label: "Địa chỉ",       val: m.address },
-                    ].map(r => <MField key={r.label} label={r.label} value={r.val} />)}
+                    {([
+                      { label: "Ngày sinh",     key: "dob" },
+                      { label: "Nghề nghiệp",   key: "job" },
+                      { label: "Nơi làm việc",  key: "workplace" },
+                      { label: "Số điện thoại", key: "phone" },
+                      { label: "Email",         key: "email" },
+                      { label: "Dân tộc",       key: "ethnic" },
+                      { label: "Tôn giáo",      key: "religion" },
+                      { label: "Quốc tịch",     key: "nationality" },
+                      { label: "Địa chỉ",       key: "address" },
+                    ] as { label: string; key: keyof FamilyMember }[]).map(r => (
+                      <MField key={r.label} label={r.label} value={String(m[r.key] ?? "")}
+                        editable={mode === "edit"}
+                        onChange={v => setFamilyEdit(prev => prev.map((mem, mi) => mi === i ? { ...mem, [r.key]: v } : mem))} />
+                    ))}
                   </div>
                 </div>
               ))}
-              {familyData.filter(m => m.name).length === 0 && (
+              {familyEdit.filter(m => m.name).length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-10">Chưa có thông tin gia đình.</p>
               )}
             </div>
@@ -280,7 +290,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
         </div>
 
         {/* Footer */}
-        {activeTab === "info" && mode === "edit" && (
+        {mode === "edit" && (
           <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
             <button onClick={() => { setForm({ ...student }); setMode("view"); }}
               className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
@@ -288,6 +298,75 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
               className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Lưu thay đổi</button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Admin: Add Student Modal ────────────────────────────────────────────────
+function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: AdminStudent) => void }) {
+  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER = { fontFamily: "'Inter', sans-serif" };
+  const blank: AdminStudent = { hoTen: "", mssv: "", email: "", gioiTinh: "Nam", khoa: "2024", nganh: "", bacDT: "Đại học", loaiDT: "Chính quy", chuyenNganh: "" };
+  const [draft, setDraft] = useState<AdminStudent>(blank);
+  const [errors, setErrors] = useState<Set<keyof AdminStudent>>(new Set());
+
+  const fields: { label: string; key: keyof AdminStudent; required?: boolean; span2?: boolean }[] = [
+    { label: "Họ và tên",    key: "hoTen",       required: true,  span2: true },
+    { label: "MSSV",         key: "mssv",        required: true },
+    { label: "Email",        key: "email",       required: true,  span2: true },
+    { label: "Giới tính",    key: "gioiTinh" },
+    { label: "Khoá",         key: "khoa" },
+    { label: "Khoa",        key: "nganh",       required: true },
+    { label: "Bậc đào tạo",  key: "bacDT" },
+    { label: "Loại đào tạo", key: "loaiDT" },
+    { label: "Chuyên ngành", key: "chuyenNganh", span2: true },
+  ];
+
+  function handleSave() {
+    const errs = new Set<keyof AdminStudent>();
+    fields.filter(f => f.required).forEach(f => { if (!draft[f.key]) errs.add(f.key); });
+    if (errs.size > 0) { setErrors(errs); return; }
+    onAdd(draft);
+    onClose();
+  }
+
+  const inputCls = (key: keyof AdminStudent) =>
+    `w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors ${errors.has(key) ? "border-red-400 ring-1 ring-red-300" : "border-border"}`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[92vh]" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ background: "var(--primary)" }}>
+          <div>
+            <div className="font-bold text-white text-base" style={PJS}>Thêm sinh viên mới</div>
+            <div className="text-white/60 text-xs mt-0.5" style={INTER}>Điền đầy đủ thông tin bên dưới</div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg bg-white/15 text-white hover:bg-white/25 transition-colors"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="overflow-y-auto flex-1 p-6">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-4">
+            {fields.map(f => (
+              <div key={f.key} className={f.span2 ? "col-span-2" : ""}>
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1.5" style={PJS}>
+                  {f.label}{f.required && <span className="text-red-400 ml-0.5">*</span>}
+                </label>
+                <input
+                  value={draft[f.key]}
+                  onChange={e => { setDraft(p => ({ ...p, [f.key]: e.target.value })); setErrors(p => { const n = new Set(p); n.delete(f.key); return n; }); }}
+                  className={inputCls(f.key)}
+                  style={INTER}
+                  placeholder={f.required ? `Nhập ${f.label.toLowerCase()}...` : ""}
+                />
+                {errors.has(f.key) && <p className="text-red-400 text-[11px] mt-1">Trường này là bắt buộc</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
+          <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Thêm sinh viên</button>
+        </div>
       </div>
     </div>
   );
@@ -302,6 +381,7 @@ function StudentManagement() {
   });
   const [students, setStudents] = useState<AdminStudent[]>(ADMIN_STUDENTS);
   const [modal, setModal] = useState<{ student: AdminStudent; mode: StudentModalMode } | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
   const [permOpen, setPermOpen] = useState(false);
   const [globalPerm, setGlobalPerm] = useState<GlobalEditPerm>({
     enabled: false, from: "", to: "", nganhs: [], khoas: [],
@@ -336,6 +416,12 @@ function StudentManagement() {
           onSave={updated => setStudents(prev => prev.map(s => s.mssv === updated.mssv ? updated : s))}
         />
       )}
+      {addOpen && (
+        <AddStudentModal
+          onClose={() => setAddOpen(false)}
+          onAdd={s => setStudents(prev => [s, ...prev])}
+        />
+      )}
       <div className="flex flex-wrap items-center gap-3 mb-4 flex-shrink-0">
         <div className="flex-1 relative min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -363,7 +449,7 @@ function StudentManagement() {
           <Lock className="w-4 h-4" /> Quyền chỉnh sửa
           {globalPerm.enabled && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
         </button>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <button onClick={() => setAddOpen(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Plus className="w-4 h-4" /> Thêm
         </button>
       </div>
@@ -400,7 +486,7 @@ function StudentManagement() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  Áp dụng cho Ngành <span className="font-normal text-muted-foreground">(để trống = tất cả)</span>
+                  Áp dụng cho Khoa <span className="font-normal text-muted-foreground">(để trống = tất cả)</span>
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                   {allNganh.map(n => (
@@ -440,7 +526,7 @@ function StudentManagement() {
             {globalPerm.enabled && globalPerm.from && globalPerm.to && (
               <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium bg-green-50 border border-green-200 text-green-700" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                Sinh viên {globalPerm.nganhs.length > 0 ? globalPerm.nganhs.join(", ") : "tất cả ngành"}
+                Sinh viên {globalPerm.nganhs.length > 0 ? globalPerm.nganhs.join(", ") : "tất cả khoa"}
                 {globalPerm.khoas.length > 0 ? ` · ${globalPerm.khoas.join(", ")}` : " · tất cả khoá"}
                 {" "}có thể chỉnh sửa từ {globalPerm.from} đến {globalPerm.to}
               </div>
@@ -453,7 +539,7 @@ function StudentManagement() {
         <div className="mb-4 bg-card rounded-xl border border-border px-5 py-4 flex flex-wrap gap-4 items-end flex-shrink-0">
           {[
             { label: "Khoá",    key: "khoa"  as const, options: allKhoa  },
-            { label: "Ngành",   key: "nganh" as const, options: allNganh },
+            { label: "Khoa",    key: "nganh" as const, options: allNganh },
             { label: "Bậc ĐT",  key: "bacDT" as const, options: allBac   },
             { label: "Loại ĐT", key: "loaiDT"as const, options: allLoai  },
           ].map(f => (
@@ -479,7 +565,7 @@ function StudentManagement() {
           <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
             <thead className="sticky top-0 z-10">
               <tr style={{ background: "var(--primary)" }}>
-                {cols.map(c => <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c}</th>)}
+                {cols.map(c => <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c === "Ngành" ? "Khoa" : c}</th>)}
                 <th className="px-3 py-2.5 w-10" />
               </tr>
             </thead>
@@ -646,17 +732,17 @@ function AdminSurveySection() {
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="bg-card rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(213,179,112,0.1)" }}>
-              <Trash2 className="w-7 h-7" style={{ color: "var(--accent)" }} />
+          <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
+              <Trash2 className="w-7 h-7 text-red-400" />
             </div>
             <h3 className="font-bold text-base mb-2" style={PJS}>Xóa khảo sát?</h3>
             <p className="text-sm text-muted-foreground mb-1">Bạn có chắc chắn muốn xóa khảo sát</p>
             <p className="text-sm font-semibold text-foreground mb-5" style={PJS}>"{deleteTarget.title}"?</p>
             <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
             <div className="flex gap-3 w-full">
-              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-card transition-colors" style={PJS}>Hủy</button>
-              <button onClick={confirmDelete} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--accent)", ...PJS }}>Xóa</button>
+              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>Hủy</button>
+              <button onClick={confirmDelete} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
             </div>
           </div>
         </div>
@@ -668,8 +754,8 @@ function AdminSurveySection() {
             <p className="text-sm text-muted-foreground mr-auto" style={PJS}>{filtered.length} / {surveys.length} khảo sát</p>
             <div className="relative" ref={filterRef}>
               <button onClick={() => setFilterOpen(o => !o)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${hasFilter ? "border-[#11284D] text-primary bg-[#11284D]/5" : "border-border text-muted-foreground hover:border-border"}`}
-                style={PJS}>
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${hasFilter ? "border-[#11284D] text-primary" : "border-border text-muted-foreground hover:border-border"}`}
+                style={{ background: "#fff", ...PJS }}>
                 <Filter className="w-3.5 h-3.5" />
                 Lọc {hasFilter && <span className="ml-0.5 w-4 h-4 rounded-full text-white text-[10px] font-bold flex items-center justify-center" style={{ background: "var(--primary)" }}>{filterStatus.length + filterKhoa.length}</span>}
               </button>
@@ -973,7 +1059,7 @@ function AdminSurveySection() {
                             <span className="text-foreground">{d.label}</span>
                             <span className="font-semibold text-muted-foreground" style={PJS}>{d.count} <span className="font-normal text-muted-foreground">({total > 0 ? Math.round(d.count / total * 100) : 0}%)</span></span>
                           </div>
-                          <div className="h-6 bg-muted rounded-full overflow-hidden">
+                          <div className="h-6 rounded-full overflow-hidden" style={{ background: "#e5e7eb" }}>
                             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(d.count / max) * 100}%`, background: d.color, opacity: 0.85 }} />
                           </div>
                         </div>
@@ -1003,9 +1089,7 @@ function calcTK(cc: number | null, gk: number | null, ck: number | null): number
 
 function gradeColor(d: number | null): string {
   if (d === null) return "var(--muted-foreground)";
-  if (d >= 8.5) return "#1d4ed8";
-  if (d >= 7.0) return "#16a34a";
-  if (d >= 5.5) return "#b45309";
+  if (d >= 5) return "#16a34a";
   return "#dc2626";
 }
 
@@ -1173,7 +1257,7 @@ function AdminAcademicSection() {
             <p className="text-xs text-muted-foreground mt-0.5" style={INTER}>Theo dõi và quản lý điểm số các lớp học phần</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="flex gap-3 mb-5">
           {[
             { label: "Đang chờ nộp điểm", val: pending,  bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280", status: "pending"  as GradeStatus },
             { label: "Đã tải lên",         val: uploaded, bg: "#fffbeb", bord: "#fde68a", col: "#b45309", status: "uploaded" as GradeStatus },
@@ -1182,10 +1266,10 @@ function AdminAcademicSection() {
             const active = filterStatus === s.status;
             return (
               <button key={s.label} onClick={() => setFilterStatus(active ? "all" : s.status)}
-                      className="rounded-xl border px-4 py-3 text-left transition-all hover:shadow-md"
+                      className="flex-1 rounded-xl border px-4 py-2.5 flex items-center gap-2.5 transition-all hover:shadow-md"
                       style={{ background: s.bg, borderColor: active ? s.col : s.bord, boxShadow: active ? `0 0 0 2px ${s.col}33` : undefined }}>
-                <p className="text-2xl font-bold" style={{ ...PJS, color: s.col }}>{s.val}</p>
-                <p className="text-xs mt-0.5" style={{ ...INTER, color: active ? s.col : "#6b7280" }}>{s.label}{active ? " ✓" : ""}</p>
+                <span className="font-bold leading-none text-[20px]" style={{ ...PJS, color: s.col }}>{s.val}</span>
+                <span className="text-xs leading-none" style={{ ...INTER, color: active ? s.col : "#6b7280" }}>{s.label}{active ? " ✓" : ""}</span>
               </button>
             );
           })}
@@ -1213,7 +1297,7 @@ function AdminAcademicSection() {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm môn học, mã MH, giảng viên..."
-              className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" style={INTER} />
+              className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" style={INTER} />
           </div>
           <button onClick={() => { setSearch(""); setFilterHK(3); setFilterNamHoc("25-26"); setFilterStatus("all"); setFilterKhoa("all"); }}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground transition-colors px-2 py-2" style={PJS}>
@@ -1234,12 +1318,13 @@ function AdminAcademicSection() {
                 <tr><td colSpan={10} className="text-center py-16 text-muted-foreground" style={INTER}>Không tìm thấy kết quả</td></tr>
               ) : filtered.map((c, i) => {
                 const clickable = c.status !== "pending";
+                const rowBg = i % 2 === 1 ? "#dde4f5" : "var(--card)";
                 return (
-                  <tr key={c.id} className={`border-b border-border transition-colors ${clickable ? "cursor-pointer hover:bg-blue-50/60" : ""}`}
-                      style={{ background: "var(--card)" }} onClick={() => openDetail(c)}>
+                  <tr key={c.id} className={`border-b border-border transition-colors ${clickable ? "cursor-pointer hover:brightness-95" : ""}`}
+                      style={{ background: rowBg }} onClick={() => openDetail(c)}>
                     <td className="pl-4 pr-3 py-3 text-muted-foreground">{i + 1}</td>
-                    <td className="px-3 py-3 font-mono font-semibold text-foreground">{c.maMon}</td>
-                    <td className="px-3 py-3"><span className={`font-medium ${clickable ? "text-blue-700" : "text-foreground"}`} style={PJS}>{c.tenMon}</span></td>
+                    <td className="px-3 py-3 font-semibold text-foreground" style={PJS}>{c.maMon}</td>
+                    <td className="px-3 py-3"><span className="font-medium text-foreground" style={PJS}>{c.tenMon}</span></td>
                     <td className="px-3 py-3 text-muted-foreground">{c.lop}</td>
                     <td className="px-3 py-3 text-center text-muted-foreground">{c.soTC}</td>
                     <td className="px-3 py-3">
@@ -1282,7 +1367,7 @@ function AdminAcademicSection() {
       <div className="flex flex-col sm:flex-row items-start justify-between mb-5 gap-3">
         <div className="flex items-center gap-3">
           <button onClick={() => { setScreen("list"); setSelectedCourse(null); }}
-            className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:bg-card hover:text-foreground transition-colors flex-shrink-0">
+            className="w-9 h-9 rounded-xl border border-border bg-white flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors flex-shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
@@ -1310,9 +1395,9 @@ function AdminAcademicSection() {
           { label: "Rớt (< 5.0)",    val: String(grades.length - passCount), col: "#dc2626" },
           { label: "Điểm TB",        val: avgTK !== null ? avgTK.toFixed(1) : "—", col: gradeColor(avgTK) },
         ].map(s => (
-          <div key={s.label} className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
-            <p className="text-xl font-bold" style={{ ...PJS, color: s.col }}>{s.val}</p>
-            <p className="text-xs text-muted-foreground mt-0.5" style={INTER}>{s.label}</p>
+          <div key={s.label} className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm flex items-center gap-2.5">
+            <span className="text-xl font-bold flex-shrink-0" style={{ ...PJS, color: s.col }}>{s.val}</span>
+            <span className="text-xs text-muted-foreground leading-tight" style={INTER}>{s.label}</span>
           </div>
         ))}
       </div>
@@ -1320,11 +1405,8 @@ function AdminAcademicSection() {
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <input value={gradeSearch} onChange={e => setGradeSearch(e.target.value)} placeholder="Tìm MSSV hoặc tên sinh viên..."
-            className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" style={INTER} />
+            className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" style={INTER} />
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground transition-colors" style={{ background: "#fff", ...PJS }}>
-          <Download className="w-3.5 h-3.5" /> Xuất Excel
-        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
         <table className="w-full text-xs" style={{ minWidth: 700 }}>
@@ -1372,6 +1454,11 @@ function AdminAcademicSection() {
           </tbody>
         </table>
       </div>
+      <div className="flex justify-end mt-2 flex-shrink-0">
+        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground transition-colors hover:bg-muted" style={{ background: "#fff", ...PJS }}>
+          <Download className="w-3.5 h-3.5" /> Xuất Excel
+        </button>
+      </div>
       {editTarget && <GradeEditModal student={editTarget} onClose={() => setEditTarget(null)} onSave={updated => { handleSaveGrade(updated); setEditTarget(null); }} />}
       {confirmLock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setConfirmLock(false)}>
@@ -1392,6 +1479,7 @@ function AdminAcademicSection() {
 
 // ─── Admin: Schedule Section ──────────────────────────────────────────────────
 type AdminExamEntry = ExamEntry & { id: number };
+
 
 const EXAM_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   "Thực hành":  { bg: "#f0fdf4", text: "#16a34a" },
@@ -1480,20 +1568,73 @@ function TKBSlotModal({ onClose, onSave }: { onClose: () => void; onSave: (day: 
   );
 }
 
+function EditSlotModal({ dayIdx, caIdx, entry, onClose, onSave }: {
+  dayIdx: number; caIdx: number; entry: TKBEntry;
+  onClose: () => void; onSave: (e: TKBEntry) => void;
+}) {
+  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const iCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card transition-colors";
+  const [form, setForm] = useState<TKBEntry>({ ...entry });
+  const htOpts: HinhThuc[] = ["TẬP TRUNG","TRỰC TUYẾN","HỌC BÙ TRỰC TIẾP","HỌC BÙ TRỰC TUYẾN","NGHỈ"];
+  const set = (k: keyof TKBEntry, v: string | boolean | number) => setForm(p => ({ ...p, [k]: v }));
+  const DAYS_LABEL = ["Thứ hai","Thứ ba","Thứ tư","Thứ năm","Thứ sáu","Thứ bảy","Chủ nhật"];
+  const CA_LABEL   = ["Ca 1 · 07:30–09:30","Ca 2 · 09:30–11:30","Ca 3 · 13:30–15:30","Ca 4 · 15:30–17:30"];
+  const isNghi = form.hinhThuc === "NGHỈ";
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border" style={{ background: "var(--primary)" }}>
+          <div>
+            <span className="font-bold text-white text-sm" style={PJS}>Chỉnh sửa tiết học</span>
+            <div className="text-xs text-white/60 mt-0.5">{DAYS_LABEL[dayIdx]} · {CA_LABEL[caIdx]}</div>
+          </div>
+          <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
+        </div>
+        <div className="p-6 grid grid-cols-2 gap-4">
+          <div className="col-span-2"><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Tên môn học</label><input value={form.tenMon} onChange={e => set("tenMon", e.target.value)} className={iCls} /></div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Mã nhóm / Lớp</label><input value={form.maNhom} onChange={e => set("maNhom", e.target.value)} className={iCls} /></div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Phòng học</label><input value={form.phong} onChange={e => set("phong", e.target.value)} className={iCls} /></div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Giảng viên</label><input value={form.gv} onChange={e => set("gv", e.target.value)} className={iCls} /></div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Email GV</label><input value={form.email} onChange={e => set("email", e.target.value)} className={iCls} /></div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Hình thức</label>
+            <select value={form.hinhThuc} onChange={e => set("hinhThuc", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}>
+              {htOpts.map(h => <option key={h} value={h}>{HINH_THUC_STYLE[h].label}</option>)}
+            </select>
+          </div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Ngôn ngữ</label>
+            <select value={form.ngonNgu} onChange={e => set("ngonNgu", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}>
+              <option>Tiếng Việt</option><option>Tiếng Anh</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-3 col-span-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={!!form.isLab} onChange={e => set("isLab", e.target.checked)} className="accent-[#11284D]" />
+              <span className="text-sm text-muted-foreground" style={PJS}>Thực hành (TH)</span>
+            </label>
+          </div>
+        </div>
+        <div className="flex gap-3 px-6 py-4 border-t border-border">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-card transition-colors" style={PJS}>Huỷ</button>
+          <button onClick={() => { if (isNghi || form.tenMon.trim()) { onSave(form); onClose(); } }}
+            className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>
+            Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminScheduleSection() {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-  const [tab, setTab] = useState<"tkb" | "thi">("thi");
+  const [tab, setTab] = useState<"tkb" | "thi">("tkb");
   const [exams, setExams] = useState<AdminExamEntry[]>(EXAM_DATA.map((e, i) => ({ ...e, id: i + 1 })));
   const [examModal, setExamModal] = useState<AdminExamEntry | null | "new">(null);
   const [deleteExam, setDeleteExam] = useState<AdminExamEntry | null>(null);
   const [examSearch, setExamSearch] = useState("");
-  const [filterHinhThuc, setFilterHinhThuc] = useState("");
-  const allHinhThuc = Array.from(new Set(exams.map(e => e.hinhThuc)));
   const filteredExams = exams.filter(e => {
     const q = examSearch.toLowerCase();
-    const matchQ = !q || e.tenMon.toLowerCase().includes(q) || e.maNhom.toLowerCase().includes(q) || e.phong.toLowerCase().includes(q);
-    const matchH = !filterHinhThuc || e.hinhThuc === filterHinhThuc;
-    return matchQ && matchH;
+    return !q || e.tenMon.toLowerCase().includes(q) || e.maNhom.toLowerCase().includes(q) || e.phong.toLowerCase().includes(q);
   });
 
   function saveExam(e: AdminExamEntry) {
@@ -1504,14 +1645,46 @@ function AdminScheduleSection() {
   }
   function removeExam(id: number) { setExams(prev => prev.filter(e => e.id !== id)); setDeleteExam(null); }
 
-  const [tuan, setTuan] = useState(28);
+  const [tuan, setTuan] = useState(1);
   const [addSlotOpen, setAddSlotOpen] = useState(false);
-  const [tkbData, setTkbData] = useState<Record<number, Record<number, TKBCell[]>>>({ ...TKB_DATA });
   const [filterLop, setFilterLop] = useState("Tất cả");
-  const allLops = ["Tất cả", "24C04", "24C05", "24C06", "24C07"];
+  const [filterTKBKhoa, setFilterTKBKhoa] = useState("Tất cả");
+  const [tkbEditMode, setTkbEditMode] = useState(false);
+  const [tkbData, setTkbData] = useState<Record<number, Record<number, TKBCell[]>>>({});
+  const [deleteSlotConfirm, setDeleteSlotConfirm] = useState<{ day: number; ca: number; tenMon: string } | null>(null);
+  const [editSlotTarget, setEditSlotTarget] = useState<{ day: number; ca: number; entry: TKBEntry } | null>(null);
+
+  const allTKBKhoa = ["Tất cả", ...Array.from(new Set(Object.values(LOP_INFO).map(l => l.khoa)))];
+  const allLops = ["Tất cả", ...Object.keys(LOP_INFO).filter(lop =>
+    filterTKBKhoa === "Tất cả" || LOP_INFO[lop].khoa === filterTKBKhoa
+  )];
+
+  useEffect(() => {
+    setTkbData(filterLop !== "Tất cả" ? { ...(LOP_INFO[filterLop]?.data ?? {}) } : {});
+  }, [filterLop]);
+
   const weekData = tkbData[tuan] ?? {};
   const dates    = getWeekDates(tuan);
   const TODAY_DAY = 1;
+
+  function handleRemoveSlot(day: number, ca: number) {
+    const cell = weekData[day]?.[ca];
+    const entry = (cell && cell !== "span") ? cell as TKBEntry : null;
+    if (entry) setDeleteSlotConfirm({ day, ca, tenMon: entry.tenMon });
+  }
+  function confirmDeleteSlot() {
+    if (deleteSlotConfirm) { removeSlot(deleteSlotConfirm.day, deleteSlotConfirm.ca); setDeleteSlotConfirm(null); }
+  }
+  function saveEditSlot(updated: TKBEntry) {
+    if (!editSlotTarget) return;
+    setTkbData(prev => {
+      const week = { ...(prev[tuan] ?? {}) };
+      const row  = [...(week[editSlotTarget.day] ?? [null, null, null, null])];
+      row[editSlotTarget.ca] = updated;
+      week[editSlotTarget.day] = row;
+      return { ...prev, [tuan]: week };
+    });
+  }
 
   function addSlot(day: number, ca: number, entry: TKBEntry) {
     setTkbData(prev => {
@@ -1542,18 +1715,46 @@ function AdminScheduleSection() {
     else { visibleWeekData[dayIdx] = slots.map(cell => { if (!cell || cell === "span") return cell; return (cell as TKBEntry).maNhom === filterLop ? cell : null; }) as TKBCell[]; }
   });
 
+  // Collect all scheduled slots for the selector row in edit mode
+  const weekSlotsList: { day: number; ca: number; entry: TKBEntry }[] = [];
+  Object.entries(visibleWeekData).forEach(([d, slots]) => {
+    slots.forEach((cell, caIdx) => {
+      if (cell && cell !== "span") weekSlotsList.push({ day: Number(d), ca: caIdx, entry: cell as TKBEntry });
+    });
+  });
+
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-4">
+      {/* Delete slot confirmation */}
+      {deleteSlotConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
+          <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}><Trash2 className="w-7 h-7 text-red-400" /></div>
+            <h3 className="font-bold text-base mb-2" style={PJS}>Xóa tiết học?</h3>
+            <p className="text-sm text-muted-foreground mb-1">Môn: <span className="font-semibold text-foreground">{deleteSlotConfirm.tenMon}</span></p>
+            <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setDeleteSlotConfirm(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-card" style={PJS}>Hủy</button>
+              <button onClick={confirmDeleteSlot} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Edit slot modal */}
+      {editSlotTarget && (
+        <EditSlotModal dayIdx={editSlotTarget.day} caIdx={editSlotTarget.ca} entry={editSlotTarget.entry}
+          onClose={() => setEditSlotTarget(null)} onSave={e => { saveEditSlot(e); setEditSlotTarget(null); }} />
+      )}
       {deleteExam && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="bg-card rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(213,179,112,0.1)" }}><Trash2 className="w-7 h-7" style={{ color: "var(--accent)" }} /></div>
+          <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}><Trash2 className="w-7 h-7 text-red-400" /></div>
             <h3 className="font-bold text-base mb-2" style={PJS}>Xóa lịch thi?</h3>
             <p className="text-sm text-muted-foreground mb-1">Môn: <span className="font-semibold text-foreground">{deleteExam.tenMon}</span></p>
             <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
             <div className="flex gap-3 w-full">
-              <button onClick={() => setDeleteExam(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-card" style={PJS}>Hủy</button>
-              <button onClick={() => removeExam(deleteExam.id)} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "var(--accent)", ...PJS }}>Xóa</button>
+              <button onClick={() => setDeleteExam(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>Hủy</button>
+              <button onClick={() => removeExam(deleteExam.id)} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
             </div>
           </div>
         </div>
@@ -1572,154 +1773,155 @@ function AdminScheduleSection() {
       </div>
 
       {tab === "tkb" && (
-        <div className="flex-1 flex flex-col min-h-0 gap-3">
+        <div className="flex-1 flex flex-col min-h-0 gap-3 overflow-y-auto">
+          {/* Filter bar */}
           <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Tuần:</span>
-              <select value={tuan} onChange={e => setTuan(Number(e.target.value))} className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {Array.from({ length: 52 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
+              <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Khoa:</span>
+              <select value={filterTKBKhoa} onChange={e => { setFilterTKBKhoa(e.target.value); setFilterLop("Tất cả"); }}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {allTKBKhoa.map(k => <option key={k} value={k}>{k}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Lớp:</span>
-              <select value={filterLop} onChange={e => setFilterLop(e.target.value)} className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <select value={filterLop} onChange={e => setFilterLop(e.target.value)}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
                 {allLops.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Tuần:</span>
+              <select value={tuan} onChange={e => setTuan(Number(e.target.value))}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
+              </select>
+            </div>
             <div className="ml-auto flex gap-2">
-              <button onClick={() => setAddSlotOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}>
-                <Plus className="w-3.5 h-3.5" /> Thêm tiết học
-              </button>
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}>
-                <Download className="w-3.5 h-3.5" /> Xuất Excel
+                <Download className="w-3.5 h-3.5" /> Xuất
               </button>
+              <button onClick={() => setTkbEditMode(m => !m)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all"
+                style={{ background: tkbEditMode ? "var(--primary)" : "#fff", color: tkbEditMode ? "#fff" : "var(--muted-foreground)", borderColor: tkbEditMode ? "var(--primary)" : "var(--border)", ...PJS }}>
+                <Edit2 className="w-3.5 h-3.5" /> {tkbEditMode ? "Lưu" : "Chỉnh sửa"}
+              </button>
+              {tkbEditMode && (
+                <button onClick={() => setAddSlotOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}>
+                  <Plus className="w-3.5 h-3.5" /> Thêm tiết học
+                </button>
+              )}
             </div>
           </div>
-          <div className="flex items-center justify-between flex-shrink-0">
-            <button onClick={() => setTuan(t => Math.max(1, t - 1))} disabled={tuan <= 1}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-30 transition-all" style={PJS}>
-              <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Tuần trước
-            </button>
-            <span className="text-xs text-muted-foreground" style={PJS}>Tuần {tuan} · {dates[0]} – {dates[6]}</span>
-            <button onClick={() => setTuan(t => Math.min(52, t + 1))} disabled={tuan >= 52}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-30 transition-all" style={PJS}>
-              Tuần sau <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
-            <div className="overflow-auto h-full">
-              <table className="w-full border-collapse text-xs" style={{ minWidth: 860, tableLayout: "fixed" }}>
-                <thead>
-                  <tr>
-                    <th className="border border-border px-3 py-2 text-center font-bold bg-card text-muted-foreground w-24" style={PJS}>Ca học</th>
-                    {DAYS.map((day, i) => {
-                      const isToday = i === TODAY_DAY;
-                      return (
-                        <th key={day} className="border border-border px-2 py-2 text-center font-bold" style={{
-                          background: isToday ? "#11284D" : i === 5 ? "#f59e0b" : "var(--muted)",
-                          color: isToday ? "#fff" : i === 5 ? "#fff" : "#374151",
-                          fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 110,
-                        }}>
-                          <div className="text-xs">{day}</div>
-                          <div className="font-normal text-[10px] opacity-80">{dates[i]}</div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  {CA_LABELS.map((ca, caIdx) => (
-                    <tr key={caIdx} style={{ background: caIdx % 2 === 0 ? "#fff" : "var(--background)", height: 110 }}>
-                      <td className="border border-border px-2 py-2 text-center align-middle" style={{ background: "var(--muted)" }}>
-                        <div className="font-bold text-foreground text-xs" style={PJS}>{ca.label}</div>
-                        <div className="text-[10px] text-muted-foreground">{ca.time}</div>
-                        <div className="text-[10px] text-muted-foreground">{ca.tiet}</div>
-                      </td>
-                      {DAYS.map((_, dayIdx) => {
-                        const cell = visibleWeekData[dayIdx]?.[caIdx] ?? null;
-                        if (cell === "span") return null;
-                        const entry = cell as TKBEntry | null;
-                        const spanRows = entry?.span ?? 1;
-                        const isToday = dayIdx === TODAY_DAY;
-                        return (
-                          <td key={dayIdx} rowSpan={spanRows} className="border border-border px-2 py-1.5 align-top group relative"
-                            style={{ background: isToday && entry ? "#eef1ff" : undefined }}>
-                            {entry ? (
-                              <>
-                                <TKBCellCard entry={entry} />
-                                <button onClick={() => removeSlot(dayIdx, caIdx)}
-                                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-50 transition-all" title="Xóa tiết này">
-                                  <X className="w-3 h-3 text-red-400" />
-                                </button>
-                              </>
-                            ) : null}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+          {/* Grid or empty state */}
+          {filterLop === "Tất cả" ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-card rounded-xl border border-border py-16 text-center">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#eef1fb" }}>
+                <CalendarDays className="w-7 h-7" style={{ color: "var(--primary)" }} />
+              </div>
+              <p className="text-sm font-semibold text-foreground" style={PJS}>Chọn lớp để xem lịch học</p>
+              <p className="text-xs text-muted-foreground" style={PJS}>Vui lòng chọn khoa và lớp cụ thể ở bộ lọc phía trên.</p>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Slot selector row (edit mode only) */}
+              {tkbEditMode && (
+                <div className="flex-shrink-0 bg-card rounded-xl border border-border px-4 py-3">
+                  <p className="text-[11px] font-semibold text-muted-foreground text-[#1e3a5f]" style={PJS}>Chọn môn cần chỉnh sửa: <span className="font-normal italic">Nhấn vào ô trong bảng để chỉnh sửa.</span></p>
+                </div>
+              )}
+
+              <div className="bg-card rounded-xl border border-border flex flex-col">
+                <div className="px-4 py-2.5 border-b border-border flex items-center justify-center gap-3 flex-wrap rounded-t-xl" style={{ background: "#1e3a5f" }}>
+                  {LOP_INFO[filterLop] && <>
+                    <span className="text-xs font-bold text-white" style={PJS}>{LOP_INFO[filterLop].khoa}</span>
+                    <span className="text-white/30 text-xs">|</span>
+                    <span className="text-xs font-bold text-white" style={PJS}>Lớp {filterLop}</span>
+                    <span className="text-white/30 text-xs">|</span>
+                  </>}
+                  <span className="text-xs font-bold text-white" style={PJS}>Tuần {tuan}</span>
+                  <span className="text-white/30 text-xs">|</span>
+                  <span className="text-xs font-bold text-white" style={PJS}>{dates[0]} → {dates[6]}</span>
+                </div>
+                <TKBWeekGrid
+                  weekData={visibleWeekData}
+                  dates={dates}
+                  todayDay={TODAY_DAY}
+                  onRemoveSlot={tkbEditMode ? handleRemoveSlot : undefined}
+                  onClickCell={tkbEditMode ? (day, ca, entry) => setEditSlotTarget({ day, ca, entry }) : undefined}
+                />
+              </div>
+              <div className="flex items-center justify-between flex-shrink-0">
+                <button onClick={() => setTuan(t => Math.max(1, t - 1))} disabled={tuan <= 1}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all" style={PJS}>
+                  <ChevronRight className="w-4 h-4 rotate-180" /> Tuần trước
+                </button>
+                <button onClick={() => setTuan(t => Math.min(10, t + 1))} disabled={tuan >= 10}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all" style={PJS}>
+                  Tuần sau <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 
       {tab === "thi" && (
-        <div className="flex-1 flex flex-col min-h-0 gap-3">
+        <div className="flex flex-col gap-3 overflow-y-auto">
+          {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
             <div className="flex-1 relative min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input value={examSearch} onChange={e => setExamSearch(e.target.value)} placeholder="Tìm theo môn, lớp, phòng..."
                 className="w-full pl-9 pr-4 py-2 border border-border rounded-lg text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }} />
             </div>
-            <select value={filterHinhThuc} onChange={e => setFilterHinhThuc(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-              <option value="">Tất cả hình thức</option>
-              {allHinhThuc.map(h => <option key={h} value={h}>{h}</option>)}
-            </select>
             <div className="hidden sm:flex flex-1" />
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}><Upload className="w-4 h-4" /> Nhập</button>
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}><Download className="w-4 h-4" /> Xuất</button>
             <button onClick={() => setExamModal("new")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}>
               <Plus className="w-4 h-4" /> Thêm lịch thi
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}><Upload className="w-4 h-4" /> Nhập</button>
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground" style={{ background: "#fff", ...PJS }}><Download className="w-4 h-4" /> Xuất</button>
           </div>
-          <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
-            <div className="overflow-auto h-full">
-              <table className="w-full border-collapse text-xs" style={{ fontFamily: "'Inter', sans-serif" }}>
-                <thead className="sticky top-0 z-10">
+
+          {/* Table */}
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm" style={{ minWidth: 780 }}>
+                <thead>
                   <tr style={{ background: "var(--primary)" }}>
-                    {["STT","Môn học","Mã nhóm","Thứ","Ngày thi","Ca thi","Giờ thi","Phòng thi","Số TS","Hình thức",""].map(h => (
-                      <th key={h} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{h}</th>
+                    {["STT", "Môn học", "Mã Lớp", "Thứ", "Ngày thi", "Giờ thi", "Thời gian", "Phòng thi", "Hình thức", ""].map(h => (
+                      <th key={h} className="px-3 py-3 text-center text-xs font-bold text-white border-r border-white/10 last:border-r-0 whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredExams.length === 0 ? (
-                    <tr><td colSpan={11} className="px-4 py-12 text-center text-muted-foreground">Không có lịch thi phù hợp.</td></tr>
-                  ) : filteredExams.map((ex, i) => {
-                    const htStyle = EXAM_STATUS_COLORS[ex.hinhThuc] ?? { bg: "#f5f5f5", text: "#555" };
-                    return (
-                      <tr key={ex.id} className="group hover:brightness-95 transition-all" style={{ background: "var(--card)" }}>
-                        <td className="px-3 py-2.5 text-muted-foreground font-mono">{i + 1}</td>
-                        <td className="px-3 py-2.5 font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
-                        <td className="px-3 py-2.5 font-mono text-muted-foreground">{ex.maNhom}</td>
-                        <td className="px-3 py-2.5 text-muted-foreground">{ex.thu}</td>
-                        <td className="px-3 py-2.5 font-medium text-foreground">{ex.ngayThi}</td>
-                        <td className="px-3 py-2.5 text-muted-foreground">{ex.ca}</td>
-                        <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{ex.gio}</td>
-                        <td className="px-3 py-2.5"><span className="font-bold px-2 py-0.5 rounded text-[11px]" style={{ background: "#E0D8C4", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span></td>
-                        <td className="px-3 py-2.5 text-center text-muted-foreground">{ex.soThi}</td>
-                        <td className="px-3 py-2.5"><span className="text-[11px] font-bold px-2 py-0.5 rounded" style={{ background: htStyle.bg, color: htStyle.text }}>{ex.hinhThuc}</span></td>
-                        <td className="px-3 py-2.5">
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => setExamModal(ex)} className="p-1 rounded hover:bg-card" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} /></button>
-                            <button onClick={() => setDeleteExam(ex)} className="p-1 rounded hover:bg-red-50" title="Xóa"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                    <tr><td colSpan={10} className="px-4 py-12 text-center text-muted-foreground text-sm">Không có lịch thi phù hợp.</td></tr>
+                  ) : filteredExams.map((ex, i) => (
+                    <tr key={ex.id} className="group hover:bg-blue-100/60 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
+                      <td className="px-3 py-3 border-b border-border text-center font-mono text-muted-foreground">{i + 1}</td>
+                      <td className="px-3 py-3 border-b border-border font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
+                      <td className="px-3 py-3 border-b border-border font-mono text-xs text-muted-foreground">{ex.maNhom}</td>
+                      <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.thu}</td>
+                      <td className="px-3 py-3 border-b border-border font-semibold text-foreground">{ex.ngayThi}</td>
+                      <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.gio}</td>
+                      <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{(ex as any).thoiGian ?? ex.ca}</td>
+                      <td className="px-3 py-3 border-b border-border">
+                        <span className="font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
+                      </td>
+                      <td className="px-3 py-3 border-b border-border">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap ${ex.hinhThuc === "Thực hành" ? "bg-green-50 text-green-700" : ex.hinhThuc === "Trắc nghiệm" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}
+                          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.hinhThuc}</span>
+                      </td>
+                      <td className="px-3 py-3 border-b border-border">
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => setExamModal(ex)} className="p-1 rounded hover:bg-muted" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} /></button>
+                          <button onClick={() => setDeleteExam(ex)} className="p-1 rounded hover:bg-red-50" title="Xóa"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -1746,7 +1948,7 @@ function NotifComposeModal({ notif, onClose, onSave }: { notif: AdminNotif | nul
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
       <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0" style={{ background: "var(--primary)" }}>
-          <span className="font-bold text-white text-sm" style={PJS}>{notif ? "Chỉnh sửa thông báo" : "Tạo thông báo mới"}</span>
+          <span className="font-bold text-white text-sm" style={PJS}>{notif ? "Chỉnh sửa thông báo" : "Tạo thô text-[#1e3a5f]ng báo mới"}</span>
           <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
         </div>
         <div className="overflow-y-auto flex-1 p-6 space-y-4">
@@ -1793,7 +1995,6 @@ function AdminNotificationsSection() {
   const [filterStatus, setFilterStatus] = useState<"" | "draft" | "sent">("");
   const [filterKhoa, setFilterKhoa] = useState("");
   const [filterPhong, setFilterPhong] = useState("");
-  const [filterRead, setFilterRead] = useState<"" | "unread" | "read">("");
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -1805,7 +2006,7 @@ function AdminNotificationsSection() {
 
   const allKhoa  = Array.from(new Set(notifs.map(n => n.khoa).filter(Boolean))).sort();
   const allPhong = Array.from(new Set(notifs.map(n => n.phong).filter(Boolean))).sort();
-  const activeFilters = [filterStatus, filterKhoa, filterPhong, filterRead].filter(Boolean).length;
+  const activeFilters = [filterStatus, filterKhoa, filterPhong].filter(Boolean).length;
 
   const filtered = notifs.filter(n => {
     const q = search.trim().toLowerCase();
@@ -1813,8 +2014,7 @@ function AdminNotificationsSection() {
     const matchS = !filterStatus || n.status === filterStatus;
     const matchK = !filterKhoa  || n.khoa === filterKhoa;
     const matchP = !filterPhong || n.phong === filterPhong;
-    const matchR = !filterRead  || (filterRead === "unread" ? !n.read : n.read);
-    return matchQ && matchS && matchK && matchP && matchR;
+    return matchQ && matchS && matchK && matchP;
   });
 
   function saveNotif(n: AdminNotif) {
@@ -1825,7 +2025,6 @@ function AdminNotificationsSection() {
     });
   }
   function deleteNotif(id: number) { setNotifs(prev => prev.filter(n => n.id !== id)); setDeleteTarget(null); if (selected?.id === id) setSelected(null); }
-  function toggleRead(n: AdminNotif) { setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, read: !x.read } : x)); }
 
   const statusBadge = (s: "draft" | "sent") =>
     s === "draft"
@@ -1834,14 +2033,14 @@ function AdminNotificationsSection() {
 
   const DeleteModal = () => deleteTarget ? (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-card rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(213,179,112,0.1)" }}><Trash2 className="w-7 h-7" style={{ color: "var(--accent)" }} /></div>
+      <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}><Trash2 className="w-7 h-7 text-red-400" /></div>
         <h3 className="font-bold text-base mb-2" style={PJS}>Xóa thông báo?</h3>
         <p className="text-sm text-muted-foreground mb-1 line-clamp-2">{deleteTarget.title}</p>
         <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
         <div className="flex gap-3 w-full">
-          <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-card" style={PJS}>Hủy</button>
-          <button onClick={() => deleteNotif(deleteTarget.id)} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "var(--accent)", ...PJS }}>Xóa</button>
+          <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>Hủy</button>
+          <button onClick={() => deleteNotif(deleteTarget.id)} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
         </div>
       </div>
     </div>
@@ -1894,7 +2093,7 @@ function AdminNotificationsSection() {
         <div className="relative flex-shrink-0" ref={filterRef}>
           <button onClick={() => setFilterOpen(o => !o)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold transition-colors"
-            style={{ borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", background: "var(--card)", color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
+            style={{ borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", background: "#fff", color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
             <Filter className="w-4 h-4" /> Bộ lọc
             {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
           </button>
@@ -1906,17 +2105,6 @@ function AdminNotificationsSection() {
                   {[["", "Tất cả"], ["sent", "Đã gửi"], ["draft", "Nháp"]].map(([v, label]) => (
                     <button key={v} onClick={() => setFilterStatus(v as typeof filterStatus)} className="flex-1 py-1.5 rounded-lg border text-xs font-semibold transition-all"
                       style={{ borderColor: filterStatus === v ? "#11284D" : "#e2e8f0", background: "var(--card)", color: filterStatus === v ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Trạng thái đọc</div>
-                <div className="flex gap-2">
-                  {[["", "Tất cả"], ["unread", "Chưa đọc"], ["read", "Đã đọc"]].map(([v, label]) => (
-                    <button key={v} onClick={() => setFilterRead(v as typeof filterRead)} className="flex-1 py-1.5 rounded-lg border text-xs font-semibold transition-all"
-                      style={{ borderColor: filterRead === v ? "#11284D" : "#e2e8f0", background: "var(--card)", color: filterRead === v ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
                       {label}
                     </button>
                   ))}
@@ -1937,14 +2125,13 @@ function AdminNotificationsSection() {
                 </select>
               </div>
               {activeFilters > 0 && (
-                <button onClick={() => { setFilterStatus(""); setFilterKhoa(""); setFilterPhong(""); setFilterRead(""); }}
+                <button onClick={() => { setFilterStatus(""); setFilterKhoa(""); setFilterPhong(""); }}
                   className="w-full text-xs font-semibold text-accent hover:opacity-70 transition-opacity text-center" style={PJS}>Xóa bộ lọc</button>
               )}
             </div>
           )}
         </div>
         <div className="hidden sm:flex flex-1" />
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card text-muted-foreground" style={PJS}><Download className="w-4 h-4" /> Xuất</button>
         <button onClick={() => setCompose("new")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}><Plus className="w-4 h-4" /> Tạo thông báo</button>
       </div>
       <div className="flex flex-wrap gap-3 flex-shrink-0">
@@ -1952,7 +2139,6 @@ function AdminNotificationsSection() {
           { label: "Tổng", val: notifs.length, color: "var(--primary)" },
           { label: "Đã gửi", val: notifs.filter(n => n.status === "sent").length, color: "#2563eb" },
           { label: "Nháp", val: notifs.filter(n => n.status === "draft").length, color: "var(--muted-foreground)" },
-          { label: "Chưa đọc", val: notifs.filter(n => !n.read).length, color: "var(--accent)" },
         ].map(s => (
           <div key={s.label} className="bg-card border border-border rounded-xl px-4 py-3 flex items-center gap-3 flex-1 min-w-[100px]">
             <span className="text-2xl font-bold" style={{ color: s.color, ...PJS }}>{s.val}</span>
@@ -1965,17 +2151,17 @@ function AdminNotificationsSection() {
           <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
             <thead className="sticky top-0 z-10">
               <tr style={{ background: "var(--primary)" }}>
-                {["Tiêu đề","Nguồn","Thời gian","Trạng thái","Đọc",""].map(h => (
+                {["Tiêu đề","Nguồn","Thời gian","Trạng thái",""].map(h => (
                   <th key={h} className="px-4 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Không có thông báo phù hợp.</td></tr>
+                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Không có thông báo phù hợp.</td></tr>
               ) : filtered.map((n, i) => (
                 <tr key={n.id} className="group hover:brightness-95 transition-all cursor-pointer"
-                  style={{ background: "var(--card)" }} onClick={() => setSelected(n)}>
+                  style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }} onClick={() => setSelected(n)}>
                   <td className="px-4 py-3 max-w-[280px]">
                     <div className={`font-medium text-foreground truncate ${!n.read ? "font-semibold" : ""}`}>{n.title}</div>
                     <div className="text-muted-foreground truncate mt-0.5" style={{ fontSize: 11 }}>{n.body.slice(0, 60)}…</div>
@@ -1987,14 +2173,6 @@ function AdminNotificationsSection() {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{n.time}</td>
                   <td className="px-4 py-3">{statusBadge(n.status)}</td>
-                  <td className="px-4 py-3">
-                    <button onClick={e => { e.stopPropagation(); toggleRead(n); }}
-                      className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors"
-                      style={{ background: n.read ? "#f0fdf4" : "var(--background)", color: n.read ? "#16a34a" : "#D5B370" }}>
-                      {n.read ? <CheckCircle2 className="w-3 h-3" /> : <Bell className="w-3 h-3" />}
-                      {n.read ? "Đã đọc" : "Chưa đọc"}
-                    </button>
-                  </td>
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => setCompose(n)} className="p-1 rounded hover:bg-card" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} /></button>
@@ -2015,35 +2193,67 @@ function AdminNotificationsSection() {
 // ─── Admin: Tuition Section ───────────────────────────────────────────────────
 type TuitionRow = {
   stt: number; nhHk: string; maMon: string; lop: string; tenMon: string;
-  soTC: number; soTiet: number; soTcHocPhi: number; hocPhi: number;
-  giam: number; hoTro: number; hocPhiThucDong: number; chiPhi: number; ghiChu: string;
+  soTcHocPhi: number; hocPhi: number; giam: number; hoTro: number;
+  hocPhiThucDong: number; chiPhi: number; ghiChu: string;
+  trangThai: string; ngayThanhToan: string; mssv: string;
 };
 
 function fmt(n: number) { return n.toLocaleString("vi-VN"); }
 
 function AdminTuitionSection() {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-  const [svSearch, setSvSearch] = useState("");
-  const [selectedSv, setSelectedSv] = useState<AdminStudent | null>(ADMIN_STUDENTS[0]);
-  const [svDropOpen, setSvDropOpen] = useState(false);
-  const svRef = useRef<HTMLDivElement>(null);
-  const semesters = TUITION_DATA.map(d => d.nhHk);
-  const [selectedHk, setSelectedHk] = useState(semesters[0]);
-  const [allData, setAllData] = useState(() => TUITION_DATA.map(d => ({ ...d, rows: d.rows.map(r => ({ ...r })) })));
-  const [editRow, setEditRow] = useState<TuitionRow | null>(null);
-  const [editDraft, setEditDraft] = useState<TuitionRow | null>(null);
+
+  function parseNhHk(nhHk: string) {
+    const m = nhHk.match(/^(\d{2}-\d{2})\/(\d)$/);
+    return m ? { namHoc: m[1], hocKy: `HK${m[2]}` } : { namHoc: nhHk, hocKy: "" };
+  }
+
+  const allParsed = TUITION_DATA.map(d => ({ nhHk: d.nhHk, ...parseNhHk(d.nhHk) }));
+  const uniqueYears = Array.from(new Set(allParsed.map(p => p.namHoc)));
+  const ALL_HKS = ["HK1", "HK2", "HK3"];
+  const allNganh = ["Tất cả", ...Array.from(new Set(ADMIN_STUDENTS.map(s => s.nganh)))];
+
+  const [selNamHoc, setSelNamHoc] = useState(uniqueYears[0]);
+  const [selHocKy, setSelHocKy] = useState("HK3");
+  const [selNganh, setSelNganh] = useState("Tất cả");
+  const [selLop, setSelLop] = useState("Tất cả");
+  const [mssvSearch, setMssvSearch] = useState("");
+  const [selMssv, setSelMssv] = useState("");
+  const [mssvOpen, setMssvOpen] = useState(false);
+  const mssvRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function h(e: MouseEvent) { if (svRef.current && !svRef.current.contains(e.target as Node)) setSvDropOpen(false); }
+    function h(e: MouseEvent) { if (mssvRef.current && !mssvRef.current.contains(e.target as Node)) setMssvOpen(false); }
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  const filteredSv = ADMIN_STUDENTS.filter(s => !svSearch || s.hoTen.toLowerCase().includes(svSearch.toLowerCase()) || s.mssv.includes(svSearch));
-  const semData = allData.find(d => d.nhHk === selectedHk)!;
-  const rows = semData.rows;
-  const totalTC       = rows.reduce((s, r) => s + r.soTC, 0);
-  const totalTiet     = rows.reduce((s, r) => s + r.soTiet, 0);
+  const [allData, setAllData] = useState(() =>
+    TUITION_DATA.map(d => ({
+      ...d,
+      rows: d.rows.map((r, i) => ({
+        ...r,
+        trangThai: i % 3 === 0 ? "Chưa thanh toán" : "Đã thanh toán",
+        ngayThanhToan: i % 3 === 0 ? "" : "03/07/2026",
+        mssv: ADMIN_STUDENTS[i % ADMIN_STUDENTS.length].mssv,
+      } as TuitionRow)),
+    }))
+  );
+  const [editRow, setEditRow] = useState<TuitionRow | null>(null);
+  const [editDraft, setEditDraft] = useState<TuitionRow | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<TuitionRow | null>(null);
+
+  const matchNhHk = allParsed.find(p => p.namHoc === selNamHoc && p.hocKy === selHocKy)?.nhHk;
+  const semData = allData.find(d => d.nhHk === matchNhHk) ?? allData[0];
+  const allLops = ["Tất cả", ...Array.from(new Set(semData.rows.map(r => r.lop)))];
+  const filteredMssv = ADMIN_STUDENTS.filter(s =>
+    !mssvSearch || s.mssv.includes(mssvSearch) || s.hoTen.toLowerCase().includes(mssvSearch.toLowerCase())
+  );
+
+  const rows = semData.rows.filter(r =>
+    (selLop === "Tất cả" || r.lop === selLop) &&
+    (!selMssv || r.mssv === selMssv)
+  );
   const totalTcHp     = rows.reduce((s, r) => s + r.soTcHocPhi, 0);
   const totalHocPhi   = rows.reduce((s, r) => s + r.hocPhi, 0);
   const totalGiam     = rows.reduce((s, r) => s + r.giam, 0);
@@ -2053,45 +2263,57 @@ function AdminTuitionSection() {
 
   function saveEditRow() {
     if (!editDraft) return;
-    setAllData(prev => prev.map(d => d.nhHk !== selectedHk ? d : { ...d, rows: d.rows.map(r => r.stt === editDraft.stt ? editDraft : r) }));
+    setAllData(prev => prev.map(d => d.nhHk !== semData.nhHk ? d : { ...d, rows: d.rows.map(r => r.stt === editDraft.stt ? editDraft : r) }));
     setEditRow(null); setEditDraft(null);
   }
   function addRow() {
-    const newRow: TuitionRow = { stt: rows.length + 1, nhHk: selectedHk, maMon: "", lop: "", tenMon: "Môn học mới", soTC: 3, soTiet: 45, soTcHocPhi: 3, hocPhi: 0, giam: 0, hoTro: 0, hocPhiThucDong: 0, chiPhi: 0, ghiChu: "" };
-    setAllData(prev => prev.map(d => d.nhHk !== selectedHk ? d : { ...d, rows: [...d.rows, newRow] }));
+    const nhHk = semData.nhHk;
+    const newRow: TuitionRow = { stt: semData.rows.length + 1, nhHk, maMon: "", lop: "", tenMon: "Môn học mới", soTcHocPhi: 3, hocPhi: 0, giam: 0, hoTro: 0, hocPhiThucDong: 0, chiPhi: 0, ghiChu: "", trangThai: "Chưa thanh toán", ngayThanhToan: "", mssv: "" };
+    setAllData(prev => prev.map(d => d.nhHk !== nhHk ? d : { ...d, rows: [...d.rows, newRow] }));
     setEditRow(newRow); setEditDraft({ ...newRow });
   }
-  function deleteRow(stt: number) {
-    setAllData(prev => prev.map(d => d.nhHk !== selectedHk ? d : { ...d, rows: d.rows.filter(r => r.stt !== stt).map((r, i) => ({ ...r, stt: i + 1 })) }));
+  function confirmDelete() {
+    if (!deleteConfirm) return;
+    const nhHk = semData.nhHk;
+    setAllData(prev => prev.map(d => d.nhHk !== nhHk ? d : { ...d, rows: d.rows.filter(r => r.stt !== deleteConfirm.stt).map((r, i) => ({ ...r, stt: i + 1 })) }));
+    setDeleteConfirm(null);
   }
 
-  const headerCls = "px-3 py-2.5 font-semibold text-white text-center whitespace-nowrap text-[11px]";
-  const cellCls   = "px-3 py-2 text-center text-xs";
+  const selCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white";
+  const hdrCls = "px-2 py-2.5 font-bold text-white text-center whitespace-nowrap text-[11px] border-r border-white/10 last:border-r-0";
+  const cel    = "px-2 py-0 text-center text-xs";
+  const COL_W  = [40,72,190,72,110,90,90,110,95,120,110,95,56];
+
+  const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
+    "Đã thanh toán":   { bg: "bg-green-50",  text: "text-green-700" },
+    "Chưa thanh toán": { bg: "bg-red-50",    text: "text-red-600"   },
+  };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 gap-4">
+    <div className="flex-1 flex flex-col min-h-0 gap-3">
+      {/* Edit modal */}
       {editRow && editDraft && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
           <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <div className="font-bold text-base text-foreground" style={PJS}>Chỉnh sửa môn học</div>
-              <button onClick={() => { setEditRow(null); setEditDraft(null); }}><X className="w-4 h-4 text-muted-foreground" /></button>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border" style={{ background: "var(--primary)" }}>
+              <span className="font-bold text-white text-sm" style={PJS}>Chỉnh sửa bản ghi học phí</span>
+              <button onClick={() => { setEditRow(null); setEditDraft(null); }}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
             </div>
-            <div className="p-6 grid grid-cols-2 gap-4">
-              {[
-                { label: "Mã môn", key: "maMon" as keyof TuitionRow },
-                { label: "Lớp",    key: "lop"   as keyof TuitionRow },
-                { label: "Tên môn học", key: "tenMon" as keyof TuitionRow, full: true },
-                { label: "Số TC",      key: "soTC"           as keyof TuitionRow, num: true },
-                { label: "Số tiết",    key: "soTiet"         as keyof TuitionRow, num: true },
-                { label: "TC Học phí", key: "soTcHocPhi"     as keyof TuitionRow, num: true },
-                { label: "Học phí",    key: "hocPhi"         as keyof TuitionRow, num: true },
-                { label: "Giảm",       key: "giam"           as keyof TuitionRow, num: true },
-                { label: "Hỗ trợ",    key: "hoTro"          as keyof TuitionRow, num: true },
-                { label: "Thực đóng",  key: "hocPhiThucDong" as keyof TuitionRow, num: true },
-                { label: "Chi phí",    key: "chiPhi"         as keyof TuitionRow, num: true },
-                { label: "Ghi chú",    key: "ghiChu"         as keyof TuitionRow, full: true },
-              ].map(f => (
+            <div className="p-6 grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
+              {([
+                { label: "Mã môn",      key: "maMon"          as keyof TuitionRow },
+                { label: "Lớp",                  key: "lop"            as keyof TuitionRow },
+                { label: "Tên môn học",          key: "tenMon"         as keyof TuitionRow, full: true },
+                { label: "MSSV",                 key: "mssv"           as keyof TuitionRow },
+                { label: "Số TC Học Phí", key: "soTcHocPhi"  as keyof TuitionRow, num: true },
+                { label: "Học Phí Gốc",          key: "hocPhi"         as keyof TuitionRow, num: true },
+                { label: "Mức Giảm",   key: "giam"           as keyof TuitionRow, num: true },
+                { label: "Hỗ Trợ",       key: "hoTro"          as keyof TuitionRow, num: true },
+                { label: "Thực Đóng", key: "hocPhiThucDong" as keyof TuitionRow, num: true },
+                { label: "Chi Phí Khác",          key: "chiPhi"         as keyof TuitionRow, num: true },
+                { label: "Ghi Chú",              key: "ghiChu"         as keyof TuitionRow, full: true },
+                { label: "Ngày Thanh Toán",      key: "ngayThanhToan"  as keyof TuitionRow },
+              ] as { label: string; key: keyof TuitionRow; full?: boolean; num?: boolean }[]).map(f => (
                 <div key={f.key} className={f.full ? "col-span-2" : ""}>
                   <label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>{f.label}</label>
                   <input type={f.num ? "number" : "text"} value={editDraft[f.key] as string | number}
@@ -2099,6 +2321,13 @@ function AdminTuitionSection() {
                     className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card transition-colors" />
                 </div>
               ))}
+              <div>
+                <label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Trạng Thái Thanh Toán</label>
+                <select value={editDraft.trangThai} onChange={e => setEditDraft(p => p ? { ...p, trangThai: e.target.value } : p)}
+                  className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card">
+                  <option>Đã thanh toán</option><option>Chưa thanh toán</option>
+                </select>
+              </div>
             </div>
             <div className="flex gap-3 px-6 py-4 border-t border-border">
               <button onClick={() => { setEditRow(null); setEditDraft(null); }} className="flex-1 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-card transition-colors" style={PJS}>Huỷ</button>
@@ -2108,106 +2337,153 @@ function AdminTuitionSection() {
         </div>
       )}
 
-      <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
-        <div className="relative" ref={svRef}>
-          <button onClick={() => setSvDropOpen(o => !o)}
-            className="flex items-center gap-2 border border-border rounded-lg px-3 py-2 text-sm bg-card hover:border-primary transition-colors min-w-48" style={PJS}>
-            <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <span className="flex-1 text-left text-sm font-medium text-foreground">{selectedSv ? selectedSv.hoTen : "Chọn sinh viên"}</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" style={{ transform: svDropOpen ? "rotate(-90deg)" : "rotate(90deg)" }} />
-          </button>
-          {svDropOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 bg-card border border-border rounded-xl shadow-xl w-72">
-              <div className="p-2 border-b border-border"><input autoFocus value={svSearch} onChange={e => setSvSearch(e.target.value)} placeholder="Tìm MSSV hoặc tên..." className="w-full px-3 py-1.5 text-sm border border-border rounded-lg outline-none focus:border-primary" /></div>
-              <div className="max-h-48 overflow-y-auto">
-                {filteredSv.map(s => (
-                  <button key={s.mssv} onClick={() => { setSelectedSv(s); setSvDropOpen(false); setSvSearch(""); }}
-                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/50 transition-colors flex items-center gap-2 ${selectedSv?.mssv === s.mssv ? "bg-card" : ""}`}>
-                    <span className="font-medium text-foreground">{s.hoTen}</span>
-                    <span className="font-mono text-xs text-muted-foreground ml-auto">{s.mssv}</span>
-                  </button>
-                ))}
-              </div>
+      {/* Delete confirmation */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
+          <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
+              <Trash2 className="w-7 h-7 text-red-400" />
             </div>
-          )}
-        </div>
-        <select value={selectedHk} onChange={e => setSelectedHk(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card" style={PJS}>
-          {semesters.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <div className="ml-auto flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card transition-colors text-muted-foreground" style={PJS}><Upload className="w-4 h-4" /> Nhập Excel</button>
-          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium hover:bg-card transition-colors text-muted-foreground" style={PJS}><Download className="w-4 h-4" /> Xuất Excel</button>
-          <button onClick={addRow} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}><Plus className="w-4 h-4" /> Thêm dòng</button>
-        </div>
-      </div>
-
-      {selectedSv && (
-        <div className="bg-card rounded-xl border border-border px-5 py-3 flex items-center gap-4 flex-shrink-0">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0" style={{ background: "var(--primary)" }}>{selectedSv.hoTen.split(" ").slice(-1)[0][0]}</div>
-          <div>
-            <div className="font-semibold text-foreground text-sm" style={PJS}>{selectedSv.hoTen}</div>
-            <div className="text-xs text-muted-foreground font-mono">{selectedSv.mssv} · {selectedSv.nganh}</div>
-          </div>
-          <div className="ml-auto text-right">
-            <div className="text-xs text-muted-foreground" style={PJS}>Học phí thực đóng kỳ này</div>
-            <div className="font-bold text-base" style={{ color: "var(--primary)", ...PJS }}>{fmt(totalThucDong)}</div>
+            <h3 className="font-bold text-base mb-2" style={PJS}>Xóa bản ghi?</h3>
+            <p className="text-sm text-muted-foreground mb-1">Môn: <span className="font-semibold text-foreground">{deleteConfirm.tenMon}</span></p>
+            <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>Hủy</button>
+              <button onClick={confirmDelete} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
-        <div className="overflow-auto h-full">
-          <table className="w-full" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12 }}>
+      {/* Filter — row 1: Năm học, Học kỳ + actions */}
+      <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Năm học:</span>
+          <select value={selNamHoc} onChange={e => { setSelNamHoc(e.target.value); setSelLop("Tất cả"); }} className={selCls} style={PJS}>
+            {uniqueYears.map(y => <option key={y} value={y}>{y.replace(/(\d{2})-(\d{2})/, "20$1–20$2")}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Học kỳ:</span>
+          <select value={selHocKy} onChange={e => { setSelHocKy(e.target.value); setSelLop("Tất cả"); }} className={selCls} style={PJS}>
+            {ALL_HKS.map(h => <option key={h} value={h}>Học kỳ {h.replace("HK", "")}</option>)}
+          </select>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted-foreground bg-white hover:bg-muted transition-colors" style={PJS}><Upload className="w-4 h-4" /> Nhập</button>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted-foreground bg-white hover:bg-muted transition-colors" style={PJS}><Download className="w-4 h-4" /> Xuất</button>
+          <button onClick={addRow} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}><Plus className="w-4 h-4" /> Thêm dòng</button>
+        </div>
+      </div>
+
+      {/* Filter — row 2: Khoa, Lớp, MSSV */}
+      <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Khoa:</span>
+          <select value={selNganh} onChange={e => setSelNganh(e.target.value)} className={selCls} style={PJS}>
+            {allNganh.map(k => <option key={k} value={k}>{k}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Lớp:</span>
+          <select value={selLop} onChange={e => setSelLop(e.target.value)} className={selCls} style={PJS}>
+            {allLops.map(l => <option key={l} value={l}>{l}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-2" ref={mssvRef}>
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>MSSV:</span>
+          <div className="relative">
+            <div className="flex items-center gap-1 border border-border rounded-lg bg-white overflow-hidden" style={{ minWidth: 220 }}>
+              <Search className="w-3.5 h-3.5 text-muted-foreground ml-2 flex-shrink-0" />
+              <input value={selMssv ? `${selMssv} – ${ADMIN_STUDENTS.find(s => s.mssv === selMssv)?.hoTen ?? ""}` : mssvSearch}
+                onChange={e => { if (selMssv) { setSelMssv(""); setMssvSearch(""); } else { setMssvSearch(e.target.value); } setMssvOpen(true); }}
+                onFocus={() => setMssvOpen(true)}
+                placeholder="Tìm MSSV hoặc tên..."
+                className="flex-1 px-2 py-1.5 text-sm outline-none bg-transparent" />
+              {selMssv && <button onClick={() => { setSelMssv(""); setMssvSearch(""); }} className="px-2 text-muted-foreground hover:text-foreground"><X className="w-3 h-3" /></button>}
+            </div>
+            {mssvOpen && (
+              <div className="absolute left-0 top-full mt-1 z-30 bg-card border border-border rounded-xl shadow-xl w-72 max-h-48 overflow-y-auto">
+                {filteredMssv.length === 0
+                  ? <p className="px-4 py-3 text-sm text-muted-foreground">Không tìm thấy sinh viên.</p>
+                  : filteredMssv.map(s => (
+                    <button key={s.mssv} onClick={() => { setSelMssv(s.mssv); setMssvSearch(""); setMssvOpen(false); }}
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-secondary/50 flex items-center gap-2 transition-colors">
+                      <span className="font-medium text-foreground">{s.hoTen}</span>
+                      <span className="font-mono text-xs text-muted-foreground ml-auto">{s.mssv}</span>
+                    </button>
+                  ))
+                }
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="w-full flex-shrink-0 bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12, tableLayout: "auto", width: "100%" }}>
             <thead className="sticky top-0 z-10">
               <tr style={{ background: "var(--primary)" }}>
-                {["STT","NH/HK","Mã MH / Lớp / Môn Học","Số TC","Số Tiết","TC HP","Học Phí","Giảm","Hỗ Trợ","Thực Đóng","Chi Phí","Ghi Chú",""].map(h => (
-                  <th key={h} className={headerCls} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{h}</th>
+                {["STT","NH/HK","Mã LHP / Môn Học","Số TCHP","Học Phí Gốc","Mức Giảm","Hỗ Trợ","Thực Đóng","Chi Phí Khác","Ghi Chú","Trạng Thái TT","Ngày TT",""].map((h, idx, arr) => (
+                  <th key={h} className={hdrCls} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", borderRight: idx < arr.length - 1 ? "1px solid #0a1e3a" : "none" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, i) => (
-                <tr key={row.stt} className="group hover:brightness-95 transition-all" style={{ background: "var(--card)" }}>
-                  <td className={cellCls + " text-muted-foreground"}>{row.stt}</td>
-                  <td className={cellCls}>{row.nhHk}</td>
-                  <td className="px-3 py-2 text-xs"><div className="font-medium text-muted-foreground" style={{ fontSize: 10 }}>[{row.maMon}/{row.lop}]</div><div className="font-medium text-foreground">{row.tenMon}</div></td>
-                  <td className={cellCls}>{row.soTC.toFixed(1)}</td>
-                  <td className={cellCls}>{row.soTiet}</td>
-                  <td className={cellCls}>{row.soTcHocPhi.toFixed(2)}</td>
-                  <td className={cellCls + " font-medium"}>{fmt(row.hocPhi)}</td>
-                  <td className={cellCls}>{row.giam}</td>
-                  <td className={cellCls}>{row.hoTro}</td>
-                  <td className={cellCls + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.hocPhiThucDong)}</td>
-                  <td className={cellCls}>{row.chiPhi}</td>
-                  <td className={cellCls + " text-muted-foreground"}>{row.ghiChu || "—"}</td>
-                  <td className="px-2 py-2 text-center whitespace-nowrap">
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => { setEditRow(row); setEditDraft({ ...row }); }} className="p-1 rounded hover:bg-card" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} /></button>
-                      <button onClick={() => deleteRow(row.stt)} className="p-1 rounded hover:bg-red-50" title="Xóa"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
-                    </div>
-                  </td>
+              {rows.length === 0 ? (
+                <tr><td colSpan={13} className="py-12 text-center text-sm text-muted-foreground">Không có dữ liệu học phí.</td></tr>
+              ) : rows.map((row, i) => {
+                const st = STATUS_STYLE[row.trangThai] ?? { bg: "bg-gray-50", text: "text-gray-500" };
+                return (
+                  <tr key={row.stt} className="group hover:brightness-95 transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)", height: 44 }}>
+                    <td className={cel + " whitespace-nowrap text-muted-foreground font-mono"}>{row.stt}</td>
+                    <td className={cel + " whitespace-nowrap font-mono text-muted-foreground"}>{row.nhHk}</td>
+                    <td className="px-2 py-0" style={{ minWidth: 160 }}>
+                      <div className="font-mono text-[10px] text-muted-foreground leading-tight">{row.maMon}/{row.lop}</div>
+                      <div className="font-medium text-foreground text-[11px] leading-tight">{row.tenMon}</div>
+                    </td>
+                    <td className={cel + " whitespace-nowrap"}>{row.soTcHocPhi.toFixed(2)}</td>
+                    <td className={cel + " whitespace-nowrap font-medium"}>{fmt(row.hocPhi)}</td>
+                    <td className={cel + " whitespace-nowrap"}>{row.giam ? fmt(row.giam) : "—"}</td>
+                    <td className={cel + " whitespace-nowrap"}>{row.hoTro ? fmt(row.hoTro) : "—"}</td>
+                    <td className={cel + " whitespace-nowrap font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.hocPhiThucDong)}</td>
+                    <td className={cel + " whitespace-nowrap"}>{row.chiPhi ? fmt(row.chiPhi) : "—"}</td>
+                    <td className={cel + " text-muted-foreground"} style={{ maxWidth: 120 }}><span className="truncate block">{row.ghiChu || "—"}</span></td>
+                    <td className={cel + " whitespace-nowrap"}>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${st.bg} ${st.text}`}>{row.trangThai}</span>
+                    </td>
+                    <td className={cel + " whitespace-nowrap text-muted-foreground"}>{row.ngayThanhToan || "—"}</td>
+                    <td className="px-1 py-0 text-center whitespace-nowrap">
+                      <div className="flex gap-0.5 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => { setEditRow(row); setEditDraft({ ...row }); }} className="p-1 rounded hover:bg-muted" title="Chỉnh sửa"><Pencil className="w-3 h-3" style={{ color: "var(--primary)" }} /></button>
+                        <button onClick={() => setDeleteConfirm(row)} className="p-1 rounded hover:bg-red-50" title="Xóa"><Trash2 className="w-3 h-3 text-red-400" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {rows.length > 0 && (
+                <tr style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7", height: 40 }}>
+                  <td colSpan={3} className="px-3 py-0 text-right text-xs font-bold whitespace-nowrap" style={PJS}>Tổng Cộng:</td>
+                  <td className={cel + " font-bold whitespace-nowrap"}>{totalTcHp.toFixed(2)}</td>
+                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalHocPhi)}</td>
+                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalGiam)}</td>
+                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalHoTro)}</td>
+                  <td className={cel + " font-bold whitespace-nowrap"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
+                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalChiPhi)}</td>
+                  <td colSpan={4} />
                 </tr>
-              ))}
-              <tr style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7" }}>
-                <td colSpan={3} className="px-3 py-2 text-right text-xs font-bold" style={PJS}>Tổng Cộng:</td>
-                <td className={cellCls + " font-bold"}>{totalTC.toFixed(1)}</td>
-                <td className={cellCls + " font-bold"}>{totalTiet}</td>
-                <td className={cellCls + " font-bold"}>{totalTcHp.toFixed(2)}</td>
-                <td className={cellCls + " font-bold"}>{fmt(totalHocPhi)}</td>
-                <td className={cellCls + " font-bold"}>{totalGiam}</td>
-                <td className={cellCls + " font-bold"}>{totalHoTro}</td>
-                <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
-                <td className={cellCls + " font-bold"}>{totalChiPhi}</td>
-                <td /><td />
-              </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
       <div className="flex items-center justify-between flex-shrink-0">
-        <p className="text-xs text-muted-foreground">{rows.length} môn học · Cập nhật: {semData.ngayCapNhat}</p>
+        <p className="text-xs text-muted-foreground">{rows.length} bản ghi · Cập nhật: {semData.ngayCapNhat}</p>
         <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-5 py-2.5">
-          <span className="text-sm font-semibold text-foreground" style={PJS}>Tổng học phí thực đóng:</span>
+          <span className="text-sm font-semibold text-foreground" style={PJS}>Tổng thực đóng:</span>
           <span className="text-base font-bold" style={{ color: "var(--primary)", ...PJS }}>{fmt(totalThucDong)}</span>
         </div>
       </div>
@@ -2227,7 +2503,7 @@ const ADMIN_NAV: { id: AdminSection; label: string; icon: React.ElementType }[] 
   { id: "notifications", label: "Thông báo",         icon: Bell },
 ];
 
-export function AdminApp({ onLogout, HelpButton }: { onLogout: () => void; HelpButton: React.ComponentType }) {
+export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () => void; HelpButton: React.ComponentType; adminProfile: Account }) {
   const [section, setSection] = useState<AdminSection>("students");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -2288,11 +2564,7 @@ export function AdminApp({ onLogout, HelpButton }: { onLogout: () => void; HelpB
 
       <aside className="hidden md:flex flex-shrink-0 flex-col transition-all duration-300 ease-in-out overflow-hidden shadow-xl" style={{ width: sidebarOpen ? 220 : 56, background: "var(--primary)" }}>
         <div className="flex flex-col items-center pt-5 pb-4 px-3 flex-shrink-0">
-          <div className="relative flex-shrink-0" style={{ width: sidebarOpen ? 100 : 44, height: sidebarOpen ? 100 : 44, transition: "all 0.3s" }}>
-            <svg width="100%" height="100%" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
-            </svg>
-          </div>
+          <SidebarLogo open={sidebarOpen} />
           {sidebarOpen && (
             <div className="text-center mt-3">
               <div className="font-bold text-white leading-tight tracking-wide text-[14px]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>CampUS Admin</div>
@@ -2319,8 +2591,15 @@ export function AdminApp({ onLogout, HelpButton }: { onLogout: () => void; HelpB
         </nav>
         <div className="mx-3 h-px bg-card/10 flex-shrink-0" />
         <div className="p-3 flex items-center gap-3 flex-shrink-0" style={{ justifyContent: sidebarOpen ? "flex-start" : "center" }}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm" style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AD</div>
-          {sidebarOpen && <div className="flex-1 min-w-0"><div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Administrator</div><div className="text-xs text-white/40 truncate">admin@hcmus.edu.vn</div></div>}
+          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm" style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {getInitials(adminProfile.name)}
+          </div>
+          {sidebarOpen && (
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{abbreviateName(adminProfile.name)}</div>
+              <div className="text-xs text-white/40 truncate font-mono">{adminProfile.msid}</div>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -2339,7 +2618,6 @@ export function AdminApp({ onLogout, HelpButton }: { onLogout: () => void; HelpB
           </div>
           {/* Desktop: breadcrumb */}
           <div className="hidden md:flex items-center gap-1.5">
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sectionLabel[section]}</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -2400,17 +2678,24 @@ export function AdminApp({ onLogout, HelpButton }: { onLogout: () => void; HelpB
               <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }}
                 className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs hover:opacity-80 transition-opacity"
                 style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                AD
+                {getInitials(adminProfile.name)}
               </button>
               {avatarOpen && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
                   <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0" style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AD</div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0" style={{ background: "var(--accent)", color: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {getInitials(adminProfile.name)}
+                    </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-sm text-foreground truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Administrator</p>
-                      <p className="text-xs text-muted-foreground truncate">admin@hcmus.edu.vn</p>
+                      <p className="font-bold text-sm text-foreground truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{adminProfile.name}</p>
+                      <p className="text-xs text-muted-foreground truncate font-mono">{adminProfile.msid}</p>
                     </div>
                   </div>
+                  <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/25 transition-colors text-destructive">
+                    <LogOut className="w-4 h-4" />
+                    <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đăng xuất</span>
+                  </button>
                 </div>
               )}
             </div>

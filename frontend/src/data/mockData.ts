@@ -1,4 +1,6 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
+import { makeWeek, TKB_DATA, type TKBEntry, type TKBCell } from "../app/shared";
+
 
 export type FamilyMember = {
   name: string;
@@ -57,8 +59,8 @@ export type StudentProfile = {
 // ─── Student profile ──────────────────────────────────────────────────────────
 
 export const STUDENT_PROFILE: StudentProfile = {
-  mssv:             "24127001",
-  fullName:         "Nguyễn Văn An",
+  mssv:             "24127023",
+  fullName:         "Nguyễn Văn Nam",
   dob:              "15/03/2006",
   placeOfBirth:     "TP. Hồ Chí Minh",
   gender:           "Nam",
@@ -81,7 +83,7 @@ export const STUDENT_PROFILE: StudentProfile = {
   contactAddress:   "456 Lê Văn Sỹ, Q.3, TP.HCM",
   phone:            "0901 234 567",
   personalEmail:    "nguyenvanan@gmail.com",
-  officialEmail:    "21127001@student.hcmus.edu.vn",
+  officialEmail:    "21127023@student.hcmus.edu.vn",
   enrolledDate:     "01/09/2024",
   joinUnionDate:    "15/03/2022",
   joinPartyDate:    "—",
@@ -251,6 +253,8 @@ export const TUITION_DATA: TuitionSemester[] = [
 export type Account = {
   username: string;
   label: string;
+  name: string;
+  msid: string;
   email: string;
   initials: string;
   pass: string;
@@ -258,8 +262,8 @@ export type Account = {
 };
 
 export const ACCOUNTS: Account[] = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin" },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" },
+  { username: "admin",   label: "Quản trị viên", name: "Nguyễn Minh Toàn",        msid: "AD2024001", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin" },
+  { username: "student", label: "Sinh viên",      name: "Nguyễn Văn Khoa",         msid: "24127001",  email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" },
 ];
 
 // ─── Notifications ────────────────────────────────────────────────────────────
@@ -560,6 +564,62 @@ export function makeMockGrades(courseId: string): StudentGradeRow[] {
   });
 }
 
+// ─── Course Group Map ─────────────────────────────────────────────────────────
+
+export const COURSE_GROUP_MAP: Record<string, string> = {
+  "BAA00004": "LL_CT", "BAA00101": "LL_CT", "BAA00012": "LL_CT",
+  "BAA00005": "XH_TC",
+  "MTH00005": "TN_BB", "MTH00006": "TN_BB", "MTH00008": "TN_BB",
+  "MTH00009": "TN_BB", "MTH00057": "TN_BB", "MTH00058": "TN_BB",
+  "PHY00005": "TN_TC1",
+  "CSC00004": "TH_BB",
+  "BAA00021": "GD_TC", "BAA00022": "GD_TC",
+  "BAA00030": "GD_QP",
+  "CSC10003": "CN_CS", "CSC10004": "CN_CS", "CSC10008": "CN_CS",
+  "CSC10012": "CN_CS", "CSC10014": "CN_CS", "CSC14003": "CN_CS",
+  "CSC10002": "CN_NG",
+  "CSC10121": "CN_TD",
+};
+
+// ─── Admin TKB / Class Schedule Data ─────────────────────────────────────────
+
+function mkAdmin(tenMon: string, gv: string, phong: string, span = 2, isLab = false): TKBEntry {
+  return {
+    tenMon, maNhom: "24C04", tiet: span === 2 ? "1–5" : "3–5",
+    gv, email: gv.toLowerCase().replace(/[^a-z]/g, "") + "@hcmus.edu.vn",
+    hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Việt", phong, isLab, span,
+  };
+}
+
+export const CNTT_TKB: Record<number, Record<number, TKBCell[]>> = {
+  28: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null] }),
+  29: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null] }),
+  30: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính", "P.H.Long", "C.11"), null] }),
+  31: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 0: [null, null, null, null] }),
+  32: makeWeek({ 1: [mkAdmin("Lập trình C++ (KT GK)", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính", "P.H.Long", "C.11"), null] }),
+  33: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính", "P.H.Long", "C.11"), null] }),
+  34: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null] }),
+  35: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính (KT GK)", "P.H.Long", "C.11"), null] }),
+  36: makeWeek({ 1: [mkAdmin("Lập trình C++ (Ôn tập)", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính (Ôn tập)", "P.H.Long", "C.11"), null] }),
+  37: makeWeek({ 1: [null, null, null, null], 3: [null, null, null, null] }),
+  38: makeWeek({ 1: [null, null, null, null], 2: [null, null, null, null],
+                 3: [null, null, null, null], 4: [null, null, null, null] }),
+};
+
+export const LOP_INFO: Record<string, { khoa: string; data: Record<number, Record<number, TKBCell[]>> }> = {
+  "24C04": { khoa: "Khoa CNTT",              data: CNTT_TKB },
+  "24C05": { khoa: "Khoa CNTT",              data: TKB_DATA },
+  "24C06": { khoa: "Khoa Toán – Tin học", data: TKB_DATA },
+  "24C07": { khoa: "Khoa Kinh tế",        data: TKB_DATA },
+};
+
+
 // ─── Progress / Credit Group Data ────────────────────────────────────────────
 
 export const CREDIT_GROUPS_DATA = [
@@ -626,6 +686,7 @@ export const AVAILABLE_SURVEYS: Survey[] = [
     ],
   },
 ];
+
 
 // ─── AI Chatbot data ──────────────────────────────────────────────────────────
 
