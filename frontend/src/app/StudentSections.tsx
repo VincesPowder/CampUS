@@ -1,8 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useMsal } from "@azure/msal-react";
-function getAvatarInitials(fullName: string): string {
-  return fullName.trim().split(/\s+/).filter(Boolean).map(w => w[0].toUpperCase()).join("");
-}
 import {
   User, BookOpen, ClipboardList, CalendarDays, CreditCard, Bell,
   ChevronRight, X, Search, Filter, Download, CheckCircle2,
@@ -10,12 +6,17 @@ import {
 } from "lucide-react";
 import {
   STUDENT_PROFILE, FAMILY_DATA, COURSE_DATA, TUITION_DATA, NOTIFICATIONS, CREDIT_GROUPS_DATA, RADAR_AXES,
+  COURSE_GROUP_MAP,
   AVAILABLE_SURVEYS,
   type FamilyMember, type CourseRecord, type Notification, type Survey,
 } from "../data/mockData";
 import {
-  TKB_DATA, EXAM_DATA, DAYS, CA_LABELS, TKBCellCard, getWeekDates,
+  TKB_DATA, EXAM_DATA, DAYS, CA_LABELS, TKBCellCard, getWeekDates, TKBWeekGrid,
 } from "./shared";
+
+function getAvatarInitials(fullName: string): string {
+  return fullName.trim().split(/\s+/).filter(Boolean).map(w => w[0].toUpperCase()).join("");
+}
 
 // ─── Nav types ────────────────────────────────────────────────────────────────
 export type NavSection = "profile" | "academic" | "survey" | "schedule" | "tuition" | "notifications";
@@ -178,61 +179,25 @@ function FamilyModal({ member, onClose, onSave }: {
   );
 }
 
-// ─── Family Tab (Đã tích hợp API & Chuẩn UI Figma) ────────────────────────────
-function FamilyTab({ mssv, initialMembers, onUpdateSuccess }: { 
-  mssv: string; 
-  initialMembers: any[]; 
-  onUpdateSuccess: (updated: any) => void 
-}) {
-  const [members, setMembers] = useState<any[]>(initialMembers);
-  const [selected, setSelected] = useState<any | null>(null);
+// ─── Family Tab ───────────────────────────────────────────────────────────────
+function FamilyTab() {
+  const [members, setMembers] = useState<FamilyMember[]>([...FAMILY_DATA]);
+  const [selected, setSelected] = useState<FamilyMember | null>(null);
 
-  // Cập nhật state nếu dữ liệu từ API cha (ProfileSection) thay đổi
-  useEffect(() => {
-    setMembers(initialMembers);
-  }, [initialMembers]);
-
-  // Xử lý gọi API PUT cập nhật thông tin người thân
-  async function handleSave(updated: any) {
-    try {
-      const res = await fetch(`/api/students/${mssv}/family/${updated.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: updated.phone,
-          email: updated.email,
-          job: updated.job,
-          workplace: updated.workplace,
-          address: updated.address,
-          province: updated.province,
-          ward: updated.ward
-        })
-      });
-
-      if (res.ok) {
-        // Cập nhật lại UI lập tức
-        setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
-        onUpdateSuccess(updated);
-      } else {
-        alert("Lỗi khi cập nhật thông tin người thân từ Backend.");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Lỗi kết nối đến máy chủ.");
-    }
+  function handleSave(updated: FamilyMember) {
+    setMembers(prev => prev.map(m => m.name === selected?.name ? updated : m));
   }
 
   return (
     <>
-      <div className="p-0">
+      <div className="p-5" style={{ fontSize: "11.5px" }}>
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white">
+          <table className="w-full border-collapse">
             <thead>
-              {/* Header màu xám nhạt chuẩn thiết kế */}
-              <tr style={{ background: "#d1d5db" }}> 
+              <tr style={{ background: "rgba(37,52,79,0.2)" }}>
                 {["Họ tên", "Ngày sinh", "Quan hệ", "Nghề nghiệp", "Nơi làm việc", "SĐT", "Mail"].map(col => (
-                  <th key={col} className="border border-gray-300 px-4 py-3 text-left font-semibold text-slate-800"
-                    style={{ fontSize: "13px", fontFamily: "'Inter', sans-serif" }}>
+                  <th key={col} className="border border-border px-3 py-2 text-left font-semibold"
+                    style={{ fontSize: "11.5px", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                     {col}
                   </th>
                 ))}
@@ -240,27 +205,23 @@ function FamilyTab({ mssv, initialMembers, onUpdateSuccess }: {
             </thead>
             <tbody>
               {members.map((row, i) => (
-                <tr key={i} className="transition-colors cursor-pointer hover:bg-slate-50" 
-                  onClick={() => setSelected(row)} title="Nhấn để xem chi tiết">
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] font-medium text-slate-900">{row.name}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.dob}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.rel}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.job}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.workplace}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.phone}</td>
-                  <td className="border border-gray-300 px-4 py-3 text-[13px] text-slate-600">{row.email}</td>
+                <tr key={i} className="transition-colors cursor-pointer" onClick={() => setSelected(row)} title="Nhấn để xem chi tiết"
+                  style={{ background: selected?.name === row.name ? "rgba(37,52,79,0.07)" : undefined }}
+                  onMouseEnter={e => { if (selected?.name !== row.name) (e.currentTarget as HTMLElement).style.background = "rgba(37,52,79,0.04)"; }}
+                  onMouseLeave={e => { if (selected?.name !== row.name) (e.currentTarget as HTMLElement).style.background = ""; }}>
+                  <td className="border border-border px-3 py-2.5 font-medium text-foreground">{row.name}</td>
+                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.dob}</td>
+                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.rel}</td>
+                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.job}</td>
+                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.workplace}</td>
+                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.phone}</td>
+                  <td className="border border-border px-3 py-2.5 text-muted-foreground">{row.email}</td>
                 </tr>
               ))}
-              {/* Dòng trống cuối cùng để UI ôm gọn giống hệt ảnh design */}
-              <tr>
-                {Array.from({ length: 7 }).map((_, idx) => (
-                  <td key={`empty-${idx}`} className="border border-gray-300 px-4 py-5"></td>
-                ))}
-              </tr>
             </tbody>
           </table>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-3 px-4 pb-4">Nhấn vào một dòng để xem chi tiết thông tin.</p>
+        <p className="text-[10px] text-muted-foreground mt-2">Nhấn vào một dòng để xem chi tiết thông tin.</p>
       </div>
       {selected && (
         <FamilyModal member={selected} onClose={() => setSelected(null)} onSave={handleSave} />
@@ -269,7 +230,7 @@ function FamilyTab({ mssv, initialMembers, onUpdateSuccess }: {
   );
 }
 
-// ─── Field helper (ReadOnly for Top Section) ─────────────────────────────────
+// ─── Field helper ────────────────────────────────────────────────────────────
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -279,165 +240,134 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-// Helper format number
-function fmt(n: number) { 
-  return n.toLocaleString("vi-VN"); 
-}
+// ─── fmt helper ───────────────────────────────────────────────────────────────
+function fmt(n: number) { return n.toLocaleString("vi-VN"); }
 
+// ─── Tuition Section ─────────────────────────────────────────────────────────
 export function TuitionSection() {
-  const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
+  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
-  // 1. GỌI TẤT CẢ HOOKS Ở TRÊN CÙNG
-  const [tuitionList, setTuitionList] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selNamHoc, setSelNamHoc] = useState<string>("");
-  const [selHK, setSelHK] = useState<string>("");
-
-  // 2. Fetch dữ liệu từ API
-  useEffect(() => {
-    fetch(`/api/students/${currentMssv}/tuition`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success' && data.data && data.data.length > 0) {
-          setTuitionList(data.data);
-          
-          // Tự động set giá trị mặc định cho Dropdown dựa trên data API trả về
-          const uniqueNamHoc = Array.from(new Set(data.data.map((item: any) => item.namHoc))).filter(y => y !== "—").sort((a: any, b: any) => b.localeCompare(a));
-          const uniqueHocKy = Array.from(new Set(data.data.map((item: any) => item.tenHocKy))).filter(hk => hk !== "—").sort();
-          
-          if (uniqueNamHoc.length > 0) setSelNamHoc(uniqueNamHoc[0] as string);
-          if (uniqueHocKy.length > 0) setSelHK(uniqueHocKy[0] as string);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Lỗi khi tải dữ liệu học phí:", err);
-        setLoading(false);
-      });
-  }, [currentMssv]);
-
-  // 3. Xử lý UI Đang tải (PHẢI ĐẶT SAU TẤT CẢ CÁC HOOKS)
-  if (loading) {
-    return <div className="p-5 text-center text-muted-foreground">Đang tải dữ liệu học phí...</div>;
+  function parseNhHk(nhHk: string) {
+    const m = nhHk.match(/^(\d{2}-\d{2})\/(\d)$/);
+    return m ? { namHoc: m[1], hocKy: `HK${m[2]}` } : { namHoc: nhHk, hocKy: "" };
   }
 
-  // 4. Render dữ liệu
-  const uniqueNamHoc = Array.from(new Set(tuitionList.map(item => item.namHoc))).filter(y => y !== "—").sort((a, b) => b.localeCompare(a));
-  const uniqueHocKy = Array.from(new Set(tuitionList.map(item => item.tenHocKy))).filter(hk => hk !== "—").sort();
+  const parsed       = TUITION_DATA.map(d => ({ nhHk: d.nhHk, ...parseNhHk(d.nhHk) }));
+  const uniqueNamHoc = Array.from(new Set(parsed.map(p => p.namHoc)));
+  const ALL_HKS = ["HK1", "HK2", "HK3"] as const;
+  const [selNamHoc, setSelNamHoc] = useState(uniqueNamHoc[0]);
+  const [selHK, setSelHK] = useState<string>("HK3");
 
-  const rows = tuitionList.filter(item => item.namHoc === selNamHoc && item.tenHocKy === selHK);
+  const matchNhHk = parsed.find(p => p.namHoc === selNamHoc && p.hocKy === selHK)?.nhHk ?? TUITION_DATA[0].nhHk;
+  const semester   = TUITION_DATA.find(d => d.nhHk === matchNhHk) ?? TUITION_DATA[0];
+  const rows       = semester.rows;
 
-  const totalTC       = rows.reduce((s: number, r: any) => s + (r.soTc || 0), 0);
-  const totalTiet     = rows.reduce((s: number, r: any) => s + (r.soTiet || 0), 0);
-  const totalTcHocPhi = rows.reduce((s: number, r: any) => s + (r.soTcHocPhi || 0), 0);
-  const totalHocPhi   = rows.reduce((s: number, r: any) => s + (r.hocPhiGoc || 0), 0);
-  const totalGiam     = rows.reduce((s: number, r: any) => s + (r.mucGiam || 0), 0);
-  const totalHoTro    = rows.reduce((s: number, r: any) => s + (r.hoTro || 0), 0);
-  const totalThucDong = rows.reduce((s: number, r: any) => s + (r.thucDong || 0), 0);
-  const totalChiPhi   = rows.reduce((s: number, r: any) => s + (r.chiPhiKhac || 0), 0);
-  
-  const ngayCapNhat   = rows.length > 0 && rows[0].ngayThanhToan ? rows[0].ngayThanhToan : "Chưa thanh toán/cập nhật";
+  const totalTcHp     = rows.reduce((s, r) => s + r.soTcHocPhi, 0);
+  const totalHocPhi   = rows.reduce((s, r) => s + r.hocPhi, 0);
+  const totalGiam     = rows.reduce((s, r) => s + r.giam, 0);
+  const totalHoTro    = rows.reduce((s, r) => s + r.hoTro, 0);
+  const totalThucDong = rows.reduce((s, r) => s + r.hocPhiThucDong, 0);
+  const totalChiPhi   = rows.reduce((s, r) => s + r.chiPhi, 0);
 
-  const headerCls = "px-3 py-2.5 font-semibold text-white text-center whitespace-nowrap";
-  const cellCls   = "px-3 py-2.5 text-center text-xs";
+  const selCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white";
+  const hdrCls = "px-2 py-2.5 font-bold text-white text-center whitespace-nowrap text-[11px] border-r border-white/10 last:border-r-0";
+  const cel    = "px-2 py-0 text-center text-xs";
+  const COL_W  = [40, 72, 190, 72, 110, 90, 90, 110, 95, 120, 110, 95];
+
+  const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
+    "Đã thanh toán":   { bg: "bg-green-50",  text: "text-green-700" },
+    "Chưa thanh toán": { bg: "bg-red-50",    text: "text-red-600"   },
+  };
+
+  const mockRows = rows.map((r, i) => ({
+    ...r,
+    trangThai: i % 3 === 0 ? "Chưa thanh toán" : "Đã thanh toán",
+    ngayThanhToan: i % 3 === 0 ? "" : "03/07/2026",
+  }));
 
   return (
-    <div className="space-y-5 w-full">
-      <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tra Cứu Học Phí</h1>
-      
-      {tuitionList.length === 0 ? (
-        <div className="p-5 text-center text-muted-foreground bg-card rounded-xl border border-border">
-          Không có dữ liệu học phí nào được tìm thấy trên hệ thống.
+    <div className="space-y-4 w-full">
+      <h1 className="text-xl font-bold" style={PJS}>Tra Cứu Học Phí</h1>
+
+      {/* Filter */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Năm học:</label>
+          <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)} className={selCls} style={PJS}>
+            {uniqueNamHoc.map(y => <option key={y} value={y}>{y.replace(/(\d{2})-(\d{2})/, "20$1–20$2")}</option>)}
+          </select>
         </div>
-      ) : (
-        <>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
-              <select value={selNamHoc} onChange={e => setSelNamHoc(e.target.value)}
-                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {uniqueNamHoc.map(y => <option key={y} value={y}>{y}</option>)}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
-              <select value={selHK} onChange={e => setSelHK(e.target.value)}
-                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {uniqueHocKy.map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12 }}>
-                <thead>
-                  <tr style={{ background: "var(--primary)" }}>
-                    {["STT","NH/HK","Mã MH / Lớp / Môn Học","Số TC","Số Tiết","Số TC Học Phí","Học Phí","Giảm","Hỗ Trợ Học Phí","Học Phí Thực Đóng","Chi Phí","Ghi Chú"].map(h => (
-                      <th key={h} className={headerCls} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{h}</th>
-                    ))}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Học kỳ:</label>
+          <select value={selHK} onChange={e => setSelHK(e.target.value)} className={selCls} style={PJS}>
+            {ALL_HKS.map(h => <option key={h} value={h}>Học kỳ {h.replace("HK", "")}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed", width: COL_W.reduce((a, b) => a + b, 0) }}>
+            <colgroup>{COL_W.map((w, i) => <col key={i} style={{ width: w }} />)}</colgroup>
+            <thead>
+              <tr style={{ background: "var(--primary)" }}>
+                {["STT","NH/HK","MALHP / Môn Học","SOTCHP","Học Phí Gốc","Mức Giảm","Hỗ Trợ","Thực Đóng","Chi Phí Khác","Ghi Chú","T.Thái TT","Ngày TT"].map(h => (
+                  <th key={h} className={hdrCls} style={PJS}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {mockRows.map((row, i) => {
+                const st = STATUS_STYLE[row.trangThai] ?? { bg: "bg-gray-50", text: "text-gray-500" };
+                return (
+                  <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5", height: 44 }} className="hover:brightness-95 transition-all">
+                    <td className={cel + " text-muted-foreground font-mono"}>{row.stt}</td>
+                    <td className={cel + " font-mono text-muted-foreground"}>{row.nhHk}</td>
+                    <td className="px-2 py-0">
+                      <div className="font-mono text-[10px] text-muted-foreground leading-tight">{row.maMon}/{row.lop}</div>
+                      <div className="font-medium text-foreground text-[11px] leading-tight truncate">{row.tenMon}</div>
+                    </td>
+                    <td className={cel}>{row.soTcHocPhi.toFixed(2)}</td>
+                    <td className={cel + " font-medium"}>{fmt(row.hocPhi)}</td>
+                    <td className={cel}>{row.giam ? fmt(row.giam) : "—"}</td>
+                    <td className={cel}>{row.hoTro ? fmt(row.hoTro) : "—"}</td>
+                    <td className={cel + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.hocPhiThucDong)}</td>
+                    <td className={cel}>{row.chiPhi ? fmt(row.chiPhi) : "—"}</td>
+                    <td className={cel + " text-muted-foreground"}><span className="truncate block">{row.ghiChu || "—"}</span></td>
+                    <td className={cel}>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap ${st.bg} ${st.text}`}>{row.trangThai}</span>
+                    </td>
+                    <td className={cel + " text-muted-foreground"}>{row.ngayThanhToan || "—"}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {rows.length === 0 ? (
-                    <tr>
-                      <td colSpan={12} className="px-3 py-5 text-center text-muted-foreground text-sm">
-                        Không có dữ liệu cho năm học và học kỳ đã chọn.
-                      </td>
-                    </tr>
-                  ) : (
-                    rows.map((row: any, i: number) => (
-                      <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
-                        <td className={cellCls + " text-muted-foreground"}>{i + 1}</td>
-                        <td className={cellCls}>{row.nhhk}</td>
-                        <td className="px-3 py-2.5 text-xs text-left">
-                          <div className="font-medium text-muted-foreground" style={{ fontSize: 10 }}>[{row.maMh}/{row.maLhp}]</div>
-                          <div className="font-medium text-foreground">{row.tenMon}</div>
-                        </td>
-                        <td className={cellCls}>{row.soTc.toFixed(1)}</td>
-                        <td className={cellCls}>{row.soTiet}</td>
-                        <td className={cellCls}>{row.soTcHocPhi.toFixed(2)}</td>
-                        <td className={cellCls + " font-medium"}>{fmt(row.hocPhiGoc)}</td>
-                        <td className={cellCls}>{fmt(row.mucGiam)}</td>
-                        <td className={cellCls}>{fmt(row.hoTro)}</td>
-                        <td className={cellCls + " font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.thucDong)}</td>
-                        <td className={cellCls}>{fmt(row.chiPhiKhac)}</td>
-                        <td className={cellCls}>{row.ghiChu}</td>
-                      </tr>
-                    ))
-                  )}
-                  
-                  {rows.length > 0 && (
-                    <tr className="font-bold" style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7" }}>
-                      <td colSpan={3} className="px-3 py-2.5 text-right text-xs font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng Cộng:</td>
-                      <td className={cellCls + " font-bold"}>{totalTC.toFixed(1)}</td>
-                      <td className={cellCls + " font-bold"}>{totalTiet}</td>
-                      <td className={cellCls + " font-bold"}>{totalTcHocPhi.toFixed(2)}</td>
-                      <td className={cellCls + " font-bold"}>{fmt(totalHocPhi)}</td>
-                      <td className={cellCls + " font-bold"}>{fmt(totalGiam)}</td>
-                      <td className={cellCls + " font-bold"}>{fmt(totalHoTro)}</td>
-                      <td className={cellCls + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
-                      <td className={cellCls + " font-bold"}>{fmt(totalChiPhi)}</td>
-                      <td />
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-end gap-1">
-            <div className="flex items-center gap-4 bg-card rounded-xl border border-border px-6 py-3 shadow-sm">
-              <span className="text-sm font-semibold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tổng số tiền phải đóng:</span>
-              <span className="text-[17px] font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{fmt(totalThucDong)} VNĐ</span>
-            </div>
-            <p className="text-xs text-muted-foreground pr-1">Trạng thái/Cập nhật: {ngayCapNhat}</p>
-          </div>
-        </>
-      )}
+                );
+              })}
+              <tr style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7", height: 40 }}>
+                <td colSpan={3} className="px-3 py-0 text-right text-xs font-bold" style={PJS}>Tổng Cộng:</td>
+                <td className={cel + " font-bold"}>{totalTcHp.toFixed(2)}</td>
+                <td className={cel + " font-bold"}>{fmt(totalHocPhi)}</td>
+                <td className={cel + " font-bold"}>{fmt(totalGiam)}</td>
+                <td className={cel + " font-bold"}>{fmt(totalHoTro)}</td>
+                <td className={cel + " font-bold"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
+                <td className={cel + " font-bold"}>{fmt(totalChiPhi)}</td>
+                <td colSpan={3} />
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-end gap-1">
+        <div className="flex items-center gap-4 bg-card rounded-xl border border-border px-6 py-3">
+          <span className="text-sm font-semibold" style={PJS}>Tổng số tiền phải đóng:</span>
+          <span className="text-base font-bold" style={{ color: "var(--primary)", ...PJS }}>{fmt(totalThucDong)}</span>
+        </div>
+        <p className="text-xs text-muted-foreground pr-1">Ngày cập nhật: {semester.ngayCapNhat}</p>
+      </div>
     </div>
   );
 }
+
 // ─── GPA helpers ──────────────────────────────────────────────────────────────
 function gpaFromScore(s: number) {
   if (s >= 8.5) return 4.0;
@@ -452,21 +382,6 @@ function gpaFromScore(s: number) {
 }
 
 // ─── Progress Section ─────────────────────────────────────────────────────────
-const COURSE_GROUP_MAP: Record<string, string> = {
-  "BAA00004": "LL_CT", "BAA00101": "LL_CT", "BAA00012": "LL_CT",
-  "BAA00005": "XH_TC",
-  "MTH00005": "TN_BB", "MTH00006": "TN_BB", "MTH00007": "TN_BB",
-  "MTH00008": "TN_BB", "MTH00009": "TN_BB", "MTH00058": "TN_BB", "MTH00057": "TN_BB",
-  "PHY00005": "TN_TC1",
-  "CSC00004": "TH_BB",
-  "BAA00021": "GD_TC", "BAA00022": "GD_TC",
-  "BAA00030": "GD_QP",
-  "CSC10003": "CN_CS", "CSC10004": "CN_CS", "CSC10006": "CN_CS",
-  "CSC10007": "CN_CS", "CSC10008": "CN_CS", "CSC10009": "CN_CS",
-  "CSC10012": "CN_CS", "CSC10014": "CN_CS", "CSC14003": "CN_CS",
-  "CSC10002": "CN_NG",
-  "CSC10121": "CN_TD",
-};
 
 function fmtYear(y: string) {
   const [a, b] = y.split("-");
@@ -965,7 +880,6 @@ export function ProgressSection() {
   );
 }
 
-
 // ─── Academic Section ─────────────────────────────────────────────────────────
 export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "progress"; setSubTab: (t: "summary" | "progress") => void }) {
   const [filterYear, setFilterYear] = useState("Tất cả");
@@ -1065,16 +979,12 @@ export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "pr
   );
 }
 
-
-// ─── Profile Section (Hoàn thiện API & Giao diện Figma 100%) ────────────────
+// ─── Profile Section ─────────────────────────────────────────────────────────
 export function ProfileSection({ avatarUrl, onAvatarChange, onProfileSave }: { avatarUrl: string | null; onAvatarChange: (url: string) => void; onProfileSave?: (p: typeof STUDENT_PROFILE) => void }) {
-  const [loading, setLoading] = useState(true);
-  const [canUpdate, setCanUpdate] = useState(false);
-  const { accounts } = useMsal();
   const [innerTab, setInnerTab] = useState<"personal" | "family">("personal");
   const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState<any>({ ...STUDENT_PROFILE });
-  const [saved, setSaved] = useState<any>({ ...STUDENT_PROFILE });
+  const [draft, setDraft] = useState({ ...STUDENT_PROFILE });
+  const [saved, setSaved] = useState({ ...STUDENT_PROFILE });
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -1084,98 +994,30 @@ export function ProfileSection({ avatarUrl, onAvatarChange, onProfileSave }: { a
     onAvatarChange(url);
   }
 
-  // Tự động lấy MSSV từ Microsoft Entra ID
-  const activeAccount = accounts[0];
-  const currentMssv = activeAccount?.username ? activeAccount.username.split('@')[0] : STUDENT_PROFILE.mssv; 
-
-  useEffect(() => {
-    fetch(`/api/students/${currentMssv}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Lỗi kết nối Backend");
-        return res.json();
-      })
-      .then(data => {
-        setSaved(data);
-        setDraft(data);
-        setCanUpdate(data.canUpdate ?? false);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Lỗi:", err);
-        setLoading(false);
-      });
-  }, [currentMssv]);
-
   const tabs = [
     { id: "personal", label: "Thông tin cá nhân" },
     { id: "family",   label: "Thông tin gia đình" },
   ] as const;
 
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
-  
+
   const REQUIRED_FIELDS = new Set(["cccd", "issuedDate", "issuedPlace", "phone", "personalEmail"]);
 
-async function handleSave() {
-    // 1. Kiểm tra validate các trường bắt buộc (từ hàm cũ)
+  function handleSave() {
     const newErrors = new Set<string>();
     REQUIRED_FIELDS.forEach(key => {
-      if (!draft[key as keyof typeof draft]?.toString().trim()) {
-        newErrors.add(key);
-      }
+      if (!draft[key as keyof typeof draft]?.toString().trim()) newErrors.add(key);
     });
-
-    // Nếu có lỗi thì hiển thị lỗi và dừng lại
-    if (newErrors.size > 0) { 
-      setFieldErrors(newErrors); 
-      return; 
-    }
-    
-    // Nếu không có lỗi, xóa các lỗi cũ đi
+    if (newErrors.size > 0) { setFieldErrors(newErrors); return; }
     setFieldErrors(new Set());
-
-    // 2. Gọi API để cập nhật dữ liệu (từ hàm mới)
-    try {
-      const res = await fetch(`/api/students/${currentMssv}/update`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentAddress: draft.currentAddress,
-          phone: draft.phone,
-          personalEmail: draft.personalEmail
-        })
-      });
-
-      // 3. Xử lý kết quả trả về
-      if (res.ok) {
-        // Cập nhật state và UI nếu API thành công (kết hợp cả 2 hàm)
-        const updated = { ...draft };
-        setSaved(updated);
-        onProfileSave?.(updated); // Giữ lại callback của hàm cũ
-        setIsEditing(false);
-      } else {
-        alert("Lỗi cập nhật từ Backend.");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Lỗi kết nối đến máy chủ.");
-    }
+    const updated = { ...draft };
+    setSaved(updated);
+    onProfileSave?.(updated);
+    setIsEditing(false);
   }
-
   function handleCancel() { setDraft({ ...saved }); setFieldErrors(new Set()); setIsEditing(false); }
   function handleExportPdf() { window.print(); }
 
-  // Field tĩnh có làm mờ khi thiếu dữ liệu
-  function Field({ label, value }: { label: string; value: string | undefined }) {
-    const displayValue = value ? value : <span className="text-muted-foreground opacity-60 italic">Chưa cập nhật</span>;
-    return (
-      <div>
-        <div className="text-[11px] font-semibold text-muted-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{label}</div>
-        <div className="text-sm font-medium text-foreground">{displayValue}</div>
-      </div>
-    );
-  }
-
-  // Field linh động hỗ trợ Edit & ReadOnly
   function EField({ label, fieldKey, readOnly = false }: { label: string; fieldKey: keyof typeof draft; readOnly?: boolean }) {
     const value = saved[fieldKey] as string;
     const isRequired = REQUIRED_FIELDS.has(fieldKey as string);
@@ -1195,8 +1037,8 @@ async function handleSave() {
         </div>
         <input value={draft[fieldKey] as string}
           onChange={e => {
-            setDraft((prev: any) => ({ ...prev, [fieldKey]: e.target.value }));
-            if (e.target.value.trim()) setFieldErrors((prev: Set<string>) => { const s = new Set(prev); s.delete(fieldKey as string); return s; });
+            setDraft(prev => ({ ...prev, [fieldKey]: e.target.value }));
+            if (e.target.value.trim()) setFieldErrors(prev => { const s = new Set(prev); s.delete(fieldKey as string); return s; });
           }}
           className="w-full rounded-lg px-2 py-1.5 text-sm outline-none transition-colors"
           style={{
@@ -1350,19 +1192,7 @@ async function handleSave() {
             </div>
           </div>
         )}
-        {innerTab === "family" && (
-          <FamilyTab 
-            mssv={currentMssv} 
-            initialMembers={saved.family || []} 
-            onUpdateSuccess={(updatedMember) => {
-              // Đồng bộ lại state chính của Profile
-              setSaved((prev: any) => ({
-                ...prev,
-                family: prev.family.map((m: any) => m.id === updatedMember.id ? updatedMember : m)
-              }));
-            }} 
-          />
-        )}
+        {innerTab === "family" && <FamilyTab />}
       </div>
       <div className="flex justify-end">
         <button onClick={handleExportPdf}
@@ -1380,68 +1210,21 @@ async function handleSave() {
 
 // ─── Survey Section ───────────────────────────────────────────────────────────
 const RATING_LABELS: Record<number, string> = { 1: "Rất tệ", 2: "Tệ", 3: "Bình thường", 4: "Tốt", 5: "Rất tốt" };
+type CourseResponse = { rating: number | null; detailed: boolean; comment: string };
 
 function ratingColor(n: number) {
   return n === 1 ? "#E8384D" : n === 2 ? "#F4703A" : n === 3 ? "#F9C02B" : n === 4 ? "#2ABDA8" : "#4BC06B";
 }
 
-type CourseResponse = { 
-  rating: number | null; 
-  detailed: boolean; 
-  comment: string 
-};
-
-function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: boolean; onDone: (id: string) => void }) {
-  const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
-  
+function SurveyForm({ survey, onDone }: { survey: Survey; onDone: (id: string) => void }) {
   const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [responses, setResponses] = useState<Record<string, CourseResponse>>({});
-
-  // Khởi tạo responses, hỗ trợ load lại dữ liệu cũ nếu backend trả về (c.rating, c.comment)
-  useEffect(() => {
-    if (survey && survey.courses) {
-      setResponses(
-        Object.fromEntries(survey.courses.map((c: any) => [
-          c.id, 
-          { 
-            rating: c.rating ?? null, // Lấy rating cũ (nếu có)
-            detailed: false, 
-            comment: c.comment ?? ""  // Lấy comment cũ (nếu có)
-          }
-        ]))
-      );
-    }
-  }, [survey]);
-
+  const [responses, setResponses] = useState<Record<string, CourseResponse>>(
+    Object.fromEntries(survey.courses.map(c => [c.id, { rating: null, detailed: false, comment: "" }]))
+  );
   const setRating   = (id: string, v: number)  => setResponses(p => ({ ...p, [id]: { ...p[id], rating: v } }));
   const setDetailed = (id: string, v: boolean) => setResponses(p => ({ ...p, [id]: { ...p[id], detailed: v } }));
   const setComment  = (id: string, v: string)  => setResponses(p => ({ ...p, [id]: { ...p[id], comment: v } }));
-  
-  const allRated = survey.courses && survey.courses.length > 0 && survey.courses.every((c: any) => responses[c.id]?.rating !== null);
-
-  const handleSubmit = async () => {
-    if (!allRated || isReadOnly) return;
-    setIsSubmitting(true);
-    try {
-      const res = await fetch(`/api/students/${currentMssv}/surveys/${survey.id}/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ responses })
-      });
-      if (res.ok) {
-        setSubmitted(true);
-      } else {
-        alert("Lỗi khi gửi khảo sát.");
-      }
-    } catch (err) {
-      console.error("Submit error:", err);
-      alert("Lỗi kết nối server.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const allRated = survey.courses.every(c => responses[c.id].rating !== null);
 
   if (submitted) {
     return (
@@ -1461,13 +1244,8 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
     <div className="space-y-3">
       {/* ── Survey header card ── */}
       <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 flex items-center justify-between" style={{ background: "var(--primary)" }}>
+        <div className="px-4 sm:px-6 py-4" style={{ background: "var(--primary)" }}>
           <h2 className="text-sm sm:text-base font-bold text-white leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{survey.title}</h2>
-          {isReadOnly && (
-            <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full whitespace-nowrap">
-              Bản xem trước
-            </span>
-          )}
         </div>
         <div className="px-4 sm:px-6 py-4 space-y-3">
           <p className="text-sm text-muted-foreground leading-relaxed">{survey.description}</p>
@@ -1496,11 +1274,12 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
       </div>
 
       {/* ── Course cards ── */}
-      {survey.courses.map((course: any, idx: number) => {
-        const res = responses[course.id] || { rating: null, comment: "" };
+      {survey.courses.map((course, idx) => {
+        const res = responses[course.id];
         const rated = res.rating !== null;
         return (
           <div key={course.id} className="bg-card rounded-2xl border border-border overflow-hidden">
+            {/* Course header */}
             <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#dde4f5" }}>
               <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "var(--primary)" }}>{idx + 1}</span>
               <div className="flex-1 min-w-0">
@@ -1516,19 +1295,15 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
             </div>
 
             <div className="px-4 py-4 space-y-4">
+              {/* Rating choice */}
               <div className="space-y-3">
                 <div>
                   <p className="text-xs font-semibold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>Đánh giá chung về môn học và giảng viên</p>
+                  {/* Rating buttons — larger touch targets on mobile */}
                   <div className="flex gap-2 sm:gap-3">
                     {[1,2,3,4,5].map(n => (
-                      <button key={n} 
-                        onClick={() => {
-                          if (isReadOnly) return; // Chặn click nếu đang ở chế độ xem
-                          setRating(course.id, n); 
-                          setDetailed(course.id, false); 
-                        }} 
-                        title={RATING_LABELS[n]}
-                        className={`flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all ${isReadOnly ? "cursor-default opacity-90" : "active:scale-95"}`}
+                      <button key={n} onClick={() => { setRating(course.id, n); setDetailed(course.id, false); }} title={RATING_LABELS[n]}
+                        className="flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all active:scale-95"
                         style={{
                           borderColor: res.rating === n ? ratingColor(n) : "#e2e8f0",
                           background: res.rating === n ? ratingColor(n) : "#fff",
@@ -1540,94 +1315,50 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
                     ))}
                   </div>
                 </div>
+
               </div>
 
+              {/* Open-ended comment */}
               <div>
                 <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Góp ý thêm (không bắt buộc)</p>
-                <textarea 
-                  value={res.comment} 
-                  onChange={e => setComment(course.id, e.target.value)}
-                  readOnly={isReadOnly} // Khóa text area
-                  placeholder={isReadOnly ? "Không có góp ý." : "Ý kiến của bạn về môn học, giảng viên..."} 
-                  rows={3}
-                  className={`w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none transition-colors ${isReadOnly ? "bg-gray-50 focus:border-border cursor-default text-muted-foreground" : "focus:border-primary text-foreground"}`}
-                  style={{ fontFamily: "'Inter', sans-serif" }} />
+                <textarea value={res.comment} onChange={e => setComment(course.id, e.target.value)}
+                  placeholder="Ý kiến của bạn về môn học, giảng viên..." rows={3}
+                  className="w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary resize-none transition-colors"
+                  style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }} />
               </div>
             </div>
           </div>
         );
       })}
 
-      {/* ── Submit row (Ẩn hoàn toàn nếu isReadOnly) ── */}
-      {!isReadOnly && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pb-4">
-          {!allRated && (
-            <p className="text-xs text-amber-600 font-medium px-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Vui lòng đánh giá tất cả {survey.courses.length} môn học trước khi gửi.
-            </p>
-          )}
-          <button disabled={!allRated || isSubmitting} onClick={handleSubmit}
-            className="sm:ml-auto px-7 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-            style={{ background: allRated ? "#11284D" : "#C5CCB7", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {isSubmitting ? "Đang gửi..." : "Gửi đánh giá"}
-          </button>
-        </div>
-      )}
+      {/* ── Submit row ── */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pb-4">
+        {!allRated && (
+          <p className="text-xs text-amber-600 font-medium px-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Vui lòng đánh giá tất cả {survey.courses.length} môn học trước khi gửi.
+          </p>
+        )}
+        <button disabled={!allRated} onClick={() => setSubmitted(true)}
+          className="sm:ml-auto px-7 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
+          style={{ background: allRated ? "#11284D" : "#C5CCB7", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          Gửi đánh giá
+        </button>
+      </div>
     </div>
   );
 }
 
-export function SurveySection({ onDone }: { onDone?: () => void }) {
-  const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
-
-  const [surveys, setSurveys] = useState<Survey[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+export function SurveySection() {
+  const [selectedId, setSelectedId] = useState<string | null>(AVAILABLE_SURVEYS.length === 1 ? AVAILABLE_SURVEYS[0].id : null);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/students/${currentMssv}/surveys`)
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === "success" && resData.data) {
-          setSurveys(resData.data);
-          const doneIds = resData.data
-            .filter((s: any) => s.status === "completed")
-            .map((s: any) => s.id);
-          setCompletedIds(new Set(doneIds));
-          
-          // Chỉ tự động mở form nếu có đúng 1 khảo sát VÀ nó chưa được hoàn thành
-          if (resData.data.length === 1 && resData.data[0].status !== "completed") {
-            setSelectedId(resData.data[0].id);
-          }
-        }
-      })
-      .catch(err => console.error("Fetch surveys error:", err))
-      .finally(() => setLoading(false));
-  }, [currentMssv]);
-
-  const selected = surveys.find(s => s.id === selectedId) ?? null;
-  const isSelectedDone = selected ? completedIds.has(selected.id) : false;
+  const selected = AVAILABLE_SURVEYS.find(s => s.id === selectedId) ?? null;
 
   function handleDone(id: string) {
     setCompletedIds(prev => new Set([...prev, id]));
-    // Cập nhật trạng thái local
-    setSurveys(prev => prev.map(s => s.id === id ? { ...s, status: "completed" } : s));
     setSelectedId(null);
-    if (onDone) onDone();
   }
 
-  if (loading) {
-    return (
-      <div className="w-full py-20 text-center text-sm text-muted-foreground">
-        Đang tải danh sách khảo sát...
-      </div>
-    );
-  }
-
-  if (surveys.length === 0) {
+  if (AVAILABLE_SURVEYS.length === 0) {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center text-center gap-4">
@@ -1642,20 +1373,18 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
       </div>
     );
   }
-
-  if (!selected) {
+  if (AVAILABLE_SURVEYS.length > 1 && !selected) {
     return (
       <div className="w-full max-w-2xl mx-auto space-y-4">
         <div>
-          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Danh sách khảo sát</h2>
-          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu hoặc xem lại.</p>
+          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Khảo sát đang mở</h2>
+          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu.</p>
         </div>
-        {surveys.map(sv => {
+        {AVAILABLE_SURVEYS.map(sv => {
           const done = completedIds.has(sv.id);
           return (
-            <button key={sv.id} 
-              onClick={() => setSelectedId(sv.id)} // LUÔN CHO PHÉP CLICK VÀO KỂ CẢ KHI ĐÃ XONG
-              className="w-full text-left bg-card rounded-2xl border overflow-hidden transition-colors group hover:border-primary"
+            <button key={sv.id} onClick={() => setSelectedId(sv.id)}
+              className="w-full text-left bg-card rounded-2xl border overflow-hidden group transition-colors"
               style={{ borderColor: done ? "#22c55e" : "var(--border)" }}>
               <div className="h-1" style={{ background: done ? "#22c55e" : "var(--primary)" }} />
               <div className="px-5 py-4">
@@ -1664,10 +1393,10 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học / câu hỏi</span>
+                    <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học</span>
                   </div>
                   <span className="text-[11px] font-semibold" style={{ color: done ? "#22c55e" : "var(--accent)" }}>
-                    {done ? "Đã Hoàn thành" : `Hạn: ${sv.deadline}`}
+                    {done ? "Hoàn thành" : `Hạn: ${sv.deadline}`}
                   </span>
                 </div>
               </div>
@@ -1677,18 +1406,16 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
       </div>
     );
   }
-
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* Nút quay lại luôn được hiển thị khi đang trong chế độ form */}
-      <button onClick={() => setSelectedId(null)}
-        className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity"
-        style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
-      </button>
-      
-      {/* Truyền cờ isReadOnly xuống SurveyForm nếu đã hoàn thành */}
-      <SurveyForm survey={selected} isReadOnly={isSelectedDone} onDone={handleDone} />
+      {AVAILABLE_SURVEYS.length > 1 && selected && (
+        <button onClick={() => setSelectedId(null)}
+          className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity"
+          style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
+        </button>
+      )}
+      <SurveyForm survey={selected ?? AVAILABLE_SURVEYS[0]} onDone={handleDone} />
     </div>
   );
 }
@@ -1754,43 +1481,7 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
             <span className="text-white opacity-40 text-xs">|</span>
             <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{dates[0]} → {dates[6]}</span>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs" style={{ minWidth: 700, tableLayout: "fixed" }}>
-              <thead>
-                <tr>
-                  {DAYS.map((day, i) => {
-                    const isToday = i === TODAY_DAY;
-                    return (
-                      <th key={day} className="border-2 border-border px-2 py-2 text-center"
-                        style={{ background: isToday ? "#fff7ed" : "#fff", color: isToday ? "#d97706" : "#1e3a5f", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 120 }}>
-                        <div style={{ fontSize: 12, fontWeight: 800 }}>{day}</div>
-                        <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.6 }}>{dates[i]}</div>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {CA_LABELS.map((ca, caIdx) => (
-                  <tr key={caIdx} style={{ background: "#fff" }}>
-                    {DAYS.map((_, dayIdx) => {
-                      const cell = weekData[dayIdx]?.[caIdx] ?? null;
-                      if (cell === "span") return null;
-                      const entry = cell as import("./shared").TKBEntry | null;
-                      const isToday = dayIdx === TODAY_DAY;
-                      const spanRows = entry?.span ?? 1;
-                      return (
-                        <td key={dayIdx} rowSpan={spanRows} className="border-2 border-border px-2 py-1.5 align-top"
-                          style={{ height: 130, background: isToday && entry ? "rgba(245,158,11,0.1)" : undefined }}>
-                          {entry ? <TKBCellCard entry={entry} caTime={ca.time} /> : null}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <TKBWeekGrid weekData={weekData} dates={dates} todayDay={TODAY_DAY} />
         </div>
       )}
       {tab === "tkb" && (
@@ -1848,37 +1539,20 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
 }
 
 // ─── Notifications Section ────────────────────────────────────────────────────
-export function NotificationsSection({ onRead }: { onRead?: () => void }) {
-  const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
+const ALL_KHOA  = Array.from(new Set(NOTIFICATIONS.map(n => n.khoa).filter(Boolean))).sort();
+const ALL_PHONG = Array.from(new Set(NOTIFICATIONS.map(n => n.phong).filter(Boolean))).sort();
 
-  const [notifs, setNotifs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
-
-  const [search, setSearch] = useState("");
+export function NotificationsSection({ selectedNotif, setSelectedNotif, readIds = new Set<number>() }: {
+  selectedNotif: Notification | null;
+  setSelectedNotif: (n: Notification | null) => void;
+  readIds?: Set<number>;
+}) {
+  const [search,     setSearch]     = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selKhoa, setSelKhoa] = useState<string[]>([]);
-  const [selPhong, setSelPhong] = useState<string[]>([]);
+  const [selKhoa,    setSelKhoa]    = useState<string[]>([]);
+  const [selPhong,   setSelPhong]   = useState<string[]>([]);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // Gọi API lấy dữ liệu thông báo thật
-  useEffect(() => {
-    fetch(`/api/students/${currentMssv}/notifications`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          setNotifs(data.data);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Lỗi khi tải thông báo:", err);
-        setLoading(false);
-      });
-  }, [currentMssv]);
-
-  // Click ra ngoài để đóng filter popup
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false);
@@ -1887,42 +1561,20 @@ export function NotificationsSection({ onRead }: { onRead?: () => void }) {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  // Xử lý Click mở thông báo & Đánh dấu đã đọc xuống Backend
-  const handleNotifClick = async (n: any) => {
-    setSelectedNotif(n);
-    if (n.trangThaiDoc === 0) {
-      try {
-        const res = await fetch(`/api/students/${currentMssv}/notifications/${n.maTb}/read`, { method: 'POST' });
-        if (res.ok) {
-          setNotifs(prev => prev.map(item => 
-            item.maTb === n.maTb ? { ...item, trangThaiDoc: 1 } : item
-          ));
-          if (onRead) onRead();
-        }
-      } catch (error) {
-        console.error("Lỗi khi đánh dấu đã đọc:", error);
-      }
-    }
-  };
-
-  // Trích xuất list Khoa/Phòng để làm Bộ Lọc Động
-  const ALL_KHOA  = Array.from(new Set(notifs.map(n => n.khoa).filter(Boolean))).sort() as string[];
-  const ALL_PHONG = Array.from(new Set(notifs.map(n => n.phong).filter(Boolean))).sort() as string[];
-
   function toggleKhoa(v: string) { setSelKhoa(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]); }
   function togglePhong(v: string) { setSelPhong(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]); }
   function clearAll() { setSelKhoa([]); setSelPhong([]); }
   const activeCount = selKhoa.length + selPhong.length;
 
-  const filtered = notifs.filter(n => {
+  const filtered = NOTIFICATIONS.filter(n => {
     const q = search.trim().toLowerCase();
-    const matchSearch = !q || n.tieuDe.toLowerCase().includes(q) || n.noiDung.toLowerCase().includes(q);
+    const matchSearch = !q || n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q);
     const matchKhoa   = selKhoa.length === 0  || (n.khoa  && selKhoa.includes(n.khoa));
     const matchPhong  = selPhong.length === 0 || (n.phong && selPhong.includes(n.phong));
     return matchSearch && matchKhoa && matchPhong;
   });
 
-  function NotifTags({ n }: { n: any }) {
+  function NotifTags({ n }: { n: Notification }) {
     return (
       <div className="flex gap-1 flex-wrap mt-0.5">
         {n.khoa  && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "#E0D8C4", color: "var(--primary)" }}>{n.khoa}</span>}
@@ -1931,11 +1583,6 @@ export function NotificationsSection({ onRead }: { onRead?: () => void }) {
     );
   }
 
-  if (loading) {
-    return <div className="p-5 text-center text-muted-foreground text-sm font-medium">Đang tải thông báo...</div>;
-  }
-
-  // --- Màn hình chi tiết ---
   if (selectedNotif) {
     return (
       <div className="w-full max-w-3xl mx-auto">
@@ -1950,22 +1597,22 @@ export function NotificationsSection({ onRead }: { onRead?: () => void }) {
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               {selectedNotif.khoa  && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#E0D8C4", color: "var(--primary)" }}>{selectedNotif.khoa}</span>}
               {selectedNotif.phong && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#fdf4ff", color: "#7c3aed" }}>{selectedNotif.phong}</span>}
+              {!selectedNotif.read && null}
             </div>
-            <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{selectedNotif.tieuDe}</h3>
-            <p className="text-xs text-muted-foreground mb-4">{selectedNotif.ngayDang}</p>
-            <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">{selectedNotif.noiDung}</p>
+            <h3 className="font-bold text-base mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{selectedNotif.title}</h3>
+            <p className="text-xs text-muted-foreground mb-4">{selectedNotif.time}</p>
+            <p className="text-sm leading-relaxed text-foreground">{selectedNotif.body}</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // --- Màn hình danh sách ---
   return (
     <div className="w-full max-w-3xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h1>
-        <span className="text-xs text-muted-foreground">{filtered.length}/{notifs.length} thông báo</span>
+        <span className="text-xs text-muted-foreground">{filtered.length}/{NOTIFICATIONS.length} thông báo</span>
       </div>
       <div className="flex gap-2">
         <div className="flex-1 relative">
@@ -1993,57 +1640,47 @@ export function NotificationsSection({ onRead }: { onRead?: () => void }) {
                 <span className="text-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Lọc thông báo</span>
                 {activeCount > 0 && <button onClick={clearAll} className="text-xs font-semibold hover:opacity-70 transition-opacity" style={{ color: "var(--accent)" }}>Xoá tất cả</button>}
               </div>
-              
-              {ALL_KHOA.length > 0 && (
-                <div className="px-4 pt-3 pb-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Khoa / Bộ môn</p>
-                  <div className="space-y-1">
-                    {ALL_KHOA.map(k => (
-                      <label key={k} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                        <div onClick={() => toggleKhoa(k)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                          style={{ borderColor: selKhoa.includes(k) ? "#11284D" : "#cbd5e1", background: selKhoa.includes(k) ? "#11284D" : "#fff" }}>
-                          {selKhoa.includes(k) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                        </div>
-                        <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => toggleKhoa(k)} style={{ fontFamily: "'Inter', sans-serif" }}>{k}</span>
-                        <span className="ml-auto text-[11px] text-muted-foreground">{notifs.filter(n => n.khoa === k).length}</span>
-                      </label>
-                    ))}
-                  </div>
+              <div className="px-4 pt-3 pb-2">
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Khoa / Bộ môn</p>
+                <div className="space-y-1">
+                  {ALL_KHOA.map(k => (
+                    <label key={k} className="flex items-center gap-2.5 cursor-pointer group py-1">
+                      <div onClick={() => toggleKhoa(k)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{ borderColor: selKhoa.includes(k) ? "#11284D" : "#cbd5e1", background: selKhoa.includes(k) ? "#11284D" : "#fff" }}>
+                        {selKhoa.includes(k) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      </div>
+                      <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => toggleKhoa(k)} style={{ fontFamily: "'Inter', sans-serif" }}>{k}</span>
+                      <span className="ml-auto text-[11px] text-muted-foreground">{NOTIFICATIONS.filter(n => n.khoa === k).length}</span>
+                    </label>
+                  ))}
                 </div>
-              )}
-              
-              {ALL_KHOA.length > 0 && ALL_PHONG.length > 0 && <div className="mx-4 h-px bg-border" />}
-              
-              {ALL_PHONG.length > 0 && (
-                <div className="px-4 pt-3 pb-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "#7c3aed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Phòng / Ban</p>
-                  <div className="space-y-1">
-                    {ALL_PHONG.map(p => (
-                      <label key={p} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                        <div onClick={() => togglePhong(p)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                          style={{ borderColor: selPhong.includes(p) ? "#7c3aed" : "#cbd5e1", background: selPhong.includes(p) ? "#7c3aed" : "#fff" }}>
-                          {selPhong.includes(p) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                        </div>
-                        <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => togglePhong(p)} style={{ fontFamily: "'Inter', sans-serif" }}>{p}</span>
-                        <span className="ml-auto text-[11px] text-muted-foreground">{notifs.filter(n => n.phong === p).length}</span>
-                      </label>
-                    ))}
-                  </div>
+              </div>
+              <div className="mx-4 h-px bg-border" />
+              <div className="px-4 pt-3 pb-4">
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-2" style={{ color: "#7c3aed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Phòng / Ban</p>
+                <div className="space-y-1">
+                  {ALL_PHONG.map(p => (
+                    <label key={p} className="flex items-center gap-2.5 cursor-pointer group py-1">
+                      <div onClick={() => togglePhong(p)} className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{ borderColor: selPhong.includes(p) ? "#7c3aed" : "#cbd5e1", background: selPhong.includes(p) ? "#7c3aed" : "#fff" }}>
+                        {selPhong.includes(p) && <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      </div>
+                      <span className="text-sm text-foreground select-none group-hover:text-foreground transition-colors" onClick={() => togglePhong(p)} style={{ fontFamily: "'Inter', sans-serif" }}>{p}</span>
+                      <span className="ml-auto text-[11px] text-muted-foreground">{NOTIFICATIONS.filter(n => n.phong === p).length}</span>
+                    </label>
+                  ))}
                 </div>
-              )}
-              
+              </div>
             </div>
           )}
         </div>
       </div>
-      
       {activeCount > 0 && (
         <div className="flex gap-1.5 flex-wrap">
           {selKhoa.map(k => <button key={k} onClick={() => toggleKhoa(k)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#E0D8C4", color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{k} <X className="w-3 h-3" /></button>)}
           {selPhong.map(p => <button key={p} onClick={() => togglePhong(p)} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity hover:opacity-80" style={{ background: "#fdf4ff", color: "#7c3aed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{p} <X className="w-3 h-3" /></button>)}
         </div>
       )}
-      
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         {filtered.length === 0 ? (
           <div className="px-5 py-12 text-center">
@@ -2053,9 +1690,9 @@ export function NotificationsSection({ onRead }: { onRead?: () => void }) {
         ) : (
           <div className="divide-y divide-border">
             {filtered.map(n => {
-              const isUnread = n.trangThaiDoc === 0;
+              const isUnread = !readIds.has(n.id);
               return (
-              <div key={n.maTb} onClick={() => handleNotifClick(n)}
+              <div key={n.id} onClick={() => setSelectedNotif(n)}
                 className="px-5 py-4 cursor-pointer transition-colors flex items-start gap-3"
                 style={{ background: isUnread ? "#dde4f5" : "transparent" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#dde4f580"; }}
@@ -2066,10 +1703,10 @@ export function NotificationsSection({ onRead }: { onRead?: () => void }) {
                     : <span className="w-2 h-2 block" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm mb-0.5 ${isUnread ? "font-bold text-foreground" : "font-normal text-muted-foreground"}`}>{n.tieuDe}</p>
+                  <p className={`text-sm mb-0.5 ${isUnread ? "font-bold text-foreground" : "font-normal text-muted-foreground"}`}>{n.title}</p>
                   <NotifTags n={n} />
-                  <p className="text-xs text-muted-foreground truncate mt-1">{n.noiDung}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{n.ngayDang}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-1">{n.body}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
                 </div>
               </div>
               );
