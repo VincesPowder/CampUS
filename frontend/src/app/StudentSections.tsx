@@ -1694,7 +1694,6 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
   );
 }
 
-
 // ─── Schedule Section ─────────────────────────────────────────────────────────
 export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (t: "tkb" | "thi") => void }) {
   const [namHoc, setNamHoc] = useState("2025-2026");
