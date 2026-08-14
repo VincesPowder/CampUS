@@ -52,10 +52,14 @@ Dự án được chia làm 2 phần độc lập: **Backend** và **Frontend**.
    ```bash
    pip install -r requirements.txt
    ```
-5. Khởi tạo cơ sở dữ liệu và dữ liệu mẫu (Mock data) để chạy local bằng file seed.sql:
-   ```bash
-   sqlite3 database/campus.db < database/seed.sql
-   ```
+5. Khởi tạo cơ sở dữ liệu và dữ liệu mẫu (Mock data) bằng script Python:
+
+```bash
+python init_db.py
+```
+
+*(Script sẽ tự động chạy file* *`campus.sql`* *để tạo cấu trúc bảng và nạp dữ liệu từ* *`seed.sql`* *vào database)*
+
 6. Khởi chạy server Backend:
    ```bash
    python run.py
@@ -79,6 +83,33 @@ Dự án được chia làm 2 phần độc lập: **Backend** và **Frontend**.
    *Frontend sẽ sẵn sàng tại địa chỉ: `http://localhost:5173`*
 
 ---
+## Hướng dẫn Chạy Test (Testing)
+
+Dự án bao gồm các bộ kiểm thử tự động cho cả Backend và Frontend.
+
+### 1. Chạy Test Backend (Pytest)
+
+Đảm bảo bạn đang ở thư mục `backend` và đã kích hoạt môi trường ảo (`venv`):
+
+```bash
+cd backend
+pytest -v
+```
+
+### 2. Chạy Test Frontend (Vitest & Playwright)
+
+Đảm bảo bạn đang ở thư mục `frontend` và đã cài đặt thư viện (`pnpm install`):
+
+```bash
+cd frontend
+
+# 1. Chạy Unit Test (Vitest) cho các components
+pnpm vitest run
+
+# 2. Chạy End-to-End Test (Playwright) mô phỏng luồng người dùng
+# (Lưu ý: Chạy lệnh này trong lần đầu tiên để cài trình duyệt ảo: pnpm exec playwright install)
+pnpm exec playwright test
+```
 
 ## Cấu hình Biến môi trường (.env)
 
@@ -115,8 +146,10 @@ CampUS/
 │   │   ├── routes/                # Các Endpoints API (auth, users, ai...)
 │   │   └── services/              # Logic xử lý (AI chatbot, recommender)
 │   ├── database/                  # Chứa Database và file SQL
-│   │   ├── campus.db              # Cơ sở dữ liệu SQLite
-│   │   └── seed.sql               # File SQL chứa dữ liệu mẫu để chạy local
+│   │   ├── campus.sql             # Cấu trúc bảng (Schema)
+│   │   └── seed.sql               # File SQL chứa dữ liệu mẫu
+│   ├── tests/                     # Các kịch bản kiểm thử (Pytest)
+│   ├── init_db.py                 # Script tự động khởi tạo database
 │   ├── requirements.txt           # Danh sách các thư viện Python
 │   └── run.py                     # File khởi động Backend
 │
@@ -125,6 +158,7 @@ CampUS/
     │   ├── app/                   # Các màn hình, UI Components, MSAL config
     │   ├── data/                  # Dữ liệu Mock
     │   └── styles/                # Cấu hình Tailwind CSS, PostCSS
+    ├── tests/                     # Các kịch bản kiểm thử (Unit, E2E)
     ├── index.html
     ├── package.json               # Cấu hình thư viện Node.js
     └── postcss.config.mjs         # Cấu hình PostCSS (Tailwind v4)
