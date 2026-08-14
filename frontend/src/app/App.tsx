@@ -22,8 +22,8 @@ import {
 import Login from "./components/Login";
 // ─── Accounts ────────────────────────────────────────────────────────────────
 const ACCOUNTS = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin"   as const },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
+  { username: "admin", label: "Quản trị viên", email: "admin@hcmus.edu.vn", initials: "AD", pass: "abc", role: "admin" as const },
+  { username: "student", label: "Sinh viên", email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
 ];
 
 // ─── Account Picker Modal ─────────────────────────────────────────────────────
@@ -43,10 +43,10 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
           </div>
           <div className="flex items-center gap-1">
             <svg width="16" height="16" viewBox="0 0 21 21" fill="none">
-              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-              <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-              <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+              <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+              <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+              <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
             </svg>
             <span className="text-xs font-semibold text-[#4A6080]">Microsoft</span>
           </div>
@@ -84,7 +84,7 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
 }
 
 // ─── Logout Confirm ───────────────────────────────────────────────────────────
-function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+export function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
       <div className="rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center bg-[#ffffff]">
@@ -103,12 +103,12 @@ function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 }
 
 // ─── Logout Success ───────────────────────────────────────────────────────────
-function LogoutSuccess() {
+export function LogoutSuccess() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
       <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#f0fdf4" }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
         </div>
         <p className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã đăng xuất thành công!</p>
       </div>
@@ -145,7 +145,7 @@ function AIChatbot() {
   const [typing, setTyping] = useState(false);
   const [pulse, setPulse] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef  = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -224,7 +224,7 @@ function AIChatbot() {
                         background: m.role === "user" ? PRIMARY : "#EBF4FF",
                         color: m.role === "user" ? "#fff" : "#101A2C",
                         borderBottomRightRadius: m.role === "user" ? 4 : undefined,
-                        borderBottomLeftRadius:  m.role === "bot"  ? 4 : undefined,
+                        borderBottomLeftRadius: m.role === "bot" ? 4 : undefined,
                         border: m.role === "bot" ? "1px solid #e2e8f0" : undefined,
                       }}>
                       {m.role === "bot" ? renderBotText(m.text) : m.text}
@@ -241,7 +241,7 @@ function AIChatbot() {
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
                   <div className="bg-[#EBF4FF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-blue-100 flex items-center gap-1">
-                    {[0,1,2].map(d => (
+                    {[0, 1, 2].map(d => (
                       <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
                         style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
                     ))}
@@ -299,6 +299,75 @@ function AIChatbot() {
   );
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInitials(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0][0].toUpperCase();
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+}
+
+function abbreviateName(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  return words.map(w => w[0].toUpperCase()).join(".");
+}
+
+export function getRelativeTime(dateString: string): string {
+  if (!dateString) return "";
+  
+  let date = new Date(dateString);
+  
+  // Nếu JavaScript không hiểu chuỗi ngày (Invalid Date)
+  if (isNaN(date.getTime())) {
+    // Tìm định dạng DD/MM/YYYY HH:mm (Ví dụ: 26/07/2026 00:00)
+    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4})\s?(\d{2})?:?(\d{2})?/);
+    if (parts) {
+      const day = Number(parts[1]);
+      const month = Number(parts[2]) - 1; // Tháng trong JS bắt đầu từ 0
+      const year = Number(parts[3]);
+      const hour = parts[4] ? Number(parts[4]) : 0;
+      const minute = parts[5] ? Number(parts[5]) : 0;
+      date = new Date(year, month, day, hour, minute);
+    }
+  }
+
+  // Nếu vẫn không parse được, đành trả về chuỗi gốc
+  if (isNaN(date.getTime())) return dateString;
+
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInMins = Math.floor(diffInMs / (1000 * 60));
+  
+  if (diffInMins < 60) return `${Math.max(1, diffInMins)} phút trước`;
+  
+  const diffInHours = Math.floor(diffInMins / 60);
+  const remainingMins = diffInMins % 60;
+  
+  if (diffInHours < 24) {
+    return remainingMins > 0 ? `${diffInHours} giờ ${remainingMins} phút trước` : `${diffInHours} giờ trước`;
+  }
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  const remainingHours = diffInHours % 24;
+  
+  if (diffInDays < 30) {
+    return remainingHours > 0 ? `${diffInDays} ngày ${remainingHours} giờ trước` : `${diffInDays} ngày trước`;
+  }
+  
+  return date.toLocaleDateString('vi-VN');
+}
+
+function formatShortcutName(fullName: string): string {
+  if (!fullName) return "";
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0];
+  
+  const lastWord = words.pop();
+  const initials = words.map(w => w[0].toUpperCase()).join(".");
+  return `${initials}.${lastWord}`;
+}
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const { instance, accounts } = useMsal();
@@ -315,11 +384,15 @@ export default function App() {
   const [studentAvatarUrl, setStudentAvatarUrl] = useState<string | null>(null);
   const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
   const [notifs, setNotifs] = useState<any[]>([]);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [pendingSurveys, setPendingSurveys] = useState(0);
+
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "21127001";
-
-  // Fetch thông báo khi vừa đăng nhập
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158"; // (Có thể đổi fallback thành 24... để khớp với giao diện)
+  const fullName = accounts[0]?.name || "Nguyễn Văn A";
+  
+  // Fetch thông báo & khảo sát khi vừa đăng nhập
   useEffect(() => {
     if (isLoggedIn && userRole === "student") {
       fetch(`/api/students/${currentMssv}/notifications`)
@@ -327,20 +400,31 @@ export default function App() {
         .then(data => {
           if (data.status === 'success') {
             setNotifs(data.data);
+            setUnreadNotifs(data.data.filter((n:any) => !n.trangThaiDoc || Number(n.trangThaiDoc) === 0).length);
           }
         })
         .catch(err => console.error("Lỗi fetch thông báo:", err));
+
+      fetch(`/api/students/${currentMssv}/surveys`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success" && data.data) {
+            setPendingSurveys(data.data.filter((s:any) => s.status !== "completed").length);
+          }
+        })
+        .catch(err => console.error("Fetch surveys error:", err));
     }
   }, [isLoggedIn, userRole, currentMssv]);
 
   // Hàm gọi API đánh dấu Đã đọc 1 thông báo
-  const markRead = async (matb: string) => {
-    const target = notifs.find(n => n.matb === matb);
-    if (target && target.trangthai_doc === 0) {
+  const markRead = async (maTb: string) => {
+    const target = notifs.find(n => n.maTb === maTb);
+    if (target && (!target.trangThaiDoc || Number(target.trangThaiDoc) === 0)) {
       // Cập nhật UI ngay lập tức
-      setNotifs(prev => prev.map(n => n.matb === matb ? { ...n, trangthai_doc: 1, thoigian_doc: "Vừa xong" } : n));
+      setNotifs(prev => prev.map(n => n.maTb === maTb ? { ...n, trangThaiDoc: 1 } : n));
+      setUnreadNotifs(u => Math.max(0, u - 1));
       try {
-        await fetch(`/api/students/${currentMssv}/notifications/${matb}/read`, { method: 'POST' });
+        await fetch(`/api/students/${currentMssv}/notifications/${maTb}/read`, { method: 'POST' });
       } catch (e) {
         console.error(e);
       }
@@ -349,7 +433,8 @@ export default function App() {
 
   // Hàm gọi API đánh dấu Đã đọc tất cả
   const markAllRead = async () => {
-    setNotifs(prev => prev.map(n => ({ ...n, trangthai_doc: 1, thoigian_doc: "Vừa xong" })));
+    setNotifs(prev => prev.map(n => ({ ...n, trangThaiDoc: 1 })));
+    setUnreadNotifs(0);
     try {
       await fetch(`/api/students/${currentMssv}/notifications/read-all`, { method: 'POST' });
     } catch (e) {
@@ -357,7 +442,9 @@ export default function App() {
     }
   };
 
-  const unread = notifs.filter(n => n.trangthai_doc === 0).length;
+  // Đếm số thông báo chưa đọc
+  const unread = unreadNotifs;
+
 
   function handleLogin(role: "admin" | "student") {
     setUserRole(role);
@@ -365,30 +452,30 @@ export default function App() {
   }
 
   function handleLogoutConfirm() {
-  setShowLogoutConfirm(false);
-  setShowLogoutSuccess(true);
-  
-  setTimeout(() => {
-    setShowLogoutSuccess(false);
-    setIsLoggedIn(false);
-    localStorage.removeItem("campus_token");
-    if (instance.getAllAccounts().length > 0) {
-      instance.setActiveAccount(null);
-    }
-    try {
-      instance.logoutRedirect({
-        postLogoutRedirectUri: window.location.origin
-      });
-    } catch (error) {
-      sessionStorage.clear();
-      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
-    }
-  }, 1800);
-}
+    setShowLogoutConfirm(false);
+    setShowLogoutSuccess(true);
+
+    setTimeout(() => {
+      setShowLogoutSuccess(false);
+      setIsLoggedIn(false);
+      localStorage.removeItem("campus_token");
+      if (instance.getAllAccounts().length > 0) {
+        instance.setActiveAccount(null);
+      }
+      try {
+        instance.logoutRedirect({
+          postLogoutRedirectUri: window.location.origin
+        });
+      } catch (error) {
+        sessionStorage.clear();
+        window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      }
+    }, 1800);
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (notifRef.current  && !notifRef.current.contains(e.target as Node))  setNotifOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
       if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
@@ -422,6 +509,10 @@ export default function App() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            let badgeCount = 0;
+            if (item.id === "notifications") badgeCount = unreadNotifs;
+            if (item.id === "survey") badgeCount = pendingSurveys;
+
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 title={!sidebarOpen ? item.label : undefined}
@@ -433,12 +524,12 @@ export default function App() {
                 {sidebarOpen && (
                   <>
                     <span className={`flex-1 text-left whitespace-nowrap text-white ${active ? "text-[14px]" : "text-[13px]"}`}>{item.label}</span>
-                    {item.badge && (
-                      <span className="text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: "var(--accent)", fontSize: "10px" }}>{item.badge}</span>
+                    {badgeCount > 0 && (
+                      <span className="text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: "var(--accent)", fontSize: "10px" }}>{badgeCount}</span>
                     )}
                   </>
                 )}
-                {!sidebarOpen && item.badge && (
+                {!sidebarOpen && badgeCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "var(--accent)" }} />
                 )}
               </button>
@@ -450,12 +541,18 @@ export default function App() {
           <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
             {studentAvatarUrl
               ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" />
-              : <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</span>}
+              : <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {getInitials(fullName)}
+                </span>}
           </div>
           {sidebarOpen && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Nguyễn Văn An</div>
-              <div className="text-xs text-white/40 truncate font-mono">21127001</div>
+              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                {formatShortcutName(fullName)}
+              </div>
+              <div className="text-xs text-white/40 truncate font-mono">
+                {currentMssv}
+              </div>
             </div>
           )}
         </div>
@@ -499,28 +596,42 @@ export default function App() {
           </div>
           <div className="ml-auto flex items-center gap-1.5">
             <HelpButton />
+            {/* --- ĐOẠN MÃ DROP-DOWN THÔNG BÁO DÀNH CHO APP.TSX (KẾT NỐI API) --- */}
             <div className="relative" ref={notifRef}>
-              <button onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+              <button 
+                onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} 
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+              >
                 <Bell className="w-5 h-5" />
-                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}>{unread}</span>}
+                
+                {/* Badge đếm số lượng thông báo (Khớp màu và position) */}
+                {unread > 0 && (
+                  <span 
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}
+                  >
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                )}
               </button>
+
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
+                <div className="fixed left-3 right-3 top-[58px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 200 }}>
                   <div className="px-4 py-3 border-b border-border">
                     <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
                   </div>
                   <div className="max-h-80 overflow-y-auto divide-y divide-border">
                     {notifs.map(n => {
-                      const isUnread = n.trangthai_doc === 0;
+                      const isUnread = !n.trangThaiDoc || Number(n.trangThaiDoc) === 0;
                       return (
-                        <div key={n.matb} className={`px-4 py-3 hover:bg-secondary/23 transition-colors ${isUnread ? "bg-secondary/50" : ""}`}>
+                        <div key={n.maTb} onClick={() => { markRead(n.maTb); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }}
+                          className={`px-4 py-3 hover:bg-secondary/40 transition-colors cursor-pointer ${isUnread ? "bg-secondary/50" : ""}`}>
                           <div className="flex items-start gap-2 mb-1">
                             {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.tieude}</p>
+                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.tieuDe}</p>
                           </div>
                           <div className="flex items-center justify-between mt-1 pl-4">
-                            <span className="text-xs text-muted-foreground">{n.thoigian_doc}</span>
-                            <button onClick={() => { markRead(n.matb); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
+                            <span className="text-xs text-muted-foreground">{n.ngayDang ? getRelativeTime(n.ngayDang) : "Vừa xong"}</span>
+                            <span className="text-xs font-medium" style={{ color: "var(--primary)" }}>Chi tiết →</span>
                           </div>
                         </div>
                       );
@@ -533,25 +644,38 @@ export default function App() {
               )}
             </div>
             <div className="relative" ref={avatarRef}>
-              <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
-                {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : "NV"}
+              {/* Nút bấm chỉ hiển thị hình tròn Avatar */}
+              <button 
+                onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} 
+                className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center hover:opacity-80 transition-opacity" 
+                style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}
+              >
+                {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
               </button>
+              
+              {/* Dropdown Menu - Tăng kích thước chiều rộng lên 320px */}
               {avatarOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
-                  <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                      {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : "NV"}
+                <div className="absolute right-0 top-full mt-3 w-[320px] bg-card border border-border rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden" style={{ zIndex: 50 }}>
+                  <div className="px-5 py-4 flex items-center gap-3.5 border-b border-border">
+                    <div className="w-[50px] h-[50px] rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center font-bold text-lg" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{STUDENT_PROFILE.fullName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{STUDENT_PROFILE.officialEmail}</div>
+                    <div className="min-w-0 flex-1">
+                      {/* In hoa tên sinh viên */}
+                      <div className="font-semibold text-[15px] leading-tight text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {fullName.toUpperCase()}
+                      </div>
+                      {/* Bỏ truncate, thiết lập font size phù hợp để email hiện đầy đủ */}
+                      <div className="text-[13px] text-muted-foreground mt-1 tracking-tight">
+                        {currentMssv}@student.hcmus.edu.vn
+                      </div>
                     </div>
                   </div>
-                  <div className="py-1">
-                    <button onClick={() => { setActiveSection("profile"); setAvatarOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/25 transition-colors text-foreground">
+                  <div className="py-2">
+                    <button onClick={() => { setActiveSection("profile"); setAvatarOpen(false); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[15px] hover:bg-secondary/40 transition-colors text-foreground font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <User className="w-4 h-4 text-muted-foreground" /> Hồ sơ cá nhân
                     </button>
-                    <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/25 transition-colors text-destructive">
+                    <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[15px] hover:bg-secondary/40 transition-colors text-destructive font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <LogOut className="w-4 h-4" /> Đăng xuất
                     </button>
                   </div>
@@ -567,17 +691,17 @@ export default function App() {
         <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 pb-20 md:pb-6 bg-background">
           {activeSection === "profile"        && <ProfileSection avatarUrl={studentAvatarUrl} onAvatarChange={setStudentAvatarUrl} />}
           {activeSection === "academic"       && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
-          {activeSection === "survey"         && <SurveySection />}
+          {activeSection === "survey"         && <SurveySection onDone={() => setPendingSurveys(s => Math.max(0, s - 1))} />}
           {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
           {activeSection === "notifications" && (
-            <NotificationsSection 
+            <NotificationsSection
               notifs={notifs}
-              selectedNotif={selectedNotif} 
-              setSelectedNotif={(n: any) => { 
-                if (n) markRead(n.matb); 
-                setSelectedNotif(n); 
-              }} 
+              selectedNotif={selectedNotif}
+              setSelectedNotif={(n: any) => {
+                if (n) markRead(n.matb);
+                setSelectedNotif(n);
+              }}
               markAllRead={markAllRead}
             />
           )}
@@ -590,15 +714,19 @@ export default function App() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            let badgeCount = 0;
+            if (item.id === "notifications") badgeCount = unreadNotifs;
+            if (item.id === "survey") badgeCount = pendingSurveys;
+
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 className="flex-1 flex flex-col items-center gap-0.5 pt-2 pb-2.5 px-0.5 transition-colors"
                 style={{ color: active ? "var(--primary)" : "#718096" }}>
                 <div className="relative">
                   <Icon className="w-5 h-5" />
-                  {item.badge && (
+                  {badgeCount > 0 && (
                     <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 rounded-full text-white flex items-center justify-center font-bold"
-                      style={{ background: "var(--accent)", fontSize: "8px" }}>{item.badge}</span>
+                      style={{ background: "var(--accent)", fontSize: "8px" }}>{badgeCount}</span>
                   )}
                 </div>
                 <span className="text-[8.5px] font-medium leading-tight text-center w-full truncate px-0.5"

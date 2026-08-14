@@ -13,3 +13,5 @@ minimumReleaseAge: 10080
 allowBuilds:
   '@tailwindcss/oxide': true
   esbuild: true
+minimumReleaseAgeExclude:
+  - '@testing-library/jest-dom@7.0.1'
