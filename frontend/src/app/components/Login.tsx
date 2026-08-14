@@ -30,10 +30,26 @@ export default function Login({ onLogin }: LoginProps) {
       let userRole: "admin" | "student" = "student"; 
 
       try {
-        const payload = JSON.parse(atob(existingToken.split('.')[1]));
-        userRole = (payload.role as "admin" | "student") || (userEmail.includes("@student") ? "student" : "admin");
+        const tokenParts = existingToken.split('.');
+        
+        // Kiểm tra xem token có đủ phần payload không
+        if (tokenParts.length < 2) {
+          throw new Error("Token lưu trữ không đúng định dạng JWT");
+        }
+        
+        const tokenPayload = tokenParts[1]; 
+        const base64 = tokenPayload.replace(/-/g, '+').replace(/_/g, '/');
+        const pad = base64.length % 4;
+        const paddedBase64 = pad ? base64 + new Array(5 - pad).join('=') : base64;
+        
+        // Giải mã
+        const decodedData = JSON.parse(window.atob(paddedBase64));
+        console.log("Token hợp lệ:", decodedData);
+        userRole = (decodedData.role as "admin" | "student") || (userEmail.includes("@student") ? "student" : "admin");
       } catch (error) {
-        console.error("Lỗi giải mã token:", error);
+        console.error("Lỗi giải mã token, đang tiến hành xóa token lỗi:", error);
+        // Xóa token bị hỏng trong localStorage để user không bị kẹt ở màn hình trắng
+        localStorage.removeItem('campus_token');
         userRole = userEmail.includes("@student") ? "student" : "admin";
       }
 
