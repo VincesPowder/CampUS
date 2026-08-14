@@ -1,12 +1,63 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request, jsonify, send_file
 import re
 from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan
 from app.models.tuition import HocPhi, LopHocPhan
 from app.models.notification import SvThongBao, ThongBao
+from app.services.schedule_service import ScheduleService
 from app import db
 from datetime import datetime
 
 student_bp = Blueprint('student', __name__)
+
+@student_bp.route('/schedule/filters', methods=['GET'])
+def get_filters():
+    mssv = request.args.get('mssv', default='', type=str)
+    filters = ScheduleService.get_filter_options(mssv)
+    return jsonify({"status": "success", "data": filters}), 200
+
+@student_bp.route('/schedule/weekly', methods=['GET'])
+def get_weekly_schedule():
+    mssv = request.args.get('mssv', default='', type=str)
+    ma_hocky = request.args.get('ma_hocky', default='HK1', type=str)
+    week_number = request.args.get('week', default=1, type=int)
+
+    data = ScheduleService.get_weekly_schedule(mssv, ma_hocky, week_number)
+    return jsonify({"status": "success", "data": data}), 200
+
+@student_bp.route('/schedule/exams', methods=['GET'])
+def get_exam_schedule():
+    mssv = request.args.get('mssv', default='', type=str)
+    ma_hocky = request.args.get('ma_hocky', default='HK1', type=str)
+
+    data = ScheduleService.get_exam_schedule(mssv, ma_hocky)
+    return jsonify({"status": "success", "data": data}), 200
+
+@student_bp.route('/schedule/weekly/export', methods=['GET'])
+def export_weekly_excel():
+    mssv = request.args.get('mssv', default='', type=str)
+    ma_hocky = request.args.get('ma_hocky', default='HK1', type=str)
+    week_number = request.args.get('week', default=1, type=int)
+
+    excel_file = ScheduleService.export_weekly_schedule_excel(mssv, ma_hocky, week_number)
+    return send_file(
+        excel_file,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name=f"TKB_Tuan_{week_number}.xlsx"
+    )
+
+@student_bp.route('/schedule/exams/export', methods=['GET'])
+def export_exams_excel():
+    mssv = request.args.get('mssv', default='', type=str)
+    ma_hocky = request.args.get('ma_hocky', default='HK1', type=str)
+
+    excel_file = ScheduleService.export_exam_schedule_excel(mssv, ma_hocky)
+    return send_file(
+        excel_file,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name="Lich_Thi.xlsx"
+    )
 
 def format_date(date_val):
     """Hàm helper để định dạng ngày an toàn, chống sập server khi SQLite trả về chuỗi"""
@@ -383,33 +434,3 @@ def submit_survey(mssv, maks):
     db.session.commit()
     return jsonify({"status": "success", "message": "Nộp khảo sát thành công"}), 200
 
-
-# ---------------------------------------------------------
-# API HỌC PHÍ
-# ---------------------------------------------------------
-
-@student_bp.route('/<mssv>/tuition/<malhp>/pay', methods=['POST'])
-def pay_tuition(mssv, malhp):
-    """Mô phỏng tính năng thanh toán học phí cho một lớp học phần"""
-    hocphi = db.session.query(HocPhi).filter_by(mssv=mssv, malhp=malhp).first()
-    
-    if not hocphi:
-        return jsonify({'status': 'error', 'message': 'Không tìm thấy thông tin học phí'}), 404
-        
-    if hocphi.trangthai_thanhtoan == 'Đã thanh toán':
-        return jsonify({'status': 'error', 'message': 'Học phí này đã được thanh toán rồi'}), 400
-    
-    hocphi.trangthai_thanhtoan = 'Đã thanh toán'
-    hocphi.ngaythanhtoan = datetime.utcnow()
-    
-    db.session.commit()
-    
-    return jsonify({
-        'status': 'success', 
-        'message': 'Thanh toán học phí thành công',
-        'data': {
-            'malhp': hocphi.malhp,
-            'trangthai_thanhtoan': hocphi.trangthai_thanhtoan,
-            'ngaythanhtoan': hocphi.ngaythanhtoan.strftime('%d/%m/%Y %H:%M')
-        }
-    }), 200
