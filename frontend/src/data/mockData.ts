@@ -518,10 +518,30 @@ export const MOCK_RESULTS: Record<string, { question: SurveyQuestion; data: { la
 
 export type GradeStatus = "pending" | "uploaded" | "locked";
 
+
+// ─── Academic Year ────────────────────────────────────────────────────────────
+
+export type AcademicYear = {
+  id: string;
+  label: string;
+  ngayBatDau: string;
+  ngayKetThuc: string;
+  soHocKy: number;
+  status: "open" | "closed";
+};
+
+export const ACADEMIC_YEARS: AcademicYear[] = [
+  { id: "23-24", label: "2023–2024", ngayBatDau: "04/09/2023", ngayKetThuc: "31/08/2024", soHocKy: 3, status: "closed" },
+  { id: "24-25", label: "2024–2025", ngayBatDau: "02/09/2024", ngayKetThuc: "31/08/2025", soHocKy: 3, status: "closed" },
+  { id: "25-26", label: "2025–2026", ngayBatDau: "01/09/2025", ngayKetThuc: "31/08/2026", soHocKy: 3, status: "open"  },
+  { id: "26-27", label: "2026–2027", ngayBatDau: "01/09/2026", ngayKetThuc: "31/08/2027", soHocKy: 3, status: "open" },
+];
+
 export type AdminCourseItem = {
   id: string; maMon: string; tenMon: string; lop: string; soTC: number;
   giangVien: string; emailGV: string; soSV: number; khoa: string;
   status: GradeStatus; namHoc: string; hocKy: number; ngayNopDiem?: string;
+  soTiet?: number; maNhom?: string; tenNhom?: string;
 };
 
 export type StudentGradeRow = {
@@ -721,3 +741,31 @@ export function mockReply(q: string): string {
     return "Không có gì, rất vui được hỗ trợ bạn! Nếu còn câu hỏi nào khác, tôi luôn ở đây. Chúc bạn học tốt!";
   return "Tôi ghi nhận câu hỏi của bạn. Để được hỗ trợ chi tiết hơn, bạn có thể:\n• Đến **Phòng Đào tạo** (B001, Cơ sở 1)\n• Email: **daotao@hcmus.edu.vn**\n• Hotline: **(028) 3835 4266**\n\nTôi có thể giúp gì thêm không?";
 }
+
+// ─── Admin UI option lists ────────────────────────────────────────────────────
+
+export const EXAM_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  "Thực hành":   { bg: "#f0fdf4", text: "#16a34a" },
+  "Tự luận":     { bg: "#fffbeb", text: "#b45309" },
+  "Trắc nghiệm": { bg: "#eff6ff", text: "#1d4ed8" },
+};
+
+export const GRADE_EDIT_REASONS = [
+  "Phúc khảo (Grade Appeal)",
+  "Sai sót nhập liệu (Data Entry Error)",
+  "Điểm bổ sung (Make-up Grade)",
+  "Khác (Other)",
+];
+
+export const NOTIF_KHOA_OPTS = [
+  "", "Khoa CNTT", "Khoa Toán – Tin học", "Khoa Vật lý",
+  "Khoa Hóa học", "Khoa Sinh học", "Khoa Môi trường",
+];
+
+export const NOTIF_PHONG_OPTS = [
+  "", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Tài chính",
+  "Phòng Khảo thí & ĐBCL", "Ban Giám hiệu",
+];
+
+export const TUITION_HK_LIST = ["HK1", "HK2", "HK3"];
+
