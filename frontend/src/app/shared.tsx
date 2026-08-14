@@ -1,13 +1,30 @@
 // ─── Shared components, schedule types, data, and TKBCellCard ───────────────
 // Used by App.tsx, StudentSections.tsx, and AdminSections.tsx
 import React, { useState, useRef, useEffect } from "react";
-import { HelpCircle, Mail } from "lucide-react";
-
+import { HelpCircle, Mail, X } from "lucide-react";
+import logoImg from "@/imports/Artboard_5.png";
 const CONTACTS = [
-  { label: "Phòng đào tạo", mail: "daotao@hcmus.edu.vn" },
-  { label: "Phòng giáo vụ", mail: "giaovu@hcmus.edu.vn" },
+  { label: "Phòng đào tạo",  mail: "daotao@hcmus.edu.vn" },
+  { label: "Phòng giáo vụ",  mail: "giaovu@hcmus.edu.vn" },
   { label: "Phòng kỹ thuật", mail: "kythuat@hcmus.edu.vn" },
 ];
+
+export function SidebarLogo({ open }: { open: boolean }) {
+  return (
+    <div className="rounded-full flex items-center justify-center flex-shrink-0"
+      style={{
+        width: open ? 72 : 36,
+        height: open ? 72 : 36,
+        background: "rgba(255,255,255,0.2)",
+        border: "1.5px solid rgba(255,255,255,0.3)",
+        transition: "all 0.3s",
+        padding: open ? 12 : 6,
+      }}>
+      <img src={logoImg} alt="CampUS" style={{ mixBlendMode: "screen", filter: "brightness(0) invert(1)" }} className="w-full h-full object-contain" />
+    </div>
+  );
+}
+
 
 export function HelpButton() {
   const [open, setOpen] = useState(false);
@@ -47,12 +64,27 @@ export function HelpButton() {
   );
 }
 
+// ─── Name helpers ─────────────────────────────────────────────────────────────
+
+export function getInitials(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0][0].toUpperCase();
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+}
+
+export function abbreviateName(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  return words.map(w => w[0].toUpperCase()).join(".");
+}
+
 // ─── Schedule types, data, and TKBCellCard ────────────────────────────────────
 
 export type HinhThuc = "TẬP TRUNG" | "TRỰC TUYẾN" | "HỌC BÙ TRỰC TIẾP" | "HỌC BÙ TRỰC TUYẾN" | "NGHỈ";
 
 export type TKBEntry = {
-  tenMon: string; maNhom: string; tiet: string; gv: string; email: string;
+  tenMon: string; maMon?: string; maNhom: string; tiet: string; gv: string; email: string;
   hinhThuc: HinhThuc; ngonNgu: string; phong: string; isLab?: boolean; span?: number;
 };
 
@@ -158,11 +190,18 @@ export const HINH_THUC_STYLE: Record<HinhThuc, { bg: string; text: string; label
   "NGHỈ":               { bg: "bg-red-50",    text: "text-red-600",    label: "Nghỉ" },
 };
 
-export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: string }) {
+export function TKBCellCard({ entry }: { entry: TKBEntry; caTime?: string }) {
   const isEn = entry.ngonNgu === "Tiếng Anh";
   const isNghi = entry.hinhThuc === "NGHỈ";
   const htStyle = HINH_THUC_STYLE[entry.hinhThuc];
   const textColor = "rgba(0,0,0,0.9)";
+  if (isNghi) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[80px]">
+        <span className="font-bold text-red-600 tracking-widest" style={{ fontSize: 15 }}>NGHỈ</span>
+      </div>
+    );
+  }
   return (
     <div className="text-[11px] leading-tight space-y-1 min-w-0 h-full">
       <div className="flex items-center gap-1 flex-wrap">
@@ -179,19 +218,82 @@ export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: strin
         )}
       </div>
       <div className="font-bold text-[11px] leading-snug" style={{ color: "var(--primary)" }}>{entry.tenMon}</div>
-      <div className="text-[10px]" style={{ color: textColor }}>Tiết {entry.tiet}{caTime ? <span className="ml-1 text-muted-foreground">· {caTime}</span> : null}</div>
       <div className="text-[10px]" style={{ color: textColor }}>LHP: <span className="font-mono">{entry.maNhom}</span></div>
       {entry.gv && <div className="text-[10px] truncate" style={{ color: textColor }}>GV: {entry.gv}</div>}
       {entry.email && <div className="text-[10px] truncate" style={{ color: textColor }}>{entry.email}</div>}
       <div className="text-[9px] pt-0.5 space-y-0.5" style={{ color: textColor }}>
-        <div>
-          Hình thức học:{" "}
-          {isNghi
-            ? <span className="font-bold text-red-600" style={{ fontSize: 11 }}>Nghỉ</span>
-            : htStyle.label}
-        </div>
-        <div style={{ color: textColor }}>Ngôn ngữ: {entry.ngonNgu}</div>
+        <div>Hình thức học: {htStyle.label}</div>
+        <div>Ngôn ngữ: {entry.ngonNgu}</div>
       </div>
+    </div>
+  );
+}
+
+export function TKBWeekGrid({
+  weekData,
+  dates,
+  todayDay = -1,
+  onRemoveSlot,
+  onClickCell,
+  headerDark = false,
+}: {
+  weekData: Record<number, TKBCell[]>;
+  dates: string[];
+  todayDay?: number;
+  onRemoveSlot?: (dayIdx: number, caIdx: number) => void;
+  onClickCell?: (dayIdx: number, caIdx: number, entry: TKBEntry) => void;
+  headerDark?: boolean;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-xs" style={{ minWidth: 700, tableLayout: "fixed" }}>
+        <thead>
+          <tr>
+            {DAYS.map((day, i) => {
+              const isToday = i === todayDay;
+              return (
+                <th key={day} className="border-2 border-border px-2 py-2 text-center"
+                  style={{ background: isToday ? "#fff7ed" : "#fff", color: isToday ? "#d97706" : "#1e3a5f", fontFamily: "'Plus Jakarta Sans', sans-serif", minWidth: 120 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800 }}>{day}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.6 }}>{dates[i]}</div>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {CA_LABELS.map((ca, caIdx) => (
+            <tr key={caIdx} style={{ background: "#fff" }}>
+              {DAYS.map((_, dayIdx) => {
+                const cell = weekData[dayIdx]?.[caIdx] ?? null;
+                if (cell === "span") return null;
+                const entry = cell as TKBEntry | null;
+                const isToday = dayIdx === todayDay;
+                const spanRows = entry?.span ?? 1;
+                const clickable = !!onClickCell && !!entry;
+                return (
+                  <td key={dayIdx} rowSpan={spanRows} className="border-2 border-border px-2 py-1.5 align-top relative group"
+                    style={{ height: 130, background: isToday && entry ? "rgba(245,158,11,0.1)" : undefined, cursor: clickable ? "pointer" : undefined }}
+                    onClick={() => entry && onClickCell?.(dayIdx, caIdx, entry)}>
+                    {entry ? (
+                      <>
+                        <TKBCellCard entry={entry} caTime={ca.time} />
+                        {onRemoveSlot && (
+                          <button onClick={e => { e.stopPropagation(); onRemoveSlot(dayIdx, caIdx); }}
+                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-0.5 rounded bg-white/80 hover:bg-red-50 transition-opacity"
+                            title="Xóa tiết này">
+                            <X className="w-3 h-3 text-red-400" />
+                          </button>
+                        )}
+                      </>
+                    ) : null}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
