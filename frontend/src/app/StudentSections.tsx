@@ -14,7 +14,17 @@ import {
   type FamilyMember, type CourseRecord, type Notification, type Survey,
 } from "../data/mockData";
 import {
-  TKB_DATA, EXAM_DATA, DAYS, CA_LABELS, TKBCellCard, getWeekDates,
+  TKB_DATA,
+  EXAM_DATA,
+  DAYS,
+  CA_LABELS,
+  TKBCellCard,
+  TKBWeekGrid,
+  getWeekDates,
+  type TKBEntry,
+  type TKBCell,
+  type ExamEntry,
+  type HinhThuc,
 } from "./shared";
 
 // ─── Nav types ────────────────────────────────────────────────────────────────
@@ -1695,46 +1705,196 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
 }
 
 
-// ─── Schedule Section ─────────────────────────────────────────────────────────
+// ─── Schedule Section (52 Tuần) ───────────────────────────────────────────────
+const API_BASE_URL = "http://127.0.0.1:5000/api/students";
+
+// Tạo sẵn danh sách 52 tuần trong năm học
+const WEEKS_52 = Array.from({ length: 52 }, (_, i) => ({
+  week_number: i + 1,
+  label: `Tuần ${i + 1}`,
+}));
+
 export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (t: "tkb" | "thi") => void }) {
-  const [namHoc, setNamHoc] = useState("2025-2026");
-  const [hocKy,  setHocKy]  = useState("HK1");
-  const [tuan,   setTuan]   = useState(28);
-  const TODAY_DAY = 1;
-  const weekData = TKB_DATA[tuan] ?? {};
-  const dates    = getWeekDates(tuan);
-  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white";
+  const [filterList, setFilterList] = useState<{ ma_hocky: string; ten_hocky: string; namhoc: string; label: string }[]>([]);
+  const [namHoc, setNamHoc] = useState("2024-2025");
+  const [hocKy,  setHocKy]  = useState("HK001");
+  const [tuan,   setTuan]   = useState(1); // Mặc định bắt đầu từ Tuần 1
+
+  const [apiWeekData, setApiWeekData] = useState<Record<number, TKBCell[]> | null>(null);
+  const [apiExamData, setApiExamData] = useState<ExamEntry[] | null>(null);
+
+  const TODAY_DAY = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const dates     = getWeekDates(tuan);
+  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white cursor-pointer";
+
+  // 1. Lấy danh sách bộ lọc Học kỳ / Năm học từ Backend
+  useEffect(() => {
+    async function loadFilters() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/schedule/filters`);
+        const json = await res.json();
+        if (json.status === "success" && json.data?.length > 0) {
+          setFilterList(json.data);
+          setHocKy(json.data[0].ma_hocky || "HK001");
+          if (json.data[0].namhoc) setNamHoc(json.data[0].namhoc);
+        }
+      } catch (err) {
+        console.warn("Dùng bộ lọc mặc định:", err);
+      }
+    }
+    loadFilters();
+  }, []);
+
+  // 2. Tải TKB Tuần hoặc Lịch Thi khi đổi Học kỳ / Tuần (từ 1 đến 52)
+  useEffect(() => {
+    async function fetchSchedule() {
+      try {
+        if (tab === "tkb") {
+          const res = await fetch(`${API_BASE_URL}/schedule/weekly?ma_hocky=${hocKy}&week=${tuan}`);
+          const json = await res.json();
+          if (json.status === "success" && json.data?.days) {
+            const grid: Record<number, TKBCell[]> = {};
+            for (let d = 0; d < 7; d++) grid[d] = [null, null, null, null];
+
+            Object.entries(json.data.days).forEach(([dayNumStr, items]: [string, any]) => {
+              const dayIdx = Number(dayNumStr) === 8 ? 6 : Number(dayNumStr) - 2; // 2 (Thứ 2) -> 0 ... 8 (CN) -> 6
+              if (dayIdx >= 0 && dayIdx < 7 && Array.isArray(items)) {
+                items.forEach((it: any) => {
+                  const caIdx = it.start_period <= 2 ? 0 : it.start_period <= 5 ? 1 : it.start_period <= 8 ? 2 : 3;
+                  const span = (it.end_period - it.start_period + 1) >= 4 ? 2 : 1;
+
+                  const entry: TKBEntry = {
+                    tenMon: it.tenmh,
+                    maMon: it.mamh,
+                    maNhom: it.tenlop || it.malhp,
+                    tiet: `${it.start_period}–${it.end_period}`,
+                    gv: it.lecturer || "",
+                    email: it.email || "",
+                    hinhThuc: "TẬP TRUNG",
+                    ngonNgu: it.format || "Tiếng Việt",
+                    phong: it.room,
+                    isLab: it.loai_tiet === "TH",
+                    span: span,
+                  };
+
+                  grid[dayIdx][caIdx] = entry;
+                  if (span > 1 && caIdx + 1 < 4) grid[dayIdx][caIdx + 1] = "span";
+                });
+              }
+            });
+            setApiWeekData(grid);
+          }
+        } else {
+          const res = await fetch(`${API_BASE_URL}/schedule/exams?ma_hocky=${hocKy}`);
+          const json = await res.json();
+          if (json.status === "success" && json.data) {
+            const mappedExams: ExamEntry[] = json.data.map((ex: any, idx: number) => ({
+              tenMon: ex.tenmh,
+              maNhom: ex.tenlop || ex.malhp,
+              ngayThi: ex.exam_date,
+              thu: ex.day_name,
+              ca: ex.shift || "Ca 1",
+              gio: ex.time_range,
+              thoiGian: ex.thoiGian || "90 phút",
+              phong: ex.room,
+              soThi: Number(ex.seat_number) || idx + 1,
+              hinhThuc: ex.exam_format || "Tự luận",
+            }));
+            setApiExamData(mappedExams);
+          }
+        }
+      } catch (err) {
+        console.warn("Fallback sang mock data:", err);
+        setApiWeekData(null);
+        setApiExamData(null);
+      }
+    }
+    fetchSchedule();
+  }, [hocKy, tuan, tab]);
+
+  // Xuất file Excel từ Backend
+  const handleExportExcel = () => {
+    if (tab === "tkb") {
+      window.open(`${API_BASE_URL}/schedule/weekly/export?ma_hocky=${hocKy}&week=${tuan}`, "_blank");
+    } else {
+      window.open(`${API_BASE_URL}/schedule/exams/export?ma_hocky=${hocKy}`, "_blank");
+    }
+  };
+
+  const hasApiClasses = apiWeekData && Object.values(apiWeekData).some(caList => caList.some(item => item !== null && item !== "span"));
+  const weekData = hasApiClasses ? apiWeekData : (apiWeekData || TKB_DATA[tuan] || {});
+  const examList = apiExamData || EXAM_DATA;
+
+  const curSemObj = filterList.find(f => f.ma_hocky === hocKy);
 
   return (
     <div className="w-full space-y-4">
+      {/* ── Filter Bar ── */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
           <select value={namHoc} onChange={e => setNamHoc(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
-            <option value="2024-2025">2024-2025</option>
-            <option value="2025-2026">2025-2026</option>
+            {filterList.length > 0 ? (
+              Array.from(new Set(filterList.map(f => f.namhoc).filter(Boolean))).map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))
+            ) : (
+              <>
+                <option value="2024-2025">2024-2025</option>
+                <option value="2025-2026">2025-2026</option>
+              </>
+            )}
           </select>
         </div>
+
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
           <select value={hocKy} onChange={e => setHocKy(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
-            <option value="HK1">Học kỳ 1</option>
-            <option value="HK2">Học kỳ 2</option>
-            <option value="HK3">Học kỳ 3</option>
+            {filterList.length > 0 ? (
+              filterList.map(f => (
+                <option key={f.ma_hocky} value={f.ma_hocky}>{f.ten_hocky || f.label}</option>
+              ))
+            ) : (
+              <>
+                <option value="HK001">Học kỳ 1</option>
+                <option value="HK002">Học kỳ 2</option>
+                <option value="HK003">Học kỳ 3</option>
+              </>
+            )}
           </select>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần:</label>
-          <select value={tuan} onChange={e => setTuan(Number(e.target.value))} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
-            {Array.from({ length: 10 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
-          </select>
-        </div>
+
+        {tab === "tkb" && (
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần:</label>
+            {/* Dropdown 52 tuần có thể cuộn lên cuộn xuống */}
+            <select 
+              value={tuan} 
+              onChange={e => setTuan(Number(e.target.value))} 
+              className={selectCls} 
+              style={{ fontFamily: "'Inter', sans-serif", maxHeight: "200px" }}
+            >
+              {WEEKS_52.map(w => (
+                <option key={w.week_number} value={w.week_number}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="ml-auto">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-200 text-xs font-semibold text-green-700 bg-green-50 hover:bg-green-100 transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <button 
+            onClick={handleExportExcel}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-green-200 text-xs font-semibold text-green-700 bg-green-50 hover:bg-green-100 transition-colors" 
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
             <Download className="w-3.5 h-3.5" /> Xuất Excel
           </button>
         </div>
       </div>
+
+      {/* ── Tab Switcher ── */}
       <div className="flex items-center border-b border-border">
         {([["tkb", "TKB Tuần"], ["thi", "TKB Thi"]] as const).map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)}
@@ -1745,35 +1905,47 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
           </button>
         ))}
       </div>
+
+      {/* ── Tab TKB Tuần ── */}
       {tab === "tkb" && (
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <div className="px-6 py-3 border-b border-border flex items-center justify-center gap-6" style={{ background: "#1e3a5f" }}>
-            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{hocKy}</span>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{curSemObj?.ten_hocky || hocKy}</span>
             <span className="text-white opacity-40 text-xs">|</span>
             <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{namHoc}</span>
             <span className="text-white opacity-40 text-xs">|</span>
             <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần {tuan}</span>
             <span className="text-white opacity-40 text-xs">|</span>
-            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{dates[0]} → {dates[6]}</span>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{dates[0]} → {dates[dates.length - 1]}</span>
           </div>
           <TKBWeekGrid weekData={weekData} dates={dates} todayDay={TODAY_DAY} />
         </div>
       )}
+
+      {/* ── Điều hướng tuần từ 1 đến 52 ── */}
       {tab === "tkb" && (
         <div className="flex items-center justify-between">
-          <button onClick={() => setTuan(t => Math.max(1, t - 1))} disabled={tuan <= 1}
+          <button 
+            onClick={() => setTuan(t => Math.max(1, t - 1))} 
+            disabled={tuan <= 1}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
             <ChevronRight className="w-4 h-4 rotate-180" /> Tuần trước
           </button>
           
-          <button onClick={() => setTuan(t => Math.min(10, t + 1))} disabled={tuan >= 10}
+          <button 
+            onClick={() => setTuan(t => Math.min(52, t + 1))} 
+            disabled={tuan >= 52}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
             Tuần sau <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       )}
+
+      {/* ── Tab TKB Thi ── */}
       {tab === "thi" && (
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <div className="overflow-x-auto">
@@ -1786,7 +1958,7 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
                 </tr>
               </thead>
               <tbody>
-                {EXAM_DATA.map((ex, i) => (
+                {examList.map((ex, i) => (
                   <tr key={i} className="hover:bg-blue-100/60 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
                     <td className="px-3 py-3 border-b border-border text-center font-mono text-muted-foreground">{i + 1}</td>
                     <td className="px-3 py-3 border-b border-border font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
