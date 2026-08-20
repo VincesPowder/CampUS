@@ -4,6 +4,7 @@ from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan
 from app.models.tuition import HocPhi, LopHocPhan
 from app.models.notification import SvThongBao, ThongBao
 from app.services.schedule_service import ScheduleService
+from app.services.academic_service import AcademicService
 from app import db
 from datetime import datetime
 
@@ -464,3 +465,26 @@ def pay_tuition(mssv, malhp):
             'ngaythanhtoan': hocphi.ngaythanhtoan.strftime('%d/%m/%Y %H:%M')
         }
     }), 200
+    
+@student_bp.route('/<mssv>/academic/summary', methods=['GET'])
+@student_bp.route('/academic/summary', methods=['GET'])
+def get_academic_summary(mssv=None):
+    mssv_query = mssv or request.args.get('mssv', default='', type=str)
+    ma_hocky = request.args.get('ma_hocky', default=None, type=str)
+    data = AcademicService.get_summary_grades(mssv_query, ma_hocky)
+    return jsonify({"status": "success", "data": data}), 200
+
+@student_bp.route('/<mssv>/academic/progress', methods=['GET'])
+@student_bp.route('/academic/progress', methods=['GET'])
+def get_academic_progress(mssv=None):
+    mssv_query = mssv or request.args.get('mssv', default='', type=str)
+    data = AcademicService.get_progress_data(mssv_query)
+    return jsonify({"status": "success", "data": data}), 200
+
+@student_bp.route('/<mssv>/academic/predictor-courses', methods=['GET'])
+@student_bp.route('/academic/predictor-courses', methods=['GET'])
+def get_predictor_courses(mssv=None):
+    mssv_query = mssv or request.args.get('mssv', default='', type=str)
+    ma_hocky = request.args.get('ma_hocky', default=None, type=str)
+    data = AcademicService.get_predictor_courses(mssv_query, ma_hocky)
+    return jsonify({"status": "success", "data": data}), 200
