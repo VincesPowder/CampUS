@@ -976,105 +976,328 @@ export function ProgressSection() {
   );
 }
 
-// ─── Academic Section ─────────────────────────────────────────────────────────
-export function AcademicSection({ subTab, setSubTab }: { subTab: "summary" | "progress"; setSubTab: (t: "summary" | "progress") => void }) {
-  const [filterYear, setFilterYear] = useState("Tất cả");
-  const [filterTerm, setFilterTerm] = useState("Tất cả");
+// ─── Academic Section (Khớp type với App.tsx) ─────────────────────────────────
+export type AcademicTabType = "summary" | "progress" | "tong-ket" | "tien-do";
 
-  const allYears = Array.from(new Set(COURSE_DATA.map(c => c.namHoc)));
-  const years = ["Tất cả", ...allYears];
-  const availableTerms = filterYear === "Tất cả"
-    ? Array.from(new Set(COURSE_DATA.map(c => c.hocKy))).sort()
-    : Array.from(new Set(COURSE_DATA.filter(c => c.namHoc === filterYear).map(c => c.hocKy))).sort();
-  const terms = ["Tất cả", ...availableTerms.map(String)];
-  const filtered = COURSE_DATA.filter(c => {
-    if (filterYear !== "Tất cả" && c.namHoc !== filterYear) return false;
-    if (filterTerm !== "Tất cả" && c.hocKy !== Number(filterTerm)) return false;
-    return true;
-  });
+export function AcademicSection({ 
+  subTab: controlledSubTab, 
+  setSubTab: controlledSetSubTab,
+  tab: controlledTab,
+  setTab: controlledSetTab,
+  studentMssv
+}: { 
+  subTab?: AcademicTabType; 
+  setSubTab?: (t: any) => void;
+  tab?: AcademicTabType; 
+  setTab?: (t: any) => void;
+  studentMssv?: string;
+}) {
+  const API_BASE = "http://127.0.0.1:5000/api/students";
+  const mssv = studentMssv || localStorage.getItem("mssv") || "24127158";
+
+  const [internalTab, setInternalTab] = useState<AcademicTabType>("summary");
+  const rawTab = controlledSubTab ?? controlledTab ?? internalTab;
+
+  const isSummary = rawTab === "summary" || rawTab === "tong-ket";
+  const isProgress = rawTab === "progress" || rawTab === "tien-do";
+
+  const handleTabChange = (newTab: "summary" | "progress") => {
+    if (typeof controlledSetSubTab === "function") {
+      controlledSetSubTab(newTab);
+    } else if (typeof controlledSetTab === "function") {
+      controlledSetTab(newTab === "summary" ? "tong-ket" : "tien-do");
+    } else {
+      setInternalTab(newTab);
+    }
+  };
+
+  const [selectedHocKy, setSelectedHocKy] = useState<string>("ALL");
+  const [summaryData, setSummaryData] = useState<any>(null);
+  const [progressData, setProgressData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // State cho Dự Đoán Điểm Số
+  const [targetScore, setTargetScore] = useState<number>(8.0);
+  const [weightQT, setWeightQT] = useState<number>(20);
+  const [weightGK, setWeightGK] = useState<number>(30);
+  const [weightCK, setWeightCK] = useState<number>(50);
+  const [scoreQT, setScoreQT] = useState<string>("8.0");
+  const [scoreGK, setScoreGK] = useState<string>("7.5");
+  const [predictedCK, setPredictedCK] = useState<number | null>(null);
+  const [isImpossible, setIsImpossible] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function loadSummary() {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/${mssv}/academic/summary?ma_hocky=${selectedHocKy}`);
+        const json = await res.json();
+        if (json.status === "success") setSummaryData(json.data);
+      } catch (err) {
+        console.warn("Lỗi tải bảng điểm:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (isSummary) loadSummary();
+  }, [selectedHocKy, isSummary, mssv]);
+
+  useEffect(() => {
+    async function loadProgress() {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/${mssv}/academic/progress`);
+        const json = await res.json();
+        if (json.status === "success") setProgressData(json.data);
+      } catch (err) {
+        console.warn("Lỗi tải tiến độ:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (isProgress) loadProgress();
+  }, [isProgress, mssv]);
+
+  useEffect(() => {
+    const wQT = Number(weightQT) / 100.0;
+    const wGK = Number(weightGK) / 100.0;
+    const wCK = Number(weightCK) / 100.0;
+    const sQT = parseFloat(scoreQT) || 0;
+    const sGK = parseFloat(scoreGK) || 0;
+    const target = Number(targetScore) || 0;
+
+    if (wCK > 0) {
+      const requiredCK = (target - (sQT * wQT) - (sGK * wGK)) / wCK;
+      const rounded = Math.round(requiredCK * 10) / 10;
+      setIsImpossible(rounded > 10.0 || rounded < 0);
+      setPredictedCK(rounded);
+    }
+  }, [targetScore, weightQT, weightGK, weightCK, scoreQT, scoreGK]);
+
+  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white cursor-pointer";
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-6">
+      {/* ── Tabs Navigation ── */}
       <div className="flex items-center border-b border-border">
-        {(["summary", "progress"] as const).map(t => (
-          <button key={t} onClick={() => setSubTab(t)}
+        {[
+          { id: "summary" as const, label: "Tổng kết", active: isSummary },
+          { id: "progress" as const, label: "Tiến độ học tập & Dự đoán điểm", active: isProgress }
+        ].map(t => (
+          <button
+            key={t.id}
+            onClick={() => handleTabChange(t.id)}
             className="px-6 py-2.5 text-sm font-medium transition-colors relative"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: subTab === t ? "var(--primary)" : "var(--muted-foreground)", fontWeight: subTab === t ? 600 : 400, background: "transparent" }}>
-            {t === "summary" ? "Tổng kết" : "Tiến độ học tập"}
-            {subTab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--primary)", marginBottom: -1 }} />}
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              color: t.active ? "var(--primary)" : "var(--muted-foreground)",
+              fontWeight: t.active ? 600 : 400,
+              background: "transparent"
+            }}
+          >
+            {t.label}
+            {t.active && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--primary)", marginBottom: -1 }} />
+            )}
           </button>
         ))}
       </div>
-      {subTab === "summary" && (
-        <>
-          <div className="flex flex-wrap items-center gap-3">
+
+      {/* ══════════════════ TAB 1: TỔNG KẾT ══════════════════ */}
+      {isSummary && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
-              <select value={filterYear} onChange={e => { setFilterYear(e.target.value); setFilterTerm("Tất cả"); }}
-                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {years.map(y => <option key={y} value={y}>{y === "Tất cả" ? "Tất cả năm học" : `Năm học ${y}`}</option>)}
+              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Học kỳ:</label>
+              <select
+                value={selectedHocKy}
+                onChange={e => setSelectedHocKy(e.target.value)}
+                className={selectCls}
+              >
+                <option value="ALL">Toàn khóa học</option>
+                <option value="HK001">Học kỳ 1 (2024-2025)</option>
+                <option value="HK002">Học kỳ 2 (2024-2025)</option>
+                <option value="HK003">Học kỳ 1 (2025-2026)</option>
               </select>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
-              <select value={filterTerm} onChange={e => setFilterTerm(e.target.value)}
-                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {terms.map(t => <option key={t} value={t}>{t === "Tất cả" ? "Tất cả học kỳ" : `Học kỳ ${t}`}</option>)}
-              </select>
-            </div>
-            <span className="text-xs text-muted-foreground">{filtered.length} môn học</span>
+
+            {summaryData && (
+              <div className="flex items-center gap-4 text-xs font-semibold">
+                <div className="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg text-blue-900">
+                  GPA Thang 10: <span className="text-sm font-bold text-blue-700">{summaryData.gpa_10}</span>
+                </div>
+                <div className="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-emerald-900">
+                  GPA Thang 4: <span className="text-sm font-bold text-emerald-700">{summaryData.gpa_4}</span>
+                </div>
+                <div className="bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-lg text-purple-900">
+                  Số TC Tích lũy: <span className="text-sm font-bold text-purple-700">{summaryData.total_passed}</span>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="bg-card rounded-xl border border-border overflow-x-auto">
-            <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "var(--primary)" }}>
-                  {[
-                    { label: "STT",          cls: "w-10  text-center" },
-                    { label: "Năm học",      cls: "w-16  text-center" },
-                    { label: "Học kỳ",       cls: "w-14  text-center" },
-                    { label: "Mã môn học",   cls: "w-24  text-center" },
-                    { label: "Tên môn học",  cls: "text-left" },
-                    { label: "Số TC",        cls: "w-12  text-center" },
-                    { label: "Lớp",          cls: "w-20  text-center" },
-                    { label: "Loại điểm",    cls: "w-20  text-center" },
-                    { label: "Điểm (hệ 10)", cls: "w-20  text-center" },
-                    { label: "Điểm GK",      cls: "w-16  text-center" },
-                    { label: "Điểm CK",      cls: "w-16  text-center" },
-                    { label: "Chương trình", cls: "w-24  text-center" },
-                    { label: "Hệ",           cls: "w-14  text-center" },
-                  ].map(c => (
-                    <th key={c.label} className={`px-2 py-2.5 font-semibold text-white whitespace-nowrap ${c.cls}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c.label}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((row, i) => (
-                  <tr key={row.stt} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
-                    <td className="px-2 py-2 text-center text-muted-foreground">{row.stt}</td>
-                    <td className="px-2 py-2 text-center">{row.namHoc}</td>
-                    <td className="px-2 py-2 text-center">{row.hocKy}</td>
-                    <td className="px-2 py-2 text-center font-medium" style={{ color: "var(--primary)" }}>{row.maMon}</td>
-                    <td className="px-2 py-2 text-left">{row.tenMon || <span className="text-muted-foreground">—</span>}</td>
-                    <td className="px-2 py-2 text-center">{row.soTC || "—"}</td>
-                    <td className="px-2 py-2 text-center">{row.lop}</td>
-                    <td className="px-2 py-2 text-center">{row.loaiDiem || "—"}</td>
-                    <td className="px-2 py-2 text-center">{row.diem10 ?? "—"}</td>
-                    <td className="px-2 py-2 text-center">{row.diemGK ?? "—"}</td>
-                    <td className="px-2 py-2 text-center">{row.diemCK ?? "—"}</td>
-                    <td className="px-2 py-2 text-center">{row.chuongTrinh}</td>
-                    <td className="px-2 py-2 text-center">{row.he}</td>
+
+          <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm" style={{ minWidth: 800 }}>
+                <thead>
+                  <tr style={{ background: "var(--primary)" }}>
+                    {["Mã MH", "Tên môn học", "Số TC", "Học kỳ", "Quá trình", "Giữa kỳ", "Cuối kỳ", "Tổng kết (10)", "Điểm chữ", "Hệ 4", "Kết quả"].map(h => (
+                      <th key={h} className="px-3 py-3 text-left text-xs font-bold text-white border-r border-white/10 last:border-r-0 whitespace-nowrap">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={11} className="py-12 text-center text-sm text-muted-foreground">Đang tải bảng điểm...</td></tr>
+                  ) : !summaryData?.courses?.length ? (
+                    <tr><td colSpan={11} className="py-12 text-center text-sm text-muted-foreground">Chưa có dữ liệu điểm</td></tr>
+                  ) : (
+                    summaryData.courses.map((c: any, idx: number) => (
+                      <tr key={idx} className="hover:bg-blue-50/50 transition-colors" style={{ background: idx % 2 === 0 ? "#fff" : "#f8fafc" }}>
+                        <td className="px-3 py-2.5 border-b border-border font-mono text-xs text-muted-foreground">{c.mamh}</td>
+                        <td className="px-3 py-2.5 border-b border-border font-semibold text-foreground">{c.tenmh}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center font-semibold">{c.sotc}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-xs text-muted-foreground">{c.ten_hocky}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center">{c.diem_qt ?? "—"}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center">{c.diem_gk ?? "—"}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center">{c.diem_ck ?? "—"}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center font-bold text-blue-700">{c.diem_tongket ?? "—"}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center font-semibold">{c.diem_chu}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center font-semibold">{c.diem_he4}</td>
+                        <td className="px-3 py-2.5 border-b border-border text-center">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${c.ketqua === "Đạt" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"}`}>
+                            {c.ketqua}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </>
+        </div>
       )}
-      {subTab === "progress" && <ProgressSection />}
+
+      {/* ══════════════════ TAB 2: TIẾN ĐỘ & DỰ ĐOÁN ĐIỂM SỐ ══════════════════ */}
+      {isProgress && (
+        <div className="space-y-6">
+          {progressData && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-card rounded-xl border border-border p-4 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase">Tiến độ tích lũy</h3>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold text-blue-900">{progressData.completed_credits}</span>
+                    <span className="text-sm font-semibold text-slate-500">/ {progressData.total_credits} Tín chỉ</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Đã hoàn thành {Math.round((progressData.completed_credits / progressData.total_credits) * 100)}% chương trình</p>
+                </div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-3">
+                  <div className="bg-blue-600 h-full rounded-full" style={{ width: `${(progressData.completed_credits / progressData.total_credits) * 100}%` }} />
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase">Điểm trung bình (GPA)</h3>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-emerald-700">{progressData.gpa}</span>
+                  <span className="text-sm font-semibold text-slate-500">/ 10.0</span>
+                </div>
+                <p className="text-xs text-emerald-600 font-medium mt-1">Xếp loại: {progressData.gpa >= 8.0 ? "Giỏi" : progressData.gpa >= 7.0 ? "Khá" : "Trung bình"}</p>
+              </div>
+
+              <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">Chuẩn điều kiện tốt nghiệp</h3>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span>Giáo dục thể chất:</span>
+                    <span className={progressData.conditions.gdtc ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
+                      {progressData.conditions.gdtc ? "✓ Đã đạt" : "Chưa đạt"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Giáo dục quốc phòng:</span>
+                    <span className={progressData.conditions.gdqp ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
+                      {progressData.conditions.gdqp ? "✓ Đã đạt" : "Chưa đạt"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Chứng chỉ ngoại ngữ:</span>
+                    <span className={progressData.conditions.foreign_language ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
+                      {progressData.conditions.foreign_language ? "✓ Đã đạt" : "Chưa đạt"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Module Dự Đoán Điểm Số */}
+          <div className="bg-card rounded-xl border border-border p-5 shadow-sm space-y-4">
+            <div className="border-b pb-3">
+              <h2 className="text-base font-bold text-slate-800">Dự Đoán Điểm Số Cần Đạt</h2>
+              <p className="text-xs text-muted-foreground">Tính toán điểm thi cuối kỳ cần đạt để đạt mục tiêu tổng kết môn học</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div className="lg:col-span-8 space-y-3">
+                <div className="grid grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label className="font-semibold block mb-1">Tỉ lệ Quá trình (%)</label>
+                    <input type="number" value={weightQT} onChange={e => setWeightQT(Number(e.target.value))} className="w-full border rounded p-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="font-semibold block mb-1">Tỉ lệ Giữa kỳ (%)</label>
+                    <input type="number" value={weightGK} onChange={e => setWeightGK(Number(e.target.value))} className="w-full border rounded p-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="font-semibold block mb-1">Tỉ lệ Cuối kỳ (%)</label>
+                    <input type="number" value={weightCK} onChange={e => setWeightCK(Number(e.target.value))} className="w-full border rounded p-2 text-sm" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label className="font-semibold block mb-1">Điểm Quá trình (0-10)</label>
+                    <input type="number" step="0.1" value={scoreQT} onChange={e => setScoreQT(e.target.value)} className="w-full border rounded p-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="font-semibold block mb-1">Điểm Giữa kỳ (0-10)</label>
+                    <input type="number" step="0.1" value={scoreGK} onChange={e => setScoreGK(e.target.value)} className="w-full border rounded p-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="font-semibold block mb-1 text-blue-700">Mục tiêu Tổng kết (0-10)</label>
+                    <input type="number" step="0.1" value={targetScore} onChange={e => setTargetScore(Number(e.target.value))} className="w-full border-2 border-blue-500 rounded p-2 text-sm font-bold text-blue-900" />
+                  </div>
+                </div>
+              </div>
+
+              <div className={`lg:col-span-4 p-5 rounded-xl border flex flex-col items-center justify-center text-center ${isImpossible ? "bg-rose-50 border-rose-200" : "bg-blue-50 border-blue-200"}`}>
+                <span className="text-xs font-semibold uppercase text-slate-600">Điểm thi cuối kỳ cần đạt:</span>
+                <span className={`text-4xl font-extrabold mt-2 ${isImpossible ? "text-rose-600" : "text-blue-900"}`}>
+                  {isImpossible ? "Không khả thi" : (predictedCK !== null ? predictedCK : "—")}
+                </span>
+                {isImpossible && (
+                  <p className="text-[11px] text-rose-600 font-medium mt-1">
+                    Cần đạt {predictedCK} điểm (vượt quá 10 điểm) để đạt mục tiêu này!
+                  </p>
+                )}
+                {!isImpossible && predictedCK !== null && (
+                  <p className="text-[11px] text-blue-700 mt-1">
+                    Thi đạt ≥ {predictedCK} điểm để đạt mục tiêu {targetScore} điểm tổng kết.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 // ─── Profile Section ─────────────────────────────────────────────────────────
 // ─── Profile Section (Hoàn thiện API & Giao diện Figma 100%) ────────────────
 export function ProfileSection({ avatarUrl, onAvatarChange, onProfileSave }: { avatarUrl: string | null; onAvatarChange: (url: string) => void; onProfileSave?: (p: typeof STUDENT_PROFILE) => void }) {
