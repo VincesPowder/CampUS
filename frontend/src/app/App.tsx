@@ -484,7 +484,7 @@ export default function App() {
   }, []);
 
   if (!isLoggedIn) return <Login onLogin={handleLogin} />;
-  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} HelpButton={HelpButton} />;
+  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} HelpButton={HelpButton} adminProfile={ACCOUNTS[0]} />;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
