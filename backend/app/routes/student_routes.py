@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, send_file
 import re
-from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan
+from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan, ChuyenNganh, Nganh, Khoa
 from app.models.tuition import HocPhi, LopHocPhan
 from app.models.notification import SvThongBao, ThongBao
 from app.services.schedule_service import ScheduleService
@@ -80,80 +80,144 @@ def check_update_eligibility():
 
 @student_bp.route('/<mssv>', methods=['GET'])
 def get_profile(mssv):
-    """UC 2.5: Lấy thông vị cá nhân và học vụ"""
     student = SinhVien.query.get(mssv)
     if not student:
-        return jsonify({'error': 'Không tìm thấy hồ sơ sinh viên'}), 404
-    
-    can_update = check_update_eligibility()
-    faculty_name = student.nganh.khoa.tenkhoa if student.nganh and student.nganh.khoa else None
-    major_name = student.nganh.tennganh if student.nganh else None
-    
-    family_data = []
-    for nt in student.nguoithan_list:
-        family_data.append({
-            'id': nt.mant,
-            'name': nt.hoten,
-            'dob': str(nt.namsinh) if nt.namsinh else "—",
-            'rel': nt.quanhe,
-            'job': nt.nghenghiep,
-            'workplace': nt.noilamviec,
-            'phone': nt.sdt,
-            'email': nt.mail,
-            'ethnic': nt.dantoc,
-            'religion': nt.tongiao,
-            'nationality': nt.quoctich,
-            'province': nt.tinhthanh,
-            'ward': nt.phuongxa,
-            'address': nt.hkthuongtru
-        })
+        return jsonify({"status": "error", "message": "Không tìm thấy sinh viên"}), 404
+
+    # 1. Tra cứu Chuyên ngành an toàn qua mã MACN (không dùng student.chuyennganh)
+    ten_cn = "Chưa phân chuyên ngành"
+    if student.macn:
+        try:
+            cn_obj = ChuyenNganh.query.get(student.macn)
+            if cn_obj and cn_obj.tencn:
+                ten_cn = cn_obj.tencn
+        except Exception:
+            pass
+
+    ten_nganh = student.nganh.tennganh if (student.nganh and student.nganh.tennganh) else "Công nghệ thông tin"
+    ten_khoa = student.nganh.khoa.tenkhoa if (student.nganh and student.nganh.khoa and student.nganh.khoa.tenkhoa) else "Khoa Công nghệ thông tin"
+
+    # 2. Định dạng dữ liệu trả về (hỗ trợ cả camelCase và snake_case cho Frontend)
+    data = {
+        # Thông tin cơ bản
+        "mssv": student.mssv,
+        "fullName": student.hoten or "",
+        "hoten": student.hoten or "",
+        "role": "Sinh viên",
+        "status": "Đang học",
         
-    profile_data = {
-        'mssv': student.mssv,
-        'fullName': student.hoten,
-        'dob': format_date(student.ngaysinh),
-        'placeOfBirth': student.noisinh,
-        'gender': student.gioitinh,
-        'cccd': student.cccd,
-        'issuedDate': format_date(student.ngaycap),
-        'issuedPlace': student.noicap,
-        'nationality': student.quoctich,
-        'ethnic': student.dantoc,
-        'religion': student.tongiao,
-        'permanentAddress': student.dcthuongtru,
-        'currentAddress': student.dchiennay,
+        "dob": format_date(student.ngaysinh),
+        "ngaysinh": format_date(student.ngaysinh),
+        "placeOfBirth": student.noisinh or "",
+        "noisinh": student.noisinh or "",
+        "gender": student.gioitinh or "",
+        "gioitinh": student.gioitinh or "",
         
-        # --- CÁC TRƯỜNG ĐÃ ĐƯỢC MAP KHỚP VỚI FRONTEND ---
-        'contactAddress': student.dclienlac,
-        'phone': student.dienthoai,
-        'personalEmail': student.mailcanhan,
-        'officialEmail': student.mailtruong,
-        'joinUnionDate': format_date(student.ngayvaodoan),
-        'joinPartyDate': format_date(student.ngayvaodang),
+        "course": student.nienkhoa or "K24",
+        "nienkhoa": student.nienkhoa or "K24",
+        "level": student.bacdaotao or "Đại học",
+        "bacdaotao": student.bacdaotao or "Đại học",
+        "trainingType": student.loaidaotao or (student.loaisv or "Chất lượng cao"),
+        "loaidaotao": student.loaidaotao or (student.loaisv or "Chất lượng cao"),
         
-        'advisor': student.nguoilienlac,
-        'advisorPhone': student.sdtlienlac,
-        'advisorEmail': student.maillienlac,
-        'advisorRelation': student.quanhe_nll,
+        # Ngành & Chuyên ngành
+        "major": ten_nganh,
+        "nganh": ten_nganh,
+        "tennganh": ten_nganh,
+        "faculty": ten_khoa,
+        "khoa": ten_khoa,
+        "tenkhoa": ten_khoa,
         
-        'bankNumber': student.sothenh,
-        'bank': student.tennh,
-        'bankBranch': None, # DB ko có chi nhánh nên trả về None để UI làm mờ
-        'enrolledDate': None,
-        # ------------------------------------------------
+        "specialization": ten_cn,
+        "chuyenNganh": ten_cn,
+        "chuyennganh": ten_cn,
+        "tenchuyennganh": ten_cn,
+        "macn": student.macn or "",
         
-        'course': student.nienkhoa,
-        'level': student.bacdaotao,
-        'trainingType': student.loaidaotao,
-        'major': major_name,
-        'faculty': faculty_name,
-        'status': student.loaisv,
-        'avatar': student.avatar,
-        'canUpdate': can_update,
-        'family': family_data
+        # Định danh & Liên hệ
+        "cccd": student.cccd or "",
+        "issuedDate": format_date(student.ngaycap),
+        "ngaycap": format_date(student.ngaycap),
+        "issuedPlace": student.noicap or "",
+        "noicap": student.noicap or "",
+        "nationality": student.quoctich or "Việt Nam",
+        "quoctich": student.quoctich or "Việt Nam",
+        "ethnic": student.dantoc or "Kinh",
+        "dantoc": student.dantoc or "Kinh",
+        "religion": student.tongiao or "Không",
+        "tongiao": student.tongiao or "Không",
+        
+        "permanentAddress": student.dcthuongtru or "",
+        "dcthuongtru": student.dcthuongtru or "",
+        "currentAddress": student.dchiennay or "",
+        "dchiennay": student.dchiennay or "",
+        "contactAddress": student.dclienlac or "",
+        "dclienlac": student.dclienlac or "",
+        
+        "phone": student.dienthoai or "",
+        "dienthoai": student.dienthoai or "",
+        "personalEmail": student.mailcanhan or "",
+        "mailcanhan": student.mailcanhan or "",
+        "officialEmail": student.mailtruong or f"{student.mssv}@student.hcmus.edu.vn",
+        "mailtruong": student.mailtruong or f"{student.mssv}@student.hcmus.edu.vn",
+        
+        "enrolledDate": "05/09/2024",
+        "joinUnionDate": format_date(student.ngayvaodoan),
+        "ngayvaodoan": format_date(student.ngayvaodoan),
+        "joinPartyDate": format_date(student.ngayvaodang),
+        "ngayvaodang": format_date(student.ngayvaodang),
+        
+        # Người liên lạc khẩn cấp
+        "advisor": student.nguoilienlac or "",
+        "nguoilienlac": student.nguoilienlac or "",
+        "advisorPhone": student.sdtlienlac or "",
+        "sdtlienlac": student.sdtlienlac or "",
+        "advisorEmail": student.maillienlac or "",
+        "maillienlac": student.maillienlac or "",
+        "advisorRelation": student.quanhe_nll or "",
+        "quanhe_nll": student.quanhe_nll or "",
+        
+        # Ngân hàng
+        "bankNumber": student.sothenh or "",
+        "sothenh": student.sothenh or "",
+        "bank": student.tennh or "",
+        "tennh": student.tennh or "",
+        "bankBranch": "Chi nhánh TP.HCM",
+        
+        "avatar": student.avatar or "",
+        "canUpdate": check_update_eligibility(),
+        
+        # Danh sách người thân
+        "family": [
+            {
+                "id": nt.mant,
+                "mant": nt.mant,
+                "name": nt.hoten,
+                "hoten": nt.hoten,
+                "dob": str(nt.namsinh) if nt.namsinh else "",
+                "namsinh": nt.namsinh,
+                "rel": nt.quanhe or "",
+                "quanhe": nt.quanhe or "",
+                "job": nt.nghenghiep or "",
+                "nghenghiep": nt.nghenghiep or "",
+                "workplace": nt.noilamviec or "",
+                "noilamviec": nt.noilamviec or "",
+                "phone": nt.sdt or "",
+                "sdt": nt.sdt or "",
+                "email": nt.mail or "",
+                "mail": nt.mail or "",
+                "ethnic": nt.dantoc or "Kinh",
+                "religion": nt.tongiao or "Không",
+                "nationality": nt.quoctich or "Việt Nam",
+                "province": nt.tinhthanh or "",
+                "ward": nt.phuongxa or "",
+                "address": nt.hkthuongtru or "",
+            }
+            for nt in (student.nguoithan_list if hasattr(student, 'nguoithan_list') else [])
+        ]
     }
 
-    return jsonify(profile_data), 200
+    return jsonify(data), 200
 
 @student_bp.route('/<mssv>/update', methods=['PUT'])
 def update_profile(mssv):

@@ -13,6 +13,15 @@ class Nganh(db.Model):
     makhoa = db.Column(db.String(20), db.ForeignKey('KHOA.MAKHOA'), name='MAKHOA')
     
     khoa = db.relationship('Khoa', backref='nganhs')
+    
+class ChuyenNganh(db.Model):
+    __tablename__ = 'CHUYENNGANH'
+    __table_args__ = {'extend_existing': True}
+    macn = db.Column(db.String(15), primary_key=True, name='MACN')
+    tencn = db.Column(db.String(80), nullable=False, name='TENCN')
+    manganh = db.Column(db.String(15), db.ForeignKey('NGANH.MANGANH'), name='MANGANH')
+    
+    nganh = db.relationship('Nganh', backref='chuyennganhs')
 
 class DotCapNhatHoSo(db.Model):
     __tablename__ = 'DOT_CAPNHAT_HOSO'
