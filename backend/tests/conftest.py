@@ -24,13 +24,16 @@ def app():
 def client(app):
     return app.test_client()
 
+
 @pytest.fixture(autouse=True)
-def mock_db_path(monkeypatch, tmp_path):
+def mock_db_path(app, monkeypatch, tmp_path):
     """
     Dùng tmp_path của Pytest để tạo ra 1 file DB riêng biệt cho MỖI test case.
     Sẽ không bao giờ bị lỗi trùng data hay Windows khóa file nữa.
     """
     test_db_path = str(tmp_path / "test_campus_temp.db")
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{test_db_path}"
     
     # 1. MỞ KẾT NỐI DB NHÁP
     conn = sqlite3.connect(test_db_path)
@@ -203,7 +206,40 @@ def mock_db_path(monkeypatch, tmp_path):
         INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('241271321', '24127132', 'Nguyễn Thị Hoa', 1980, 'Mẹ', 'Giáo viên', 'Quận 5, TP.HCM', '0911234532', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
         INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('241271581', '24127158', 'Trần Thị Thủy', 1978, 'Mẹ', 'Kinh doanh', 'Xã Tân Thủy, Tỉnh Vĩnh Long', '0987654321', NULL, 'Kinh', 'Không', 'Việt Nam', 'Vĩnh Long', 'Xã Tân Thủy', 'Xã Tân Thủy, Tỉnh Vĩnh Long');
     """)
-    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS THONGBAO (
+            MATB TEXT PRIMARY KEY,
+            TIEUDE TEXT,
+            NOIDUNG TEXT,
+            NGAYDANG TEXT,
+            MAKHOA TEXT
+        )
+    ''')
+    cursor.executescript("""
+        INSERT INTO THONGBAO (MATB, TIEUDE, NOIDUNG, NGAYDANG, MAKHOA) 
+        VALUES ('TB001', 'Nhắc nhở đăng kí chuyên ngành 2025-2026', 'Tất cả sinh viên chương trình TCTA khóa 2024 và sinh viên khóa trước đủ điều kiện tham gia xét chuyên ngành và chưa được xét chuyên ngành...', '2026-07-25 00:00:00', 'CSC');
+        
+        INSERT INTO THONGBAO (MATB, TIEUDE, NOIDUNG, NGAYDANG, MAKHOA) 
+        VALUES ('TB002', 'Đổi phòng học', 'Các lớp có tiết tại phòng E301 sáng 01/08/2026 chuyển sang phòng I32', '2026-07-26 00:00:00', 'CSC');
+    """)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS SV_THONGBAO (
+            MSSV TEXT,
+            MATB TEXT,
+            TRANGTHAI_DOC INTEGER,
+            THOIGIAN_DOC TEXT,
+            PRIMARY KEY (MSSV, MATB)
+        )
+    ''')
+
+    cursor.executescript("""
+        INSERT INTO SV_THONGBAO (MSSV, MATB, TRANGTHAI_DOC, THOIGIAN_DOC) 
+        VALUES ('24127158', 'TB001', 1, '2026-08-01 21:28:00');
+        
+        INSERT INTO SV_THONGBAO (MSSV, MATB, TRANGTHAI_DOC, THOIGIAN_DOC) 
+        VALUES ('24127158', 'TB002', 0, NULL);
+    """)
+
     # ---------------------------------------------------------
     # 8. LƯU THAY ĐỔI VÀ ĐÓNG KẾT NỐI
     # ---------------------------------------------------------
