@@ -4,7 +4,7 @@ import { loginRequest } from '../authConfig';
 import bgImage from "@imports/bg.jpg"; 
 
 type LoginProps = {
-  onLogin: (role: "admin" | "student", method: "local" | "msal") => void;
+  onLogin: (role: "admin" | "student", method: "local" | "msal", profileData?: any) => void;
 };
 
 export default function Login({ onLogin }: LoginProps) {
@@ -25,38 +25,29 @@ export default function Login({ onLogin }: LoginProps) {
       return;
     }
 
+    // Tự động khôi phục phiên nếu đã có token
     if (existingToken) {
-      const userEmail = accounts[0].username || "";
-      let userRole: "admin" | "student" = "student"; 
-
       try {
         const tokenParts = existingToken.split('.');
-        
-        // Kiểm tra xem token có đủ phần payload không
-        if (tokenParts.length < 2) {
-          throw new Error("Token lưu trữ không đúng định dạng JWT");
+        if (tokenParts.length === 3) {
+          const tokenPayload = tokenParts; 
+          const base64 = tokenPayload.replace(/-/g, '+').replace(/_/g, '/');
+          const pad = base64.length % 4;
+          const paddedBase64 = pad ? base64 + new Array(5 - pad).join('=') : base64;
+          
+          const decodedData = JSON.parse(decodeURIComponent(escape(window.atob(paddedBase64))));
+          const userRole = (decodedData.role as "admin" | "student") || "student";
+          onLogin(userRole, "msal", decodedData);
+          return;
         }
-        
-        const tokenPayload = tokenParts[1]; 
-        const base64 = tokenPayload.replace(/-/g, '+').replace(/_/g, '/');
-        const pad = base64.length % 4;
-        const paddedBase64 = pad ? base64 + new Array(5 - pad).join('=') : base64;
-        
-        // Giải mã
-        const decodedData = JSON.parse(window.atob(paddedBase64));
-        console.log("Token hợp lệ:", decodedData);
-        userRole = (decodedData.role as "admin" | "student") || (userEmail.includes("@student") ? "student" : "admin");
       } catch (error) {
-        console.error("Lỗi giải mã token, đang tiến hành xóa token lỗi:", error);
-        // Xóa token bị hỏng trong localStorage để user không bị kẹt ở màn hình trắng
         localStorage.removeItem('campus_token');
-        userRole = userEmail.includes("@student") ? "student" : "admin";
+        onLogin("student", "msal");
       }
-
-      onLogin(userRole, "msal");
       return;
     }
 
+    // Xử lý đăng nhập sau khi redirect từ Microsoft về
     if (isLoggingIn === 'true') {
       const processLogin = async () => {
         setIsProcessing(true);
@@ -64,19 +55,12 @@ export default function Login({ onLogin }: LoginProps) {
           const account = accounts[0];
           const userEmail = account.username || "";
 
-          if (!userEmail.endsWith("@student.hcmus.edu.vn") && !userEmail.endsWith("@hcmus.edu.vn")) {
-            setError("Hệ thống chỉ hỗ trợ đăng nhập bằng email trường (@student.hcmus.edu.vn).");
-            sessionStorage.removeItem('campus_is_logging_in');
-            await instance.logoutRedirect({ account: account, postLogoutRedirectUri: window.location.origin });
-            return;
-          }
-
           const response = await instance.acquireTokenSilent({
             ...loginRequest,
             account: account
           });
 
-          const backendRes = await fetch('http://localhost:5000/api/auth/ms-login', {
+          const backendRes = await fetch('/api/auth/ms-login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -86,21 +70,21 @@ export default function Login({ onLogin }: LoginProps) {
             })
           });
 
-          const data = await backendRes.json();
+          const resData = await backendRes.json();
           if (!backendRes.ok) {
-            setError(data.error || "Đăng nhập thất bại từ máy chủ Backend.");
+            setError(resData.message || "Đăng nhập thất bại.");
             sessionStorage.removeItem('campus_is_logging_in');
             await instance.logoutRedirect({ account: account, postLogoutRedirectUri: window.location.origin });
             return;
           }
 
-          localStorage.setItem('campus_token', data.token);
+          localStorage.setItem('campus_token', resData.token);
           sessionStorage.removeItem('campus_is_logging_in'); 
-          const finalRole = (data.role || (userEmail.includes("@student") ? "student" : "admin")) as "admin" | "student";
-          onLogin(finalRole, "msal");
+
+          const finalRole = resData.role as "admin" | "student";
+          onLogin(finalRole, "msal", resData.data);
 
         } catch (err: any) {
-          console.error("Lỗi xử lý đăng nhập:", err);
           setError("Lỗi xác thực. Vui lòng thử đăng nhập lại.");
           sessionStorage.removeItem('campus_is_logging_in');
         } finally {
@@ -184,7 +168,7 @@ export default function Login({ onLogin }: LoginProps) {
             <p className="text-center text-[11px] mt-8 leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
               Vui lòng sử dụng email chính thức nhà trường đã cung cấp
               <br />
-              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn)</span>
+              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn / @hcmus.edu.vn)</span>
             </p>
 
             {/* Footer inside white section */}
