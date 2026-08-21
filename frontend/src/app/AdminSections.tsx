@@ -58,66 +58,70 @@ function MField({ label, value, editable, onChange }: {
 }
 
 function StudentModal({ student, mode: initMode, onClose, onSave }: {
-  student: AdminStudent;
+  student: any;
   mode: StudentModalMode;
   onClose: () => void;
-  onSave: (updated: AdminStudent) => void;
+  onSave: (updated: any) => void;
 }) {
   const [mode, setMode] = useState<StudentModalMode>(initMode);
-  const [form, setForm] = useState<AdminStudent>({ ...student });
+  const [form, setForm] = useState<any>({ ...student });
   const [activeTab, setActiveTab] = useState<"info" | "family">("info");
+  const [familyData, setFamilyData] = useState<FamilyMember[]>([]);
+  const [loading, setLoading] = useState(false);
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
-  const idx = parseInt(student.mssv.slice(-1));
-  const extra = {
-    ngaySinh:        student.mssv === "24127001" ? "15/03/2006" : `${(parseInt(student.mssv.slice(-2)) % 28 + 1).toString().padStart(2,"0")}/0${(idx % 9 + 1)}/200${idx % 6 + 3}`,
-    noiSinh:         ["TP. Hồ Chí Minh","Hà Nội","Đà Nẵng","Cần Thơ","Bình Dương"][idx % 5],
-    cccd:            `07920${student.mssv}`,
-    ngayCap:         `${(idx % 28 + 1).toString().padStart(2,"0")}/08/2024`,
-    noiCap:          "Cục CS QLHC về TTXH",
-    quocTich:        "Việt Nam",
-    danToc:          "Kinh",
-    tonGiao:         "Không",
-    sdt:             `09${student.mssv.slice(-8)}`,
-    personalEmail:   `${student.hoTen.split(" ").slice(-1)[0].toLowerCase()}${student.mssv.slice(-4)}@gmail.com`,
-    ngayVaoTruong:   "01/09/2024",
-    ngayVaoDoan:     idx % 3 === 0 ? "—" : `${(idx % 28 + 1).toString().padStart(2,"0")}/05/202${idx % 3 + 1}`,
-    ngayVaoDang:     "—",
-    thuongTru:       `${parseInt(student.mssv.slice(-2))} Nguyễn Văn Cừ, Q.5, TP. Hồ Chí Minh`,
-    hienNay:         `${parseInt(student.mssv.slice(-2))} Lê Văn Sỹ, Q.3, TP. Hồ Chí Minh`,
-    lienLac:         `${parseInt(student.mssv.slice(-2))} Lê Văn Sỹ, Q.3, TP. Hồ Chí Minh`,
-    cvTen:           ["TS. Trần Văn Bình","PGS. Nguyễn Thị Lan","TS. Lê Minh Hoàng"][idx % 3],
-    cvSdt:           `091${student.mssv.slice(-7)}`,
-    cvEmail:         `cv${idx}@hcmus.edu.vn`,
-    cvQuanHe:        "Giảng viên cố vấn",
-    nganHang:        ["Vietcombank","Techcombank","MB Bank"][idx % 3],
-    stk:             `100${student.mssv}`,
-    chiNhanh:        "TP. Hồ Chí Minh",
-  };
+  // Fetch chi tiết & thông tin gia đình từ backend
+  useEffect(() => {
+    if (student?.mssv) {
+      setLoading(true);
+      fetch(`/api/admin/students/${student.mssv}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            setForm(data.data);
+            setFamilyData(data.data.family || []);
+          }
+        })
+        .catch(err => console.error("Lỗi fetch chi tiết sinh viên:", err))
+        .finally(() => setLoading(false));
+    }
+  }, [student?.mssv]);
 
-  const editableFields: { label: string; key: keyof AdminStudent }[] = [
+  const editableFields: { label: string; key: string }[] = [
     { label: "Họ và tên",    key: "hoTen" },
     { label: "MSSV",         key: "mssv" },
     { label: "Email",        key: "email" },
     { label: "Giới tính",    key: "gioiTinh" },
     { label: "Khoá",         key: "khoa" },
-    { label: "Ngành",        key: "nganh" },
+    { label: "Khoa/Ngành",   key: "nganh" },
     { label: "Bậc đào tạo",  key: "bacDT" },
     { label: "Loại đào tạo", key: "loaiDT" },
     { label: "Chuyên ngành", key: "chuyenNganh" },
   ];
 
-  const familyData: FamilyMember[] = student.mssv === "24127001"
-    ? FAMILY_DATA
-    : [
-        { name: `${student.hoTen.split(" ")[0]} Văn Cha`, dob: `${1960 + idx % 15}`, rel: "Cha", job: ["Kỹ sư","Giáo viên","Bác sĩ","Kế toán"][idx%4], workplace: "Cơ quan nhà nước", phone: `090${student.mssv.slice(-7)}`, email: `cha${idx}@gmail.com`, ethnic:"Kinh", religion:"Không", nationality:"Việt Nam", province:"TP. Hồ Chí Minh", ward:"Phường 5", address:`${idx+10} Nguyễn Trãi, Q.1, TP.HCM` },
-        { name: `Trần Thị ${student.hoTen.split(" ").slice(-1)[0]}`, dob: `${1963 + idx % 12}`, rel: "Mẹ", job: ["Giáo viên","Nội trợ","Y tá","Kế toán"][(idx+1)%4], workplace: "Trường THPT địa phương", phone: `091${student.mssv.slice(-7)}`, email: `me${idx}@gmail.com`, ethnic:"Kinh", religion:"Phật giáo", nationality:"Việt Nam", province:"TP. Hồ Chí Minh", ward:"Phường 5", address:`${idx+10} Nguyễn Trãi, Q.1, TP.HCM` },
-      ];
-
-  const [contactEdit, setContactEdit] = useState({
-    cvTen: extra.cvTen, cvSdt: extra.cvSdt, cvEmail: extra.cvEmail, cvQuanHe: extra.cvQuanHe,
-  });
-  const [familyEdit, setFamilyEdit] = useState<FamilyMember[]>(familyData);
+  const handleSaveChanges = async () => {
+    try {
+      const payload = {
+        ...form,
+        family: familyData
+      };
+      const res = await fetch(`/api/admin/students/${student.mssv}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        onSave(payload);
+        setMode("view");
+      } else {
+        alert(data.message || "Lỗi lưu dữ liệu.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Không thể kết nối đến máy chủ.");
+    }
+  };
 
   const tabs = [
     { id: "info"   as const, label: "Hồ sơ sinh viên" },
@@ -131,11 +135,11 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
         {/* Header */}
         <div className="flex items-center gap-3 px-6 py-4 border-b border-border flex-shrink-0" style={{ background: "var(--primary)" }}>
           <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0 bg-white/15 text-white" style={PJS}>
-            {student.hoTen.split(" ").slice(-1)[0][0]}
+            {form.hoTen ? form.hoTen.split(" ").slice(-1)[0][0] : "S"}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-white text-base leading-tight" style={PJS}>{student.hoTen}</div>
-            <div className="text-white/60 text-xs font-mono mt-0.5">{student.mssv} · {student.nganh}</div>
+            <div className="font-bold text-white text-base leading-tight" style={PJS}>{form.hoTen}</div>
+            <div className="text-white/60 text-xs font-mono mt-0.5">{form.mssv} · {form.nganh}</div>
           </div>
           <div className="flex gap-2">
             {mode === "view" && (
@@ -170,14 +174,14 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
               {/* Avatar + quick info */}
               <div className="flex items-center gap-4 pb-5 border-b border-border">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0" style={{ background: "var(--primary)", ...PJS }}>
-                  {student.hoTen.split(" ").slice(-1)[0][0]}
+                  {form.hoTen ? form.hoTen.split(" ").slice(-1)[0][0] : "S"}
                 </div>
                 <div>
-                  <div className="font-bold text-foreground text-base" style={PJS}>{student.hoTen}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{student.nganh} · {student.bacDT}</div>
+                  <div className="font-bold text-foreground text-base" style={PJS}>{form.hoTen}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{form.nganh} · {form.bacDT}</div>
                   <div className="mt-1.5 flex gap-2 flex-wrap">
                     <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700" style={PJS}>Đang học</span>
-                    <span className="inline-block text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{student.loaiDT}</span>
+                    <span className="inline-block text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{form.loaiDT}</span>
                   </div>
                 </div>
               </div>
@@ -190,65 +194,74 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
                     <MField key={f.key} label={f.label}
                       value={form[f.key]}
                       editable={mode === "edit" && f.key !== "mssv"}
-                      onChange={v => setForm(p => ({ ...p, [f.key]: v }))} />
+                      onChange={v => setForm((p: any) => ({ ...p, [f.key]: v }))} />
                   ))}
                 </div>
               </div>
+
               <div>
                 <SectionHeader title="Thông tin cá nhân" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
-                    { label: "Ngày sinh",     val: extra.ngaySinh },
-                    { label: "Nơi sinh",      val: extra.noiSinh },
-                    { label: "CCCD",          val: extra.cccd },
-                    { label: "Ngày cấp",      val: extra.ngayCap },
-                    { label: "Nơi cấp",       val: extra.noiCap },
-                    { label: "Quốc tịch",     val: extra.quocTich },
-                    { label: "Dân tộc",       val: extra.danToc },
-                    { label: "Tôn giáo",      val: extra.tonGiao },
-                    { label: "Số điện thoại", val: extra.sdt },
-                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                    { label: "Ngày sinh",     key: "ngaySinh" },
+                    { label: "Nơi sinh",      key: "noiSinh" },
+                    { label: "CCCD",          key: "cccd" },
+                    { label: "Ngày cấp",      key: "ngayCap" },
+                    { label: "Nơi cấp",       key: "noiCap" },
+                    { label: "Quốc tịch",     key: "quocTich" },
+                    { label: "Dân tộc",       key: "danToc" },
+                    { label: "Tôn giáo",      key: "tonGiao" },
+                    { label: "Số điện thoại", key: "sdt" },
+                  ].map(r => (
+                    <MField key={r.key} label={r.label} value={form[r.key] || ""} editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, [r.key]: v }))} />
+                  ))}
                 </div>
               </div>
+
               <div>
                 <SectionHeader title="Địa chỉ" />
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
-                    { label: "Địa chỉ thường trú", val: extra.thuongTru },
-                    { label: "Địa chỉ hiện nay",   val: extra.hienNay },
-                    { label: "Địa chỉ liên lạc",   val: extra.lienLac },
-                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                    { label: "Địa chỉ thường trú", key: "thuongTru" },
+                    { label: "Địa chỉ hiện nay",   key: "hienNay" },
+                    { label: "Địa chỉ liên lạc",   key: "lienLac" },
+                  ].map(r => (
+                    <MField key={r.key} label={r.label} value={form[r.key] || ""} editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, [r.key]: v }))} />
+                  ))}
                 </div>
               </div>
+
               <div>
                 <SectionHeader title="Thông tin liên hệ" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
-                    { label: "Email cá nhân",    val: extra.personalEmail },
-                    { label: "Email chính thức", val: student.email },
-                    { label: "Ngày vào trường",  val: extra.ngayVaoTruong },
-                    { label: "Ngày vào Đoàn",    val: extra.ngayVaoDoan },
-                    { label: "Ngày vào Đảng",    val: extra.ngayVaoDang },
-                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                    { label: "Email cá nhân",    key: "personalEmail" },
+                    { label: "Email chính thức", key: "email" },
+                    { label: "Ngày vào trường",  key: "ngayVaoTruong" },
+                    { label: "Ngày vào Đoàn",    key: "ngayVaoDoan" },
+                    { label: "Ngày vào Đảng",    key: "ngayVaoDang" },
+                  ].map(r => (
+                    <MField key={r.key} label={r.label} value={form[r.key] || ""} editable={mode === "edit" && r.key !== "email"} onChange={v => setForm((p: any) => ({ ...p, [r.key]: v }))} />
+                  ))}
                 </div>
               </div>
+
               <div>
                 <SectionHeader title="Thông tin người liên lạc" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
-                  <MField label="Tên người liên hệ"   value={contactEdit.cvTen}    editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvTen: v }))} />
-                  <MField label="SĐT người liên hệ"   value={contactEdit.cvSdt}    editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvSdt: v }))} />
-                  <MField label="Email người liên hệ" value={contactEdit.cvEmail}  editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvEmail: v }))} />
-                  <MField label="Quan hệ"             value={contactEdit.cvQuanHe} editable={mode === "edit"} onChange={v => setContactEdit(p => ({ ...p, cvQuanHe: v }))} />
+                  <MField label="Tên người liên hệ"   value={form.cvTen || ""}   editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, cvTen: v }))} />
+                  <MField label="SĐT người liên hệ"   value={form.cvSdt || ""}   editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, cvSdt: v }))} />
+                  <MField label="Email người liên hệ" value={form.cvEmail || ""} editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, cvEmail: v }))} />
+                  <MField label="Quan hệ"             value={form.cvQuanHe || ""} editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, cvQuanHe: v }))} />
                 </div>
               </div>
+
               <div>
                 <SectionHeader title="Tài khoản ngân hàng" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
-                  {[
-                    { label: "Ngân hàng",    val: extra.nganHang },
-                    { label: "Số tài khoản", val: extra.stk },
-                    { label: "Chi nhánh",    val: extra.chiNhanh },
-                  ].map(r => <MField key={r.label} label={r.label} value={r.val} editable={mode === "edit"} onChange={() => {}} />)}
+                  <MField label="Ngân hàng"     value={form.nganHang || ""} editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, nganHang: v }))} />
+                  <MField label="Số tài khoản"  value={form.stk || ""}      editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, stk: v }))} />
+                  <MField label="Chi nhánh"     value={form.chiNhanh || ""} editable={mode === "edit"} onChange={v => setForm((p: any) => ({ ...p, chiNhanh: v }))} />
                 </div>
               </div>
             </div>
@@ -256,18 +269,18 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
 
           {activeTab === "family" && (
             <div className="space-y-4">
-              {familyEdit.filter(m => m.name).map((m, i) => (
+              {familyData.map((m, i) => (
                 <div key={i} className="rounded-xl border border-border overflow-hidden">
                   <div className="px-4 py-2.5 flex items-center gap-2 border-b border-border" style={{ background: "rgba(37,52,79,0.06)" }}>
                     <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--primary)" }}>
-                      {m.name[0]}
+                      {m.name ? m.name[0] : "?"}
                     </div>
-                    <span className="font-semibold text-sm text-foreground" style={PJS}>{m.name}</span>
+                    <span className="font-semibold text-sm text-foreground" style={PJS}>{m.name || "Chưa có tên"}</span>
                     <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{m.rel}</span>
                   </div>
                   <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
-                    {([
-                      { label: "Ngày sinh",     key: "dob" },
+                    {[
+                      { label: "Năm sinh",      key: "dob" },
                       { label: "Nghề nghiệp",   key: "job" },
                       { label: "Nơi làm việc",  key: "workplace" },
                       { label: "Số điện thoại", key: "phone" },
@@ -276,16 +289,16 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
                       { label: "Tôn giáo",      key: "religion" },
                       { label: "Quốc tịch",     key: "nationality" },
                       { label: "Địa chỉ",       key: "address" },
-                    ] as { label: string; key: keyof FamilyMember }[]).map(r => (
-                      <MField key={r.label} label={r.label} value={String(m[r.key] ?? "")}
+                    ].map(r => (
+                      <MField key={r.key} label={r.label} value={String((m as any)[r.key] ?? "")}
                         editable={mode === "edit"}
-                        onChange={v => setFamilyEdit(prev => prev.map((mem, mi) => mi === i ? { ...mem, [r.key]: v } : mem))} />
+                        onChange={v => setFamilyData(prev => prev.map((mem, mi) => mi === i ? { ...mem, [r.key]: v } : mem))} />
                     ))}
                   </div>
                 </div>
               ))}
-              {familyEdit.filter(m => m.name).length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-10">Chưa có thông tin gia đình.</p>
+              {familyData.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-10">Chưa có thông tin gia đình trong hệ thống.</p>
               )}
             </div>
           )}
@@ -296,7 +309,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
           <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
             <button onClick={() => { setForm({ ...student }); setMode("view"); }}
               className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
-            <button onClick={() => { onSave(form); setMode("view"); }}
+            <button onClick={handleSaveChanges}
               className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Lưu thay đổi</button>
           </div>
         )}
@@ -306,34 +319,54 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
 }
 
 // ─── Admin: Add Student Modal ────────────────────────────────────────────────
-function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: AdminStudent) => void }) {
+function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: any) => void }) {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER = { fontFamily: "'Inter', sans-serif" };
-  const blank: AdminStudent = { hoTen: "", mssv: "", email: "", gioiTinh: "Nam", khoa: "2024", nganh: "", bacDT: "Đại học", loaiDT: "Chính quy", chuyenNganh: "" };
-  const [draft, setDraft] = useState<AdminStudent>(blank);
-  const [errors, setErrors] = useState<Set<keyof AdminStudent>>(new Set());
+  const blank = { hoTen: "", mssv: "", email: "", gioiTinh: "Nam", khoa: "2024", nganh: "", bacDT: "Đại học", loaiDT: "Chính quy", chuyenNganh: "" };
+  const [draft, setDraft] = useState<any>(blank);
+  const [errors, setErrors] = useState<Set<string>>(new Set());
+  const [submitting, setSubmitting] = useState(false);
 
-  const fields: { label: string; key: keyof AdminStudent; required?: boolean; span2?: boolean }[] = [
+  const fields: { label: string; key: string; required?: boolean; span2?: boolean }[] = [
     { label: "Họ và tên",    key: "hoTen",       required: true,  span2: true },
     { label: "MSSV",         key: "mssv",        required: true },
-    { label: "Email",        key: "email",       required: true,  span2: true },
+    { label: "Email",        key: "email",       required: false, span2: true },
     { label: "Giới tính",    key: "gioiTinh" },
     { label: "Khoá",         key: "khoa" },
-    { label: "Khoa",        key: "nganh",       required: true },
+    { label: "Khoa/Ngành",   key: "nganh",       required: true },
     { label: "Bậc đào tạo",  key: "bacDT" },
     { label: "Loại đào tạo", key: "loaiDT" },
     { label: "Chuyên ngành", key: "chuyenNganh", span2: true },
   ];
 
-  function handleSave() {
-    const errs = new Set<keyof AdminStudent>();
+  async function handleSave() {
+    const errs = new Set<string>();
     fields.filter(f => f.required).forEach(f => { if (!draft[f.key]) errs.add(f.key); });
     if (errs.size > 0) { setErrors(errs); return; }
-    onAdd(draft);
-    onClose();
+
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft)
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        onAdd(draft);
+        onClose();
+      } else {
+        alert(data.message || "Không thể thêm sinh viên.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối máy chủ.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  const inputCls = (key: keyof AdminStudent) =>
+  const inputCls = (key: string) =>
     `w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors ${errors.has(key) ? "border-red-400 ring-1 ring-red-300" : "border-border"}`;
 
   return (
@@ -355,7 +388,7 @@ function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: A
                 </label>
                 <input
                   value={draft[f.key]}
-                  onChange={e => { setDraft(p => ({ ...p, [f.key]: e.target.value })); setErrors(p => { const n = new Set(p); n.delete(f.key); return n; }); }}
+                  onChange={e => { setDraft((p: any) => ({ ...p, [f.key]: e.target.value })); setErrors(p => { const n = new Set(p); n.delete(f.key); return n; }); }}
                   className={inputCls(f.key)}
                   style={INTER}
                   placeholder={f.required ? `Nhập ${f.label.toLowerCase()}...` : ""}
@@ -367,7 +400,9 @@ function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: A
         </div>
         <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
-          <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Thêm sinh viên</button>
+          <button onClick={handleSave} disabled={submitting} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50" style={{ background: "var(--primary)", ...PJS }}>
+            {submitting ? "Đang thêm..." : "Thêm sinh viên"}
+          </button>
         </div>
       </div>
     </div>
@@ -381,18 +416,67 @@ function StudentManagement() {
   const [filters, setFilters] = useState<{ khoa: string; nganh: string; bacDT: string; loaiDT: string }>({
     khoa: "", nganh: "", bacDT: "", loaiDT: "",
   });
-  const [students, setStudents] = useState<AdminStudent[]>(ADMIN_STUDENTS);
-  const [modal, setModal] = useState<{ student: AdminStudent; mode: StudentModalMode } | null>(null);
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState<{ student: any; mode: StudentModalMode } | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [permOpen, setPermOpen] = useState(false);
   const [globalPerm, setGlobalPerm] = useState<GlobalEditPerm>({
     enabled: false, from: "", to: "", nganhs: [], khoas: [],
   });
 
-  const allKhoa  = Array.from(new Set(students.map(s => s.khoa)));
-  const allNganh = Array.from(new Set(students.map(s => s.nganh)));
-  const allBac   = Array.from(new Set(students.map(s => s.bacDT)));
-  const allLoai  = Array.from(new Set(students.map(s => s.loaiDT)));
+  // 1. Fetch danh sách sinh viên từ backend
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/students');
+      const data = await res.json();
+      if (data.status === 'success') {
+        setStudents(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch danh sách sinh viên:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. Fetch trạng thái quyền chỉnh sửa hồ sơ
+  const fetchPermission = async () => {
+    try {
+      const res = await fetch('/api/admin/profile-edit-permission');
+      const data = await res.json();
+      if (data.status === 'success' && data.data) {
+        setGlobalPerm(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch quyền chỉnh sửa:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+    fetchPermission();
+  }, []);
+
+  // 3. Lưu cài đặt quyền chỉnh sửa
+  const handleSavePermission = async (newPerm: GlobalEditPerm) => {
+    setGlobalPerm(newPerm);
+    try {
+      await fetch('/api/admin/profile-edit-permission', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPerm)
+      });
+    } catch (e) {
+      console.error("Lỗi lưu quyền chỉnh sửa:", e);
+    }
+  };
+
+  const allKhoa  = Array.from(new Set(students.map(s => s.khoa).filter(Boolean)));
+  const allNganh = Array.from(new Set(students.map(s => s.nganh).filter(Boolean)));
+  const allBac   = Array.from(new Set(students.map(s => s.bacDT).filter(Boolean)));
+  const allLoai  = Array.from(new Set(students.map(s => s.loaiDT).filter(Boolean)));
 
   const filtered = students.filter(s => {
     const q = search.toLowerCase();
@@ -406,7 +490,7 @@ function StudentManagement() {
 
   function clearFilters() { setFilters({ khoa: "", nganh: "", bacDT: "", loaiDT: "" }); }
   const activeFilters = Object.values(filters).filter(Boolean).length;
-  const cols = ["Họ và Tên", "MSSV", "Mail", "Giới tính", "Khoá", "Bậc ĐT", "Ngành", "Loại ĐT", "Chuyên ngành"];
+  const cols = ["Họ và Tên", "MSSV", "Mail", "Giới tính", "Khoá", "Bậc ĐT", "Khoa", "Loại ĐT", "Chuyên ngành"];
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -415,15 +499,19 @@ function StudentManagement() {
           student={modal.student}
           mode={modal.mode}
           onClose={() => setModal(null)}
-          onSave={updated => setStudents(prev => prev.map(s => s.mssv === updated.mssv ? updated : s))}
+          onSave={updated => {
+            setStudents(prev => prev.map(s => s.mssv === updated.mssv ? { ...s, ...updated } : s));
+          }}
         />
       )}
       {addOpen && (
         <AddStudentModal
           onClose={() => setAddOpen(false)}
-          onAdd={s => setStudents(prev => [s, ...prev])}
+          onAdd={s => fetchStudents()}
         />
       )}
+
+      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 mb-4 flex-shrink-0">
         <div className="flex-1 relative min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -456,6 +544,7 @@ function StudentManagement() {
         </button>
       </div>
 
+      {/* Permission Section */}
       {permOpen && (
         <div className="mb-4 bg-card rounded-xl border border-border overflow-hidden flex-shrink-0">
           <div className="px-5 py-3 border-b border-border flex items-center justify-between" style={{ background: "var(--primary)" }}>
@@ -464,7 +553,7 @@ function StudentManagement() {
               <span className="text-white/70 text-xs" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {globalPerm.enabled ? "Đang bật" : "Đang tắt"}
               </span>
-              <button onClick={() => setGlobalPerm(p => ({ ...p, enabled: !p.enabled }))}
+              <button onClick={() => handleSavePermission({ ...globalPerm, enabled: !globalPerm.enabled })}
                 className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0"
                 style={{ background: globalPerm.enabled ? "#22c55e" : "rgba(255,255,255,0.3)" }}>
                 <span className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform"
@@ -476,72 +565,31 @@ function StudentManagement() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Từ ngày</label>
-                <input type="date" value={globalPerm.from} onChange={e => setGlobalPerm(p => ({ ...p, from: e.target.value }))}
+                <input type="date" value={globalPerm.from} onChange={e => handleSavePermission({ ...globalPerm, from: e.target.value })}
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đến ngày</label>
-                <input type="date" value={globalPerm.to} onChange={e => setGlobalPerm(p => ({ ...p, to: e.target.value }))}
+                <input type="date" value={globalPerm.to} onChange={e => handleSavePermission({ ...globalPerm, to: e.target.value })}
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  Áp dụng cho Khoa <span className="font-normal text-muted-foreground">(để trống = tất cả)</span>
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {allNganh.map(n => (
-                    <button key={n} onClick={() => setGlobalPerm(p => ({ ...p, nganhs: p.nganhs.includes(n) ? p.nganhs.filter(x => x !== n) : [...p.nganhs, n] }))}
-                      className="text-xs px-2.5 py-1 rounded-full border transition-colors"
-                      style={{
-                        borderColor: globalPerm.nganhs.includes(n) ? "var(--primary)" : "#e2e8f0",
-                        background: globalPerm.nganhs.includes(n) ? "var(--primary)" : "#fff",
-                        color: globalPerm.nganhs.includes(n) ? "#fff" : "var(--muted-foreground)",
-                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      }}>
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  Áp dụng cho Khoá <span className="font-normal text-muted-foreground">(để trống = tất cả)</span>
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {allKhoa.map(k => (
-                    <button key={k} onClick={() => setGlobalPerm(p => ({ ...p, khoas: p.khoas.includes(k) ? p.khoas.filter(x => x !== k) : [...p.khoas, k] }))}
-                      className="text-xs px-2.5 py-1 rounded-full border transition-colors"
-                      style={{
-                        borderColor: globalPerm.khoas.includes(k) ? "var(--primary)" : "#e2e8f0",
-                        background: globalPerm.khoas.includes(k) ? "var(--primary)" : "#fff",
-                        color: globalPerm.khoas.includes(k) ? "#fff" : "var(--muted-foreground)",
-                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                      }}>
-                      {k}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
             {globalPerm.enabled && globalPerm.from && globalPerm.to && (
               <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium bg-green-50 border border-green-200 text-green-700" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                Sinh viên {globalPerm.nganhs.length > 0 ? globalPerm.nganhs.join(", ") : "tất cả khoa"}
-                {globalPerm.khoas.length > 0 ? ` · ${globalPerm.khoas.join(", ")}` : " · tất cả khoá"}
-                {" "}có thể chỉnh sửa từ {globalPerm.from} đến {globalPerm.to}
+                Sinh viên có thể chỉnh sửa hồ sơ từ {globalPerm.from} đến {globalPerm.to}
               </div>
             )}
           </div>
         </div>
       )}
 
+      {/* Filter Section */}
       {filterOpen && (
         <div className="mb-4 bg-card rounded-xl border border-border px-5 py-4 flex flex-wrap gap-4 items-end flex-shrink-0">
           {[
             { label: "Khoá",    key: "khoa"  as const, options: allKhoa  },
-            { label: "Khoa",    key: "nganh" as const, options: allNganh },
+            { label: "Khoa/Ngành", key: "nganh" as const, options: allNganh },
             { label: "Bậc ĐT",  key: "bacDT" as const, options: allBac   },
             { label: "Loại ĐT", key: "loaiDT"as const, options: allLoai  },
           ].map(f => (
@@ -562,24 +610,24 @@ function StudentManagement() {
         </div>
       )}
 
+      {/* Table */}
       <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
         <div className="overflow-auto h-full">
           <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
             <thead className="sticky top-0 z-10">
               <tr style={{ background: "var(--primary)" }}>
-                {cols.map(c => <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c === "Ngành" ? "Khoa" : c}</th>)}
+                {cols.map(c => <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c}</th>)}
                 <th className="px-3 py-2.5 w-10" />
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr><td colSpan={cols.length + 1} className="px-4 py-12 text-center text-muted-foreground text-sm">Đang tải danh sách sinh viên...</td></tr>
+              ) : filtered.length === 0 ? (
                 <tr><td colSpan={cols.length + 1} className="px-4 py-12 text-center text-muted-foreground text-sm">Không tìm thấy sinh viên phù hợp.</td></tr>
               ) : filtered.map((s) => {
                 const now = new Date().toISOString().slice(0, 10);
-                const nganhMatch = globalPerm.nganhs.length === 0 || globalPerm.nganhs.includes(s.nganh);
-                const khoaMatch  = globalPerm.khoas.length === 0  || globalPerm.khoas.includes(s.khoa);
-                const permActive    = globalPerm.enabled && globalPerm.from <= now && now <= globalPerm.to && nganhMatch && khoaMatch;
-                const permScheduled = globalPerm.enabled && globalPerm.from > now && nganhMatch && khoaMatch;
+                const permActive = globalPerm.enabled && globalPerm.from <= now && now <= globalPerm.to;
                 return (
                   <tr key={s.mssv} onClick={() => setModal({ student: s, mode: "view" })}
                     className="group hover:brightness-95 transition-all cursor-pointer"
@@ -587,8 +635,7 @@ function StudentManagement() {
                     <td className="px-3 py-2.5 font-medium text-foreground">
                       <div className="flex items-center gap-2">
                         {s.hoTen}
-                        {permActive    && <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" title="Đang được chỉnh sửa" />}
-                        {permScheduled && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" title="Sắp mở quyền chỉnh sửa" />}
+                        {permActive && <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" title="Đang trong đợt chỉnh sửa" />}
                       </div>
                     </td>
                     <td className="px-3 py-2.5 font-mono text-muted-foreground">{s.mssv}</td>
@@ -598,7 +645,7 @@ function StudentManagement() {
                     <td className="px-3 py-2.5 text-muted-foreground">{s.bacDT}</td>
                     <td className="px-3 py-2.5 text-muted-foreground">{s.nganh}</td>
                     <td className="px-3 py-2.5 text-muted-foreground">{s.loaiDT}</td>
-                    <td className="px-3 py-2.5 text-muted-foreground">{s.chuyenNganh}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.chuyenNganh || "—"}</td>
                     <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
                       <button onClick={() => setModal({ student: s, mode: "edit" })}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-card" title="Chỉnh sửa">
@@ -612,11 +659,10 @@ function StudentManagement() {
           </table>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground mt-2 flex-shrink-0">Hiển thị {filtered.length} / {ADMIN_STUDENTS.length} sinh viên</p>
+      <p className="text-xs text-muted-foreground mt-2 flex-shrink-0">Hiển thị {filtered.length} / {students.length} sinh viên</p>
     </div>
   );
 }
-
 // ─── Admin: Survey Section ────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2, 8); }
 
@@ -1940,8 +1986,19 @@ type AdminExamEntry = ExamEntry & { id: number };
 function ExamModal({ exam, onClose, onSave }: { exam: AdminExamEntry | null; onClose: () => void; onSave: (e: AdminExamEntry) => void; }) {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const iCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card transition-colors";
-  const blank: AdminExamEntry = { id: Date.now(), tenMon: "", maNhom: "", ngayThi: "", thu: "Thứ hai", ca: "Ca 1", gio: "07:30 – 09:30", phong: "", soThi: 0, hinhThuc: "Tự luận" };
-  const [form, setForm] = useState<AdminExamEntry>(exam ?? blank);
+  const blank: AdminExamEntry = { 
+      id: Date.now(), 
+      tenMon: "", 
+      maNhom: "", 
+      ngayThi: "", 
+      thu: "Thứ hai", 
+      ca: "Ca 1", 
+      gio: "07:30 – 09:30", 
+      thoiGian: "90 phút", 
+      phong: "", 
+      soThi: 0, 
+      hinhThuc: "Tự luận" 
+    };  const [form, setForm] = useState<AdminExamEntry>(exam ?? blank);
   const set = (k: keyof AdminExamEntry, v: string | number) => setForm(p => ({ ...p, [k]: v }));
   const thuOpts = DAYS;
   const caMap = Object.fromEntries(CA_LABELS.map(c => [c.label, c.time]));
