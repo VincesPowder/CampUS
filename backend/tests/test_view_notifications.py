@@ -2,7 +2,7 @@ import pytest
 from app import db
 from app.models.notification import SvThongBao
 
-# Tui dùng MSSV 24127158 của bạn làm chuẩn cho các test case này
+# Dùng MSSV 24127158 làm chuẩn cho các test case này
 TEST_MSSV = "24127158"
 
 def test_tc_2_13_04_get_notifications_list(client):

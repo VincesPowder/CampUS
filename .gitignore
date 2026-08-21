@@ -31,3 +31,6 @@ yarn-error.log*
 Thumbs.db
 
 figma/
+
+# DB
+backend/database/campus.db
