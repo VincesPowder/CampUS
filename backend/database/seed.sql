@@ -17,37 +17,25 @@ INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('TN_BB', 'Toán - Khoa học t
 INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('TN_TC1', 'Toán - Khoa học tự nhiên - Công nghệ - Môi trường');
 INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('TN_TC2', 'Toán - Khoa học tự nhiên - Công nghệ - Môi trường');
 INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('XH_TC', 'Khoa học xã hội - Kinh tế - Kỹ năng');
-INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('NN_BB', 'Ngoại ngữ bắt buộc');
-INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('NN_TC', 'Ngoại ngữ tự chọn');
-INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('KT_TC', 'Kiến thức bổ trợ tự chọn');
-INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('KLTN', 'Khóa luận tốt nghiệp');
-INSERT INTO NHOMHOCPHAN (MANHOM, TENNHOM) VALUES ('DATN', 'Đồ án tốt nghiệp');
 
 -- 3. Thêm dữ liệu bảng HOCKY_NAMHOC
 INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK001', 'HK1', '24-25', '2024-09-16', '2025-01-05', 'Closed');
 INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK002', 'HK2', '24-25', '2025-02-24', '2025-06-15', 'Closed');
-INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK003', 'HK3', '24-25', '2025-07-14', '2025-08-31', 'Closed');
+INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK003', 'HK3', '24-25', '2025-07-14', '2025-09-20', 'Closed');
 INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK004', 'HK1', '25-26', '2025-09-29', '2026-01-03', 'Closed');
 INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK005', 'HK2', '25-26', '2026-01-12', '2026-05-09', 'Closed');
 INSERT INTO HOCKY_NAMHOC (MA_HOCKY, TEN_HOCKY, NAMHOC, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI) VALUES ('HK006', 'HK3', '25-26', '2026-05-18', '2026-09-05', 'Open');
 
 -- 4. Thêm dữ liệu bảng KHAOSAT
-INSERT INTO KHAOSAT (MAKS, TENKS, NOIDUNG, HANDON) VALUES ('KS001', 'Khảo sát đánh giá môn học HK2 (25-26)', 'Sinh viên thực hiện đánh giá chất lượng giảng dạy giảng viên các lớp học phần học kỳ 2 năm học 2025-2026.', '2026-08-15T23:59:00.000');
+INSERT INTO KHAOSAT (MAKS, TENKS, NOIDUNG, HANDON) VALUES ('KS001', 'Khảo sát đánh giá môn học HK2 (25-26)', 'Sinh viên thực hiện đánh giá chất lượng giảng dạy giảng viên các lớp học phần học kỳ 2 năm học 2025-2026.', '2026-08-15 23:59:00');
+INSERT INTO KHAOSAT (MAKS, TENKS, NOIDUNG, HANDON) VALUES ('KS002', 'Khảo sát đánh giá môn học HK3 (25 - 26)', 'Sinh viên thực hiện đánh giá chất lượng giảng dạy giảng viên các lớp học phần học kỳ 3 năm học 2025-2026.', '2026-09-05 00:00:00');
 
 -- 5. Thêm dữ liệu bảng LIENHE_HETHONG
 INSERT INTO LIENHE_HETHONG (MA_LIENHE, TEN_DONVI, LOAI_LIENHE, EMAIL, SDT, DIACHI, GHICHU) VALUES ('LH01', 'Giáo vụ ', 'Học vụ', 'giaovu@fit.hcmus.edu.vn', NULL, NULL, NULL);
 INSERT INTO LIENHE_HETHONG (MA_LIENHE, TEN_DONVI, LOAI_LIENHE, EMAIL, SDT, DIACHI, GHICHU) VALUES ('LH02', 'Phòng Đào tạo', 'Học vụ', 'pdt_khtn@hcmus.edu.vn', NULL, NULL, NULL);
 INSERT INTO LIENHE_HETHONG (MA_LIENHE, TEN_DONVI, LOAI_LIENHE, EMAIL, SDT, DIACHI, GHICHU) VALUES ('LH03', 'AmongUS', 'Hỗ trợ kĩ thuật', 'campusofficial2026@gmail.com', NULL, NULL, NULL);
 
--- 6. Thêm dữ liệu bảng NGANH
-INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7460101_NN', 'Nhóm ngành Toán học, Toán ứng dụng, Toán tin', 'MTH');
-INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7460108_NN', 'Nhóm ngành Khoa học dữ liệu, Thống kê', 'MTH');
-INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480101_TT', 'Khoa học máy tính', 'CSC');
-INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480107', 'Trí tuệ nhân tạo', 'CSC');
-INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480201_DKD', 'Công nghệ Thông tin', 'CSC');
-INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480201_NN', 'Nhóm ngành máy tính và công nghệ thông tin', 'CSC');
-
--- 7. Thêm dữ liệu bảng GIANGVIEN
+-- 6. Thêm dữ liệu bảng GIANGVIEN
 INSERT INTO GIANGVIEN (MAGV_GD, HOTEN, DIENTHOAI, MAIL, CHUYENMON, MAKHOA) VALUES ('GV001', 'Đinh Bá Tiến', '', 'dbtien(at)fit.hcmus.edu.vn', '', 'CSC');
 INSERT INTO GIANGVIEN (MAGV_GD, HOTEN, DIENTHOAI, MAIL, CHUYENMON, MAKHOA) VALUES ('GV002', 'Võ Đức Cẩm Hải', '', 'vdchai@hcmus.edu.vn', '', 'MTH');
 INSERT INTO GIANGVIEN (MAGV_GD, HOTEN, DIENTHOAI, MAIL, CHUYENMON, MAKHOA) VALUES ('GV003', 'Tiết Gia Hồng', NULL, 'tghong@hcmus.edu.vn', NULL, 'CSC');
@@ -109,13 +97,20 @@ INSERT INTO GIANGVIEN (MAGV_GD, HOTEN, DIENTHOAI, MAIL, CHUYENMON, MAKHOA) VALUE
 INSERT INTO GIANGVIEN (MAGV_GD, HOTEN, DIENTHOAI, MAIL, CHUYENMON, MAKHOA) VALUES ('GV059', 'Trần Văn I', NULL, 'tvi@hcmus.edu.vn', NULL, 'MTH');
 
 -- Cập nhật lại Trưởng khoa sau khi đã có dữ liệu bảng GIANGVIEN
-UPDATE KHOA SET MAGV_TRUONGKHOA = 'GV001' WHERE MAKHOA = 'CNTT';
-UPDATE KHOA SET MAGV_TRUONGKHOA = 'GV005' WHERE MAKHOA = 'TOAN';
+UPDATE KHOA SET MAGV_TRUONGKHOA = 'GV001' WHERE MAKHOA = 'CSC';
+UPDATE KHOA SET MAGV_TRUONGKHOA = 'GV002' WHERE MAKHOA = 'MTH';
 
--- 8. Thêm dữ liệu bảng ADMIN_GIAOVU
+-- 7. Thêm dữ liệu bảng ADMIN_GIAOVU
 INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU001', 'Đỗ Thành Vinh', '24127262@student.hcmus.edu.vn', 'Giáo vụ', 'CSC', 1);
 INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU002', 'Tạ Mai Như Ngọc', '24127465@student.hcmus.edu.vn', 'Giáo vụ', 'MTH', 1);
-INSERT INTO ADMIN_GIAOVU (MAGV, HOTEN, EMAIL, VAITRO, MAKHOA, TRANGTHAI) VALUES ('GVU003', 'Nguyễn Thị Ngọc Trâm', '24127132@student.hcmus.edu.vn', 'Giáo vụ', 'CSC', 1);
+
+-- 8. Thêm dữ liệu bảng NGANH
+INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7460101_NN', 'Nhóm ngành Toán học, Toán ứng dụng, Toán tin', 'MTH');
+INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7460108_NN', 'Nhóm ngành Khoa học dữ liệu, Thống kê', 'MTH');
+INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480101_TT', 'Khoa học máy tính', 'CSC');
+INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480107', 'Trí tuệ nhân tạo', 'CSC');
+INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480201_DKD', 'Công nghệ Thông tin', 'CSC');
+INSERT INTO NGANH (MANGANH, TENNGANH, MAKHOA) VALUES ('7480201_NN', 'Nhóm ngành máy tính và công nghệ thông tin', 'CSC');
 
 -- 9. Thêm dữ liệu bảng MONHOC
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('ADD00031', 'Anh văn 1', 3, NULL, NULL);
@@ -136,7 +131,7 @@ INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10003', 'Phư
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10004', 'Cấu trúc dữ liệu và giải thuật', 4, NULL, 'CN_CS');
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10006', 'Cơ sở dữ liệu', 4, NULL, 'CN_CS');
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10007', 'Hệ điều hành', 4, NULL, 'CN_CS');
-INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10008', '	Mạng máy tính', 4, NULL, 'CN_CS');
+INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10008', 'Mạng máy tính', 4, NULL, 'CN_CS');
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10009', 'Hệ thống máy tính', 2, NULL, 'CN_CS');
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10012', 'Cơ sở lập trình', 4, NULL, 'CN_CS');
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('CSC10014', 'Tư duy tính toán', 4, NULL, 'CN_CS');
@@ -174,15 +169,24 @@ INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('PHY00001', 'Vậ
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('PHY00002', 'Vật lý đại cương 2 (Điện từ - Quang)', 3, NULL, NULL);
 INSERT INTO MONHOC (MAMH, TENMH, SOTC, SOTIET, MANHOM) VALUES ('PHY00005', 'Vật lý đại cương 1', 4, NULL, 'TN_TC2');
 
--- 10. Thêm dữ liệu bảng CAUHOI_KHAOSAT 
+-- 10. Thêm dữ liệu bảng THONGBAO
+INSERT INTO THONGBAO (MATB, TIEUDE, NOIDUNG, NGAYDANG, MAKHOA) VALUES ('TB001', 'Nhắc nhở đăng kí chuyên ngành 2025-2026', 'Tất cả sinh viên chương trình TCTA khóa 2024 và sinh viên khóa trước đủ điều kiện tham gia xét chuyên ngành và chưa được xét chuyên ngành...', '2026-07-25 00:00:00.000', 'CSC');
+INSERT INTO THONGBAO (MATB, TIEUDE, NOIDUNG, NGAYDANG, MAKHOA) VALUES ('TB002', 'Đổi phòng học', 'Các lớp có tiết tại phòng E301 sáng 01/08/2026 chuyển sang phòng I32', '2026-07-26 00:00:00.000', 'CSC');
+
+-- 11. Thêm dữ liệu bảng CAUHOI_KHAOSAT
 INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH01', 'KS001', 'Đánh giá mức độ hài lòng về môn Cơ sở Trí tuệ nhân tạo', 'Trắc nghiệm', 1);
 INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH02', 'KS001', 'Góp ý thêm cho nhà trường', 'Tự luận', 2);
+INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH03', 'KS002', 'Đánh giá mức độ hài lòng về môn Cơ sở dữ liệu', 'Trắc nghiệm', 1);
+INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH04', 'KS002', 'Đánh giá mức độ hài lòng môn Thể dục 2', 'Trắc nghiệm', 2);
+INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH05', 'KS002', 'Đánh giá mức độ hài lòng môn Toán ứng dụng', 'Trắc nghiệm', 3);
+INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH06', 'KS002', 'Đánh giá mức độ hài lòng môn Nhập môn công nghệ phần mềm', 'Trắc nghiệm', 4);
+INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH07', 'KS002', 'Đánh giá mức độ hài lòng môn Kinh tế chính trị', 'Trắc nghiệm', 5);
+INSERT INTO CAUHOI_KHAOSAT (MACH, MAKS, NOIDUNG_CAUHOI, LOAI_CAUHOI, THUTU) VALUES ('CH08', 'KS002', 'Góp ý thêm cho nhà trường những vấn đề cần cải thiện', 'Tự luận', 6);
 
--- 11. Thêm dữ liệu bảng THONGBAO
-INSERT INTO THONGBAO (MATB, TIEUDE, NOIDUNG, NGAYDANG, MAKHOA) VALUES ('TB001', 'Nhắc nhở đăng kí chuyên ngành 2025-2026', 'Tất cả sinh viên chương trình TCTA khóa 2024 và sinh viên khóa trước đủ điều kiện tham gia xét chuyên ngành và chưa được xét chuyên ngành...', '2026-07-25 00:00:00', 'CSC');
-INSERT INTO THONGBAO (MATB, TIEUDE, NOIDUNG, NGAYDANG, MAKHOA) VALUES ('TB002', 'Đổi phòng học', 'Các lớp có tiết tại phòng E301 sáng 01/08/2026 chuyển sang phòng I32', '2026-07-26 00:00:00', 'CSC');
+-- 12. Thêm dữ liệu bảng DOT_CAPNHAT_HOSO 
+INSERT INTO DOT_CAPNHAT_HOSO (MADOT, TENDOT, THOIGIAN_BATDAU, THOIGIAN_KETTHUC, TRANGTHAI_MO, MA_HOCKY) VALUES ('DOT01', 'Cập nhật thông tin sinh viên', '2026-08-01 00:00:00.000', '2026-09-05 23:59:00.000', 1, 'HK006');
 
--- 12. Thêm dữ liệu bảng CHUYENNGANH
+-- 13. Thêm dữ liệu bảng CHUYENNGANH
 INSERT INTO CHUYENNGANH (MACN, TENCN, MANGANH) VALUES ('CH', 'Cơ học', '7460101_NN');
 INSERT INTO CHUYENNGANH (MACN, TENCN, MANGANH) VALUES ('CNTT', 'Công nghệ thông tin', '7480201_DKD');
 INSERT INTO CHUYENNGANH (MACN, TENCN, MANGANH) VALUES ('CNTTh', 'Công nghệ tri thức', '7480201_DKD');
@@ -202,7 +206,7 @@ INSERT INTO CHUYENNGANH (MACN, TENCN, MANGANH) VALUES ('TGMT', 'Thị giác máy
 INSERT INTO CHUYENNGANH (MACN, TENCN, MANGANH) VALUES ('TTUD', 'Toán tin ứng dụng', '7460101_NN');
 INSERT INTO CHUYENNGANH (MACN, TENCN, MANGANH) VALUES ('XSTK', 'Xác suất thống kê', '7460101_NN');
 
--- 13. Thêm dữ liệu bảng LOPHOCPHAN
+-- 14. Thêm dữ liệu bảng LOPHOCPHAN
 INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP001', 'CSC00004', '24C07', 'Tiết Gia Hồng', 'tghong@hcmus.edu.vn', 'tiếng Việt', 'HK001', 'Closed');
 INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP002', 'CSC10012', '24C07', 'Nguyễn Hải Minh', 'nhminh@hcmus.edu.vn', 'tiếng Anh', 'HK001', 'Closed');
 INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP003', 'CSC10121', '24C07', 'Lê Thu Thảo', 'ltthao@hcmus.edu.vn', 'tiếng Việt', 'HK001', 'Closed');
@@ -263,8 +267,9 @@ INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, T
 INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP058', 'MTH10449', '24TTH_KDL1', 'Trần Văn G', 'tvg@hcmus.edu.vn', 'tiếng Việt', 'HK005', 'Closed');
 INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP059', 'BAA00103', '25_HE3', 'Trần Văn H', 'tvh@hcmus.edu.vn', 'tiếng Việt', 'HK006', 'Open');
 INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP060', 'BAA00104', '25_HE2', 'Trần Văn I', 'tvi@hcmus.edu.vn', 'tiếng Việt', 'HK006', 'Open');
+INSERT INTO LOPHOCPHAN (MALHP, MAMH, TENLOP, TENGV, MAILGV, NGONNGU, MA_HOCKY, TRANGTHAI) VALUES ('HP061', 'CSC14003', '24C07', 'Nguyễn Ngọc Thảo', 'nnthao@hcmus.edu.vn', 'tiếng Anh', 'HK005', 'Closed');
 
--- 14. Thêm dữ liệu bảng CHUONGTRINH_DAOTAO
+-- 15. Thêm dữ liệu bảng CHUONGTRINH_DAOTAO
 INSERT INTO CHUONGTRINH_DAOTAO (MANGANH, MAMH, HOCKY_KIENGHI, TICHCHOTOTNGHIEP, LOAIMON) VALUES ('7460101_NN', 'ADD00031', 1, 1, 'Bắt buộc');
 INSERT INTO CHUONGTRINH_DAOTAO (MANGANH, MAMH, HOCKY_KIENGHI, TICHCHOTOTNGHIEP, LOAIMON) VALUES ('7460101_NN', 'ADD00032', 4, 1, 'Bắt buộc');
 INSERT INTO CHUONGTRINH_DAOTAO (MANGANH, MAMH, HOCKY_KIENGHI, TICHCHOTOTNGHIEP, LOAIMON) VALUES ('7460101_NN', 'BAA00003', 4, 1, 'Bắt buộc');
@@ -327,45 +332,864 @@ INSERT INTO CHUONGTRINH_DAOTAO (MANGANH, MAMH, HOCKY_KIENGHI, TICHCHOTOTNGHIEP, 
 INSERT INTO CHUONGTRINH_DAOTAO (MANGANH, MAMH, HOCKY_KIENGHI, TICHCHOTOTNGHIEP, LOAIMON) VALUES ('7480201_DKD', 'MTH00058', 2, 1, 'Bắt buộc');
 INSERT INTO CHUONGTRINH_DAOTAO (MANGANH, MAMH, HOCKY_KIENGHI, TICHCHOTOTNGHIEP, LOAIMON) VALUES ('7480201_DKD', 'PHY00005', 2, 1, 'Bắt buộc');
 
--- 15. Thêm dữ liệu bảng DOT_CAPNHAT_HOSO 
-INSERT INTO DOT_CAPNHAT_HOSO (MADOT, TENDOT, THOIGIAN_BATDAU, THOIGIAN_KETTHUC, TRANGTHAI_MO, MA_HOCKY) VALUES ('DOT01', 'Cập nhật thông tin sinh viên', '2026-08-01T00:00:00.000', '2026-08-03T23:59:00.000', 1, 'HK006');
+-- 16. Thêm dữ liệu bảng LICHSU_IMPORT_FILE
 
--- 16. Thêm dữ liệu bảng SINHVIEN
-INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR) VALUES 
-('24001001', 'Nguyễn Văn An', 'Sinh viên (Đang học)', '2006-01-10', 'TP.HCM', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050001', '2023-03-12', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'Quận 1, TP.HCM', '0901234501', 'an.ng@gmail.com', 'Quận 1, TP.HCM', '2021-03-26', NULL, '24001001@student.hcmus.edu.vn', '10111001', 'Vietcombank', 'Nguyễn Hữu B', 'Quận 1, TP.HCM', '0911234501', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001002', 'Trần Thị Bảo', 'Sinh viên (Đang học)', '2006-02-15', 'Hà Nội', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050002', '2023-03-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 3, TP.HCM', '0901234502', 'bao.tr@gmail.com', 'Quận 3, TP.HCM', '2021-03-26', NULL, '24001002@student.hcmus.edu.vn', '10111002', 'Vietcombank', 'Trần Văn C', 'Quận 3, TP.HCM', '0911234502', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001003', 'Lê Văn Cường', 'Sinh viên (Đang học)', '2006-03-20', 'Đà Nẵng', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050003', '2023-03-15', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234503', 'cuong.le@gmail.com', 'Quận 5, TP.HCM', '2021-03-31', NULL, '24001003@student.hcmus.edu.vn', '10111003', 'Vietcombank', 'Lê Thị D', 'Quận 5, TP.HCM', '0911234503', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001004', 'Phạm Thị Dung', 'Sinh viên (Đang học)', '2006-04-25', 'Cần Thơ', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050004', '2023-05-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 7, TP.HCM', '0901234504', 'dung.ph@gmail.com', 'Quận 7, TP.HCM', '2021-04-26', NULL, '24001004@student.hcmus.edu.vn', '10111004', NULL, 'Phạm VĂn E', 'Quận 7, TP.HCM', '0911234504', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001005', 'Hoàng Văn E', 'Sinh viên (Đang học)', '2006-05-30', 'Hải Phòng', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050005', '2023-09-21', 'Cục QlHC', 'Việt Nam', 'Kinh', 'Thiên Chúa Giáo', 'Quận 10, TP.HCM', '0901234505', 'em.ho@gmail.com', 'Quận 10, TP.HCM', '2021-04-16', NULL, '24001005@student.hcmus.edu.vn', NULL, NULL, 'Hoàng Thị F', 'Quận 10, TP.HCM', '0911234505', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001006', 'Đặng Thị Phương', 'Sinh viên (Đang học)', '2006-06-05', 'Đồng Nai', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050006', '2023-08-17', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Gò Vấp, TP.HCM', '0901234506', 'phuong.da@gmail.com', 'Gò Vấp, TP.HCM', '2021-05-12', NULL, '24001006@student.hcmus.edu.vn', NULL, NULL, 'Đặng Văn G', 'Gò Vấp. TP.HCM', '0911234506', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001007', 'Vũ Văn Giang', 'Sinh viên (Đang học)', '2006-07-10', 'Bình Dương', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050007', '2023-04-25', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Phật Giáo', 'Tân Bình, TP.HCM', '0901234507', 'giang.vu@gmail.com', 'Tân Bình, TP.HCM', '2021-06-26', NULL, '24001007@student.hcmus.edu.vn', '10111007', 'ACB', 'Vũ Thị H', 'Tân Bình, TP.HCM', '0911234507', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001008', 'Võ Thị Hoa', 'Sinh Viên (Bảo lưu)', '2006-08-15', 'Long An', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050008', '2023-03-16', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Bình Tân, TP.HCM', '0901234508', 'hoa.vo@gmail.com', 'Bình Tân, TP.HCM', '2021-05-14', NULL, '24001008@student.hcmus.edu.vn', '10111008', 'Techcombank', 'Vũ Văn I', 'Bình Tân, TP.HCM', '0911234508', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001009', 'Phan Văn Inh', 'Sinh viên (Đang học)', '2006-02-12', 'Bến Tre', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050009', '2023-01-23', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Phú Nhuận, TP.HCM', '0901234509', 'inh.ph@gmail.com', 'Phú Nhuận, TP.HCM', '2021-09-12', NULL, '24001009@student.hcmus.edu.vn', NULL, NULL, 'Phan Thị K', 'Phú Nhuận, TP.HCM', '0911234509', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001010', 'Trương Thị Kim', 'Sinh viên (Đang học)', '2006-10-25', 'Tiền Giang', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050010', '2023-04-19', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Bình Thạnh, TP.HCM', '0901234510', 'kim.tr@gmail.com', 'Bình Thạnh, TP.HCM', '2021-07-23', NULL, '24001010@student.hcmus.edu.vn', NULL, NULL, 'Trương Văn L', 'Bình Thạnh, TP.HCM', '0911234510', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001011', 'Bùi Văn Lâm', 'Sinh viên (Đang học)', '2006-01-12', 'Vĩnh Long', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050011', '2023-05-30', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Cao Đài', 'Tân Phú, Việt Nam', '0901234511', 'lam.bu@gmail.com', 'Tân Phú, TP.HCM', '2021-09-12', NULL, '24001011@student.hcmus.edu.vn', '10111011', 'MBBank', 'Bùi Thị M', 'Tân Phú, TP.HCM', '0911234511', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001012', 'Đỗ Thị Mai', 'Sinh viên (Đang học)', '2006-12-05', 'Cà Mau', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050012', '2023-06-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 12, TP.HCM', '0901234512', 'mai.do@gmail.com', 'Quận 12, TP.HCM', '2021-03-09', NULL, '24001012@student.hcmus.edu.vn', NULL, NULL, 'Đỗ Văn N', 'Quận 12, TP.HCM', '0911234512', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001013', 'Hồ Văn Nam', 'Sinh viên (Đang học)', '2006-06-18', 'Bạc Liêu', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050013', '2023-09-16', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Thủ Đức, TP.HCM', '0901234513', 'nam.ho@gmail.com', 'Thủ Đức, TP.HCM', '2021-07-23', NULL, '24001013@student.hcmus.edu.vn', NULL, NULL, 'Hồ Thị O', 'Thủ Đức, TP.HCM', '0911234513', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001014', 'Ngô Thị Oanh', 'Sinh viên (Đang học)', '2006-07-18', 'Kiên Giang', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050014', '2023-10-23', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 4, TP.HCM', '0901234514', 'oanh.ng@gmail.com', 'Quận 4, TP.HCM', '2021-04-26', NULL, '24001014@student.hcmus.edu.vn', NULL, NULL, 'Ngô Văn P', 'Quận 4, TP.HCM', '0911234514', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001015', 'Dương Văn Phát', 'Sinh viên (Đang học)', '2006-12-23', 'An Giang', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050015', '2023-04-16', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Phật Giáo', 'Quận 6, TP.HCM', '0901234515', 'phat.du@gmail.com', 'Quận 6, TP.HCM', '2021-06-19', NULL, '24001015@student.hcmus.edu.vn', '10111015', 'Sacombank', 'Dương Thị Q', 'Quận 6, TP.HCM', '0911234515', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001016', 'Lê Thị Quỳnh', 'Sinh viên (Đang học)', '2006-07-31', 'Sóc Trăng', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050016', '2023-08-19', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 8, TP.HCM', '0901234516', 'quynh.ly@gmail.com', 'Quận 8, TP.HCM', '2021-03-15', NULL, '24001016@student.hcmus.edu.vn', '10111016', 'ACB', 'Lý Văn R', 'Quận 8, TP.HCM', '0911234516', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001017', 'Phạm Văn Rạng', 'Sinh viên (Đang học)', '2006-02-19', 'Hậu Giang', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050017', '2023-01-23', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 11, TP.HCM', '0901234517', 'rang.ph@gmail.com', 'Quận 11, TP.HCM', '2021-09-12', NULL, '24001017@student.hcmus.edu.vn', NULL, NULL, 'Phạm Thị S', 'Quận 11, TP.HCM', '0911234517', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24001018', 'Trần Thị Sương', 'Sinh viên (Đang học)', '2006-05-24', 'Trà Vinh', 'Nữ', '2024', 'Cử nhân ', 'TCTA', '0792050018', '2023-08-15', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', ' Hóc Môn, TP.HCM', '0901234518', 'suong.tr@gmail.com', 'Hóc Môn, TP.HCM', '2021-10-02', NULL, '24001018@student.hcmus.edu.vn', '10111018', 'Agribank', 'Trần Văn T', 'Hóc Môn, TP.HCM', '0911234518', NULL, 'Cha', '7480201_DKD', NULL, NULL),
-('24001019', 'Nguyễn Văn Toàn', 'Sinh viên (Đang học)', '2006-09-12', 'Tây Ninh', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050019', '2023-05-04', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Thiên Chúa Giáo', 'Củ Chi, TP.HCM', '0901234519', 'toan.ng@gmail.com', 'Củ Chi, TP.HCM', '2021-05-06', NULL, '24001019@student.hcmus.edu.vn', NULL, NULL, 'Nguyễn Thị V', 'Củ Chi, TP.HCM', '0911234519', NULL, 'Mẹ', '7480201_DKD', NULL, NULL),
-('24002001', 'Lê Hoàng Anh', 'Sinh viên (Đang học)', '2006-05-02', 'TP.HCM', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050021', '2023-04-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 7, TP.HCM', '0901234521', 'anh.le@gmail.com', 'Quận 7, TP.HCM', '2021-09-01', NULL, '24002001@student.hcmus.edu.vn', NULL, NULL, 'Lê Văn B', 'Quận 7, TP.HCM', '0911234520', NULL, 'Cha', '7460101_NN', NULL, NULL),
-('24002002', 'Trần Mỹ Duyên', 'Sinh viên (Đang học)', '2006-09-06', 'Đồng Nai', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050022', '2023-08-04', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Cao Đài', 'Gò Vấp, TP.HCM', '0901234522', 'duyen.tr@gmail.com', 'Gò Vấp, TP.HCM', '2021-04-09', NULL, '24002002@student.hcmus.edu.vn', NULL, NULL, 'Trần Văn C', 'Gò Vấp, TP.HCM', '0911234521', NULL, 'Cha', '7460101_NN', NULL, NULL),
-('24002003', 'Phạm Quốc Huy', 'Sinh viên (Bảo lưu)', '2006-09-04', 'Bình Dương', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050023', '2023-04-01', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Thủ Đức, TP.HCM', '0901234523', 'huy.ph@gmail.com', 'Thủ Đức, TP.HCM', '2021-06-30', NULL, '24002003@student.hcmus.edu.vn', '10111023', 'ACB', 'Phạm Thị D', 'Thủ Đức, TP.HCM', '0911234522', NULL, 'Mẹ', '7460101_NN', NULL, NULL),
-('24002004', 'Nguyễn Ngọc Lan', 'Sinh viên (Đang học)', '2006-02-03', 'Phan Thiết', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050024', '2023-08-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 7, TP.HCM', '0901234524', 'lan.ng@gmail.com', 'Quận 7, TP.HCM', '2021-06-04', NULL, '24002004@student.hcmus.edu.vn', NULL, NULL, 'Nguyễn Văn E', 'Quận 7, TP.HCM', '0911234523', NULL, 'Cha', '7460101_NN', NULL, NULL),
-('24002005', 'Đinh Trọng Phúc', 'Sinh viên (Đang học)', '2006-07-19', 'Vũng Tàu', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050025', '2023-01-31', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 10, TP.HCM', '0901234525', 'phuc.dinh@gmail.com', 'Quận 10, TP.HCM', '2021-09-02', NULL, '24002005@student.hcmus.edu.vn', NULL, NULL, 'Đinh Thị F', 'Quận 10, TP.HCM', '0911234524', NULL, 'Mẹ', '7460101_NN', NULL, NULL),
-('24002006', 'Vũ Trà My', 'Sinh viên (Đại trà)', '2006-06-11', 'Hà Nội', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050026', '2024-06-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Tân Bình, TP.HCM', '0901234526', 'my.vu@gmail.com', 'Tân Bình, TP.HCM', '2021-03-26', NULL, '24002006@student.hcmus.edu.vn', NULL, NULL, 'Vũ Văn G', 'Tân Bình, TP.HCM', '0911234525', NULL, 'Cha', '7460101_NN', NULL, NULL),
-('24002007', 'Huỳnh Minh Sang', 'Sinh viên (Đang học)', '2006-07-22', 'Bến Tre', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050027', '2024-06-02', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Bình Thạnh, TP.HCM', '0901234527', 'sang.huynh@gmail.com', 'Bình Thạnh, TP.HCM', '2021-09-06', NULL, '24002007@student.hcmus.edu.vn', NULL, NULL, 'Huỳnh Thị H', 'Bình Thạnh, TP.HCM', '0911234526', NULL, 'Mẹ', '7460101_NN', NULL, NULL),
-('24002008', 'Bùi Tú Quyên', 'Sinh viên (Đang học)', '2006-06-19', 'Tiền Giang', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050028', '2024-09-29', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234528', 'uyen.bui@gmail.com', 'Quận 5, TP.HCM', '2021-10-02', NULL, '24002008@student.hcmus.edu.vn', '10111028', 'MBBank', 'Bùi Văn I', 'Quận 5, TP.HCM', '0911234527', NULL, 'Cha', '7460101_NN', NULL, NULL),
-('24002009', 'Hồ Thanh Tùng', 'Sinh Viên (Đang học)', '2006-07-26', 'Lâm Đồng', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050029', '2024-05-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 3, TP.HCM', '0901234529', 'tung.ho@gmail.com', 'Quận 3, TP.HCM', '2021-08-12', NULL, '24002009@studnet.hcmus.edu.vn', '10111029', 'Vietcombank', 'Hồ Thị K', 'Quận 3, TP.HCM', '0911234528', NULL, 'Mẹ', '7460101_NN', NULL, NULL),
-('24127132', 'Nguyễn Thị Ngọc Trâm', 'Sinh viên (Đang học)', '2006-02-06', 'Đà Nẵng', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050132', '2023-05-06', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234132', 'tram.ng@gmail.com', 'Quận 5, TP.HCM', '2021-04-06', NULL, '24127132@student.hcmus.edu.vn', NULL, NULL, 'Nguyễn Thị Hoa', 'Quận 5, TP.HCM', '0911234532', NULL, 'Mẹ', '7460101_NN', 'GT', NULL),
-('24127158', 'Nguyễn Trần Lan Duy', 'Sinh viên (Đang học)', '2006-07-20', 'Bến Tre', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0548423215', '2023-04-30', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'xã Tân Thủy, tỉnh Vĩnh Long, Xã Tân Thủy, Tỉnh Vĩnh Long
-', '0123456789', 'nguyentranlanduy2016@gmail.com', 'phường An Đông, thành phố Hồ Chí Minh', '2021-05-31', NULL, '24127158@student.hcmus.edu.vn', NULL, NULL, 'Trần Thị Thủy', 'xã Tân Thủy, tỉnh Vĩnh Long, Xã Tân Thủy, Tỉnh Vĩnh Long
-', '0987654321', NULL, 'Mẹ', '7480201_DKD', 'HTTT', NULL);
+-- 17. Thêm dữ liệu bảng SINHVIEN
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001001', 'Nguyễn Văn An', 'Sinh viên (Đang học)', '2006-01-10', 'TP.HCM', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050001', '2023-03-12', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'Quận 1, TP.HCM', '0901234501', 'an.ng@gmail.com', 'Quận 1, TP.HCM', '2021-03-26', NULL, '24001001@student.hcmus.edu.vn', '10111001', 'Vietcombank', 'Nguyễn Hữu B', 'Quận 1, TP.HCM', '0911234501', NULL, 'Cha', '7480201_DKD', NULL, NULL);
 
--- 17. Thêm dữ liệu bảng NGUOITHAN
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001002', 'Trần Thị Bảo', 'Sinh viên (Đang học)', '2006-02-15', 'Hà Nội', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050002', '2023-03-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 3, TP.HCM', '0901234502', 'bao.tr@gmail.com', 'Quận 3, TP.HCM', '2021-03-26', NULL, '24001002@student.hcmus.edu.vn', '10111002', 'Vietcombank', 'Trần Văn C', 'Quận 3, TP.HCM', '0911234502', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001003', 'Lê Văn Cường', 'Sinh viên (Đang học)', '2006-03-20', 'Đà Nẵng', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050003', '2023-03-15', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234503', 'cuong.le@gmail.com', 'Quận 5, TP.HCM', '2021-03-31', NULL, '24001003@student.hcmus.edu.vn', '10111003', 'Vietcombank', 'Lê Thị D', 'Quận 5, TP.HCM', '0911234503', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001004', 'Phạm Thị Dung', 'Sinh viên (Đang học)', '2006-04-25', 'Cần Thơ', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050004', '2023-05-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 7, TP.HCM', '0901234504', 'dung.ph@gmail.com', 'Quận 7, TP.HCM', '2021-04-26', NULL, '24001004@student.hcmus.edu.vn', NULL, NULL, 'Phạm VĂn E', 'Quận 7, TP.HCM', '0911234504', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001005', 'Hoàng Văn E', 'Sinh viên (Đang học)', '2006-05-30', 'Hải Phòng', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050005', '2023-09-21', 'Cục QlHC', 'Việt Nam', 'Kinh', 'Thiên Chúa Giáo', 'Quận 10, TP.HCM', '0901234505', 'em.ho@gmail.com', 'Quận 10, TP.HCM', '2021-04-16', NULL, '24001005@student.hcmus.edu.vn', NULL, NULL, 'Hoàng Thị F', 'Quận 10, TP.HCM', '0911234505', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001006', 'Đặng Thị Phương', 'Sinh viên (Đang học)', '2006-06-05', 'Đồng Nai', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050006', '2023-08-17', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Gò Vấp, TP.HCM', '0901234506', 'phuong.da@gmail.com', 'Gò Vấp, TP.HCM', '2021-05-12', NULL, '24001006@student.hcmus.edu.vn', NULL, NULL, 'Đặng Văn G', 'Gò Vấp. TP.HCM', '0911234506', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001007', 'Vũ Văn Giang', 'Sinh viên (Đang học)', '2006-07-10', 'Bình Dương', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050007', '2023-04-25', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Phật Giáo', 'Tân Bình, TP.HCM', '0901234507', 'giang.vu@gmail.com', 'Tân Bình, TP.HCM', '2021-06-26', NULL, '24001007@student.hcmus.edu.vn', '10111007', 'ACB', 'Vũ Thị H', 'Tân Bình, TP.HCM', '0911234507', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001008', 'Võ Thị Hoa', 'Sinh Viên (Bảo lưu)', '2006-08-15', 'Long An', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050008', '2023-03-16', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Bình Tân, TP.HCM', '0901234508', 'hoa.vo@gmail.com', 'Bình Tân, TP.HCM', '2021-05-14', NULL, '24001008@student.hcmus.edu.vn', '10111008', 'Techcombank', 'Vũ Văn I', 'Bình Tân, TP.HCM', '0911234508', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001009', 'Phan Văn Inh', 'Sinh viên (Đang học)', '2006-02-12', 'Bến Tre', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050009', '2023-01-23', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Phú Nhuận, TP.HCM', '0901234509', 'inh.ph@gmail.com', 'Phú Nhuận, TP.HCM', '2021-09-12', NULL, '24001009@student.hcmus.edu.vn', NULL, NULL, 'Phan Thị K', 'Phú Nhuận, TP.HCM', '0911234509', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001010', 'Trương Thị Kim', 'Sinh viên (Đang học)', '2006-10-25', 'Tiền Giang', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050010', '2023-04-19', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Bình Thạnh, TP.HCM', '0901234510', 'kim.tr@gmail.com', 'Bình Thạnh, TP.HCM', '2021-07-23', NULL, '24001010@student.hcmus.edu.vn', NULL, NULL, 'Trương Văn L', 'Bình Thạnh, TP.HCM', '0911234510', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001011', 'Bùi Văn Lâm', 'Sinh viên (Đang học)', '2006-01-12', 'Vĩnh Long', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050011', '2023-05-30', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Cao Đài', 'Tân Phú, Việt Nam', '0901234511', 'lam.bu@gmail.com', 'Tân Phú, TP.HCM', '2021-09-12', NULL, '24001011@student.hcmus.edu.vn', '10111011', 'MBBank', 'Bùi Thị M', 'Tân Phú, TP.HCM', '0911234511', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001012', 'Đỗ Thị Mai', 'Sinh viên (Đang học)', '2006-12-05', 'Cà Mau', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050012', '2023-06-12', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 12, TP.HCM', '0901234512', 'mai.do@gmail.com', 'Quận 12, TP.HCM', '2021-03-09', NULL, '24001012@student.hcmus.edu.vn', NULL, NULL, 'Đỗ Văn N', 'Quận 12, TP.HCM', '0911234512', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001013', 'Hồ Văn Nam', 'Sinh viên (Đang học)', '2006-06-18', 'Bạc Liêu', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050013', '2023-09-16', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Thủ Đức, TP.HCM', '0901234513', 'nam.ho@gmail.com', 'Thủ Đức, TP.HCM', '2021-07-23', NULL, '24001013@student.hcmus.edu.vn', NULL, NULL, 'Hồ Thị O', 'Thủ Đức, TP.HCM', '0911234513', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001014', 'Ngô Thị Oanh', 'Sinh viên (Đang học)', '2006-07-18', 'Kiên Giang', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050014', '2023-10-23', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 4, TP.HCM', '0901234514', 'oanh.ng@gmail.com', 'Quận 4, TP.HCM', '2021-04-26', NULL, '24001014@student.hcmus.edu.vn', NULL, NULL, 'Ngô Văn P', 'Quận 4, TP.HCM', '0911234514', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001015', 'Dương Văn Phát', 'Sinh viên (Đang học)', '2006-12-23', 'An Giang', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050015', '2023-04-16', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Phật Giáo', 'Quận 6, TP.HCM', '0901234515', 'phat.du@gmail.com', 'Quận 6, TP.HCM', '2021-06-19', NULL, '24001015@student.hcmus.edu.vn', '10111015', 'Sacombank', 'Dương Thị Q', 'Quận 6, TP.HCM', '0911234515', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001016', 'Lê Thị Quỳnh', 'Sinh viên (Đang học)', '2006-07-31', 'Sóc Trăng', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050016', '2023-08-19', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 8, TP.HCM', '0901234516', 'quynh.ly@gmail.com', 'Quận 8, TP.HCM', '2021-03-15', NULL, '24001016@student.hcmus.edu.vn', '10111016', 'ACB', 'Lý Văn R', 'Quận 8, TP.HCM', '0911234516', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001017', 'Phạm Văn Rạng', 'Sinh viên (Đang học)', '2006-02-19', 'Hậu Giang', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050017', '2023-01-23', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 11, TP.HCM', '0901234517', 'rang.ph@gmail.com', 'Quận 11, TP.HCM', '2021-09-12', NULL, '24001017@student.hcmus.edu.vn', NULL, NULL, 'Phạm Thị S', 'Quận 11, TP.HCM', '0911234517', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001018', 'Trần Thị Sương', 'Sinh viên (Đang học)', '2006-05-24', 'Trà Vinh', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0792050018', '2023-08-15', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', ' Hóc Môn, TP.HCM', '0901234518', 'suong.tr@gmail.com', 'Hóc Môn, TP.HCM', '2021-10-02', NULL, '24001018@student.hcmus.edu.vn', '10111018', 'Agribank', 'Trần Văn T', 'Hóc Môn, TP.HCM', '0911234518', NULL, 'Cha', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24001019', 'Nguyễn Văn Toàn', 'Sinh viên (Đang học)', '2006-09-12', 'Tây Ninh', 'Nam', '2024', 'Cử nhân', 'TCTA', '0792050019', '2023-05-04', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Thiên Chúa Giáo', 'Củ Chi, TP.HCM', '0901234519', 'toan.ng@gmail.com', 'Củ Chi, TP.HCM', '2021-05-06', NULL, '24001019@studnet.hcmus.edu.vn', NULL, NULL, 'Nguyễn Thị V', 'Củ Chi, TP.HCM', '0911234519', NULL, 'Mẹ', '7480201_DKD', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002001', 'Lê Hoàng Anh', 'Sinh viên (Đang học)', '2006-05-02', 'TP.HCM', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050021', '2023-04-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 7, TP.HCM', '0901234521', 'anh.le@gmail.com', 'Quận 7, TP.HCM', '2021-09-01', NULL, '24002001@student.hcmus.edu.vn', NULL, NULL, 'Lê Văn B', 'Quận 7, TP.HCM', '0911234520', NULL, 'Cha', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002002', 'Trần Mỹ Duyên', 'Sinh viên (Đang học)', '2006-09-06', 'Đồng Nai', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050022', '2023-08-04', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Cao Đài', 'Gò Vấp, TP.HCM', '0901234522', 'duyen.tr@gmail.com', 'Gò Vấp, TP.HCM', '2021-04-09', NULL, '24002002@student.hcmus.edu.vn', NULL, NULL, 'Trần Văn C', 'Gò Vấp, TP.HCM', '0911234521', NULL, 'Cha', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002003', 'Phạm Quốc Huy', 'Sinh viên (Bảo lưu)', '2006-09-04', 'Bình Dương', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050023', '2023-04-01', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Thủ Đức, TP.HCM', '0901234523', 'huy.ph@gmail.com', 'Thủ Đức, TP.HCM', '2021-06-30', NULL, '24002003@student.hcmus.edu.vn', '10111023', 'ACB', 'Phạm Thị D', 'Thủ Đức, TP.HCM', '0911234522', NULL, 'Mẹ', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002004', 'Nguyễn Ngọc Lan', 'Sinh viên (Đang học)', '2006-02-03', 'Phan Thiết', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050024', '2023-08-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 7, TP.HCM', '0901234524', 'lan.ng@gmail.com', 'Quận 7, TP.HCM', '2021-06-04', NULL, '24002004@student.hcmus.edu.vn', NULL, NULL, 'Nguyễn Văn E', 'Quận 7, TP.HCM', '0911234523', NULL, 'Cha', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002005', 'Đinh Trọng Phúc', 'Sinh viên (Đang học)', '2006-07-19', 'Vũng Tàu', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050025', '2023-01-31', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 10, TP.HCM', '0901234525', 'phuc.dinh@gmail.com', 'Quận 10, TP.HCM', '2021-09-02', NULL, '24002005@student.hcmus.edu.vn', NULL, NULL, 'Đinh Thị F', 'Quận 10, TP.HCM', '0911234524', NULL, 'Mẹ', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002006', 'Vũ Trà My', 'Sinh viên (Đại trà)', '2006-06-11', 'Hà Nội', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050026', '2024-06-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Tân Bình, TP.HCM', '0901234526', 'my.vu@gmail.com', 'Tân Bình, TP.HCM', '2021-03-26', NULL, '24002006@student.hcmus.edu.vn', NULL, NULL, 'Vũ Văn G', 'Tân Bình, TP.HCM', '0911234525', NULL, 'Cha', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002007', 'Huỳnh Minh Sang', 'Sinh viên (Đang học)', '2006-07-22', 'Bến Tre', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050027', '2024-06-02', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Bình Thạnh, TP.HCM', '0901234527', 'sang.huynh@gmail.com', 'Bình Thạnh, TP.HCM', '2021-09-06', NULL, '24002007@student.hcmus.edu.vn', NULL, NULL, 'Huỳnh Thị H', 'Bình Thạnh, TP.HCM', '0911234526', NULL, 'Mẹ', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002008', 'Bùi Tú Quyên', 'Sinh viên (Đang học)', '2006-06-19', 'Tiền Giang', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050028', '2024-09-29', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234528', 'uyen.bui@gmail.com', 'Quận 5, TP.HCM', '2021-10-02', NULL, '24002008@student.hcmus.edu.vn', '10111028', 'MBBank', 'Bùi Văn I', 'Quận 5, TP.HCM', '0911234527', NULL, 'Cha', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24002009', 'Hồ Thanh Tùng', 'Sinh Viên (Đang học)', '2006-07-26', 'Lâm Đồng', 'Nam', '2024', 'Cử nhân', 'Đại trà', '0792050029', '2024-05-09', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 3, TP.HCM', '0901234529', 'tung.ho@gmail.com', 'Quận 3, TP.HCM', '2021-08-12', NULL, '24002009@studnet.hcmus.edu.vn', '10111029', 'Vietcombank', 'Hồ Thị K', 'Quận 3, TP.HCM', '0911234528', NULL, 'Mẹ', '7460101_NN', NULL, NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24127132', 'Nguyễn Thị Ngọc Trâm', 'Sinh viên (Đang học)', '2006-02-06', 'Đà Nẵng', 'Nữ', '2024', 'Cử nhân', 'Đại trà', '0792050132', '2023-05-06', 'Cục QLHC', 'Việt Nam', 'Kinh', 'Không', 'Quận 5, TP.HCM', '0901234132', 'tram.ng@gmail.com', 'Quận 5, TP.HCM', '2021-04-06', NULL, '24127132@student.hcmus.edu.vn', NULL, NULL, 'Nguyễn Thị Hoa', 'Quận 5, TP.HCM', '0911234532', NULL, 'Mẹ', '7460101_NN', 'GT', NULL);
+
+INSERT INTO SINHVIEN (MSSV, HOTEN, LOAISV, NGAYSINH, NOISINH, GIOITINH, NIENKHOA, BACDAOTAO, LOAIDAOTAO, CCCD, NGAYCAP, NOICAP, QUOCTICH, DANTOC, TONGIAO, DCTHUONGTRU, DIENTHOAI, MAILCANHAN, DCHIENNAY, NGAYVAODOAN, NGAYVAODANG, MAILTRUONG, SOTHENH, TENNH, NGUOILIENLAC, DCLIENLAC, SDTLIENLAC, MAILLIENLAC, QUANHE_NLL, MANGANH, MACN, AVATAR)
+VALUES ('24127158', 'Nguyễn Trần Lan Duy', 'Sinh viên (Đang học)', '2006-07-20', 'Bến Tre', 'Nữ', '2024', 'Cử nhân', 'TCTA', '0548423215', '2023-04-30', 'Cục Cảnh sát quản lý hành chính về trật tự xã hội', 'Việt Nam', 'Kinh', 'Không', 'Xã Tân Thủy, tỉnh Vĩnh Long', '0123456789', 'nguyentranlanduy2016@gmail.com', 'phường An Đông, thành phố Hồ Chí Minh', '2021-05-31', NULL, '24127158@student.hcmus.edu.vn', NULL, NULL, 'Trần Thị Thủy', 'Xã Tân Thủy, tỉnh Vĩnh Long', '0987654321', NULL, 'Mẹ', '7480201_DKD', 'HTTT', NULL);
+
+-- 18. Thêm dữ liệu bảng LICH_HOC
+-- HP001
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH001', 'HP001', 1, '2024-09-16', '2024-09-21', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH002', 'HP001', 2, '2024-09-23', '2024-09-28', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH003', 'HP001', 3, '2024-09-30', '2024-10-05', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH004', 'HP001', 4, '2024-10-07', '2024-10-12', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH005', 'HP001', 5, '2024-10-14', '2024-10-19', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH006', 'HP001', 6, '2024-10-21', '2024-10-26', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH007', 'HP001', 7, '2024-10-28', '2024-11-02', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH008', 'HP001', 8, '2024-11-04', '2024-11-09', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH009', 'HP001', 9, '2024-11-11', '2024-11-16', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH010', 'HP001', 10, '2024-11-18', '2024-11-23', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
+
+-- HP002
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH011', 'HP002', 1, '2024-09-16', '2024-09-21', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH012', 'HP002', 2, '2024-09-23', '2024-09-28', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH013', 'HP002', 3, '2024-09-30', '2024-10-05', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH014', 'HP002', 4, '2024-10-07', '2024-10-12', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH015', 'HP002', 5, '2024-10-14', '2024-10-19', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH016', 'HP002', 6, '2024-10-21', '2024-10-26', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH017', 'HP002', 7, '2024-10-28', '2024-11-02', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH018', 'HP002', 8, '2024-11-04', '2024-11-09', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH019', 'HP002', 9, '2024-11-11', '2024-11-16', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH020', 'HP002', 10, '2024-11-18', '2024-11-23', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
+
+-- HP003
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH021', 'HP003', 1, '2024-09-16', '2024-09-21', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH022', 'HP003', 2, '2024-09-23', '2024-09-28', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH023', 'HP003', 3, '2024-09-30', '2024-10-05', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH024', 'HP003', 4, '2024-10-07', '2024-10-12', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH025', 'HP003', 5, '2024-10-14', '2024-10-19', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH026', 'HP003', 6, '2024-10-21', '2024-10-26', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH027', 'HP003', 7, '2024-10-28', '2024-11-02', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH028', 'HP003', 8, '2024-11-04', '2024-11-09', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH029', 'HP003', 9, '2024-11-11', '2024-11-16', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH030', 'HP003', 10, '2024-11-18', '2024-11-23', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
+
+-- HP004
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH031', 'HP004', 1, '2024-09-16', '2024-09-21', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH032', 'HP004', 2, '2024-09-23', '2024-09-28', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH033', 'HP004', 3, '2024-09-30', '2024-10-05', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH034', 'HP004', 4, '2024-10-07', '2024-10-12', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH035', 'HP004', 5, '2024-10-14', '2024-10-19', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH036', 'HP004', 6, '2024-10-21', '2024-10-26', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH037', 'HP004', 7, '2024-10-28', '2024-11-02', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH038', 'HP004', 8, '2024-11-04', '2024-11-09', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH039', 'HP004', 9, '2024-11-11', '2024-11-16', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH040', 'HP004', 10, '2024-11-18', '2024-11-23', 'Sáu', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+
+-- HP005
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH041', 'HP005', 1, '2025-02-24', '2025-03-01', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH042', 'HP005', 2, '2025-03-03', '2025-03-08', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH043', 'HP005', 3, '2025-03-10', '2025-03-15', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH044', 'HP005', 4, '2025-03-17', '2025-03-22', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH045', 'HP005', 5, '2025-03-24', '2025-03-29', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH046', 'HP005', 6, '2025-03-31', '2025-04-05', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH047', 'HP005', 7, '2025-04-07', '2025-04-12', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH048', 'HP005', 8, '2025-04-14', '2025-04-19', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH049', 'HP005', 9, '2025-04-21', '2025-04-26', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH050', 'HP005', 10, '2025-04-28', '2025-05-03', 'Ba', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+
+-- HP006
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH051', 'HP006', 1, '2025-02-24', '2025-03-01', 'Bảy', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH052', 'HP006', 2, '2025-03-03', '2025-03-08', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH053', 'HP006', 3, '2025-03-10', '2025-03-15', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH054', 'HP006', 4, '2025-03-17', '2025-03-22', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH055', 'HP006', 5, '2025-03-24', '2025-03-29', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH056', 'HP006', 6, '2025-03-31', '2025-04-05', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH057', 'HP006', 7, '2025-04-07', '2025-04-12', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH058', 'HP006', 8, '2025-04-14', '2025-04-19', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH059', 'HP006', 9, '2025-04-21', '2025-04-26', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH060', 'HP006', 10, '2025-04-28', '2025-05-03', 'Bảy', '07:30:00', '11:11:00', 'I12C', 'Trực tiếp');
+
+-- HP007
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH061', 'HP007', 1, '2025-02-24', '2025-03-01', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH062', 'HP007', 2, '2025-03-03', '2025-03-08', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH063', 'HP007', 3, '2025-03-10', '2025-03-15', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH064', 'HP007', 4, '2025-03-17', '2025-03-22', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH065', 'HP007', 5, '2025-03-24', '2025-03-29', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH066', 'HP007', 6, '2025-03-31', '2025-04-05', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH067', 'HP007', 7, '2025-04-07', '2025-04-12', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH068', 'HP007', 8, '2025-04-14', '2025-04-19', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH069', 'HP007', 9, '2025-04-21', '2025-04-26', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH070', 'HP007', 10, '2025-04-28', '2025-05-03', 'Sáu', '01:30:00', '17:10:00', 'C33', 'Trực tiếp');
+
+-- HP008
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH071', 'HP008', 1, '2025-02-24', '2025-03-01', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH072', 'HP008', 2, '2025-03-03', '2025-03-08', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH073', 'HP008', 3, '2025-03-10', '2025-03-15', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH074', 'HP008', 4, '2025-03-17', '2025-03-22', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH075', 'HP008', 5, '2025-03-24', '2025-03-29', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH076', 'HP008', 6, '2025-03-31', '2025-04-05', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH077', 'HP008', 7, '2025-04-07', '2025-04-12', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH078', 'HP008', 8, '2025-04-14', '2025-04-19', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH079', 'HP008', 9, '2025-04-21', '2025-04-26', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH080', 'HP008', 10, '2025-04-28', '2025-05-03', 'Tư', '07:30:00', '11:10:00', 'C22', 'Trực tiếp');
+
+-- HP009
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH081', 'HP009', 1, '2025-07-14', '2025-07-19', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH082', 'HP009', 2, '2025-07-21', '2025-07-26', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH083', 'HP009', 3, '2025-07-28', '2025-08-02', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH084', 'HP009', 4, '2025-08-04', '2025-08-09', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH085', 'HP009', 5, '2025-08-11', '2025-08-16', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH086', 'HP009', 6, '2025-08-18', '2025-08-23', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH087', 'HP009', 7, '2025-08-25', '2025-08-30', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH088', 'HP009', 8, '2025-09-01', '2025-09-06', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH089', 'HP009', 9, '2025-09-08', '2025-09-13', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH090', 'HP009', 10, '2025-09-15', '2025-09-20', 'Ba', '07:30:00', '11:10:00', 'I12C', 'Trực tiếp');
+
+-- HP010
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH091', 'HP010', 1, '2025-07-14', '2025-07-19', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH092', 'HP010', 2, '2025-07-21', '2025-07-26', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH093', 'HP010', 3, '2025-07-28', '2025-08-02', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH094', 'HP010', 4, '2025-08-04', '2025-08-09', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH095', 'HP010', 5, '2025-08-11', '2025-08-16', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH096', 'HP010', 6, '2025-08-18', '2025-08-23', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH097', 'HP010', 7, '2025-08-25', '2025-08-30', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH098', 'HP010', 8, '2025-09-01', '2025-09-06', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH099', 'HP010', 9, '2025-09-08', '2025-09-13', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH100', 'HP010', 10, '2025-09-15', '2025-09-20', 'Năm', '07:30:00', '11:10:00', 'I12A', 'Trực tiếp');
+
+-- HP011
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH101', 'HP011', 1, '2025-07-14', '2025-07-19', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH102', 'HP011', 2, '2025-07-21', '2025-07-26', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH103', 'HP011', 3, '2025-07-28', '2025-08-02', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH104', 'HP011', 4, '2025-08-04', '2025-08-09', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH105', 'HP011', 5, '2025-08-11', '2025-08-16', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH106', 'HP011', 6, '2025-08-18', '2025-08-23', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH107', 'HP011', 7, '2025-08-25', '2025-08-30', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH108', 'HP011', 8, '2025-09-01', '2025-09-06', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH109', 'HP011', 9, '2025-09-08', '2025-09-13', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH110', 'HP011', 10, '2025-09-15', '2025-09-20', 'Hai', '13:30:00', '17:10:00', 'C33', 'Trực tiếp');
+
+-- HP012
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH111', 'HP012', 1, '2025-07-14', '2025-07-19', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH112', 'HP012', 2, '2025-07-21', '2025-07-26', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH113', 'HP012', 3, '2025-07-28', '2025-08-02', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH114', 'HP012', 4, '2025-08-04', '2025-08-09', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH115', 'HP012', 5, '2025-08-11', '2025-08-16', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH116', 'HP012', 6, '2025-08-18', '2025-08-23', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH117', 'HP012', 7, '2025-08-25', '2025-08-30', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH118', 'HP012', 8, '2025-09-01', '2025-09-06', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH119', 'HP012', 9, '2025-09-08', '2025-09-13', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH120', 'HP012', 10, '2025-09-15', '2025-09-20', 'Tư', '07:30:00', '11:10:00', 'E301', 'Trực tiếp');
+
+-- HP013
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH121', 'HP013', 1, '2025-09-29', '2025-10-04', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH122', 'HP013', 2, '2025-10-06', '2025-10-11', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH123', 'HP013', 3, '2025-10-13', '2025-10-18', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH124', 'HP013', 4, '2025-10-20', '2025-10-25', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH125', 'HP013', 5, '2025-10-27', '2025-11-01', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH126', 'HP013', 6, '2025-11-03', '2025-11-10', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH127', 'HP013', 7, '2025-11-12', '2025-11-17', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH128', 'HP013', 8, '2025-11-19', '2025-11-24', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH129', 'HP013', 9, '2025-11-26', '2025-12-01', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH130', 'HP013', 10, '2025-12-03', '2025-12-08', 'Tư', '07:30:00', '11:10:00', 'Hội trường I', 'Trực tiếp');
+
+-- HP15
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH131', 'HP015', 1, '2025-09-29', '2025-10-04', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH132', 'HP015', 2, '2025-10-06', '2025-10-11', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH133', 'HP015', 3, '2025-10-13', '2025-10-18', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH134', 'HP015', 4, '2025-10-20', '2025-10-25', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH135', 'HP015', 5, '2025-10-27', '2025-11-01', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH136', 'HP015', 6, '2025-11-03', '2025-11-10', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH137', 'HP015', 7, '2025-11-12', '2025-11-17', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH138', 'HP015', 8, '2025-11-19', '2025-11-24', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH139', 'HP015', 9, '2025-11-26', '2025-12-01', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH140', 'HP015', 10, '2025-12-03', '2025-12-08', 'Sáu', '07:30:00', '11:10:00', 'ITEC31', 'Trực tiếp');
+
+-- HP016
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH141', 'HP016', 1, '2025-09-29', '2025-10-04', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH142', 'HP016', 2, '2025-10-06', '2025-10-11', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH143', 'HP016', 3, '2025-10-13', '2025-10-18', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH144', 'HP016', 4, '2025-10-20', '2025-10-25', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH145', 'HP016', 5, '2025-10-27', '2025-11-01', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH146', 'HP016', 6, '2025-11-03', '2025-11-10', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH147', 'HP016', 7, '2025-11-12', '2025-11-17', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH148', 'HP016', 8, '2025-11-19', '2025-11-24', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH149', 'HP016', 9, '2025-11-26', '2025-12-01', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH150', 'HP016', 10, '2025-12-03', '2025-12-08', 'Ba', '13:30:00', '17:10:00', 'I.34', 'Trực tiếp');
+
+-- HP017
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH151', 'HP017', 1, '2025-09-29', '2025-10-04', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH152', 'HP017', 2, '2025-10-06', '2025-10-11', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH153', 'HP017', 3, '2025-10-13', '2025-10-18', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH154', 'HP017', 4, '2025-10-20', '2025-10-25', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH155', 'HP017', 5, '2025-10-27', '2025-11-01', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH156', 'HP017', 6, '2025-11-03', '2025-11-10', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH157', 'HP017', 7, '2025-11-12', '2025-11-17', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH158', 'HP017', 8, '2025-11-19', '2025-11-24', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH159', 'HP017', 9, '2025-11-26', '2025-12-01', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH160', 'HP017', 10, '2025-12-03', '2025-12-08', 'Bảy', '07:30:00', '11:10:00', 'E.302', 'Trực tiếp');
+
+-- HP018
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH161', 'HP018', 1, '2026-01-12', '2026-01-17', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH162', 'HP018', 2, '2026-01-19', '2026-01-24', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH163', 'HP018', 3, '2026-01-26', '2026-01-31', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH164', 'HP018', 4, '2026-02-16', '2026-02-21', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH165', 'HP018', 5, '2026-02-23', '2026-02-28', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH166', 'HP018', 6, '2026-03-02', '2026-03-07', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH167', 'HP018', 7, '2026-03-09', '2026-03-14', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH168', 'HP018', 8, '2026-03-16', '2026-03-21', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH169', 'HP018', 9, '2026-03-23', '2026-03-28', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH170', 'HP018', 10, '2026-03-30', '2026-04-04', 'Ba', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+
+-- HP019
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH171', 'HP019', 1, '2026-01-12', '2026-01-17', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH172', 'HP019', 2, '2026-01-19', '2026-01-24', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH173', 'HP019', 3, '2026-01-26', '2026-01-31', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH174', 'HP019', 4, '2026-02-16', '2026-02-21', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH175', 'HP019', 5, '2026-02-23', '2026-02-28', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH176', 'HP019', 6, '2026-03-02', '2026-03-07', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH177', 'HP019', 7, '2026-03-09', '2026-03-14', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH178', 'HP019', 8, '2026-03-16', '2026-03-21', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH179', 'HP019', 9, '2026-03-23', '2026-03-28', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH180', 'HP019', 10, '2026-03-30', '2026-04-04', 'Tư', '13:30:00', '15:10:00', 'Hội trường I', 'Trực tiếp');
+
+-- HP020
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH181', 'HP020', 1, '2026-01-12', '2026-01-17', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH182', 'HP020', 2, '2026-01-19', '2026-01-24', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH183', 'HP020', 3, '2026-01-26', '2026-01-31', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH184', 'HP020', 4, '2026-02-16', '2026-02-21', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH185', 'HP020', 5, '2026-02-23', '2026-02-28', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH186', 'HP020', 6, '2026-03-02', '2026-03-07', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH187', 'HP020', 7, '2026-03-09', '2026-03-14', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH188', 'HP020', 8, '2026-03-16', '2026-03-21', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH189', 'HP020', 9, '2026-03-23', '2026-03-28', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH190', 'HP020', 10, '2026-03-30', '2026-04-04', 'Hai', '13:30:00', '17:10:00', 'I92', 'Trực tiếp');
+
+-- HP021
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH191', 'HP021', 1, '2026-01-12', '2026-01-17', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH192', 'HP021', 2, '2026-01-19', '2026-01-24', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH193', 'HP021', 3, '2026-01-26', '2026-01-31', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH194', 'HP021', 4, '2026-02-16', '2026-02-21', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH195', 'HP021', 5, '2026-02-23', '2026-02-28', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH196', 'HP021', 6, '2026-03-02', '2026-03-07', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH197', 'HP021', 7, '2026-03-09', '2026-03-14', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH198', 'HP021', 8, '2026-03-16', '2026-03-21', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH199', 'HP021', 9, '2026-03-23', '2026-03-28', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH200', 'HP021', 10, '2026-03-30', '2026-04-04', 'Năm', '07:30:00', '11:10:00', 'E302', 'Trực tiếp');
+
+-- HP061
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH201', 'HP061', 1, '2026-01-12', '2026-01-17', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH202', 'HP061', 2, '2026-01-19', '2026-01-24', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH203', 'HP061', 3, '2026-01-26', '2026-01-31', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH204', 'HP061', 4, '2026-02-16', '2026-02-21', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH205', 'HP061', 5, '2026-02-23', '2026-02-28', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH206', 'HP061', 6, '2026-03-02', '2026-03-07', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH207', 'HP061', 7, '2026-03-09', '2026-03-14', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH208', 'HP061', 8, '2026-03-16', '2026-03-21', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH209', 'HP061', 9, '2026-03-23', '2026-03-28', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH210', 'HP061', 10, '2026-03-30', '2026-04-04', 'Ba', '13:30:00', '17:10:00', 'I12A', 'Trực tiếp');
+
+-- HP22
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH211', 'HP022', 1, '2026-05-18', '2026-05-23', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH212', 'HP022', 2, '2026-05-25', '2026-05-30', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH213', 'HP022', 3, '2026-06-01', '2026-06-06', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH214', 'HP022', 4, '2026-06-29', '2026-07-04', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH215', 'HP022', 5, '2026-07-06', '2026-07-11', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH216', 'HP022', 6, '2026-07-13', '2026-07-18', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH217', 'HP022', 7, '2026-07-20', '2026-07-25', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH218', 'HP022', 8, '2026-07-27', '2026-08-01', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH219', 'HP022', 9, '2026-08-03', '2026-08-08', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH220', 'HP022', 10, '2026-08-10', '2026-08-15', 'Hai', '07:30:00', '11:10:00', 'Sân vận động Hoa Lư', 'Trực tiếp');
+
+-- HP23
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH221', 'HP023', 1, '2026-05-18', '2026-05-23', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH222', 'HP023', 2, '2026-05-25', '2026-05-30', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH223', 'HP023', 3, '2026-06-01', '2026-06-06', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH224', 'HP023', 4, '2026-06-29', '2026-07-04', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH225', 'HP023', 5, '2026-07-06', '2026-07-11', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH226', 'HP023', 6, '2026-07-13', '2026-07-18', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH227', 'HP023', 7, '2026-07-20', '2026-07-25', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH228', 'HP023', 8, '2026-07-27', '2026-08-01', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH229', 'HP023', 9, '2026-08-03', '2026-08-08', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Nghỉ');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH230', 'HP023', 10, '2026-08-10', '2026-08-15', 'Bảy', '07:30:00', '11:10:00', 'C33', 'Nghỉ');
+
+-- HP024
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH231', 'HP024', 1, '2026-05-18', '2026-05-23', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH232', 'HP024', 2, '2026-05-25', '2026-05-30', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH233', 'HP024', 3, '2026-06-01', '2026-06-06', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH234', 'HP024', 4, '2026-06-29', '2026-07-04', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH235', 'HP024', 5, '2026-07-06', '2026-07-11', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH236', 'HP024', 6, '2026-07-13', '2026-07-18', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH237', 'HP024', 7, '2026-07-20', '2026-07-25', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH238', 'HP024', 8, '2026-07-27', '2026-08-01', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH239', 'HP024', 9, '2026-08-10', '2026-08-08', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH240', 'HP024', 10, '2026-08-03', '2026-08-15', 'Ba', '07:30:00', '11:10:00', 'I42', 'Trực tiếp');
+
+-- HP25
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH241', 'HP025', 1, '2026-05-18', '2026-05-23', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH242', 'HP025', 2, '2026-05-25', '2026-05-30', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH243', 'HP025', 3, '2026-06-01', '2026-06-06', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH244', 'HP025', 4, '2026-06-29', '2026-07-04', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH245', 'HP025', 5, '2026-07-06', '2026-07-11', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH246', 'HP025', 6, '2026-07-13', '2026-07-18', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH247', 'HP025', 7, '2026-07-20', '2026-07-25', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH248', 'HP025', 8, '2026-07-27', '2026-08-01', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH249', 'HP025', 9, '2026-08-10', '2026-08-08', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH250', 'HP025', 10, '2026-08-03', '2026-08-15', 'Năm', '13:30:00', '17:10:00', 'I32', 'Trực tiếp');
+
+-- HP26
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH251', 'HP026', 1, '2026-05-18', '2026-05-23', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH252', 'HP026', 2, '2026-05-25', '2026-05-30', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH253', 'HP026', 3, '2026-06-01', '2026-06-06', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH254', 'HP026', 4, '2026-06-29', '2026-07-04', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH255', 'HP026', 5, '2026-07-06', '2026-07-11', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH256', 'HP026', 6, '2026-07-13', '2026-07-18', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH257', 'HP026', 7, '2026-07-20', '2026-07-25', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH258', 'HP026', 8, '2026-07-27', '2026-08-01', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH259', 'HP026', 9, '2026-08-10', '2026-08-08', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH260', 'HP026', 10, '2026-08-03', '2026-08-15', 'Tư', '13:30:00', '17:10:00', 'I35', 'Trực tiếp');
+
+-- HP027
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH261', 'HP027', 1, '2024-09-16', '2024-09-21', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH262', 'HP027', 2, '2024-09-23', '2024-09-28', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH263', 'HP027', 3, '2024-09-30', '2024-10-05', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH264', 'HP027', 4, '2024-10-07', '2024-10-12', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH265', 'HP027', 5, '2024-10-14', '2024-10-19', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH266', 'HP027', 6, '2024-10-21', '2024-10-26', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH267', 'HP027', 7, '2024-10-28', '2024-11-02', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH268', 'HP027', 8, '2024-11-04', '2024-11-09', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH269', 'HP027', 9, '2024-11-11', '2024-11-16', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH270', 'HP027', 10, '2024-11-18', '2024-11-23', 'Ba', '07:30:00', '11:00:00', 'NDH5.10', 'Trực tiếp');
+
+-- HP028
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH271', 'HP028', 1, '2024-09-16', '2024-09-21', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH272', 'HP028', 2, '2024-09-23', '2024-09-28', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH273', 'HP028', 3, '2024-09-30', '2024-10-05', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH274', 'HP028', 4, '2024-10-07', '2024-10-12', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH275', 'HP028', 5, '2024-10-14', '2024-10-19', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH276', 'HP028', 6, '2024-10-21', '2024-10-26', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH277', 'HP028', 7, '2024-10-28', '2024-11-02', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH278', 'HP028', 8, '2024-11-04', '2024-11-09', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH279', 'HP028', 9, '2024-11-11', '2024-11-16', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH280', 'HP028', 10, '2024-11-18', '2024-11-23', 'Tư', '14:20:00', '17:00:00', 'KHTN4', 'Trực tiếp');
+
+-- HP029
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH281', 'HP029', 1, '2024-09-16', '2024-09-28', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH282', 'HP029', 2, '2024-09-23', '2024-09-28', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH283', 'HP029', 3, '2024-09-30', '2024-10-05', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH284', 'HP029', 4, '2024-10-07', '2024-10-12', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH285', 'HP029', 5, '2024-10-14', '2024-10-19', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH286', 'HP029', 6, '2024-10-21', '2024-10-26', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH287', 'HP029', 7, '2024-10-28', '2024-11-02', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH288', 'HP029', 8, '2024-11-04', '2024-11-09', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH289', 'HP029', 9, '2024-11-11', '2024-11-16', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH290', 'HP029', 10, '2024-11-18', '2024-11-23', 'Bảy', '07:30:00', '11:50:00', 'NDH5.8', 'Trực tiếp');
+
+-- HP030
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH291', 'HP030', 1, '2024-09-16', '2024-09-28', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH292', 'HP030', 2, '2024-09-23', '2024-09-28', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH293', 'HP030', 3, '2024-09-30', '2024-10-05', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH294', 'HP030', 4, '2024-10-07', '2024-10-12', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH295', 'HP030', 5, '2024-10-14', '2024-10-19', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH296', 'HP030', 6, '2024-10-21', '2024-10-26', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH297', 'HP030', 7, '2024-10-28', '2024-11-02', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH298', 'HP030', 8, '2024-11-04', '2024-11-09', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH299', 'HP030', 9, '2024-11-11', '2024-11-16', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH300', 'HP030', 10, '2024-11-18', '2024-11-23', 'Sáu', '12:40:00', '17:00:00', 'NDH4.10', 'Trực tiếp');
+
+-- HP031
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH301','HP031',1,'2024-09-16','2024-09-28','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH302','HP031',2,'2024-09-23','2024-09-28','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH303','HP031',3,'2024-09-30','2024-10-05','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH304','HP031',4,'2024-10-07','2024-10-12','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH305','HP031',5,'2024-10-14','2024-10-19','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH306','HP031',6,'2024-10-21','2024-10-26','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH307','HP031',7,'2024-10-28','2024-11-02','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH308','HP031',8,'2024-11-04','2024-11-09','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH309','HP031',9,'2024-11-11','2024-11-16','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH310','HP031',10,'2024-11-18','2024-11-23','Năm','07:30:00','11:00:00','E205','Trực tiếp');
+
+-- HP033
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH311','HP033',1,'2024-09-16','2024-09-28','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH312','HP033',2,'2024-09-23','2024-09-28','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH313','HP033',3,'2024-09-30','2024-10-05','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH314','HP033',4,'2024-10-07','2024-10-12','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH315','HP033',5,'2024-10-14','2024-10-19','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH316','HP033',6,'2024-10-21','2024-10-26','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH317','HP033',7,'2024-10-28','2024-11-02','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH318','HP033',8,'2024-11-04','2024-11-09','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH319','HP033',9,'2024-11-11','2024-11-16','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH320','HP033',10,'2024-11-18','2024-11-23','Năm','12:40:00','16:10:00','E206','Trực tiếp');
+
+-- HP034
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH321','HP034',1,'2024-09-16','2024-09-28','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH322','HP034',2,'2024-09-23','2024-09-28','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH323','HP034',3,'2024-09-30','2024-10-05','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH324','HP034',4,'2024-10-07','2024-10-12','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH325','HP034',5,'2024-10-14','2024-10-19','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH326','HP034',6,'2024-10-21','2024-10-26','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH327','HP034',7,'2024-10-28','2024-11-02','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH328','HP034',8,'2024-11-04','2024-11-09','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH329','HP034',9,'2024-11-11','2024-11-16','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH330','HP034',10,'2024-11-18','2024-11-23','Tư','07:30:00','11:10:00','E106','Trực tiếp');
+
+-- HP035
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH331', 'HP035', 1, '2024-09-16', '2024-09-28', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH332', 'HP035', 2, '2024-09-23', '2024-09-28', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH333', 'HP035', 3, '2024-09-30', '2024-10-05', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH334', 'HP035', 4, '2024-10-07', '2024-10-12', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH335', 'HP035', 5, '2024-10-14', '2024-10-19', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH336', 'HP035', 6, '2024-10-21', '2024-10-26', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH337', 'HP035', 7, '2024-10-28', '2024-11-02', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH338', 'HP035', 8, '2024-11-04', '2024-11-09', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH339', 'HP035', 9, '2024-11-11', '2024-11-16', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH340', 'HP035', 10, '2024-11-18', '2024-11-23', 'Ba', '14:45:00', '17:00:00', 'D207', 'Trực tiếp');
+
+-- HP036
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH341', 'HP036', 1, '2025-02-24', '2025-03-01', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH342', 'HP036', 2, '2025-03-03', '2025-03-08', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH343', 'HP036', 3, '2025-03-10', '2025-03-15', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH344', 'HP036', 4, '2025-03-17', '2025-03-22', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH345', 'HP036', 5, '2025-03-24', '2025-03-29', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH346', 'HP036', 6, '2025-03-31', '2025-04-05', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH347', 'HP036', 7, '2025-04-07', '2025-04-12', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH348', 'HP036', 8, '2025-04-14', '2025-04-19', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH349', 'HP036', 9, '2025-04-21', '2025-04-26', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH350', 'HP036', 10, '2025-04-28', '2025-05-03', 'Năm', '07:30:00', '11:00:00', 'E202', 'Trực tiếp');
+
+-- HP037
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH351', 'HP037', 1, '2025-02-24', '2025-03-01', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH352', 'HP037', 2, '2025-03-03', '2025-03-08', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH353', 'HP037', 3, '2025-03-10', '2025-03-15', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH354', 'HP037', 4, '2025-03-17', '2025-03-22', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH355', 'HP037', 5, '2025-03-24', '2025-03-29', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH356', 'HP037', 6, '2025-03-31', '2025-04-05', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH357', 'HP037', 7, '2025-04-07', '2025-04-12', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH358', 'HP037', 8, '2025-04-14', '2025-04-19', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH359', 'HP037', 9, '2025-04-21', '2025-04-26', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH360', 'HP037', 10, '2025-04-28', '2025-05-03', 'Bảy', '07:30:00', '11:00:00', 'D103', 'Trực tiếp');
+
+-- HP038
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH361', 'HP038', 1, '2025-02-24', '2025-03-01', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH362', 'HP038', 2, '2025-03-03', '2025-03-08', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH363', 'HP038', 3, '2025-03-10', '2025-03-15', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH364', 'HP038', 4, '2025-03-17', '2025-03-22', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH365', 'HP038', 5, '2025-03-24', '2025-03-29', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH366', 'HP038', 6, '2025-03-31', '2025-04-05', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH367', 'HP038', 7, '2025-04-07', '2025-04-12', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH368', 'HP038', 8, '2025-04-14', '2025-04-19', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH369', 'HP038', 9, '2025-04-21', '2025-04-26', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH370', 'HP038', 10, '2025-04-28', '2025-05-03', 'Tư', '09:10:00', '11:50:00', 'KHTN6', 'Trực tiếp');
+
+-- HP039
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH371', 'HP039', 1, '2025-02-24', '2025-03-01', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH372', 'HP039', 2, '2025-03-03', '2025-03-08', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH373', 'HP039', 3, '2025-03-10', '2025-03-15', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH374', 'HP039', 4, '2025-03-17', '2025-03-22', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH375', 'HP039', 5, '2025-03-24', '2025-03-29', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH376', 'HP039', 6, '2025-03-31', '2025-04-05', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH377', 'HP039', 7, '2025-04-07', '2025-04-12', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH378', 'HP039', 8, '2025-04-14', '2025-04-19', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH379', 'HP039', 9, '2025-04-21', '2025-04-26', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH380', 'HP039', 10, '2025-04-28', '2025-05-03', 'Ba', '12:40:00', '16:10:00', 'E103', 'Trực tiếp');
+
+-- HP040
+INSERT INTO LICH_HOC VALUES ('LH381', 'HP040', 1, '2025-02-24', '2025-03-01', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH382', 'HP040', 2, '2025-03-03', '2025-03-08', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH383', 'HP040', 3, '2025-03-10', '2025-03-15', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH384', 'HP040', 4, '2025-03-17', '2025-03-22', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH385', 'HP040', 5, '2025-03-24', '2025-03-29', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH386', 'HP040', 6, '2025-03-31', '2025-04-05', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH387', 'HP040', 7, '2025-04-07', '2025-04-12', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH388', 'HP040', 8, '2025-04-14', '2025-04-19', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH389', 'HP040', 9, '2025-04-21', '2025-04-26', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH390', 'HP040', 10, '2025-04-28', '2025-05-03', 'Ba', '08:20:00', '11:50:00', 'E103', 'Trực tiếp');
+
+-- HP041
+INSERT INTO LICH_HOC VALUES ('LH391', 'HP041', 1, '2025-02-24', '2025-03-01', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH392', 'HP041', 2, '2025-03-03', '2025-03-08', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH393', 'HP041', 3, '2025-03-10', '2025-03-15', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH394', 'HP041', 4, '2025-03-17', '2025-03-22', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH395', 'HP041', 5, '2025-03-24', '2025-03-29', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH396', 'HP041', 6, '2025-03-31', '2025-04-05', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH397', 'HP041', 7, '2025-04-07', '2025-04-12', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH398', 'HP041', 8, '2025-04-14', '2025-04-19', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH399', 'HP041', 9, '2025-04-21', '2025-04-26', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH400', 'HP041', 10, '2025-04-28', '2025-05-03', 'Hai', '08:20:00', '11:50:00', 'F207', 'Trực tiếp');
+
+-- HP042
+INSERT INTO LICH_HOC VALUES ('LH401', 'HP042', 1, '2025-02-24', '2025-03-01', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH402', 'HP042', 2, '2025-03-03', '2025-03-08', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH403', 'HP042', 3, '2025-03-10', '2025-03-15', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH404', 'HP042', 4, '2025-03-17', '2025-03-22', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH405', 'HP042', 5, '2025-03-24', '2025-03-29', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH406', 'HP042', 6, '2025-03-31', '2025-04-05', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH407', 'HP042', 7, '2025-04-07', '2025-04-12', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH408', 'HP042', 8, '2025-04-14', '2025-04-19', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH409', 'HP042', 9, '2025-04-21', '2025-04-26', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC VALUES ('LH410', 'HP042', 10, '2025-04-28', '2025-05-03', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+
+-- HP043
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH411', 'HP043', 1, '2025-07-14', '2025-07-19', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH412', 'HP043', 2, '2025-07-21', '2025-07-26', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH413', 'HP043', 3, '2025-07-28', '2025-08-02', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH414', 'HP043', 4, '2025-08-04', '2025-08-09', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH415', 'HP043', 5, '2025-08-11', '2025-08-16', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH416', 'HP043', 6, '2025-08-18', '2025-08-23', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH417', 'HP043', 7, '2025-08-25', '2025-08-30', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH418', 'HP043', 8, '2025-09-01', '2025-09-06', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH419', 'HP043', 9, '2025-09-08', '2025-09-13', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH420', 'HP043', 10, '2025-09-15', '2025-09-20', 'Tư', '07:30:00', '11:50:00', 'F107', 'Trực tiếp');
+
+-- HP044
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH421', 'HP044', 1, '2025-07-14', '2025-07-19', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH422', 'HP044', 2, '2025-07-21', '2025-07-26', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH423', 'HP044', 3, '2025-07-28', '2025-08-02', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH424', 'HP044', 4, '2025-08-04', '2025-08-09', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH425', 'HP044', 5, '2025-08-11', '2025-08-16', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH426', 'HP044', 6, '2025-08-18', '2025-08-23', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH427', 'HP044', 7, '2025-08-25', '2025-08-30', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH428', 'HP044', 8, '2025-09-01', '2025-09-06', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH429', 'HP044', 9, '2025-09-08', '2025-09-13', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH430', 'HP044', 10, '2025-09-15', '2025-09-20', 'Ba', '07:30:00', '11:00:00', 'F204', 'Trực tiếp');
+
+
+-- HP045
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH431', 'HP045', 1, '2025-09-29', '2025-10-04', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH432', 'HP045', 2, '2025-10-06', '2025-10-11', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH433', 'HP045', 3, '2025-10-13', '2025-10-18', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH434', 'HP045', 4, '2025-10-20', '2025-10-25', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH435', 'HP045', 5, '2025-10-27', '2025-11-01', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH436', 'HP045', 6, '2025-11-03', '2025-11-10', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH437', 'HP045', 7, '2025-11-12', '2025-11-17', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH438', 'HP045', 8, '2025-11-19', '2025-11-24', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH439', 'HP045', 9, '2025-11-26', '2025-12-01', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH440', 'HP045', 10, '2025-12-03', '2025-12-08', 'Hai', '07:30:00', '11:50:00', 'F304', 'Trực tiếp');
+
+-- HP046
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH441', 'HP046', 1, '2025-09-29', '2025-10-04', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH442', 'HP046', 2, '2025-10-06', '2025-10-11', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH443', 'HP046', 3, '2025-10-13', '2025-10-18', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH444', 'HP046', 4, '2025-10-20', '2025-10-25', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH445', 'HP046', 5, '2025-10-27', '2025-11-01', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH446', 'HP046', 6, '2025-11-03', '2025-11-10', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH447', 'HP046', 7, '2025-11-12', '2025-11-17', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH448', 'HP046', 8, '2025-11-19', '2025-11-24', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH449', 'HP046', 9, '2025-11-26', '2025-12-01', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH450', 'HP046', 10, '2025-12-03', '2025-12-08', 'Ba', '12:40:00', '16:10:00', 'NĐH6.7', 'Trực tiếp');
+
+-- HP047
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH451', 'HP047', 1, '2025-09-29', '2025-10-04', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH452', 'HP047', 2, '2025-10-06', '2025-10-11', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH453', 'HP047', 3, '2025-10-13', '2025-10-18', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH454', 'HP047', 4, '2025-10-20', '2025-10-25', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH455', 'HP047', 5, '2025-10-27', '2025-11-01', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH456', 'HP047', 6, '2025-11-03', '2025-11-10', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH457', 'HP047', 7, '2025-11-12', '2025-11-17', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH458', 'HP047', 8, '2025-11-19', '2025-11-24', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH459', 'HP047', 9, '2025-11-26', '2025-12-01', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH460', 'HP047', 10, '2025-12-03', '2025-12-08', 'Ba', '07:30:00', '11:00:00', 'E309', 'Trực tiếp');
+
+-- HP048
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH461', 'HP048', 1, '2025-09-29', '2025-10-04', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH462', 'HP048', 2, '2025-10-06', '2025-10-11', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH463', 'HP048', 3, '2025-10-13', '2025-10-18', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH464', 'HP048', 4, '2025-10-20', '2025-10-25', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH465', 'HP048', 5, '2025-10-27', '2025-11-01', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH466', 'HP048', 6, '2025-11-03', '2025-11-10', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH467', 'HP048', 7, '2025-11-12', '2025-11-17', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH468', 'HP048', 8, '2025-11-19', '2025-11-24', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH469', 'HP048', 9, '2025-11-26', '2025-12-01', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH470', 'HP048', 10, '2025-12-03', '2025-12-08', 'Năm', '12:40:00', '16:10:00', 'F103', 'Trực tiếp');
+
+-- HP049
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH471', 'HP049', 1, '2025-09-29', '2025-10-04', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH472', 'HP049', 2, '2025-10-06', '2025-10-11', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH473', 'HP049', 3, '2025-10-13', '2025-10-18', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH474', 'HP049', 4, '2025-10-20', '2025-10-25', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH475', 'HP049', 5, '2025-10-27', '2025-11-01', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH476', 'HP049', 6, '2025-11-03', '2025-11-10', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH477', 'HP049', 7, '2025-11-12', '2025-11-17', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH478', 'HP049', 8, '2025-11-19', '2025-11-24', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH479', 'HP049', 9, '2025-11-26', '2025-12-01', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH480', 'HP049', 10, '2025-12-03', '2025-12-08', 'Tư', '12:40:00', '16:10:00', 'D105', 'Trực tiếp');
+
+-- HP050
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH481', 'HP050', 1, '2025-09-29', '2025-10-04', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH482', 'HP050', 2, '2025-10-06', '2025-10-11', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH483', 'HP050', 3, '2025-10-13', '2025-10-18', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH484', 'HP050', 4, '2025-10-20', '2025-10-25', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH485', 'HP050', 5, '2025-10-27', '2025-11-01', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH486', 'HP050', 6, '2025-11-03', '2025-11-10', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH487', 'HP050', 7, '2025-11-12', '2025-11-17', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH488', 'HP050', 8, '2025-11-19', '2025-11-24', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH489', 'HP050', 9, '2025-11-26', '2025-12-01', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH490', 'HP050', 10, '2025-12-03', '2025-12-08', 'Sáu', '07:30:00', '11:00:00', 'D105', 'Trực tiếp');
+
+-- HP051
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH491', 'HP051', 1, '2025-09-29', '2025-10-04', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH492', 'HP051', 2, '2025-10-06', '2025-10-11', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH493', 'HP051', 3, '2025-10-13', '2025-10-18', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH494', 'HP051', 4, '2025-10-20', '2025-10-25', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH495', 'HP051', 5, '2025-10-27', '2025-11-01', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH496', 'HP051', 6, '2025-11-03', '2025-11-10', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH497', 'HP051', 7, '2025-11-12', '2025-11-17', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH498', 'HP051', 8, '2025-11-19', '2025-11-24', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH499', 'HP051', 9, '2025-11-26', '2025-12-01', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH500', 'HP051', 10, '2025-12-03', '2025-12-08', 'Bảy', '12:40:00', '16:10:00', 'G202', 'Trực tiếp');
+
+-- HP052
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH501', 'HP052', 1, '2026-01-12', '2026-01-17', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH502', 'HP052', 2, '2026-01-19', '2026-01-24', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH503', 'HP052', 3, '2026-01-26', '2026-01-31', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH504', 'HP052', 4, '2026-02-16', '2026-02-21', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH505', 'HP052', 5, '2026-02-23', '2026-02-28', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH506', 'HP052', 6, '2026-03-02', '2026-03-07', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH507', 'HP052', 7, '2026-03-09', '2026-03-14', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH508', 'HP052', 8, '2026-03-16', '2026-03-21', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH509', 'HP052', 9, '2026-03-23', '2026-03-28', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH510', 'HP052', 10, '2026-03-30', '2026-04-04', 'Năm', '12:40:00', '16:10:00', 'G502', 'Trực tiếp');
+
+-- HP053
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH511', 'HP053', 1, '2026-01-12', '2026-01-17', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH512', 'HP053', 2, '2026-01-19', '2026-01-24', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH513', 'HP053', 3, '2026-01-26', '2026-01-31', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH514', 'HP053', 4, '2026-02-16', '2026-02-21', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH515', 'HP053', 5, '2026-02-23', '2026-02-28', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH516', 'HP053', 6, '2026-03-02', '2026-03-07', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH517', 'HP053', 7, '2026-03-09', '2026-03-14', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH518', 'HP053', 8, '2026-03-16', '2026-03-21', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH519', 'HP053', 9, '2026-03-23', '2026-03-28', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH520', 'HP053', 10, '2026-03-30', '2026-04-04', 'Sáu', '12:40:00', '13:40:00', 'C206', 'Trực tiếp');
+
+-- HP054
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH521', 'HP054', 1, '2026-01-12', '2026-01-17', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH522', 'HP054', 2, '2026-01-19', '2026-01-24', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH523', 'HP054', 3, '2026-01-26', '2026-01-31', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH524', 'HP054', 4, '2026-02-16', '2026-02-21', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH525', 'HP054', 5, '2026-02-23', '2026-02-28', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH526', 'HP054', 6, '2026-03-02', '2026-03-07', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH527', 'HP054', 7, '2026-03-09', '2026-03-14', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH528', 'HP054', 8, '2026-03-16', '2026-03-21', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH529', 'HP054', 9, '2026-03-23', '2026-03-28', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH530', 'HP054', 10, '2026-03-30', '2026-04-04', 'Ba', '07:30:00', '11:00:00', 'D109', 'Trực tiếp');
+
+-- HP055
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH531', 'HP055', 1, '2026-01-12', '2026-01-17', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH532', 'HP055', 2, '2026-01-19', '2026-01-24', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH533', 'HP055', 3, '2026-01-26', '2026-01-31', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH534', 'HP055', 4, '2026-02-16', '2026-02-21', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH535', 'HP055', 5, '2026-02-23', '2026-02-28', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH536', 'HP055', 6, '2026-03-02', '2026-03-07', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH537', 'HP055', 7, '2026-03-09', '2026-03-14', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH538', 'HP055', 8, '2026-03-16', '2026-03-21', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH539', 'HP055', 9, '2026-03-23', '2026-03-28', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH540', 'HP055', 10, '2026-03-30', '2026-04-04', 'Sáu', '09:10:00', '11:50:00', 'E105', 'Trực tiếp');
+
+-- HP056
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH541', 'HP056', 1, '2026-01-12', '2026-01-17', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH542', 'HP056', 2, '2026-01-19', '2026-01-24', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH543', 'HP056', 3, '2026-01-26', '2026-01-31', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH544', 'HP056', 4, '2026-02-16', '2026-02-21', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH545', 'HP056', 5, '2026-02-23', '2026-02-28', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH546', 'HP056', 6, '2026-03-02', '2026-03-07', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH547', 'HP056', 7, '2026-03-09', '2026-03-14', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH548', 'HP056', 8, '2026-03-16', '2026-03-21', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH549', 'HP056', 9, '2026-03-23', '2026-03-28', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH550', 'HP056', 10, '2026-03-30', '2026-04-04', 'Tư', '09:10:00', '11:50:00', 'F306', 'Trực tiếp');
+
+-- HP057
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH551', 'HP057', 1, '2026-01-12', '2026-01-17', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH552', 'HP057', 2, '2026-01-19', '2026-01-24', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH553', 'HP057', 3, '2026-01-26', '2026-01-31', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH554', 'HP057', 4, '2026-02-16', '2026-02-21', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH555', 'HP057', 5, '2026-02-23', '2026-02-28', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH556', 'HP057', 6, '2026-03-02', '2026-03-07', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH557', 'HP057', 7, '2026-03-09', '2026-03-14', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH558', 'HP057', 8, '2026-03-16', '2026-03-21', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH559', 'HP057', 9, '2026-03-23', '2026-03-28', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH560', 'HP057', 10, '2026-03-30', '2026-04-04', 'Hai', '08:20:00', '11:50:00', 'G201', 'Trực tiếp');
+
+-- HP058
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH561', 'HP058', 1, '2026-01-12', '2026-01-17', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH562', 'HP058', 2, '2026-01-19', '2026-01-24', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH563', 'HP058', 3, '2026-01-26', '2026-01-31', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH564', 'HP058', 4, '2026-02-16', '2026-02-21', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH565', 'HP058', 5, '2026-02-23', '2026-02-28', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH566', 'HP058', 6, '2026-03-02', '2026-03-07', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH567', 'HP058', 7, '2026-03-09', '2026-03-14', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH568', 'HP058', 8, '2026-03-16', '2026-03-21', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH569', 'HP058', 9, '2026-03-23', '2026-03-28', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH570', 'HP058', 10, '2026-03-30', '2026-04-04', 'Ba', '12:40:00', '17:00:00', 'F203', 'Trực tiếp');
+
+-- HP059
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH571', 'HP059', 1, '2026-05-18', '2026-05-23', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH572', 'HP059', 2, '2026-05-25', '2026-05-30', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH573', 'HP059', 3, '2026-06-01', '2026-06-06', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH574', 'HP059', 4, '2026-06-29', '2026-07-04', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH575', 'HP059', 5, '2026-07-06', '2026-07-11', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH576', 'HP059', 6, '2026-07-13', '2026-07-18', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH577', 'HP059', 7, '2026-07-20', '2026-07-25', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH578', 'HP059', 8, '2026-07-27', '2026-08-01', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH579', 'HP059', 9, '2026-08-03', '2026-08-08', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH580', 'HP059', 10, '2026-08-10', '2026-08-15', 'Tư', '12:50:00', '15:10:00', 'E104', 'Trực tiếp');
+
+-- HP060
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH581', 'HP060', 1, '2026-05-18', '2026-05-23', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH582', 'HP060', 2, '2026-05-25', '2026-05-30', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH583', 'HP060', 3, '2026-06-01', '2026-06-06', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH584', 'HP060', 4, '2026-06-29', '2026-07-04', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH585', 'HP060', 5, '2026-07-06', '2026-07-11', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH586', 'HP060', 6, '2026-07-13', '2026-07-18', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH587', 'HP060', 7, '2026-07-20', '2026-07-25', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH588', 'HP060', 8, '2026-07-27', '2026-08-01', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH589', 'HP060', 9, '2026-08-03', '2026-08-08', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH590', 'HP060', 10, '2026-08-10', '2026-08-15', 'Sáu', '07:30:00', '11:00:00', 'F104', 'Trực tiếp');
+
+
+-- 19. Thêm dữ liệu bảng LICH_THI
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT001', 'HP001', '2024-12-25', '13:30:00', 120, 'B40');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT002', 'HP002', '2024-12-23', '13:30:00', 120, 'E301');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT003', 'HP004', '2024-12-27', '13:30:00', 120, 'I32');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT004', 'HP005', '2025-04-25', '15:40:00', 90, 'B11A');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT005', 'HP006', '2025-04-22', '13:30:00', 120, 'B11A');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT006', 'HP007', '2025-04-23', '13:30:00', 120, 'E403');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT007', 'HP008', '2025-04-21', '13:30:00', 120, 'E301');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT008', 'HP009', '2025-08-18', '13:30:00', 120, 'E301');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT009', 'HP010', '2025-08-21', '13:30:00', 90, 'F205B');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT010', 'HP011', '2025-08-20', '13:30:00', 90, 'C41');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT011', 'HP012', '2025-08-22', '13:30:00', 90, 'C42');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT012', 'HP013', '2025-12-22', '15:40:00', 60, 'I35');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT013', 'HP015', '2025-12-25', '09:55:00', 90, 'C33');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT014', 'HP017', '2025-12-23', '09:55:00', 90, 'C42');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT015', 'HP019', '2026-05-06', '07:45:00', 60, 'B40');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT016', 'HP020', '2026-05-05', '09:55:00', 60, 'F110');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT017', 'HP021', '2026-05-07', '07:45:00', 90, 'F202');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT018', 'HP061', '2026-05-04', '07:45:00', 90, 'E403');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT019', 'HP023', '2026-08-24', '15:40:00', 60, 'H22');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT020', 'HP024', '2026-08-25', '13:30:00', 60, 'I44');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT021', 'HP025', '2026-08-24', '09:55:00', 60, 'I12A');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT022', 'HP026', '2026-08-28', '09:55:00', 90, 'H21');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT023', 'HP027', '2025-01-09', '13:30:00', 60, 'E201');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT024', 'HP029', '2025-01-10', '15:40:00', 60, 'E202');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT025', 'HP031', '2025-01-07', '07:45:00', 90, 'E302');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT026', 'HP032', '2025-01-13', '09:55:00', 90, 'E106');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT027', 'HP033', '2025-01-08', '09:55:00', 90, 'E104');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT028', 'HP034', '2025-01-10', '09:55:00', 90, 'E202');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT029', 'HP036', '2025-07-05', '07:45:00', 60, 'F208');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT030', 'HP037', '2025-07-11', '15:40:00', 60, 'F106');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT031', 'HP039', '2025-06-23', '09:55:00', 90, 'F304');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT032', 'HP040', '2025-07-01', '13:30:00', 90, 'F205');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT033', 'HP041', '2025-06-26', '07:45:00', 90, 'F104');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT034', 'HP042', '2025-07-11', '07:45:00', 90, 'F304');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT035', 'HP043', '2025-08-28', '09:55:00', 60, 'E103');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT036', 'HP044', '2025-08-26', '09:55:00', 90, 'E106');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT037', 'HP045', '2026-01-27', '15:40:00', 60, 'F203');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT038', 'HP046', '2026-01-23', '09:55:00', 90, 'E301');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT039', 'HP047', '2026-02-02', '09:55:00', 90, 'F301');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT040', 'HP048', '2026-01-30', '09:55:00', 90, 'F206');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT041', 'HP049', '2026-01-24', '09:55:00', 90, 'F105');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT042', 'HP050', '2026-01-26', '09:55:00', 90, 'F106');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT043', 'HP051', '2026-01-28', '09:55:00', 90, 'E202');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT044', 'HP052', '2026-07-06', '13:30:00', 90, 'F302');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT045', 'HP053', '2026-07-15', '13:30:00', 90, 'F306');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT046', 'HP054', '2026-07-17', '13:30:00', 90, 'F205');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT047', 'HP055', '2026-07-07', '13:30:00', 90, 'F106');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT048', 'HP057', '2026-07-09', '13:30:00', 90, 'F301');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT049', 'HP058', '2026-07-13', '09:55:00', 90, 'F304');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT050', 'HP059', '2026-08-28', '09:55:00', 60, 'E302');
+INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT051', 'HP060', '2026-08-29', '09:55:00', 60, 'F106');
+
+-- 20. Thêm dữ liệu bảng NGUOITHAN
 INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010011', '24001001', 'Nguyễn Hữu B', 1978, 'Cha', 'Thợ mộc', 'Quận 1, TP.HCM', '0911234501', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 1', 'Quận 1, TP.HCM');
 INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010021', '24001002', 'Trần Văn C', 1980, 'Cha', 'Bác sĩ', 'Quận 3, TP.HCM', '0911234502', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 3', 'Quận 3, TP.HCM');
 INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240010031', '24001003', 'Lê Thị D', 1981, 'Mẹ', 'Y tá', 'Quận 5, TP.HCM', '0911234503', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
@@ -391,8 +1215,77 @@ INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIE
 INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020041', '24002004', 'Nguyễn Văn E', 1986, 'Cha', 'Giáo viên', 'Quận 7, TP.HCM', '0911234523', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 7', 'Quận 7, TP.HCM');
 INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020051', '24002005', 'Đinh Thị F', 1980, 'Mẹ', 'Kinh doanh', 'Quận 10, TP.HCM', '0911234524', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 10', 'Quận 10, TP.HCM');
 INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020061', '24002006', 'Vũ Văn G', 1969, 'Cha', 'Thợ cắt tóc', 'Tân Bình, TP.HCM', '0911234525', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Tân Bình', 'Tân Bình, TP.HCM');
+INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020071', '24002007', 'Huỳnh Thị H', 1985, 'Mẹ', 'Kinh doanh', 'Bình Thạnh, TP.HCM', '0911234526', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Bình Thạnh', 'Bình Thạnh, TP.HCM');
+INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020081', '24002008', 'Bùi Văn I', 1967, 'Cha', 'Bác sĩ', 'Quận 5, TP.HCM', '0911234527', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
+INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('240020091', '24002009', 'Hồ Thị K', 1980, 'Mẹ', 'Giáo viên', 'Quận 3, TP.HCM', '0911234528', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 3', 'Quận 3, TP.HCM');
+INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('241271321', '24127132', 'Nguyễn Thị Hoa', 1980, 'Mẹ', 'Giáo viên', 'Quận 5, TP.HCM', '0911234532', NULL, 'Kinh', 'Không', 'Việt Nam', 'TP.HCM', 'Quận 5', 'Quận 5, TP.HCM');
+INSERT INTO NGUOITHAN (MANT, MSSV, HOTEN, NAMSINH, QUANHE, NGHENGHIEP, NOILAMVIEC, SDT, MAIL, DANTOC, TONGIAO, QUOCTICH, TINHTHANH, PHUONGXA, HKTHUONGTRU) VALUES ('241271581', '24127158', 'Trần Thị Thủy', 1978, 'Mẹ', 'Kinh doanh', 'xã Tân Thủy, tỉnh Vĩnh Long, Xã Tân Thủy, Tỉnh Vĩnh Long', '0987654321', NULL, 'Kinh', 'Không', 'Việt Nam', 'Vĩnh Long', 'Tân Thủy', 'xã Tân Thủy, tỉnh Vĩnh Long, Xã Tân Thủy, Tỉnh Vĩnh Long');
 
--- 18. Thêm dữ liệu bảng TIENDO_HOCTAP
+-- 21. Thêm dữ liệu bảng KETQUA_HOCTAP
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP027', 6, 9, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP028', 5, 8, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP029', 4, 10, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP030', 9, 6, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP031', 7, 8, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP032', 7, 6, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP033', 9, 5, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP034', 8, 8, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP035', 9, 8, 9, 'A+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP036', 5, 9, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP037', 4, 10, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP038', 7, 8, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP039', 6, 9, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP040', 6, 9, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP041', 8, 7.5, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP042', 6, 8.8, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP043', 8, 7.5, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP044', 5.8, 8.9, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP045', 6.4, 9, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP046', 6, 7.5, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP047', 5.5, 8.5, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP048', 6.5, 8.8, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP049', 10, 9, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP050', 5.8, 10, 8.1, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP051', 8, 7.5, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP052', 10, 6.8, 8.2, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP053', 7.8, 10, 9, 'A+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP054', 6.5, 8, 8, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP055', 6, 7.5, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP056', 8, 7.5, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP057', 4, 10, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP058', 6.5, 7, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP059', NULL, NULL, NULL, NULL, 'Open');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127132', 'HP060', NULL, NULL, NULL, NULL, 'Open');
+
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP001', 8, 8.8, 8.6, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP002', 8, 6, 8.2, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP003', NULL, 9.9, 9.3, 'A+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP004', 7, 8, 8.6, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP005', 10, 5.7, 7.9, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP006', 5, 8, 7.5, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP007', 10, 7, 8.2, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP008', 9, 6.8, 8.1, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP009', 10, 8, 8.5, 'A', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP010', 8, 6, 7.9, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP011', 10, 2, 6.5, 'C+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP012', 10, 6, 7.8, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP013', 8, 6.8, 7.6, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP014', NULL, NULL, 8.4, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP015', 10, 8.6, 10, 'A+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP016', NULL, 9.1, 9.5, 'A+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP017', 10, 6, 8.2, 'B+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP018', NULL, 9.5, 9.5, 'A+', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP019', 8, 7.5, 7.8, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP020', 7, 6.6, 7.9, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP021', NULL, 6.8, 7.4, 'B', 'Closed');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP022', 10, 10, 9, 'A', 'Open');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP023', NULL, NULL, NULL, NULL, 'Open');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP024', NULL, NULL, NULL, NULL, 'Open');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP025', NULL, NULL, NULL, NULL, 'Open');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP026', NULL, NULL, NULL, NULL, 'Open');
+INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP061', 5, 6, 7.8, 'B', 'Closed');
+
+-- 22. Thêm dữ liệu bảng TIENDO_HOCTAP
 INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24001001', 40, 56, 30, 38, 3, 34, 0, 10, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 73, 138, 7.8, 0);
 INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24001002', 40, 56, 30, 38, 3, 34, 0, 10, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 73, 138, 8.5, 0);
 INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24001003', 40, 56, 30, 38, 3, 34, 0, 10, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 73, 138, 7.2, 0);
@@ -422,181 +1315,450 @@ INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC,
 INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24002008', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 91, 131, 8.1, 0);
 INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24002009', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 91, 131, 8.5, 0);
 INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24127132', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 91, 131, 8.2, 0);
-INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24127158', 40, 56, 30, 38, 3, 34, 0, 10, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 73, 138, 8.1, 0);
+INSERT INTO TIENDO_HOCTAP (MSSV, TC_GDDC_DAT, TC_GDDC_YC, TC_CSN_DAT, TC_CSN_YC, TC_CN_DAT, TC_CN_YC, TC_TN_DAT, TC_TN_YC, TRANGTHAI_GDTC, TRANGTHAI_GDQP, TRANGTHAI_TDNN, TONG_TC_DAT, TONG_TC_YC, DIEM_TB_TICHLUY, DUDIEUKIENTN) VALUES ('24127158', 40, 56, 30, 38, 3, 34, 0, 10, 'Chưa cập nhật', 'Chưa cập nhật', 'Chưa cập nhật', 83, 138, 8.1, 0);
 
--- 19. Thêm dữ liệu bảng TIENDO_NHOMHOCPHAN
+-- 23. Thêm dữ liệu bảng TIENDO_NHOMHOCPHAN
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001001', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001002', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001003', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001004', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001005', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001006', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001007', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001008', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001009', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001010', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001011', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001012', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001013', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001014', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001015', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001016', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001017', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001018', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'TN_BB', 24, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'TN_TC1', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24001019', 'XH_TC', 2, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002001', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002002', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002003', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002004', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002005', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002006', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002007', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002008', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24002009', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'CN_CS', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'CN_NG', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'CN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'CN_TD', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'CN_TN_BB', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'CN_TN_TC', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'GD_QP', NULL, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'GD_TC', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'LL_CT', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'TH_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'TN_BB', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'TN_TC1', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'TN_TC2', NULL, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127132', 'XH_TC', NULL, NULL);
+
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'CN_CS', 38, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'CN_NG', 16, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'CN_TC', 8, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'CN_TD', 0, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'CN_TN_BB', 6, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'CN_TN_TC', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'GD_QP', 4, NULL);
+INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'GD_TC', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'LL_CT', 14, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'TH_BB', 4, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'TN_BB', 24, NULL);
@@ -604,43 +1766,85 @@ INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('241271
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'TN_TC2', 8, NULL);
 INSERT INTO TIENDO_NHOMHOCPHAN (MSSV, MANHOM, TC_DAT, TC_YEUCAU) VALUES ('24127158', 'XH_TC', 2, NULL);
 
--- 20. Thêm dữ liệu bảng SV_KHAOSAT
+-- 24. Thêm dữ liệu bảng HOCPHI
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP027', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP028', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP029', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP030', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP031', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP032', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP033', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP034', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP035', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2024-11-15T21:36:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP036', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP037', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP038', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP039', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP040', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP041', 3, 3000000.00, 0.00, 0.00, 3000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP042', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-03-28T06:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP043', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2025-07-13T20:20:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP044', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-07-13T20:20:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP045', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP046', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP047', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP048', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP049', 4, 4000000.00, 0.00, 0.00, 4000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP050', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP051', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-11-17T16:25:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP052', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP053', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP054', 3, 3000000.00, 0.00, 0.00, 3000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP055', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP056', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP057', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP058', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2026-04-22T15:12:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP059', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2026-07-15T14:52:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127132', 'HP060', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2026-07-15T14:52:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP001', 6, 6000000.00, 0.00, 0.00, 6000000.00, 0.00, NULL, 1, '2024-11-11T09:40:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP002', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2024-11-11T09:40:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP003', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2024-11-11T09:40:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP004', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2024-11-11T09:40:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP005', 3, 3000000.00, 0.00, 0.00, 3000000.00, 0.00, NULL, 1, '2025-03-11T11:15:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP006', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2025-03-11T11:15:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP007', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-03-11T11:15:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP008', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-03-11T11:15:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP009', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2025-06-27T15:30:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP010', 6, 6000000.00, 0.00, 0.00, 6000000.00, 0.00, NULL, 1, '2025-06-27T15:30:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP011', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-06-27T15:30:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP012', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-06-27T15:30:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP013', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-11-15T16:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP014', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2025-11-15T16:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP015', 3, 3000000.00, 0.00, 0.00, 3000000.00, 0.00, NULL, 1, '2025-11-15T16:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP016', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2025-11-15T16:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP017', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2025-11-15T16:45:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP018', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2026-03-20T21:06:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP019', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2026-03-20T21:06:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP020', 6, 6000000.00, 0.00, 0.00, 6000000.00, 0.00, NULL, 1, '2026-03-20T21:06:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP021', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2026-03-20T21:06:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP022', 2, 2000000.00, 0.00, 0.00, 2000000.00, 0.00, NULL, 1, '2026-07-14T08:35:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP023', 1, 1000000.00, 0.00, 0.00, 1000000.00, 0.00, NULL, 1, '2026-07-14T08:35:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP024', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2026-07-14T08:35:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP025', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2026-07-14T08:35:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP026', 6, 6000000.00, 0.00, 0.00, 6000000.00, 0.00, NULL, 1, '2026-07-14T08:35:00.000');
+INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP061', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2026-03-20T21:06:00.000');
+
+-- 25. Thêm dữ liệu bảng SV_KHAOSAT
 INSERT INTO SV_KHAOSAT (MSSV, MAKS, TRANGTHAI_LAM) VALUES ('24127158', 'KS001', 1);
 
--- 21. Thêm dữ liệu bảng SV_THONGBAO
-INSERT INTO SV_THONGBAO (MSSV, MATB, TRANGTHAI_DOC, THOIGIAN_DOC) VALUES ('24127158', 'TB001', 1, '2026-08-01 21:28:00');
+-- 26. Thêm dữ liệu bảng TRALOI_KHAOSAT
+INSERT INTO TRALOI_KHAOSAT (MACH, MSSV, NOIDUNG_TRALOI, THOIGIAN_TRALOI) VALUES ('CH01', '24127158', 'A', '2026-08-01T22:23:00.000');
+INSERT INTO TRALOI_KHAOSAT (MACH, MSSV, NOIDUNG_TRALOI, THOIGIAN_TRALOI) VALUES ('CH02', '24127158', 'Cải thiện cơ sở vật chất', '2026-08-01T23:59:00.000');
+
+-- 27. Thêm dữ liệu bảng SV_THONGBAO
+INSERT INTO SV_THONGBAO (MSSV, MATB, TRANGTHAI_DOC, THOIGIAN_DOC) VALUES ('24127158', 'TB001', 1, '2026-08-01T21:28:00.000');
 INSERT INTO SV_THONGBAO (MSSV, MATB, TRANGTHAI_DOC, THOIGIAN_DOC) VALUES ('24127158', 'TB002', 0, NULL);
 
--- 22. Thêm dữ liệu bảng QUANLY_TINHTRANG_SV
+-- 28. Thêm dữ liệu bảng CHATBOT_SESSION
+
+-- 29. Thêm dữ liệu bảng QUANLY_TINHTRANG_SV
 INSERT INTO QUANLY_TINHTRANG_SV (MAQUYETDINH, MSSV, TINHTRANG_MOI, NGAYKY_QD, MAGV_THUCHIEN, MA_HOCKY, LYDO) VALUES ('QD001', '24001001', NULL, NULL, NULL, NULL, NULL);
 
--- 23. Thêm dữ liệu bảng KETQUA_HOCTAP
-INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP001', 8, 8.8, 8.6, 'A', 'Closed');
-INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP002', 8, 5, 7.2, 'A', 'Closed');
-INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP003', NULL, 9.9, 9.3, 'A+', 'Closed');
-INSERT INTO KETQUA_HOCTAP (MSSV, MALHP, DIEMGK, DIEMCK, DIEMTB_HE10, LOAIDIEM_HECHU, TRANGTHAI) VALUES ('24127158', 'HP004', 5, 8, 7.6, 'B', 'Closed');
+-- 30. Thêm dữ liệu bảng LICHSU_CHINHSUA
 
--- 24. Thêm dữ liệu bảng LICH_HOC
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH001', 'HP001', 1, '2024-09-16', '2024-09-21', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH002', 'HP001', 2, '2024-09-23', '2024-09-28', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH003', 'HP001', 3, '2024-09-30', '2024-10-05', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH004', 'HP001', 4, '2024-10-07', '2024-10-12', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH005', 'HP001', 5, '2024-10-14', '2024-10-19', 'Hai', '07:30:00', '11:10:00', 'I.44', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH006', 'HP002', 1, '2024-09-16', '2024-09-21', 'Ba', '07:30:00', '11:10:00', 'I.23', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH007', 'HP003', 1, '2021-09-16', '2024-09-21', 'Ba', '13:30:00', '17:10:00', 'I.44', 'Trực tiếp');
-INSERT INTO LICH_HOC (MALICHHOC, MALHP, TUAN, NGAYBATDAU, NGAYKETTHUC, THU, THOIGIAN_BD, THOIGIAN_KT, PHONGHOC, HINHTHUCHOC) VALUES ('LH008', 'HP004', 1, '2021-09-16', '2024-09-21', 'Sáu', '07:30:00', '11:10:00', 'C.22', 'Trực tiếp');
-
--- 25. Thêm dữ liệu bảng LICH_THI
-INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT001', 'HP001', '2024-12-25', '13:30:00', 60, 'B.40');
-INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT002', 'HP002', '2024-12-23', '13:30:00', 90, 'E.301');
-INSERT INTO LICH_THI (MALICHTHI, MALHP, NGAYTHI, GIOTHI, THOIGIANLAMBAI, PHONGTHI) VALUES ('LT003', 'HP004', '2024-12-27', '13:30:00', 90, 'I.32');
-
--- 26. Thêm dữ liệu bảng HOCPHHI
-INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP001', 6, 6000000.00, 0.00, 0.00, 6000000.00, 0.00, NULL, 1, '2024-02-13T00:00:00.000');
-INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP002', 7, 7000000.00, 0.00, 0.00, 7000000.00, 0.00, NULL, 1, '2024-02-13T00:00:00.000');
-INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP003', 5, 5000000.00, 0.00, 0.00, 5000000.00, 0.00, NULL, 1, '2024-02-13T00:00:00.000');
-INSERT INTO HOCPHI (MSSV, MALHP, SOTCHP, HOCPHI_GOC, MUCGIAM, HOTRO, THUCDONG, CHIPHIKHAC, GHICHU, TRANGTHAI_THANHTOAN, NGAYTHANHTOAN) VALUES ('24127158', 'HP004', 5, 5000000.00, 0.00, 0.00, 50000000.00, 0.00, NULL, 1, '2024-02-13T00:00:00.000');
-
--- 27. Thêm dữ liệu bảng TRALOI_KHAOSAT
-INSERT INTO TRALOI_KHAOSAT (MACH, MSSV, NOIDUNG_TRALOI, THOIGIAN_TRALOI) VALUES ('CH01', '24127158', 'A', '2026-08-01 22:23:00');
-INSERT INTO TRALOI_KHAOSAT (MACH, MSSV, NOIDUNG_TRALOI, THOIGIAN_TRALOI) VALUES ('CH02', '24127158', 'Update phòng máy, máy quá cũ, bàn phím bấm không ăn hư hỏng quá nhiều, thầy cô chấm điểm khó', '2026-08-01 23:59:00');
+-- 31. Thêm dữ liệu bảng CHATBOT_MESSAGE
