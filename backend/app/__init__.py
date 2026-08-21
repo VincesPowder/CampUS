@@ -33,4 +33,7 @@ def create_app():
     from app.routes.student_routes import student_bp
     app.register_blueprint(student_bp, url_prefix='/api/students')
     
+    from app.routes.admin_routes import admin_bp
+    app.register_blueprint(admin_bp)
+    
     return app
