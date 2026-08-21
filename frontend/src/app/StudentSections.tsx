@@ -1476,14 +1476,14 @@ async function handleSave() {
           {/* Cols 2-4: fields, 3 per row */}
           <div className="sm:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 sm:gap-y-4">
             <Field label="MSSV"                value={saved.mssv} />
-            <Field label="Ngày sinh"           value={saved.dob} />
-            <Field label="Nơi sinh"            value={saved.placeOfBirth} />
-            <Field label="Giới tính"           value={saved.gender} />
-            <Field label="Khóa"                value={saved.course} />
-            <Field label="Bậc đào tạo"         value={saved.level} />
-            <Field label="Ngành"               value={saved.major} />
-            <Field label="Loại hình đào tạo"   value={saved.trainingType} />
-            <Field label="Chuyên ngành"        value={saved.specialization} />
+            <Field label="Ngày sinh"           value={saved.dob || saved.ngaysinh} />
+            <Field label="Nơi sinh"            value={saved.placeOfBirth || saved.noisinh} />
+            <Field label="Giới tính"           value={saved.gender || saved.gioitinh} />
+            <Field label="Khóa"                value={saved.course || saved.nienkhoa} />
+            <Field label="Bậc đào tạo"         value={saved.level || saved.bacdaotao} />
+            <Field label="Ngành"               value={saved.major || saved.tennganh || saved.nganh} />
+            <Field label="Loại hình đào tạo"   value={saved.trainingType || saved.loaidaotao} />
+            <Field label="Chuyên ngành"        value={saved.specialization || saved.chuyenNganh || saved.chuyennganh || saved.tenchuyennganh || "Chưa phân chuyên ngành"} />
           </div>
         </div>
       </div>
