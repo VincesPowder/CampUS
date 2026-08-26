@@ -70,7 +70,6 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
   const [loading, setLoading] = useState(false);
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
-  // Fetch chi tiết & thông tin gia đình từ backend
   useEffect(() => {
     if (student?.mssv) {
       setLoading(true);
@@ -123,6 +122,30 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
     }
   };
 
+  const handleAddFamilyMember = () => {
+    setFamilyData(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: "",
+        dob: "",
+        rel: "Cha",
+        job: "",
+        workplace: "",
+        phone: "",
+        email: "",
+        ethnic: "Kinh",
+        religion: "Không",
+        nationality: "Việt Nam",
+        address: ""
+      } as any
+    ]);
+  };
+
+  const handleRemoveFamilyMember = (index: number) => {
+    setFamilyData(prev => prev.filter((_, i) => i !== index));
+  };
+
   const tabs = [
     { id: "info"   as const, label: "Hồ sơ sinh viên" },
     { id: "family" as const, label: "Thông tin gia đình" },
@@ -155,7 +178,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
         {/* Tabs */}
         <div className="flex border-b border-border flex-shrink-0 bg-card px-6">
           {tabs.map(t => (
-            <button key={t.id} onClick={() => { setActiveTab(t.id); setMode("view"); }}
+            <button key={t.id} onClick={() => { setActiveTab(t.id); }}
               className="py-3 px-1 mr-6 text-sm font-semibold border-b-2 transition-colors"
               style={{
                 borderColor: activeTab === t.id ? "var(--primary)" : "transparent",
@@ -203,7 +226,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
                 <SectionHeader title="Thông tin cá nhân" />
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
                   {[
-                    { label: "Ngày sinh",     key: "ngaySinh" },
+                    { label: "Ngày sinh (dd/mm/yyyy)", key: "ngaySinh" },
                     { label: "Nơi sinh",      key: "noiSinh" },
                     { label: "CCCD",          key: "cccd" },
                     { label: "Ngày cấp",      key: "ngayCap" },
@@ -269,17 +292,41 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
 
           {activeTab === "family" && (
             <div className="space-y-4">
+              {mode === "edit" && (
+                <div className="flex justify-end mb-2">
+                  <button
+                    onClick={handleAddFamilyMember}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-primary hover:opacity-90 transition-opacity"
+                    style={PJS}
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Thêm người thân
+                  </button>
+                </div>
+              )}
               {familyData.map((m, i) => (
                 <div key={i} className="rounded-xl border border-border overflow-hidden">
-                  <div className="px-4 py-2.5 flex items-center gap-2 border-b border-border" style={{ background: "rgba(37,52,79,0.06)" }}>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--primary)" }}>
-                      {m.name ? m.name[0] : "?"}
+                  <div className="px-4 py-2.5 flex items-center justify-between border-b border-border" style={{ background: "rgba(37,52,79,0.06)" }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: "var(--primary)" }}>
+                        {m.name ? m.name[0] : "?"}
+                      </div>
+                      <span className="font-semibold text-sm text-foreground" style={PJS}>{m.name || "Chưa có tên"}</span>
+                      <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{m.rel}</span>
                     </div>
-                    <span className="font-semibold text-sm text-foreground" style={PJS}>{m.name || "Chưa có tên"}</span>
-                    <span className="ml-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{m.rel}</span>
+                    {mode === "edit" && (
+                      <button
+                        onClick={() => handleRemoveFamilyMember(i)}
+                        className="p-1 rounded text-red-500 hover:bg-red-50 transition-colors"
+                        title="Xóa người thân này"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                   <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
                     {[
+                      { label: "Họ và tên",     key: "name" },
+                      { label: "Quan hệ",       key: "rel" },
                       { label: "Năm sinh",      key: "dob" },
                       { label: "Nghề nghiệp",   key: "job" },
                       { label: "Nơi làm việc",  key: "workplace" },
@@ -322,7 +369,7 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
 function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: any) => void }) {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER = { fontFamily: "'Inter', sans-serif" };
-  const blank = { hoTen: "", mssv: "", email: "", gioiTinh: "Nam", khoa: "2024", nganh: "", bacDT: "Đại học", loaiDT: "Chính quy", chuyenNganh: "" };
+  const blank = { hoTen: "", mssv: "", email: "", gioiTinh: "Nam", khoa: "2024", nganh: "Khoa học máy tính", bacDT: "Đại học", loaiDT: "Chính quy", chuyenNganh: "" };
   const [draft, setDraft] = useState<any>(blank);
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
@@ -411,6 +458,9 @@ function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: a
 
 // ─── Admin: Student Management ───────────────────────────────────────────────
 function StudentManagement() {
+  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<{ khoa: string; nganh: string; bacDT: string; loaiDT: string }>({
@@ -420,6 +470,7 @@ function StudentManagement() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<{ student: any; mode: StudentModalMode } | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
   const [permOpen, setPermOpen] = useState(false);
   const [globalPerm, setGlobalPerm] = useState<GlobalEditPerm>({
     enabled: false, from: "", to: "", nganhs: [], khoas: [],
@@ -473,6 +524,59 @@ function StudentManagement() {
     }
   };
 
+  // 4. Xóa sinh viên
+  const handleDeleteStudent = async () => {
+    if (!deleteTarget) return;
+    try {
+      const res = await fetch(`/api/admin/students/${deleteTarget.mssv}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        setStudents(prev => prev.filter(s => s.mssv !== deleteTarget.mssv));
+        setDeleteTarget(null);
+      } else {
+        alert(data.message || "Không thể xóa sinh viên.");
+      }
+    } catch (e) {
+      console.error("Lỗi xóa sinh viên:", e);
+      alert("Lỗi kết nối máy chủ.");
+    }
+  };
+
+  // 5. Xuất file CSV
+  const handleExportCSV = () => {
+    window.open('/api/admin/students/export', '_blank');
+  };
+
+  // 6. Nhập file CSV
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/admin/students/import', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        alert(data.message || "Nhập file thành công!");
+        fetchStudents();
+      } else {
+        alert(data.message || "Lỗi khi nhập file.");
+      }
+    } catch (err) {
+      console.error("Lỗi import CSV:", err);
+      alert("Lỗi kết nối khi gửi file.");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const allKhoa  = Array.from(new Set(students.map(s => s.khoa).filter(Boolean)));
   const allNganh = Array.from(new Set(students.map(s => s.nganh).filter(Boolean)));
   const allBac   = Array.from(new Set(students.map(s => s.bacDT).filter(Boolean)));
@@ -494,6 +598,41 @@ function StudentManagement() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
+      {/* Hidden file input for CSV import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportFile}
+        accept=".csv,text/csv"
+        className="hidden"
+      />
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
+          <div className="bg-card rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
+              <Trash2 className="w-7 h-7 text-red-500" />
+            </div>
+            <h3 className="font-bold text-base mb-2 text-foreground" style={PJS}>Xóa sinh viên?</h3>
+            <p className="text-sm text-muted-foreground mb-1">Bạn có chắc chắn muốn xóa sinh viên</p>
+            <p className="text-sm font-semibold text-foreground mb-5" style={PJS}>
+              {deleteTarget.hoTen} ({deleteTarget.mssv})
+            </p>
+            <p className="text-xs text-muted-foreground mb-6">Mọi dữ liệu học tập, học phí, khảo sát liên quan sẽ bị xóa vĩnh viễn.</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>
+                Hủy
+              </button>
+              <button onClick={handleDeleteStudent} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity bg-red-600" style={PJS}>
+                Xác nhận xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Student View / Edit Modal */}
       {modal && (
         <StudentModal
           student={modal.student}
@@ -504,6 +643,8 @@ function StudentManagement() {
           }}
         />
       )}
+
+      {/* Add Student Modal */}
       {addOpen && (
         <AddStudentModal
           onClose={() => setAddOpen(false)}
@@ -527,10 +668,10 @@ function StudentManagement() {
           {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
         </button>
         <div className="hidden sm:flex flex-1" />
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Download className="w-4 h-4" /> Xuất
         </button>
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <Upload className="w-4 h-4" /> Nhập
         </button>
         <button onClick={() => setPermOpen(o => !o)}
@@ -617,7 +758,7 @@ function StudentManagement() {
             <thead className="sticky top-0 z-10">
               <tr style={{ background: "var(--primary)" }}>
                 {cols.map(c => <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c}</th>)}
-                <th className="px-3 py-2.5 w-10" />
+                <th className="px-3 py-2.5 w-16 text-center text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -647,10 +788,16 @@ function StudentManagement() {
                     <td className="px-3 py-2.5 text-muted-foreground">{s.loaiDT}</td>
                     <td className="px-3 py-2.5 text-muted-foreground">{s.chuyenNganh || "—"}</td>
                     <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => setModal({ student: s, mode: "edit" })}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-card" title="Chỉnh sửa">
-                        <Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />
-                      </button>
+                      <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setModal({ student: s, mode: "edit" })}
+                          className="p-1 rounded hover:bg-muted" title="Chỉnh sửa hồ sơ">
+                          <Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />
+                        </button>
+                        <button onClick={() => setDeleteTarget(s)}
+                          className="p-1 rounded hover:bg-red-50 text-red-500" title="Xóa sinh viên">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -1141,8 +1288,8 @@ function gradeColor(d: number | null): string {
   return "#dc2626";
 }
 
-function GradeEditModal({ student, onClose, onSave }: {
-  student: StudentGradeRow; onClose: () => void;
+function GradeEditModal({ student, courseId, onClose, onSave }: {
+  student: StudentGradeRow; courseId?: string; onClose: () => void;
   onSave: (updated: StudentGradeRow) => void;
 }) {
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -1150,8 +1297,9 @@ function GradeEditModal({ student, onClose, onSave }: {
   const [cc, setCC] = useState(String(student.diemCC ?? ""));
   const [gk, setGK] = useState(String(student.diemGK ?? ""));
   const [ck, setCK] = useState(String(student.diemCK ?? ""));
-  const [lyDo, setLyDo] = useState("");
+  const [lyDo, setLyDo] = useState(student.ghiChu || "");
   const [customLyDo, setCustomLyDo] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const toNum = (s: string) => s.trim() === "" ? null : parseFloat(s);
   const tkPreview = calcTK(toNum(cc), toNum(gk), toNum(ck));
@@ -1159,10 +1307,29 @@ function GradeEditModal({ student, onClose, onSave }: {
   const isOther = lyDo === "Khác (Other)";
   const canSave = lyDo !== "" && (!isOther || customLyDo.trim() !== "");
 
-  function handleSave() {
+  async function handleSave() {
     const reason = isOther ? customLyDo.trim() : lyDo;
     const ccN = toNum(cc); const gkN = toNum(gk); const ckN = toNum(ck);
-    onSave({ ...student, diemCC: ccN, diemGK: gkN, diemCK: ckN, diemTK: calcTK(ccN, gkN, ckN), ghiChu: reason });
+    const updatedPayload = { ...student, diemCC: ccN, diemGK: gkN, diemCK: ckN, diemTK: calcTK(ccN, gkN, ckN), ghiChu: reason };
+
+    setSubmitting(true);
+    try {
+      if (courseId) {
+        await fetch(`/api/admin/academic/courses/${courseId}/grades/${student.mssv}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedPayload)
+        });
+      }
+      onSave(updatedPayload);
+      onClose();
+    } catch (e) {
+      console.error(e);
+      onSave(updatedPayload);
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const scoreInput = (label: string, pct: string, val: string, set: (v: string) => void) => (
@@ -1207,14 +1374,15 @@ function GradeEditModal({ student, onClose, onSave }: {
         </div>
         <div className="px-6 py-4 bg-card border-t border-border flex justify-end gap-2">
           <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted transition-colors" style={PJS}>Hủy</button>
-          <button onClick={handleSave} disabled={!canSave} className="px-5 py-2 rounded-lg text-sm font-bold text-white transition-colors"
-            style={{ ...PJS, background: canSave ? "#11284D" : "#9ca3af", cursor: canSave ? "pointer" : "not-allowed" }}>Lưu thay đổi</button>
+          <button onClick={handleSave} disabled={!canSave || submitting} className="px-5 py-2 rounded-lg text-sm font-bold text-white transition-colors"
+            style={{ ...PJS, background: canSave && !submitting ? "#11284D" : "#9ca3af", cursor: canSave && !submitting ? "pointer" : "not-allowed" }}>
+            {submitting ? "Đang lưu..." : "Lưu thay đổi"}
+          </button>
         </div>
       </div>
     </div>
   );
 }
-
 
 function AddMonHocYearModal({ yearId, maxHK, initial, onClose, onSave }: {
   yearId: string; maxHK: number;
@@ -1232,8 +1400,9 @@ function AddMonHocYearModal({ yearId, maxHK, initial, onClose, onSave }: {
   const [hocKy, setHocKy] = useState(initial?.hocKy ?? 1);
   const [maNhom, setMaNhom] = useState(initial?.maNhom ?? "");
   const [tenNhom, setTenNhom] = useState(initial?.tenNhom ?? "");
-  const [khoa, setKhoa] = useState(initial?.khoa ?? "");
+  const [khoa, setKhoa] = useState(initial?.khoa ?? "CNTT");
   const canSave = maMon.trim() && tenMon.trim();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
       <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
@@ -1245,7 +1414,7 @@ function AddMonHocYearModal({ yearId, maxHK, initial, onClose, onSave }: {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Mã môn *</label>
-              <input value={maMon} onChange={e => setMaMon(e.target.value)} placeholder="VD: CSC10006" className={iCls} disabled={isEdit} />
+              <input value={maMon} onChange={e => setMaMon(e.target.value.toUpperCase())} placeholder="VD: CSC10006" className={iCls} disabled={isEdit} />
             </div>
             <div>
               <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Học kỳ *</label>
@@ -1287,7 +1456,7 @@ function AddMonHocYearModal({ yearId, maxHK, initial, onClose, onSave }: {
         </div>
         <div className="flex gap-3 px-6 py-4 border-t border-border">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
-          <button disabled={!canSave} onClick={() => onSave({ ...(initial ?? { id: `c${Date.now()}`, lop: "", giangVien: "", emailGV: "", soSV: 0, status: "pending" as const }), maMon: maMon.trim(), tenMon: tenMon.trim(), soTC, soTiet, hocKy, maNhom: maNhom.trim(), tenNhom: tenNhom.trim(), khoa, namHoc: yearId })}
+          <button disabled={!canSave} onClick={() => onSave({ ...(initial ?? { id: `c${Date.now()}`, lop: maNhom || "24C01", giangVien: "Giảng viên", emailGV: "", soSV: 0, status: "pending" as const }), maMon: maMon.trim(), tenMon: tenMon.trim(), soTC, soTiet, hocKy, maNhom: maNhom.trim(), tenNhom: tenNhom.trim(), khoa, namHoc: yearId })}
             className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold transition-opacity disabled:opacity-40"
             style={{ background: "var(--primary)", ...PJS }}>
             {isEdit ? "Lưu thay đổi" : "Thêm môn học"}
@@ -1306,7 +1475,7 @@ function AcademicYearModal({ year, onClose, onSave }: {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const iCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card transition-colors";
   const isEdit = !!year;
-  const [namBatDau, setNamBatDau] = useState(year ? parseInt(year.id.split("-")[0]) + 2000 : new Date().getFullYear() + 1);
+  const [namBatDau, setNamBatDau] = useState(year ? parseInt(year.id.split("-")[0]) + 2000 : new Date().getFullYear());
   const [soHocKy, setSoHocKy] = useState(year?.soHocKy ?? 3);
   const [ngayBatDau, setNgayBatDau] = useState(year?.ngayBatDau ?? "");
   const [ngayKetThuc, setNgayKetThuc] = useState(year?.ngayKetThuc ?? "");
@@ -1390,7 +1559,7 @@ function AdminAcademicSection() {
   const PRIMARY = "#11284D";
 
   const [activeTab, setActiveTab] = useState<"courses" | "years">("courses");
-  const [academicYears, setAcademicYears] = useState<AcademicYear[]>(ACADEMIC_YEARS);
+  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [yearModal, setYearModal] = useState<AcademicYear | null | "new">(null);
   const [selectedYear, setSelectedYear] = useState<AcademicYear | null>(null);
   const [yearHkFilter, setYearHkFilter] = useState<number | "all">("all");
@@ -1399,64 +1568,127 @@ function AdminAcademicSection() {
   const [editYearCourse, setEditYearCourse] = useState<AdminCourseItem | null>(null);
   const [screen, setScreen] = useState<"list" | "detail">("list");
   const [selectedCourse, setSelectedCourse] = useState<AdminCourseItem | null>(null);
-  const [filterNamHoc, setFilterNamHoc] = useState("25-26");
-  const [filterHK, setFilterHK] = useState<number | "all">(3);
+  const [filterNamHoc, setFilterNamHoc] = useState("all");
+  const [filterHK, setFilterHK] = useState<number | "all">("all");
   const [filterStatus, setFilterStatus] = useState<GradeStatus | "all">("all");
   const [filterKhoa, setFilterKhoa] = useState("all");
   const [search, setSearch] = useState("");
-  const [courses, setCourses] = useState<AdminCourseItem[]>(ACADEMIC_COURSES);
+  const [courses, setCourses] = useState<AdminCourseItem[]>([]);
   const [grades, setGrades] = useState<StudentGradeRow[]>([]);
   const [editTarget, setEditTarget] = useState<StudentGradeRow | null>(null);
   const [confirmLock, setConfirmLock] = useState(false);
   const [gradeSearch, setGradeSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const namHocOptions = Array.from(new Set([
-    ...courses.map(c => c.namHoc),
-    ...academicYears.map(y => y.id),
-  ])).sort().reverse();
-  const khoaOptions = Array.from(new Set(courses.map(c => c.khoa))).sort();
+  // 1. Fetch toàn bộ môn học phần trực tiếp từ Database
+  const fetchCourses = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterNamHoc && filterNamHoc !== "all") params.append("namHoc", filterNamHoc);
+      if (filterHK !== "all") params.append("hocKy", String(filterHK));
+      if (filterStatus !== "all") params.append("status", filterStatus);
+      if (filterKhoa !== "all") params.append("khoa", filterKhoa);
+      if (search) params.append("search", search);
 
-  const filtered = courses.filter(c => {
-    if (c.namHoc !== filterNamHoc) return false;
-    if (filterHK !== "all" && c.hocKy !== filterHK) return false;
-    if (filterStatus !== "all" && c.status !== filterStatus) return false;
-    if (filterKhoa !== "all" && c.khoa !== filterKhoa) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      if (!c.tenMon.toLowerCase().includes(q) && !c.maMon.toLowerCase().includes(q) && !c.giangVien.toLowerCase().includes(q)) return false;
+      const res = await fetch(`/api/admin/academic/courses?${params.toString()}`);
+      const data = await res.json();
+      if (data.status === "success") {
+        setCourses(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch danh sách môn học:", e);
+    } finally {
+      setLoading(false);
     }
-    return true;
-  });
+  };
 
-  function openDetail(course: AdminCourseItem) {
+  // 2. Fetch danh sách năm học từ Database
+  const fetchYears = async () => {
+    try {
+      const res = await fetch('/api/admin/academic/years');
+      const data = await res.json();
+      if (data.status === "success") {
+        setAcademicYears(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch năm học:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+    fetchYears();
+  }, [filterNamHoc, filterHK, filterStatus, filterKhoa, search]);
+
+  const namHocOptions = ["all", ...Array.from(new Set(courses.map(c => c.namHoc)))];
+  const khoaOptions = Array.from(new Set(courses.map(c => c.khoa).filter(Boolean))).sort();
+
+  const filtered = courses;
+
+  async function openDetail(course: AdminCourseItem) {
     if (course.status === "pending") return;
     setSelectedCourse(course);
-    setGrades(makeMockGrades(course.id));
-    setGradeSearch(""); setScreen("detail");
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/academic/courses/${course.id}/grades`);
+      const data = await res.json();
+      if (data.status === "success") {
+        setGrades(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch điểm lớp học phần:", e);
+    } finally {
+      setLoading(false);
+      setGradeSearch("");
+      setScreen("detail");
+    }
   }
 
-  function handleLockPublish() {
+  async function handleLockPublish() {
     if (!selectedCourse) return;
-    const today = new Date().toLocaleDateString("vi-VN");
-    setCourses(prev => prev.map(c => c.id === selectedCourse.id ? { ...c, status: "locked", ngayNopDiem: today } : c));
-    setSelectedCourse(prev => prev ? { ...prev, status: "locked", ngayNopDiem: today } : prev);
-    setConfirmLock(false);
+    try {
+      const res = await fetch(`/api/admin/academic/courses/${selectedCourse.id}/lock`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success") {
+        const today = new Date().toLocaleDateString("vi-VN");
+        setCourses(prev => prev.map(c => c.id === selectedCourse.id ? { ...c, status: "locked", ngayNopDiem: today } : c));
+        setSelectedCourse(prev => prev ? { ...prev, status: "locked", ngayNopDiem: today } : prev);
+        setConfirmLock(false);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi khóa điểm.");
+    }
   }
 
   function handleSaveGrade(updated: StudentGradeRow) {
     setGrades(prev => prev.map(g => g.mssv === updated.mssv ? updated : g));
   }
 
-  const statusBadge = (status: GradeStatus, small = false) => {
-    const cfg = {
-      pending:  { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ",   dot: "#9ca3af" },
-      uploaded: { bg: "#fffbeb", text: "#b45309", label: "Đã tải lên", dot: "#f59e0b" },
-      locked:   { bg: "#f0fdf4", text: "#16a34a", label: "Đã khóa",    dot: "#22c55e" },
-    }[status];
+  const handleExportGrades = () => {
+    if (!selectedCourse) return;
+    window.open(`/api/admin/academic/courses/${selectedCourse.id}/export-grades`, '_blank');
+  };
+
+  // Hàm statusBadge an toàn tuyệt đối với mọi dữ liệu
+  const statusBadge = (status: any, small = false) => {
+    const raw = String(status || "").toLowerCase();
+    let cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
+
+    if (raw.includes("lock") || raw.includes("close") || raw.includes("khóa") || raw.includes("đã khóa")) {
+      cfg = { bg: "#f0fdf4", text: "#16a34a", label: "Đã khóa", dot: "#22c55e" };
+    } else if (raw.includes("upload") || raw.includes("tải") || raw.includes("nộp") || raw.includes("open")) {
+      cfg = { bg: "#fffbeb", text: "#b45309", label: "Đã tải lên", dot: "#f59e0b" };
+    } else {
+      cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
+    }
+
     return (
       <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${small ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-xs"}`}
-            style={{ background: cfg.bg, color: cfg.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />{cfg.label}
+            style={{ background: cfg?.bg || "#f3f4f6", color: cfg?.text || "#6b7280", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg?.dot || "#9ca3af" }} />
+        {cfg?.label || "Đang chờ"}
       </span>
     );
   };
@@ -1473,15 +1705,49 @@ function AdminAcademicSection() {
     </td>
   );
 
-  const saveYear = (y: AcademicYear) => {
-    setAcademicYears(prev => {
-      const exists = prev.find(x => x.id === y.id);
-      return exists ? prev.map(x => x.id === y.id ? y : x) : [...prev, y].sort((a, b) => b.id.localeCompare(a.id));
-    });
-    setYearModal(null);
+  const saveYear = async (y: AcademicYear) => {
+    try {
+      const isEdit = academicYears.some(x => x.id === y.id);
+      const url = isEdit ? `/api/admin/academic/years/${y.id}` : `/api/admin/academic/years`;
+      const method = isEdit ? "PUT" : "POST";
+      
+      await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(y)
+      });
+      fetchYears();
+      setYearModal(null);
+    } catch (e) {
+      console.error(e);
+    }
   };
-  const setCurrentYear = (id: string) => setAcademicYears(prev => prev.map(y => ({ ...y, status: y.id === id ? "open" : y.status })));
-  const closeYear     = (id: string) => setAcademicYears(prev => prev.map(y => y.id === id ? { ...y, status: "closed" } : y));
+
+  const setCurrentYear = async (id: string) => {
+    try {
+      await fetch(`/api/admin/academic/years/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "open" })
+      });
+      fetchYears();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const closeYear = async (id: string) => {
+    try {
+      await fetch(`/api/admin/academic/years/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "closed" })
+      });
+      fetchYears();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (screen === "list") {
     const pending  = filtered.filter(c => c.status === "pending").length;
@@ -1493,7 +1759,7 @@ function AdminAcademicSection() {
 
     return (
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Top header + sub-tabs */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold text-foreground" style={PJS}>Quản lý học tập</h2>
@@ -1510,348 +1776,203 @@ function AdminAcademicSection() {
           ))}
         </div>
 
-        {/* ─── Năm học tab ───────────────────────────────────────────────── */}
-        {activeTab === "years" && (
-          <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
-            {yearModal !== null && (
-              <AcademicYearModal year={yearModal === "new" ? null : yearModal} onClose={() => setYearModal(null)} onSave={saveYear} />
-            )}
-            {(addMonHocModal || editYearCourse) && selectedYear && (
-              <AddMonHocYearModal
-                yearId={selectedYear.id}
-                maxHK={selectedYear.soHocKy}
-                initial={editYearCourse}
-                onClose={() => { setAddMonHocModal(false); setEditYearCourse(null); }}
-                onSave={c => {
-                  if (editYearCourse) {
-                    setCourses(prev => prev.map(x => x.id === c.id ? c : x));
-                  } else {
-                    setCourses(prev => [...prev, c]);
-                  }
-                  setAddMonHocModal(false); setEditYearCourse(null);
-                }}
-              />
-            )}
-
-            {/* ── Year detail view ── */}
-            {selectedYear ? (() => {
-              const y = selectedYear;
-              const yCourses = courses.filter(c => c.namHoc === y.id);
-              const hkList = Array.from(new Set(yCourses.map(c => c.hocKy))).sort();
-              const visibleCourses = yCourses.filter(c => {
-                if (yearHkFilter !== "all" && c.hocKy !== yearHkFilter) return false;
-                if (yearSearch.trim()) {
-                  const q = yearSearch.trim().toLowerCase();
-                  if (!c.tenMon.toLowerCase().includes(q) && !c.maMon.toLowerCase().includes(q)) return false;
-                }
-                return true;
-              });
-              const stCfg = {
-                open:   { bg: "#f0fdf4", text: "#16a34a", dot: "#22c55e", label: "Mở"   },
-                closed: { bg: "#f9fafb", text: "#6b7280", dot: "#9ca3af", label: "Đóng" },
-              }[y.status];
-              return (
-                <div className="flex-1 flex flex-col min-h-0 gap-4">
-                  {/* Header */}
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <button onClick={() => setSelectedYear(null)}
-                      className="p-2 rounded-lg border border-border bg-white hover:bg-muted transition-colors text-muted-foreground">
-                      <ArrowLeft className="w-4 h-4" />
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5">
-                        <h3 className="font-bold text-lg text-foreground" style={PJS}>Năm học {y.label}</h3>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                          style={{ background: stCfg.bg, color: stCfg.text }}>
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: stCfg.dot }} />
-                          {stCfg.label}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5" style={INTER}>
-                        {y.ngayBatDau || "—"} → {y.ngayKetThuc || "—"} · {y.soHocKy} học kỳ · {yCourses.length} môn học phần
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => setAddMonHocModal(true)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                        style={{ background: "var(--primary)", ...PJS }}>
-                        <Plus className="w-3.5 h-3.5" /> Thêm môn học
-                      </button>
-                      <button onClick={() => setYearModal(y)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
-                        style={PJS}>
-                        <Pencil className="w-3.5 h-3.5" /> Chỉnh sửa
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Filter + search bar */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <select value={String(yearHkFilter)}
-                      onChange={e => setYearHkFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
-                      className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
-                      <option value="all">Tất cả học kỳ</option>
-                      <option value={1}>Học kỳ 1</option>
-                      <option value={2}>Học kỳ 2</option>
-                      {hkList.filter(hk => hk > 2).map(hk => <option key={hk} value={hk}>Học kỳ {hk}</option>)}
-                    </select>
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                      <input value={yearSearch} onChange={e => setYearSearch(e.target.value)}
-                        placeholder="Tìm môn học, mã môn..."
-                        className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" style={INTER} />
-                    </div>
-                    {(yearHkFilter !== "all" || yearSearch) && (
-                      <button onClick={() => { setYearHkFilter("all"); setYearSearch(""); }}
-                        className="px-3 py-2 rounded-lg border border-border text-xs font-semibold text-muted-foreground bg-white hover:bg-muted transition-colors" style={PJS}>
-                        Xóa lọc
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Course table */}
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                    {visibleCourses.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-20 gap-3 bg-card rounded-xl border border-border">
-                        <BookOpen className="w-10 h-10 text-muted-foreground opacity-30" />
-                        <p className="text-sm font-semibold text-muted-foreground" style={PJS}>Chưa có môn học phần nào</p>
-                        <p className="text-xs text-muted-foreground" style={INTER}>Không có dữ liệu môn học cho bộ lọc này.</p>
-                      </div>
-                    ) : (
-                      <div className="bg-card rounded-xl border border-border overflow-hidden">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-xs" style={{ minWidth: 720 }}>
-                            <thead>
-                              <tr style={{ background: "var(--primary)" }}>
-                                {["STT","Học kỳ","Mã MH","Tên môn học","TC","Số tiết","Mã nhóm","Tên nhóm","Khoa",""].map(h => (
-                                  <th key={h} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {visibleCourses.map((c, ci) => (
-                                <tr key={c.id} className="border-b border-border last:border-b-0 hover:brightness-[0.97] transition-all"
-                                  style={{ background: ci % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
-                                  <td className="pl-4 pr-3 py-2.5 text-muted-foreground">{ci + 1}</td>
-                                  <td className="px-3 py-2.5 text-center font-semibold" style={{ color: "var(--primary)", ...PJS }}>HK{c.hocKy}</td>
-                                  <td className="px-3 py-2.5 font-semibold text-foreground" style={PJS}>{c.maMon}</td>
-                                  <td className="px-3 py-2.5 font-medium text-foreground max-w-[200px] truncate" style={PJS}>{c.tenMon}</td>
-                                  <td className="px-3 py-2.5 text-center text-muted-foreground">{c.soTC}</td>
-                                  <td className="px-3 py-2.5 text-center text-muted-foreground">{c.soTiet ?? "—"}</td>
-                                  <td className="px-3 py-2.5 font-mono text-muted-foreground">{c.maNhom || "—"}</td>
-                                  <td className="px-3 py-2.5 text-muted-foreground">{c.tenNhom || "—"}</td>
-                                  <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{c.khoa}</td>
-                                  <td className="px-3 py-2.5">
-                                    <div className="flex items-center gap-1">
-                                      <button onClick={() => setEditYearCourse(c)}
-                                        className="p-1.5 rounded-md hover:bg-blue-50 text-muted-foreground hover:text-blue-600 transition-colors" title="Chỉnh sửa">
-                                        <Pencil className="w-3.5 h-3.5" />
-                                      </button>
-                                      <button onClick={() => setCourses(prev => prev.filter(x => x.id !== c.id))}
-                                        className="p-1.5 rounded-md hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors" title="Xóa môn học">
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })() : (
-            <div className="flex flex-col gap-4">
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+        {/* Môn học & Điểm tab */}
+        {activeTab === "courses" && (
+          <>
+            <div className="flex gap-3 mb-5">
               {[
-                { label: "Đang mở",  val: yOpen,   bg: "#f0fdf4", bord: "#bbf7d0", col: "#16a34a" },
-                { label: "Đã đóng",  val: yClosed, bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280" },
-              ].map(s => (
-                <div key={s.label} className="rounded-xl border px-4 py-3 flex items-center gap-3"
-                  style={{ background: s.bg, borderColor: s.bord }}>
-                  <span className="text-2xl font-bold" style={{ color: s.col, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{s.val}</span>
-                  <span className="text-xs text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{s.label}</span>
-                </div>
-              ))}
+                { label: "Đang chờ nộp điểm", val: pending,  bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280", status: "pending"  as GradeStatus },
+                { label: "Đã tải lên",         val: uploaded, bg: "#fffbeb", bord: "#fde68a", col: "#b45309", status: "uploaded" as GradeStatus },
+                { label: "Đã khóa & công bố",  val: locked,   bg: "#f0fdf4", bord: "#bbf7d0", col: "#16a34a", status: "locked"   as GradeStatus },
+              ].map(s => {
+                const active = filterStatus === s.status;
+                return (
+                  <button key={s.label} onClick={() => setFilterStatus(active ? "all" : s.status)}
+                          className="flex-1 rounded-xl border px-4 py-2.5 flex items-center gap-2.5 transition-all hover:shadow-md"
+                          style={{ background: s.bg, borderColor: active ? s.col : s.bord, boxShadow: active ? `0 0 0 2px ${s.col}33` : undefined }}>
+                    <span className="font-bold leading-none text-[20px]" style={{ ...PJS, color: s.col }}>{s.val}</span>
+                    <span className="text-xs leading-none" style={{ ...INTER, color: active ? s.col : "#6b7280" }}>{s.label}{active ? " ✓" : ""}</span>
+                  </button>
+                );
+              })}
             </div>
-            {/* Toolbar */}
-            <div className="flex items-center justify-between flex-shrink-0">
-              <p className="text-xs text-muted-foreground" style={INTER}>{academicYears.length} năm học trong hệ thống</p>
-              <button onClick={() => setYearModal("new")}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <Plus className="w-4 h-4" /> Thêm năm học
-              </button>
+
+            {/* Filter Bar */}
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <select 
+                value={filterNamHoc} 
+                onChange={e => setFilterNamHoc(e.target.value)} 
+                className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" 
+                style={PJS}
+              >
+                <option value="all">Tất cả năm học</option>
+                {namHocOptions.filter(n => n !== "all").map(n => (
+                  <option key={n} value={n}>Năm học {n}</option>
+                ))}
+              </select>
+
+              <select 
+                value={String(filterHK)} 
+                onChange={e => setFilterHK(e.target.value === "all" ? "all" : Number(e.target.value))} 
+                className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" 
+                style={PJS}
+              >
+                <option value="all">Tất cả học kỳ</option>
+                <option value="1">Học kỳ 1</option>
+                <option value="2">Học kỳ 2</option>
+                <option value="3">Học kỳ 3</option>
+              </select>
+
+              <select 
+                value={filterStatus} 
+                onChange={e => setFilterStatus(e.target.value as GradeStatus | "all")} 
+                className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" 
+                style={PJS}
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="pending">Đang chờ</option>
+                <option value="uploaded">Đã tải lên</option>
+                <option value="locked">Đã khóa</option>
+              </select>
+
+              <select 
+                value={filterKhoa} 
+                onChange={e => setFilterKhoa(e.target.value)} 
+                className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" 
+                style={PJS}
+              >
+                <option value="all">Tất cả khoa</option>
+                {khoaOptions.map(k => (
+                  <option key={k} value={k}>{k}</option>
+                ))}
+              </select>
             </div>
-            {/* Table */}
+
+            {/* Course Table */}
             <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
-              <table className="w-full text-xs" style={{ minWidth: 680 }}>
+              <table className="w-full text-xs" style={{ minWidth: 780 }}>
                 <thead>
-                  <tr style={{ background: "var(--primary)" }}>
-                    {["Năm học", "Mã", "Ngày bắt đầu", "Ngày kết thúc", "Số HK", "Môn học phần", "Trạng thái", ""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-white font-semibold whitespace-nowrap" style={PJS}>{h}</th>
+                  <tr style={{ background: PRIMARY }}>
+                    {["STT","Mã MH","Tên môn học","Lớp","TC","Khoa","Giảng viên","Số SV","Trạng thái","Ngày nộp"].map(h => (
+                      <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {academicYears.map((y, i) => {
-                    const monCount = courses.filter(c => c.namHoc === y.id).length;
-                    const stCfg = {
-                      open:   { bg: "#f0fdf4", text: "#16a34a", dot: "#22c55e", label: "Mở"   },
-                      closed: { bg: "#f9fafb", text: "#6b7280", dot: "#9ca3af", label: "Đóng" },
-                    }[y.status];
+                  {loading ? (
+                    <tr><td colSpan={10} className="text-center py-16 text-muted-foreground" style={INTER}>Đang tải dữ liệu từ CSDL...</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={10} className="text-center py-16 text-muted-foreground" style={INTER}>Không tìm thấy môn học nào</td></tr>
+                  ) : filtered.map((c, i) => {
+                    const clickable = c.status !== "pending";
+                    const rowBg = i % 2 === 1 ? "#dde4f5" : "var(--card)";
                     return (
-                      <tr key={y.id} onClick={() => { setSelectedYear(y); setYearHkFilter("all"); setYearSearch(""); }}
-                        className="border-b border-border cursor-pointer hover:brightness-[0.97] transition-all"
-                        style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
-                        <td className="px-4 py-3 font-bold text-foreground" style={PJS}>{y.label}</td>
-                        <td className="px-4 py-3 font-mono text-muted-foreground">{y.id}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{y.ngayBatDau || "—"}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{y.ngayKetThuc || "—"}</td>
-                        <td className="px-4 py-3 text-center text-muted-foreground">{y.soHocKy}</td>
-                        <td className="px-4 py-3 text-center font-semibold"
-                          style={{ color: monCount > 0 ? "var(--primary)" : "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
-                          {monCount > 0 ? monCount : "—"}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                            style={{ background: stCfg.bg, color: stCfg.text }}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: stCfg.dot }} />
-                            {stCfg.label}
+                      <tr key={c.id} className={`border-b border-border transition-colors ${clickable ? "cursor-pointer hover:brightness-95" : ""}`}
+                          style={{ background: rowBg }} onClick={() => openDetail(c)}>
+                        <td className="pl-4 pr-3 py-3 text-muted-foreground">{i + 1}</td>
+                        <td className="px-3 py-3 font-semibold text-foreground" style={PJS}>{c.maMon}</td>
+                        <td className="px-3 py-3"><span className="font-medium text-foreground" style={PJS}>{c.tenMon}</span></td>
+                        <td className="px-3 py-3 text-muted-foreground">{c.lop}</td>
+                        <td className="px-3 py-3 text-center text-muted-foreground">{c.soTC}</td>
+                        <td className="px-3 py-3">
+                          <span className="text-xs px-2 py-0.5 rounded-full border bg-muted text-primary whitespace-nowrap">
+                            {c.khoa}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => setYearModal(y)} title="Chỉnh sửa"
-                              className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            {y.status !== "open" && (
-                              <button onClick={() => setCurrentYear(y.id)} title="Đặt làm năm học hiện tại"
-                                className="p-1.5 rounded-md hover:bg-green-50 transition-colors text-muted-foreground hover:text-green-600">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                            {y.status !== "closed" && (
-                              <button onClick={() => closeYear(y.id)} title="Đóng năm học"
-                                className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-gray-500">
-                                <Lock className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
+                        <td className="px-3 py-3 text-muted-foreground whitespace-nowrap">{c.giangVien}</td>
+                        <td className="px-3 py-3 text-center text-muted-foreground">{c.soSV}</td>
+                        <td className="px-3 py-3">{statusBadge(c.status, true)}</td>
+                        <td className="px-3 py-3 text-muted-foreground">{c.ngayNopDiem ?? "—"}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-            </div>
-            )}
-          </div>
+            <p className="text-xs text-muted-foreground mt-2 text-right" style={INTER}>
+              Hiển thị {filtered.length} môn học phần từ CSDL &mdash; nhấn vào hàng <span className="font-medium text-amber-600">Đã tải lên</span> hoặc <span className="font-medium text-green-600">Đã khóa</span> để xem bảng điểm chi tiết
+            </p>
+          </>
         )}
 
-        {/* ─── Môn học & Điểm tab ─────────────────────────────────────────── */}
-        {activeTab === "courses" && <>
-        <div className="flex gap-3 mb-5">
-          {[
-            { label: "Đang chờ nộp điểm", val: pending,  bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280", status: "pending"  as GradeStatus },
-            { label: "Đã tải lên",         val: uploaded, bg: "#fffbeb", bord: "#fde68a", col: "#b45309", status: "uploaded" as GradeStatus },
-            { label: "Đã khóa & công bố",  val: locked,   bg: "#f0fdf4", bord: "#bbf7d0", col: "#16a34a", status: "locked"   as GradeStatus },
-          ].map(s => {
-            const active = filterStatus === s.status;
-            return (
-              <button key={s.label} onClick={() => setFilterStatus(active ? "all" : s.status)}
-                      className="flex-1 rounded-xl border px-4 py-2.5 flex items-center gap-2.5 transition-all hover:shadow-md"
-                      style={{ background: s.bg, borderColor: active ? s.col : s.bord, boxShadow: active ? `0 0 0 2px ${s.col}33` : undefined }}>
-                <span className="font-bold leading-none text-[20px]" style={{ ...PJS, color: s.col }}>{s.val}</span>
-                <span className="text-xs leading-none" style={{ ...INTER, color: active ? s.col : "#6b7280" }}>{s.label}{active ? " ✓" : ""}</span>
-              </button>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <select value={filterNamHoc} onChange={e => setFilterNamHoc(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
-            {namHocOptions.map(n => <option key={n} value={n}>Năm học {n}</option>)}
-          </select>
-          <select value={String(filterHK)} onChange={e => setFilterHK(e.target.value === "all" ? "all" : Number(e.target.value))} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
-            <option value="all">Tất cả học kỳ</option>
-            {[1,2,3].map(h => <option key={h} value={h}>Học kỳ {h}</option>)}
-          </select>
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as GradeStatus | "all")} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
-            <option value="all">Tất cả trạng thái</option>
-            <option value="pending">Đang chờ</option>
-            <option value="uploaded">Đã tải lên</option>
-            <option value="locked">Đã khóa</option>
-          </select>
-          <select value={filterKhoa} onChange={e => setFilterKhoa(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" style={PJS}>
-            <option value="all">Tất cả khoa</option>
-            {khoaOptions.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
-        </div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm môn học, mã MH, giảng viên..."
-              className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" style={INTER} />
-          </div>
-          <button onClick={() => { setSearch(""); setFilterHK(3); setFilterNamHoc("25-26"); setFilterStatus("all"); setFilterKhoa("all"); }}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground transition-colors px-2 py-2" style={PJS}>
-            <RotateCcw className="w-3.5 h-3.5" /> Đặt lại
-          </button>
-        </div>
-        <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
-          <table className="w-full text-xs" style={{ minWidth: 780 }}>
-            <thead>
-              <tr style={{ background: PRIMARY }}>
-                {["STT","Mã MH","Tên môn học","Lớp","TC","Khoa","Giảng viên","Số SV","Trạng thái","Ngày nộp"].map(h => (
-                  <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
+        {/* Năm học tab */}
+        {activeTab === "years" && (
+          <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+            {yearModal !== null && (
+              <AcademicYearModal year={yearModal === "new" ? null : yearModal} onClose={() => setYearModal(null)} onSave={saveYear} />
+            )}
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+                {[
+                  { label: "Đang mở",  val: yOpen,   bg: "#f0fdf4", bord: "#bbf7d0", col: "#16a34a" },
+                  { label: "Đã đóng",  val: yClosed, bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280" },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl border px-4 py-3 flex items-center gap-3" style={{ background: s.bg, borderColor: s.bord }}>
+                    <span className="text-2xl font-bold" style={{ color: s.col, ...PJS }}>{s.val}</span>
+                    <span className="text-xs text-muted-foreground" style={PJS}>{s.label}</span>
+                  </div>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr><td colSpan={10} className="text-center py-16 text-muted-foreground" style={INTER}>Không tìm thấy kết quả</td></tr>
-              ) : filtered.map((c, i) => {
-                const clickable = c.status !== "pending";
-                const rowBg = i % 2 === 1 ? "#dde4f5" : "var(--card)";
-                return (
-                  <tr key={c.id} className={`border-b border-border transition-colors ${clickable ? "cursor-pointer hover:brightness-95" : ""}`}
-                      style={{ background: rowBg }} onClick={() => openDetail(c)}>
-                    <td className="pl-4 pr-3 py-3 text-muted-foreground">{i + 1}</td>
-                    <td className="px-3 py-3 font-semibold text-foreground" style={PJS}>{c.maMon}</td>
-                    <td className="px-3 py-3"><span className="font-medium text-foreground" style={PJS}>{c.tenMon}</span></td>
-                    <td className="px-3 py-3 text-muted-foreground">{c.lop}</td>
-                    <td className="px-3 py-3 text-center text-muted-foreground">{c.soTC}</td>
-                    <td className="px-3 py-3">
-                      <button onClick={e => { e.stopPropagation(); setFilterKhoa(filterKhoa === c.khoa ? "all" : c.khoa); }}
-                        className="text-xs px-2 py-0.5 rounded-full border transition-colors whitespace-nowrap"
-                        style={{ borderColor: filterKhoa === c.khoa ? PRIMARY : "#e5e7eb", color: filterKhoa === c.khoa ? PRIMARY : "#6b7280", background: filterKhoa === c.khoa ? "#eef1fb" : "transparent" }}>
-                        {c.khoa}
-                      </button>
-                    </td>
-                    <td className="px-3 py-3 text-muted-foreground whitespace-nowrap">{c.giangVien}</td>
-                    <td className="px-3 py-3 text-center text-muted-foreground">{c.soSV}</td>
-                    <td className="px-3 py-3">{statusBadge(c.status, true)}</td>
-                    <td className="px-3 py-3 text-muted-foreground">{c.ngayNopDiem ?? "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p className="text-xs text-muted-foreground mt-2 text-right" style={INTER}>
-          {filtered.length} môn học &mdash; nhấn vào hàng <span className="font-medium text-amber-600">Đã tải lên</span> hoặc <span className="font-medium text-green-600">Đã khóa</span> để xem chi tiết
-        </p>
-        </>}
+              </div>
+              <div className="flex items-center justify-between flex-shrink-0">
+                <p className="text-xs text-muted-foreground" style={INTER}>{academicYears.length} năm học trong hệ thống</p>
+                <button onClick={() => setYearModal("new")}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                  style={{ background: "var(--primary)", ...PJS }}>
+                  <Plus className="w-4 h-4" /> Thêm năm học
+                </button>
+              </div>
+              <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
+                <table className="w-full text-xs" style={{ minWidth: 680 }}>
+                  <thead>
+                    <tr style={{ background: "var(--primary)" }}>
+                      {["Năm học", "Mã", "Ngày bắt đầu", "Ngày kết thúc", "Số HK", "Trạng thái", ""].map(h => (
+                        <th key={h} className="px-4 py-3 text-left text-white font-semibold whitespace-nowrap" style={PJS}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {academicYears.map((y, i) => (
+                      <tr key={y.id} className="border-b border-border hover:brightness-[0.97] transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                        <td className="px-4 py-3 font-bold text-foreground" style={PJS}>{y.label}</td>
+                        <td className="px-4 py-3 font-mono text-muted-foreground">{y.id}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{y.ngayBatDau || "—"}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{y.ngayKetThuc || "—"}</td>
+                        <td className="px-4 py-3 text-center text-muted-foreground">{y.soHocKy}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${y.status === "open" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                            {y.status === "open" ? "Mở" : "Đóng"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => setYearModal(y)} title="Chỉnh sửa" className="p-1.5 rounded-md hover:bg-muted text-muted-foreground">
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            {y.status !== "open" && (
+                              <button onClick={() => setCurrentYear(y.id)} title="Mở năm học" className="p-1.5 rounded-md hover:bg-green-50 text-green-600">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                            {y.status !== "closed" && (
+                              <button onClick={() => closeYear(y.id)} title="Đóng năm học" className="p-1.5 rounded-md hover:bg-muted text-gray-500">
+                                <Lock className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
+  // View Chi tiết bảng điểm của Lớp học phần
   const course = selectedCourse!;
   const isLocked = course.status === "locked";
   const filteredGrades = grades.filter(g => {
@@ -1876,7 +1997,7 @@ function AdminAcademicSection() {
               <h2 className="text-base font-bold text-foreground" style={PJS}>{course.tenMon}</h2>
               {statusBadge(course.status, true)}
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5" style={INTER}>{course.maMon} &middot; Lớp {course.lop} &middot; {course.giangVien} &middot; HK{course.hocKy} {course.namHoc}</p>
+            <p className="text-xs text-muted-foreground mt-0.5" style={INTER}>{course.maMon} &middot; Lớp {course.lop} &middot; {course.giangVien} &middot; HK{course.hocKy}</p>
           </div>
         </div>
         {!isLocked ? (
@@ -1919,7 +2040,9 @@ function AdminAcademicSection() {
             </tr>
           </thead>
           <tbody>
-            {filteredGrades.length === 0 ? (
+            {loading ? (
+              <tr><td colSpan={9} className="text-center py-12 text-muted-foreground" style={INTER}>Đang tải bảng điểm từ CSDL...</td></tr>
+            ) : filteredGrades.length === 0 ? (
               <tr><td colSpan={9} className="text-center py-12 text-muted-foreground" style={INTER}>Không tìm thấy sinh viên</td></tr>
             ) : filteredGrades.map((g, i) => (
               <tr key={g.mssv} className="border-b border-border group" style={{ background: "var(--card)" }}>
@@ -1956,11 +2079,11 @@ function AdminAcademicSection() {
         </table>
       </div>
       <div className="flex justify-end mt-2 flex-shrink-0">
-        <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground transition-colors hover:bg-muted" style={{ background: "#fff", ...PJS }}>
+        <button onClick={handleExportGrades} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground transition-colors hover:bg-muted" style={{ background: "#fff", ...PJS }}>
           <Download className="w-3.5 h-3.5" /> Xuất Excel
         </button>
       </div>
-      {editTarget && <GradeEditModal student={editTarget} onClose={() => setEditTarget(null)} onSave={updated => { handleSaveGrade(updated); setEditTarget(null); }} />}
+      {editTarget && <GradeEditModal student={editTarget} courseId={course.id} onClose={() => setEditTarget(null)} onSave={updated => { handleSaveGrade(updated); setEditTarget(null); }} />}
       {confirmLock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setConfirmLock(false)}>
           <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
@@ -1977,7 +2100,6 @@ function AdminAcademicSection() {
     </div>
   );
 }
-
 // ─── Admin: Schedule Section ──────────────────────────────────────────────────
 type AdminExamEntry = ExamEntry & { id: number };
 
@@ -2572,10 +2694,26 @@ function AdminNotificationsSection() {
   }
   function deleteNotif(id: number) { setNotifs(prev => prev.filter(n => n.id !== id)); setDeleteTarget(null); if (selected?.id === id) setSelected(null); }
 
-  const statusBadge = (s: "draft" | "sent") =>
-    s === "draft"
-      ? <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground" style={PJS}>Nháp</span>
-      : <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600" style={PJS}>Đã gửi</span>;
+  const statusBadge = (status: any, small = false) => {
+    const raw = String(status || "").toLowerCase();
+    let cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
+
+    if (raw.includes("lock") || raw.includes("close") || raw.includes("khóa") || raw.includes("đã khóa")) {
+      cfg = { bg: "#f0fdf4", text: "#16a34a", label: "Đã khóa", dot: "#22c55e" };
+    } else if (raw.includes("upload") || raw.includes("tải") || raw.includes("nộp") || raw.includes("open")) {
+      cfg = { bg: "#fffbeb", text: "#b45309", label: "Đã tải lên", dot: "#f59e0b" };
+    } else {
+      cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
+    }
+
+    return (
+      <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${small ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-xs"}`}
+            style={{ background: cfg.bg, color: cfg.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
+        {cfg.label}
+      </span>
+    );
+  };
 
   const DeleteModal = () => deleteTarget ? (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
