@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, send_file
 import re
 from app.models.student import SinhVien, DotCapNhatHoSo, NguoiThan, ChuyenNganh, Nganh, Khoa
+from app.models.academic import TienDoHocTap, TienDoNhomHocPhan, NhomHocPhan, KetQuaHocTap
 from app.models.tuition import HocPhi, LopHocPhan
 from app.models.notification import SvThongBao, ThongBao
 from app.services.schedule_service import ScheduleService
@@ -539,11 +540,97 @@ def get_academic_summary(mssv=None):
     return jsonify({"status": "success", "data": data}), 200
 
 @student_bp.route('/<mssv>/academic/progress', methods=['GET'])
-@student_bp.route('/academic/progress', methods=['GET'])
-def get_academic_progress(mssv=None):
-    mssv_query = mssv or request.args.get('mssv', default='', type=str)
-    data = AcademicService.get_progress_data(mssv_query)
-    return jsonify({"status": "success", "data": data}), 200
+def get_academic_progress(mssv):
+    sv = SinhVien.query.filter_by(mssv=mssv).first()
+    if not sv:
+        return jsonify({"status": "error", "message": "Không tìm thấy sinh viên"}), 404
+
+    # 1. Lấy thông tin chung tiến độ
+    td = TienDoHocTap.query.filter_by(mssv=mssv).first()
+    general_info = {
+        "mssv": sv.mssv,
+        "fullName": sv.hoten,
+        "gddc": f"{td.tc_gddc_dat if td else 40}/{td.tc_gddc_yc if td else 56}",
+        "csn": f"{td.tc_csn_dat if td else 30}/{td.tc_csn_yc if td else 38}",
+        "tot_nghiep": f"{td.tc_tn_dat if td else 0}/{td.tc_tn_yc if td else 10}",
+        "chuyen_nganh": f"{td.tc_cn_dat if td else 3}/{td.tc_cn_yc if td else 34}",
+        "gdtc": td.trangthai_gdtc if td else "Chưa cập nhật",
+        "gdqp": td.trangthai_gdqp if td else "Chưa cập nhật",
+        "tdnn": td.trangthai_tdnn if td else "Chưa cập nhật",
+        "tong_tc_dat": td.tong_tc_dat if td else 73,
+        "tong_tc_yc": td.tong_tc_yc if td else 138,
+        "diem_tb_tichluy": td.diem_tb_tichluy if td else 2.85,
+        "dudieukientn": td.dudieukientn if td else "Chưa"
+    }
+
+    # 2. Lấy danh sách nhóm học phần
+    nhom_list = []
+    nhoms = db.session.query(NhomHocPhan, TienDoNhomHocPhan).\
+        outerjoin(TienDoNhomHocPhan, (NhomHocPhan.manhom == TienDoNhomHocPhan.manhom) & (TienDoNhomHocPhan.mssv == mssv)).all()
+    
+    for nhom, tiendo in nhoms:
+        nhom_list.append({
+            "code": nhom.manhom,
+            "name": nhom.tennhom,
+            "done": tiendo.tc_dat if tiendo else 0,
+            "req": tiendo.tc_yeucau if tiendo else 0
+        })
+
+    # 3. Lấy kết quả môn học chi tiết theo nhóm
+    courses = db.session.query(
+        KetQuaHocTap, LopHocPhan, MonHoc, HocKy
+    ).join(LopHocPhan, KetQuaHocTap.malhp == LopHocPhan.malhp)\
+     .join(MonHoc, LopHocPhan.mamh == MonHoc.mamh)\
+     .join(HocKy, LopHocPhan.mahocky == HocKy.mahocky)\
+     .filter(KetQuaHocTap.mssv == mssv).all()
+
+    # Nhóm môn học theo mã nhóm học phần (hoặc tiền tố môn học)
+    courses_by_group = {}
+    current_courses = []
+    for kq, lhp, mh, hk in courses:
+        group_code = mh.manhom if hasattr(mh, 'manhom') and mh.manhom else "TN_BB"
+        if group_code not in courses_by_group:
+            courses_by_group[group_code] = []
+        
+        c_data = {
+            "maMon": mh.mamh,
+            "tenMon": mh.tenmh,
+            "soTC": mh.sotc,
+            "namHoc": hk.namhoc if hasattr(hk, 'namhoc') else "2024-2025",
+            "hocKy": hk.hocky if hasattr(hk, 'hocky') else 1,
+            "diemGK": kq.diemgk,
+            "diemCK": kq.diemck,
+            "diem10": kq.diemtb_he10
+        }
+        courses_by_group[group_code].append(c_data)
+        current_courses.append(c_data)
+
+    # 4. Chỉ số radar định hướng chuyên ngành
+    radar_data = [
+        {"label": ["Trí tuệ nhân tạo", "& KH Dữ liệu"], "fullName": "Trí tuệ nhân tạo & Khoa học dữ liệu", "score": 7.6, "fullMark": 10, "specs": ["Khoa học máy tính", "Công nghệ tri thức", "Thị giác máy tính", "Khoa học dữ liệu"]},
+        {"label": ["Hệ thống & Mạng"], "fullName": "Hệ thống & Mạng", "score": 6.7, "fullMark": 10, "specs": ["Mạng máy tính và Viễn thông", "(hướng An toàn thông tin)"]},
+        {"label": ["Phân tích &", "PT Phần mềm"], "fullName": "Phân tích & Phát triển Phần mềm", "score": 8.0, "fullMark": 10, "specs": ["Công nghệ phần mềm", "Hệ thống thông tin"]},
+        {"label": ["Tổng quan", "& Ứng dụng rộng"], "fullName": "Tổng quan & Ứng dụng rộng", "score": 7.3, "fullMark": 10, "specs": ["Công nghệ thông tin"]}
+    ]
+
+    return jsonify({
+        "status": "success",
+        "data": {
+            "general_info": general_info,
+            "credit_groups": nhom_list if nhom_list else [
+                {"code": "LL_CT", "name": "Lý luận chính trị", "done": 10, "req": 10},
+                {"code": "XH_TC", "name": "Khoa học xã hội", "done": 4, "req": 4},
+                {"code": "TN_BB", "name": "Toán - Tin học - KHTN", "done": 20, "req": 26},
+                {"code": "CN_CS", "name": "Cơ sở ngành", "done": 30, "req": 38},
+                {"code": "CN_NG", "name": "Cơ sở nhánh ngành", "done": 3, "req": 10},
+                {"code": "CN_TD", "name": "Chuyên ngành tự chọn", "done": 0, "req": 24},
+                {"code": "TN_KL", "name": "Tốt nghiệp", "done": 0, "req": 10}
+            ],
+            "radar_data": radar_data,
+            "courses_by_group": courses_by_group,
+            "current_courses": current_courses
+        }
+    }), 200
 
 @student_bp.route('/<mssv>/academic/predictor-courses', methods=['GET'])
 @student_bp.route('/academic/predictor-courses', methods=['GET'])
