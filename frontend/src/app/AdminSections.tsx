@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   User, BookOpen, ClipboardList, CalendarDays, CreditCard, Bell,
   ChevronRight, LogOut, X, ChevronsLeft, ChevronsRight,
-  CheckCircle2, Search, Filter, Download, Upload, Plus, Pencil,
+  CheckCircle2, Search, Filter, Download, Upload, Plus, Pencil, Eye, EyeOff,
   Users, BarChart2, Shield, Trash2, Check,
   ArrowLeft, Lock, RotateCcw, Edit2,
 } from "lucide-react";
@@ -2327,574 +2327,638 @@ function AdminScheduleSection() {
     </div>
   );
 }
-// ─── Admin: Notifications Section ────────────────────────────────────────────
-type AdminNotif = Notification & { status: "draft" | "sent" };
-
-function NotifComposeModal({ notif, onClose, onSave }: { notif: AdminNotif | null; onClose: () => void; onSave: (n: AdminNotif) => void; }) {
-  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-  const iCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card transition-colors";
-  const blankNotif = (): AdminNotif => ({ id: Date.now(), title: "", body: "", time: "Vừa xong", read: false, khoa: "", phong: "", status: "draft" });
-  const [form, setForm] = useState<AdminNotif>(notif ?? blankNotif());
-  const set = (k: keyof AdminNotif, v: string) => setForm(p => ({ ...p, [k]: v }));
-  const khoaOpts = NOTIF_KHOA_OPTS;
-  const phongOpts = NOTIF_PHONG_OPTS;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0" style={{ background: "var(--primary)" }}>
-          <span className="font-bold text-white text-sm" style={PJS}>{notif ? "Chỉnh sửa thông báo" : "Tạo thô text-[#1e3a5f]ng báo mới"}</span>
-          <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
-        </div>
-        <div className="overflow-y-auto flex-1 p-6 space-y-4">
-          <div><label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Tiêu đề <span className="text-red-400">*</span></label><input value={form.title} onChange={e => set("title", e.target.value)} className={iCls} placeholder="Nhập tiêu đề thông báo..." /></div>
-          <div><label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Nội dung <span className="text-red-400">*</span></label><textarea value={form.body} onChange={e => set("body", e.target.value)} rows={5} className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card resize-none transition-colors" placeholder="Nhập nội dung thông báo..." style={{ fontFamily: "'Inter', sans-serif" }} /></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Khoa / Bộ môn</label><select value={form.khoa} onChange={e => set("khoa", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}>{khoaOpts.map(k => <option key={k} value={k}>{k || "— Không chọn —"}</option>)}</select></div>
-            <div><label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Phòng / Ban</label><select value={form.phong} onChange={e => set("phong", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}>{phongOpts.map(p => <option key={p} value={p}>{p || "— Không chọn —"}</option>)}</select></div>
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Trạng thái</label>
-            <div className="flex gap-2">
-              {(["draft","sent"] as const).map(s => (
-                <button key={s} onClick={() => set("status", s)}
-                  className="flex-1 py-2 rounded-lg border text-xs font-bold transition-all"
-                  style={{ borderColor: form.status === s ? "#11284D" : "#e2e8f0", background: "var(--card)", color: form.status === s ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
-                  {s === "draft" ? "📝 Lưu nháp" : "📤 Gửi ngay"}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-card transition-colors" style={PJS}>Huỷ</button>
-          <button onClick={() => { if (form.title.trim() && form.body.trim()) { onSave(form); onClose(); } }}
-            disabled={!form.title.trim() || !form.body.trim()}
-            className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity"
-            style={{ background: "var(--primary)", ...PJS }}>
-            {form.status === "draft" ? "Lưu nháp" : "Gửi thông báo"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+// ─── Admin: Notifications Section (Quản lý Thông báo) ────────────────────────
 function AdminNotificationsSection() {
-  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-  const [notifs, setNotifs] = useState<AdminNotif[]>(NOTIFICATIONS.map(n => ({ ...n, status: "sent" as const })));
-  const [compose, setCompose] = useState<AdminNotif | null | "new">(null);
-  const [deleteTarget, setDeleteTarget] = useState<AdminNotif | null>(null);
-  const [selected, setSelected] = useState<AdminNotif | null>(null);
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"" | "draft" | "sent">("");
-  const [filterKhoa, setFilterKhoa] = useState("");
-  const [filterPhong, setFilterPhong] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
+  const [selectedDept, setSelectedDept] = useState("all");
+  const [createModal, setCreateModal] = useState(false);
+  const [viewItem, setViewItem] = useState<any | null>(null);
+  const [editItem, setEditItem] = useState<any | null>(null);
 
-  useEffect(() => {
-    function h(e: MouseEvent) { if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false); }
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
-
-  const allKhoa  = Array.from(new Set(notifs.map(n => n.khoa).filter(Boolean))).sort();
-  const allPhong = Array.from(new Set(notifs.map(n => n.phong).filter(Boolean))).sort();
-  const activeFilters = [filterStatus, filterKhoa, filterPhong].filter(Boolean).length;
-
-  const filtered = notifs.filter(n => {
-    const q = search.trim().toLowerCase();
-    const matchQ = !q || n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q);
-    const matchS = !filterStatus || n.status === filterStatus;
-    const matchK = !filterKhoa  || n.khoa === filterKhoa;
-    const matchP = !filterPhong || n.phong === filterPhong;
-    return matchQ && matchS && matchK && matchP;
-  });
-
-  function saveNotif(n: AdminNotif) {
-    setNotifs(prev => {
-      const exists = prev.find(x => x.id === n.id);
-      const withTime = { ...n, time: exists ? n.time : new Date().toLocaleDateString("vi-VN") + " vừa xong" };
-      return exists ? prev.map(x => x.id === n.id ? withTime : x) : [withTime, ...prev];
-    });
-  }
-  function deleteNotif(id: number) { setNotifs(prev => prev.filter(n => n.id !== id)); setDeleteTarget(null); if (selected?.id === id) setSelected(null); }
-
-  const statusBadge = (status: any, small = false) => {
-    const raw = String(status || "").toLowerCase();
-    let cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
-
-    if (raw.includes("lock") || raw.includes("close") || raw.includes("khóa") || raw.includes("đã khóa")) {
-      cfg = { bg: "#f0fdf4", text: "#16a34a", label: "Đã khóa", dot: "#22c55e" };
-    } else if (raw.includes("upload") || raw.includes("tải") || raw.includes("nộp") || raw.includes("open")) {
-      cfg = { bg: "#fffbeb", text: "#b45309", label: "Đã tải lên", dot: "#f59e0b" };
-    } else {
-      cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
+  // 1. Fetch danh sách thông báo từ Backend
+  const fetchNotifications = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/notifications?department=${encodeURIComponent(selectedDept)}&search=${encodeURIComponent(search)}`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        setNotifications(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch thông báo:", e);
+    } finally {
+      setLoading(false);
     }
-
-    return (
-      <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${small ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-xs"}`}
-            style={{ background: cfg.bg, color: cfg.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
-        {cfg.label}
-      </span>
-    );
   };
 
-  const DeleteModal = () => deleteTarget ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}><Trash2 className="w-7 h-7 text-red-400" /></div>
-        <h3 className="font-bold text-base mb-2" style={PJS}>Xóa thông báo?</h3>
-        <p className="text-sm text-muted-foreground mb-1 line-clamp-2">{deleteTarget.title}</p>
-        <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
-        <div className="flex gap-3 w-full">
-          <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>Hủy</button>
-          <button onClick={() => deleteNotif(deleteTarget.id)} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
-        </div>
-      </div>
-    </div>
-  ) : null;
+  useEffect(() => {
+    fetchNotifications();
+  }, [selectedDept, search]);
 
-  if (selected) {
-    return (
-      <div className="flex-1 flex flex-col min-h-0 max-w-3xl mx-auto w-full gap-4">
-        {compose !== null && <NotifComposeModal notif={compose === "new" ? null : compose} onClose={() => setCompose(null)} onSave={saveNotif} />}
-        <DeleteModal />
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <button onClick={() => setSelected(null)} className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-70" style={{ color: "var(--primary)", ...PJS }}>
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách
-          </button>
-        </div>
-        <div className="bg-card rounded-xl border border-border overflow-hidden flex-1">
-          <div className="px-5 py-3 border-b border-border flex items-center justify-between" style={{ background: "var(--primary)" }}>
-            <h2 className="text-sm font-semibold text-white" style={PJS}>Chi tiết thông báo</h2>
-            <div className="flex gap-2">
-              <button onClick={() => setCompose(selected)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/15 text-white text-xs font-semibold hover:bg-card/25 transition-colors" style={PJS}><Pencil className="w-3.5 h-3.5" /> Chỉnh sửa</button>
-              <button onClick={() => setDeleteTarget(selected)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card/15 text-white text-xs font-semibold hover:bg-red-500/80 transition-colors" style={PJS}><Trash2 className="w-3.5 h-3.5" /> Xóa</button>
-            </div>
-          </div>
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              {statusBadge(selected.status)}
-              {selected.khoa  && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-muted text-primary">{selected.khoa}</span>}
-              {selected.phong && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#fdf4ff] text-[#7c3aed]">{selected.phong}</span>}
-              {!selected.read && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-card text-accent">Chưa đọc</span>}
-            </div>
-            <h3 className="font-bold text-base mb-2 text-foreground" style={PJS}>{selected.title}</h3>
-            <p className="text-xs text-muted-foreground mb-4">{selected.time}</p>
-            <p className="text-sm leading-relaxed text-foreground">{selected.body}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 2. Xóa thông báo
+  const handleDelete = async (matb: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa thông báo này?")) return;
+    try {
+      const res = await fetch(`/api/admin/notifications/${matb}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.status === 'success') {
+        fetchNotifications();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const departments = ["all", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Kế hoạch Tài chính", "Khoa CNTT"];
+  const totalReads = notifications.reduce((acc, n) => acc + (n.readCount || 0), 0);
+  const avgReadRate = notifications.length > 0 ? Math.round(notifications.reduce((acc, n) => acc + (n.readRate || 0), 0) / notifications.length) : 0;
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 gap-4">
-      {compose !== null && <NotifComposeModal notif={compose === "new" ? null : compose} onClose={() => setCompose(null)} onSave={saveNotif} />}
-      <DeleteModal />
-      <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
-        <div className="flex-1 relative min-w-[220px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm theo tiêu đề, nội dung..."
-            className="w-full pl-9 pr-4 py-2 border border-border rounded-lg text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }} />
-        </div>
-        <div className="relative flex-shrink-0" ref={filterRef}>
-          <button onClick={() => setFilterOpen(o => !o)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold transition-colors"
-            style={{ borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", background: "#fff", color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
-            <Filter className="w-4 h-4" /> Bộ lọc
-            {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
-          </button>
-          {filterOpen && (
-            <div className="absolute left-0 top-full mt-1 z-30 bg-card border border-border rounded-xl shadow-xl p-4 w-72 space-y-4">
-              <div>
-                <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Trạng thái</div>
-                <div className="flex gap-2">
-                  {[["", "Tất cả"], ["sent", "Đã gửi"], ["draft", "Nháp"]].map(([v, label]) => (
-                    <button key={v} onClick={() => setFilterStatus(v as typeof filterStatus)} className="flex-1 py-1.5 rounded-lg border text-xs font-semibold transition-all"
-                      style={{ borderColor: filterStatus === v ? "#11284D" : "#e2e8f0", background: "var(--card)", color: filterStatus === v ? "#11284D" : "var(--muted-foreground)", ...PJS }}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Khoa / Bộ môn</div>
-                <select value={filterKhoa} onChange={e => setFilterKhoa(e.target.value)} className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  <option value="">Tất cả</option>
-                  {allKhoa.map(k => <option key={k} value={k}>{k}</option>)}
-                </select>
-              </div>
-              <div>
-                <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide mb-2" style={PJS}>Phòng / Ban</div>
-                <select value={filterPhong} onChange={e => setFilterPhong(e.target.value)} className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  <option value="">Tất cả</option>
-                  {allPhong.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-              {activeFilters > 0 && (
-                <button onClick={() => { setFilterStatus(""); setFilterKhoa(""); setFilterPhong(""); }}
-                  className="w-full text-xs font-semibold text-accent hover:opacity-70 transition-opacity text-center" style={PJS}>Xóa bộ lọc</button>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="hidden sm:flex flex-1" />
-        <button onClick={() => setCompose("new")} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "var(--primary)", ...PJS }}><Plus className="w-4 h-4" /> Tạo thông báo</button>
-      </div>
-      <div className="flex flex-wrap gap-3 flex-shrink-0">
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 flex-shrink-0">
         {[
-          { label: "Tổng", val: notifs.length, color: "var(--primary)" },
-          { label: "Đã gửi", val: notifs.filter(n => n.status === "sent").length, color: "#2563eb" },
-          { label: "Nháp", val: notifs.filter(n => n.status === "draft").length, color: "var(--muted-foreground)" },
+          { label: "Tổng số thông báo", val: notifications.length, col: "var(--primary)" },
+          { label: "Đã phát hành", val: notifications.length, col: "#16a34a" },
+          { label: "Tổng lượt đọc", val: totalReads, col: "var(--accent)" },
+          { label: "Tỷ lệ đọc trung bình", val: `${avgReadRate}%`, col: "#2563eb" },
         ].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-xl px-4 py-3 flex items-center gap-3 flex-1 min-w-[100px]">
-            <span className="text-2xl font-bold" style={{ color: s.color, ...PJS }}>{s.val}</span>
-            <span className="text-xs text-muted-foreground" style={PJS}>{s.label}</span>
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <span className="text-2xl font-bold block mb-1" style={{ color: s.col, ...PJS }}>{s.val}</span>
+            <span className="text-xs text-muted-foreground" style={INTER}>{s.label}</span>
           </div>
         ))}
       </div>
-      <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
-        <div className="overflow-auto h-full">
-          <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
-            <thead className="sticky top-0 z-10">
-              <tr style={{ background: "var(--primary)" }}>
-                {["Tiêu đề","Nguồn","Thời gian","Trạng thái",""].map(h => (
-                  <th key={h} className="px-4 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Không có thông báo phù hợp.</td></tr>
-              ) : filtered.map((n, i) => (
-                <tr key={n.id} className="group hover:brightness-95 transition-all cursor-pointer"
-                  style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }} onClick={() => setSelected(n)}>
-                  <td className="px-4 py-3 max-w-[280px]">
-                    <div className={`font-medium text-foreground truncate ${!n.read ? "font-semibold" : ""}`}>{n.title}</div>
-                    <div className="text-muted-foreground truncate mt-0.5" style={{ fontSize: 11 }}>{n.body.slice(0, 60)}…</div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {n.khoa  && <span className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-muted text-primary mr-1">{n.khoa}</span>}
-                    {n.phong && <span className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#fdf4ff] text-[#7c3aed]">{n.phong}</span>}
-                    {!n.khoa && !n.phong && <span className="text-muted-foreground">—</span>}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{n.time}</td>
-                  <td className="px-4 py-3">{statusBadge(n.status)}</td>
-                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setCompose(n)} className="p-1 rounded hover:bg-card" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} /></button>
-                      <button onClick={() => setDeleteTarget(n)} className="p-1 rounded hover:bg-red-50" title="Xóa"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 flex-shrink-0">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {departments.map(d => (
+            <button
+              key={d}
+              onClick={() => setSelectedDept(d)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all whitespace-nowrap ${selectedDept === d ? "bg-primary text-white border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
+              style={PJS}
+            >
+              {d === "all" ? "Tất cả đơn vị" : d}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm theo tiêu đề, nội dung..."
+              className="pl-8 pr-3 py-1.5 text-xs border border-border rounded-lg bg-card outline-none focus:border-primary w-60"
+              style={INTER}
+            />
+          </div>
+          <button
+            onClick={() => setCreateModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90 transition-opacity bg-primary"
+            style={PJS}
+          >
+            <Plus className="w-3.5 h-3.5" /> Tạo thông báo
+          </button>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground flex-shrink-0">Hiển thị {filtered.length} / {notifs.length} thông báo</p>
+
+      {/* Danh sách thông báo */}
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
+        {loading ? (
+          <p className="text-center py-12 text-muted-foreground text-sm">Đang tải danh sách thông báo...</p>
+        ) : notifications.length === 0 ? (
+          <p className="text-center py-12 text-muted-foreground text-sm">Không tìm thấy thông báo nào.</p>
+        ) : (
+          notifications.map(n => (
+            <div key={n.id} className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary" style={PJS}>
+                      {n.department}
+                    </span>
+                    <h3 className="font-bold text-base text-foreground" style={PJS}>{n.title}</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed" style={INTER}>
+                    {n.content}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap" style={INTER}>
+                    <span>Ngày đăng: <strong>{n.date}</strong></span>
+                    <span>Đối tượng: <strong>{n.target}</strong></span>
+                    <span>Đã xem: <strong>{n.readCount}/{n.totalTarget} ({n.readRate}%)</strong></span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setViewItem(n)}
+                    className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-primary hover:bg-muted"
+                    title="Xem chi tiết"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setEditItem(n)}
+                    className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-blue-600 hover:bg-muted"
+                    title="Chỉnh sửa"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(n.id)}
+                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50"
+                    title="Xóa thông báo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Modal Xem chi tiết thông báo */}
+      {viewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setViewItem(null)}>
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+              <div>
+                <span className="text-xs bg-white/20 px-2 py-0.5 rounded font-semibold">{viewItem.department}</span>
+                <p className="text-white/70 text-xs mt-1">Đăng ngày: {viewItem.date}</p>
+              </div>
+              <button onClick={() => setViewItem(null)}><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              <h3 className="font-bold text-lg text-foreground leading-snug" style={PJS}>{viewItem.title}</h3>
+              <div className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed bg-muted/20 p-4 rounded-xl border border-border" style={INTER}>
+                {viewItem.content}
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
+                <span>Đối tượng nhận: <strong>{viewItem.target}</strong></span>
+                <span>Lượt đọc: <strong>{viewItem.readCount}/{viewItem.totalTarget} sinh viên</strong></span>
+              </div>
+            </div>
+            <div className="px-6 py-3 border-t border-border flex justify-end bg-card">
+              <button onClick={() => setViewItem(null)} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Tạo thông báo mới */}
+      {createModal && (
+        <NotificationFormModal
+          onClose={() => setCreateModal(false)}
+          onSaved={() => { setCreateModal(false); fetchNotifications(); }}
+        />
+      )}
+
+      {/* Modal Chỉnh sửa thông báo */}
+      {editItem && (
+        <NotificationFormModal
+          initial={editItem}
+          onClose={() => setEditItem(null)}
+          onSaved={() => { setEditItem(null); fetchNotifications(); }}
+        />
+      )}
     </div>
   );
 }
 
-// ─── Admin: Tuition Section ───────────────────────────────────────────────────
-type TuitionRow = {
-  stt: number; nhHk: string; maMon: string; lop: string; tenMon: string;
-  soTcHocPhi: number; hocPhi: number; giam: number; hoTro: number;
-  hocPhiThucDong: number; chiPhi: number; ghiChu: string;
-  trangThai: string; ngayThanhToan: string; mssv: string;
-};
+// Modal tạo / chỉnh sửa thông báo
+function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; onClose: () => void; onSaved: () => void }) {
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
 
-function fmt(n: number) { return n.toLocaleString("vi-VN"); }
+  const isEdit = !!initial;
+  const [title, setTitle] = useState(initial?.title || "");
+  const [content, setContent] = useState(initial?.content || "");
+  const [department, setDepartment] = useState(initial?.department || "Khoa CNTT");
+  const [submitting, setSubmitting] = useState(false);
 
-function AdminTuitionSection() {
-  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const handleSave = async () => {
+    if (!title.trim()) { alert("Vui lòng nhập tiêu đề thông báo."); return; }
+    if (!content.trim()) { alert("Vui lòng nhập nội dung thông báo."); return; }
 
-  function parseNhHk(nhHk: string) {
-    const m = nhHk.match(/^(\d{2}-\d{2})\/(\d)$/);
-    return m ? { namHoc: m[1], hocKy: `HK${m[2]}` } : { namHoc: nhHk, hocKy: "" };
-  }
+    setSubmitting(true);
+    const url = isEdit ? `/api/admin/notifications/${initial.id}` : `/api/admin/notifications`;
+    const method = isEdit ? "PUT" : "POST";
 
-  const allParsed = TUITION_DATA.map(d => ({ nhHk: d.nhHk, ...parseNhHk(d.nhHk) }));
-  const uniqueYears = Array.from(new Set(allParsed.map(p => p.namHoc)));
-  const ALL_HKS = TUITION_HK_LIST;
-  const allNganh = ["Tất cả", ...Array.from(new Set(ADMIN_STUDENTS.map(s => s.nganh)))];
-
-  const [selNamHoc, setSelNamHoc] = useState(uniqueYears[0]);
-  const [selHocKy, setSelHocKy] = useState("HK3");
-  const [selNganh, setSelNganh] = useState("Tất cả");
-  const [selLop, setSelLop] = useState("Tất cả");
-  const [mssvSearch, setMssvSearch] = useState("");
-  const [selMssv, setSelMssv] = useState("");
-  const [mssvOpen, setMssvOpen] = useState(false);
-  const mssvRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function h(e: MouseEvent) { if (mssvRef.current && !mssvRef.current.contains(e.target as Node)) setMssvOpen(false); }
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
-
-  const [allData, setAllData] = useState(() =>
-    TUITION_DATA.map(d => ({
-      ...d,
-      rows: d.rows.map((r, i) => ({
-        ...r,
-        trangThai: i % 3 === 0 ? "Chưa thanh toán" : "Đã thanh toán",
-        ngayThanhToan: i % 3 === 0 ? "" : "03/07/2026",
-        mssv: ADMIN_STUDENTS[i % ADMIN_STUDENTS.length].mssv,
-      } as TuitionRow)),
-    }))
-  );
-  const [editRow, setEditRow] = useState<TuitionRow | null>(null);
-  const [editDraft, setEditDraft] = useState<TuitionRow | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<TuitionRow | null>(null);
-
-  const matchNhHk = allParsed.find(p => p.namHoc === selNamHoc && p.hocKy === selHocKy)?.nhHk;
-  const semData = allData.find(d => d.nhHk === matchNhHk) ?? allData[0];
-  const allLops = ["Tất cả", ...Array.from(new Set(semData.rows.map(r => r.lop)))];
-  const filteredMssv = ADMIN_STUDENTS.filter(s =>
-    !mssvSearch || s.mssv.includes(mssvSearch) || s.hoTen.toLowerCase().includes(mssvSearch.toLowerCase())
-  );
-
-  const rows = semData.rows.filter(r =>
-    (selLop === "Tất cả" || r.lop === selLop) &&
-    (!selMssv || r.mssv === selMssv)
-  );
-  const totalTcHp     = rows.reduce((s, r) => s + r.soTcHocPhi, 0);
-  const totalHocPhi   = rows.reduce((s, r) => s + r.hocPhi, 0);
-  const totalGiam     = rows.reduce((s, r) => s + r.giam, 0);
-  const totalHoTro    = rows.reduce((s, r) => s + r.hoTro, 0);
-  const totalThucDong = rows.reduce((s, r) => s + r.hocPhiThucDong, 0);
-  const totalChiPhi   = rows.reduce((s, r) => s + r.chiPhi, 0);
-
-  function saveEditRow() {
-    if (!editDraft) return;
-    setAllData(prev => prev.map(d => d.nhHk !== semData.nhHk ? d : { ...d, rows: d.rows.map(r => r.stt === editDraft.stt ? editDraft : r) }));
-    setEditRow(null); setEditDraft(null);
-  }
-  function addRow() {
-    const nhHk = semData.nhHk;
-    const newRow: TuitionRow = { stt: semData.rows.length + 1, nhHk, maMon: "", lop: "", tenMon: "Môn học mới", soTcHocPhi: 3, hocPhi: 0, giam: 0, hoTro: 0, hocPhiThucDong: 0, chiPhi: 0, ghiChu: "", trangThai: "Chưa thanh toán", ngayThanhToan: "", mssv: "" };
-    setAllData(prev => prev.map(d => d.nhHk !== nhHk ? d : { ...d, rows: [...d.rows, newRow] }));
-    setEditRow(newRow); setEditDraft({ ...newRow });
-  }
-  function confirmDelete() {
-    if (!deleteConfirm) return;
-    const nhHk = semData.nhHk;
-    setAllData(prev => prev.map(d => d.nhHk !== nhHk ? d : { ...d, rows: d.rows.filter(r => r.stt !== deleteConfirm.stt).map((r, i) => ({ ...r, stt: i + 1 })) }));
-    setDeleteConfirm(null);
-  }
-
-  const selCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white";
-  const hdrCls = "px-2 py-2.5 font-bold text-white text-center whitespace-nowrap text-[11px] border-r border-white/10 last:border-r-0";
-  const cel    = "px-2 py-0 text-center text-xs";
-  const COL_W  = [40,72,190,72,110,90,90,110,95,120,110,95,56];
-
-  const STATUS_STYLE: Record<string, { bg: string; text: string }> = {
-    "Đã thanh toán":   { bg: "bg-green-50",  text: "text-green-700" },
-    "Chưa thanh toán": { bg: "bg-red-50",    text: "text-red-600"   },
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, department })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        onSaved();
+      } else {
+        alert(data.message || "Lỗi lưu thông báo.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối máy chủ.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 gap-3">
-      {/* Edit modal */}
-      {editRow && editDraft && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border" style={{ background: "var(--primary)" }}>
-              <span className="font-bold text-white text-sm" style={PJS}>Chỉnh sửa bản ghi học phí</span>
-              <button onClick={() => { setEditRow(null); setEditDraft(null); }}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
-            </div>
-            <div className="p-6 grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
-              {([
-                { label: "Mã môn",      key: "maMon"          as keyof TuitionRow },
-                { label: "Lớp",                  key: "lop"            as keyof TuitionRow },
-                { label: "Tên môn học",          key: "tenMon"         as keyof TuitionRow, full: true },
-                { label: "MSSV",                 key: "mssv"           as keyof TuitionRow },
-                { label: "Số TC Học Phí", key: "soTcHocPhi"  as keyof TuitionRow, num: true },
-                { label: "Học Phí Gốc",          key: "hocPhi"         as keyof TuitionRow, num: true },
-                { label: "Mức Giảm",   key: "giam"           as keyof TuitionRow, num: true },
-                { label: "Hỗ Trợ",       key: "hoTro"          as keyof TuitionRow, num: true },
-                { label: "Thực Đóng", key: "hocPhiThucDong" as keyof TuitionRow, num: true },
-                { label: "Chi Phí Khác",          key: "chiPhi"         as keyof TuitionRow, num: true },
-                { label: "Ghi Chú",              key: "ghiChu"         as keyof TuitionRow, full: true },
-                { label: "Ngày Thanh Toán",      key: "ngayThanhToan"  as keyof TuitionRow },
-              ] as { label: string; key: keyof TuitionRow; full?: boolean; num?: boolean }[]).map(f => (
-                <div key={f.key} className={f.full ? "col-span-2" : ""}>
-                  <label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>{f.label}</label>
-                  <input type={f.num ? "number" : "text"} value={editDraft[f.key] as string | number}
-                    onChange={e => setEditDraft(prev => prev ? { ...prev, [f.key]: f.num ? Number(e.target.value) : e.target.value } : prev)}
-                    className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card transition-colors" />
-                </div>
-              ))}
-              <div>
-                <label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Trạng Thái Thanh Toán</label>
-                <select value={editDraft.trangThai} onChange={e => setEditDraft(p => p ? { ...p, trangThai: e.target.value } : p)}
-                  className="w-full border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card">
-                  <option>Đã thanh toán</option><option>Chưa thanh toán</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 px-6 py-4 border-t border-border">
-              <button onClick={() => { setEditRow(null); setEditDraft(null); }} className="flex-1 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-card transition-colors" style={PJS}>Huỷ</button>
-              <button onClick={saveEditRow} className="flex-1 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}>Lưu</button>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+          <h3 className="font-bold text-base" style={PJS}>{isEdit ? "Chỉnh sửa thông báo" : "Soạn thông báo mới"}</h3>
+          <button onClick={onClose}><X className="w-4 h-4" /></button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Tiêu đề thông báo *</label>
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Nhập tiêu đề..." className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background outline-none focus:border-primary" style={INTER} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Đơn vị phát hành</label>
+            <select value={department} onChange={e => setDepartment(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" style={PJS}>
+              <option value="Khoa CNTT">Khoa CNTT</option>
+              <option value="Phòng Đào tạo">Phòng Đào tạo</option>
+              <option value="Phòng Công tác SV">Phòng Công tác SV</option>
+              <option value="Phòng Kế hoạch Tài chính">Phòng Kế hoạch Tài chính</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Nội dung thông báo *</label>
+            <textarea rows={5} value={content} onChange={e => setContent(e.target.value)} placeholder="Nhập nội dung thông báo gửi đến sinh viên..." className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background resize-none outline-none focus:border-primary leading-relaxed" style={INTER} />
           </div>
         </div>
-      )}
-
-      {/* Delete confirmation */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="bg-white rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "#fff1f2" }}>
-              <Trash2 className="w-7 h-7 text-red-400" />
-            </div>
-            <h3 className="font-bold text-base mb-2" style={PJS}>Xóa bản ghi?</h3>
-            <p className="text-sm text-muted-foreground mb-1">Môn: <span className="font-semibold text-foreground">{deleteConfirm.tenMon}</span></p>
-            <p className="text-xs text-muted-foreground mb-6">Hành động này không thể hoàn tác.</p>
-            <div className="flex gap-3 w-full">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors" style={PJS}>Hủy</button>
-              <button onClick={confirmDelete} className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90" style={{ background: "#ef4444", ...PJS }}>Xóa</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Filter — row 1: Năm học, Học kỳ + actions */}
-      <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Năm học:</span>
-          <select value={selNamHoc} onChange={e => { setSelNamHoc(e.target.value); setSelLop("Tất cả"); }} className={selCls} style={PJS}>
-            {uniqueYears.map(y => <option key={y} value={y}>{y.replace(/(\d{2})-(\d{2})/, "20$1–20$2")}</option>)}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Học kỳ:</span>
-          <select value={selHocKy} onChange={e => { setSelHocKy(e.target.value); setSelLop("Tất cả"); }} className={selCls} style={PJS}>
-            {ALL_HKS.map(h => <option key={h} value={h}>Học kỳ {h.replace("HK", "")}</option>)}
-          </select>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted-foreground bg-white hover:bg-muted transition-colors" style={PJS}><Upload className="w-4 h-4" /> Nhập</button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted-foreground bg-white hover:bg-muted transition-colors" style={PJS}><Download className="w-4 h-4" /> Xuất</button>
-          <button onClick={addRow} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", ...PJS }}><Plus className="w-4 h-4" /> Thêm dòng</button>
+        <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-card">
+          <button onClick={onClose} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>Hủy</button>
+          <button onClick={handleSave} disabled={submitting} className="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:opacity-90 disabled:opacity-50" style={PJS}>
+            {submitting ? "Đang phát hành..." : (isEdit ? "Lưu thay đổi" : "Phát hành thông báo")}
+          </button>
         </div>
       </div>
+    </div>
+  );
+}
+// ─── Admin: Tuition Management (Quản lý Học phí) ─────────────────────────────
+function AdminTuitionSection() {
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
 
-      {/* Filter — row 2: Khoa, Lớp, MSSV */}
-      <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
+  const [students, setStudents] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({
+    totalDue: 0,
+    totalPaid: 0,
+    totalDebt: 0,
+    totalStudents: 0,
+    paidStudents: 0,
+    completionRate: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
+  const [search, setSearch] = useState("");
+  const [detailStudent, setDetailStudent] = useState<any | null>(null);
+  const [editItem, setEditItem] = useState<{ mssv: string; item: any } | null>(null);
+
+  // 1. Fetch dữ liệu học phí & thống kê từ Backend
+  const fetchTuitionData = async () => {
+    setLoading(true);
+    try {
+      const [resList, resStats] = await Promise.all([
+        fetch(`/api/admin/tuition/students?status=${statusFilter}&search=${encodeURIComponent(search)}`),
+        fetch('/api/admin/tuition/stats')
+      ]);
+
+      const dataList = await resList.json();
+      const dataStats = await resStats.json();
+
+      if (dataList.status === 'success') setStudents(dataList.data);
+      if (dataStats.status === 'success') setStats(dataStats.data);
+    } catch (e) {
+      console.error("Lỗi fetch học phí:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTuitionData();
+  }, [statusFilter, search]);
+
+  // 2. Xác nhận thanh toán học phí toàn bộ cho sinh viên
+  const handleConfirmPayAll = async (mssv: string) => {
+    if (!confirm(`Xác nhận thu toàn bộ học phí cho sinh viên ${mssv}?`)) return;
+    try {
+      const res = await fetch(`/api/admin/tuition/students/${mssv}/pay`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === 'success') {
+        fetchTuitionData();
+        if (detailStudent && detailStudent.mssv === mssv) {
+          setDetailStudent(null);
+        }
+      } else {
+        alert(data.message || "Lỗi cập nhật học phí.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối máy chủ.");
+    }
+  };
+
+  // 3. Cập nhật chi tiết 1 khoản học phí
+  const handleSaveEditItem = async (mssv: string, malhp: string, payload: any) => {
+    try {
+      const res = await fetch(`/api/admin/tuition/records/${mssv}/${malhp}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        fetchTuitionData();
+        setEditItem(null);
+        if (detailStudent && detailStudent.mssv === mssv) {
+          setDetailStudent((prev: any) => ({
+            ...prev,
+            items: prev.items.map((it: any) => it.malhp === malhp ? { ...it, ...payload, thucDong: payload.hocPhiGoc - payload.mucGiam } : it)
+          }));
+        }
+      } else {
+        alert(data.message || "Lỗi lưu học phí.");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const formatVND = (num: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num || 0);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 flex-shrink-0">
+        {[
+          { label: "Tổng học phí phải thu", val: formatVND(stats.totalDue), col: "var(--primary)" },
+          { label: "Đã thu", val: formatVND(stats.totalPaid), col: "#16a34a" },
+          { label: "Công nợ chưa thu", val: formatVND(stats.totalDebt), col: "#dc2626" },
+          { label: "Tỷ lệ hoàn thành", val: `${stats.completionRate}% (${stats.paidStudents}/${stats.totalStudents} SV)`, col: "var(--accent)" },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <span className="text-xl font-bold block mb-1" style={{ color: s.col, ...PJS }}>{s.val}</span>
+            <span className="text-xs text-muted-foreground" style={INTER}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Khoa:</span>
-          <select value={selNganh} onChange={e => setSelNganh(e.target.value)} className={selCls} style={PJS}>
-            {allNganh.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
+          {(["all", "unpaid", "paid"] as const).map(st => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${statusFilter === st ? "bg-primary text-white border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
+              style={PJS}
+            >
+              {st === "all" ? "Tất cả" : st === "unpaid" ? "Chưa thanh toán" : "Đã thanh toán"}
+            </button>
+          ))}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>Lớp:</span>
-          <select value={selLop} onChange={e => setSelLop(e.target.value)} className={selCls} style={PJS}>
-            {allLops.map(l => <option key={l} value={l}>{l}</option>)}
-          </select>
-        </div>
-        <div className="flex items-center gap-2" ref={mssvRef}>
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={PJS}>MSSV:</span>
           <div className="relative">
-            <div className="flex items-center gap-1 border border-border rounded-lg bg-white overflow-hidden" style={{ minWidth: 220 }}>
-              <Search className="w-3.5 h-3.5 text-muted-foreground ml-2 flex-shrink-0" />
-              <input value={selMssv ? `${selMssv} – ${ADMIN_STUDENTS.find(s => s.mssv === selMssv)?.hoTen ?? ""}` : mssvSearch}
-                onChange={e => { if (selMssv) { setSelMssv(""); setMssvSearch(""); } else { setMssvSearch(e.target.value); } setMssvOpen(true); }}
-                onFocus={() => setMssvOpen(true)}
-                placeholder="Tìm MSSV hoặc tên..."
-                className="flex-1 px-2 py-1.5 text-sm outline-none bg-transparent" />
-              {selMssv && <button onClick={() => { setSelMssv(""); setMssvSearch(""); }} className="px-2 text-muted-foreground hover:text-foreground"><X className="w-3 h-3" /></button>}
-            </div>
-            {mssvOpen && (
-              <div className="absolute left-0 top-full mt-1 z-30 bg-card border border-border rounded-xl shadow-xl w-72 max-h-48 overflow-y-auto">
-                {filteredMssv.length === 0
-                  ? <p className="px-4 py-3 text-sm text-muted-foreground">Không tìm thấy sinh viên.</p>
-                  : filteredMssv.map(s => (
-                    <button key={s.mssv} onClick={() => { setSelMssv(s.mssv); setMssvSearch(""); setMssvOpen(false); }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-secondary/50 flex items-center gap-2 transition-colors">
-                      <span className="font-medium text-foreground">{s.hoTen}</span>
-                      <span className="font-mono text-xs text-muted-foreground ml-auto">{s.mssv}</span>
-                    </button>
-                  ))
-                }
-              </div>
-            )}
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm kiếm MSSV, tên sinh viên..."
+              className="pl-8 pr-3 py-1.5 text-xs border border-border rounded-lg bg-card outline-none focus:border-primary w-64"
+              style={INTER}
+            />
           </div>
+          <button
+            onClick={() => window.open('/api/admin/tuition/export', '_blank')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-muted transition-colors text-muted-foreground bg-card"
+            style={PJS}
+          >
+            <Download className="w-3.5 h-3.5" /> Xuất Excel
+          </button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="w-full flex-shrink-0 bg-card rounded-xl border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse", fontSize: 12, tableLayout: "auto", width: "100%" }}>
-            <thead className="sticky top-0 z-10">
-              <tr style={{ background: "var(--primary)" }}>
-                {["STT","NH/HK","Mã LHP / Môn Học","Số TCHP","Học Phí Gốc","Mức Giảm","Hỗ Trợ","Thực Đóng","Chi Phí Khác","Ghi Chú","Trạng Thái TT","Ngày TT",""].map((h, idx, arr) => (
-                  <th key={h} className={hdrCls} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", borderRight: idx < arr.length - 1 ? "1px solid #0a1e3a" : "none" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length === 0 ? (
-                <tr><td colSpan={13} className="py-12 text-center text-sm text-muted-foreground">Không có dữ liệu học phí.</td></tr>
-              ) : rows.map((row, i) => {
-                const st = STATUS_STYLE[row.trangThai] ?? { bg: "bg-gray-50", text: "text-gray-500" };
+      {/* Table danh sách sinh viên & học phí */}
+      <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border bg-card">
+        <table className="w-full text-xs" style={{ minWidth: 850 }}>
+          <thead>
+            <tr style={{ background: "var(--primary)" }}>
+              {["STT", "MSSV", "Họ và tên", "Khóa", "Số môn", "Tổng TC", "Học phí gốc", "Miễn giảm", "Thực đóng", "Trạng thái", "Ngày đóng", "Thao tác"].map(h => (
+                <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={12} className="text-center py-12 text-muted-foreground">Đang tải dữ liệu học phí...</td></tr>
+            ) : students.length === 0 ? (
+              <tr><td colSpan={12} className="text-center py-12 text-muted-foreground">Không tìm thấy sinh viên nào.</td></tr>
+            ) : (
+              students.map((s, i) => {
+                const isPaid = s.trangThai === "Đã thanh toán";
                 return (
-                  <tr key={row.stt} className="group hover:brightness-95 transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)", height: 44 }}>
-                    <td className={cel + " whitespace-nowrap text-muted-foreground font-mono"}>{row.stt}</td>
-                    <td className={cel + " whitespace-nowrap font-mono text-muted-foreground"}>{row.nhHk}</td>
-                    <td className="px-2 py-0" style={{ minWidth: 160 }}>
-                      <div className="font-mono text-[10px] text-muted-foreground leading-tight">{row.maMon}/{row.lop}</div>
-                      <div className="font-medium text-foreground text-[11px] leading-tight">{row.tenMon}</div>
+                  <tr key={s.mssv} className="border-b border-border hover:brightness-95 transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                    <td className="pl-4 pr-3 py-2.5 text-muted-foreground">{i + 1}</td>
+                    <td className="px-3 py-2.5 font-mono font-bold text-foreground" style={PJS}>{s.mssv}</td>
+                    <td className="px-3 py-2.5 font-medium text-foreground" style={PJS}>{s.hoTen}</td>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.lop}</td>
+                    <td className="px-3 py-2.5 text-center text-muted-foreground">{s.soMon}</td>
+                    <td className="px-3 py-2.5 text-center text-muted-foreground">{s.tongTC}</td>
+                    <td className="px-3 py-2.5 font-mono text-muted-foreground">{formatVND(s.hocPhiGoc)}</td>
+                    <td className="px-3 py-2.5 font-mono text-amber-600">{s.mucGiam > 0 ? formatVND(s.mucGiam) : "—"}</td>
+                    <td className="px-3 py-2.5 font-mono font-bold text-primary">{formatVND(s.thucDong)}</td>
+                    <td className="px-3 py-2.5">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${isPaid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isPaid ? "bg-green-500" : "bg-red-500"}`} />
+                        {s.trangThai}
+                      </span>
                     </td>
-                    <td className={cel + " whitespace-nowrap"}>{row.soTcHocPhi.toFixed(2)}</td>
-                    <td className={cel + " whitespace-nowrap font-medium"}>{fmt(row.hocPhi)}</td>
-                    <td className={cel + " whitespace-nowrap"}>{row.giam ? fmt(row.giam) : "—"}</td>
-                    <td className={cel + " whitespace-nowrap"}>{row.hoTro ? fmt(row.hoTro) : "—"}</td>
-                    <td className={cel + " whitespace-nowrap font-semibold"} style={{ color: "var(--primary)" }}>{fmt(row.hocPhiThucDong)}</td>
-                    <td className={cel + " whitespace-nowrap"}>{row.chiPhi ? fmt(row.chiPhi) : "—"}</td>
-                    <td className={cel + " text-muted-foreground"} style={{ maxWidth: 120 }}><span className="truncate block">{row.ghiChu || "—"}</span></td>
-                    <td className={cel + " whitespace-nowrap"}>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${st.bg} ${st.text}`}>{row.trangThai}</span>
-                    </td>
-                    <td className={cel + " whitespace-nowrap text-muted-foreground"}>{row.ngayThanhToan || "—"}</td>
-                    <td className="px-1 py-0 text-center whitespace-nowrap">
-                      <div className="flex gap-0.5 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => { setEditRow(row); setEditDraft({ ...row }); }} className="p-1 rounded hover:bg-muted" title="Chỉnh sửa"><Pencil className="w-3 h-3" style={{ color: "var(--primary)" }} /></button>
-                        <button onClick={() => setDeleteConfirm(row)} className="p-1 rounded hover:bg-red-50" title="Xóa"><Trash2 className="w-3 h-3 text-red-400" /></button>
+                    <td className="px-3 py-2.5 text-muted-foreground">{s.ngayThanhToan || "—"}</td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setDetailStudent(s)}
+                          className="px-2.5 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 text-[11px] font-bold"
+                          style={PJS}
+                        >
+                          Chi tiết
+                        </button>
+                        {!isPaid && (
+                          <button
+                            onClick={() => handleConfirmPayAll(s.mssv)}
+                            className="px-2.5 py-1 rounded bg-green-600 text-white hover:bg-green-700 text-[11px] font-bold"
+                            style={PJS}
+                            title="Xác nhận thu học phí"
+                          >
+                            Thu tiền
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
                 );
-              })}
-              {rows.length > 0 && (
-                <tr style={{ background: "#dde4f5", borderTop: "2px solid #C5CCB7", height: 40 }}>
-                  <td colSpan={3} className="px-3 py-0 text-right text-xs font-bold whitespace-nowrap" style={PJS}>Tổng Cộng:</td>
-                  <td className={cel + " font-bold whitespace-nowrap"}>{totalTcHp.toFixed(2)}</td>
-                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalHocPhi)}</td>
-                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalGiam)}</td>
-                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalHoTro)}</td>
-                  <td className={cel + " font-bold whitespace-nowrap"} style={{ color: "var(--primary)" }}>{fmt(totalThucDong)}</td>
-                  <td className={cel + " font-bold whitespace-nowrap"}>{fmt(totalChiPhi)}</td>
-                  <td colSpan={4} />
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              })
+            )}
+          </tbody>
+        </table>
       </div>
-      <div className="flex items-center justify-between flex-shrink-0">
-        <p className="text-xs text-muted-foreground">{rows.length} bản ghi · Cập nhật: {semData.ngayCapNhat}</p>
-        <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-5 py-2.5">
-          <span className="text-sm font-semibold text-foreground" style={PJS}>Tổng thực đóng:</span>
-          <span className="text-base font-bold" style={{ color: "var(--primary)", ...PJS }}>{fmt(totalThucDong)}</span>
+
+      {/* Modal Xem chi tiết các khoản học phí của 1 sinh viên */}
+      {detailStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setDetailStudent(null)}>
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+              <div>
+                <h3 className="font-bold text-base" style={PJS}>{detailStudent.hoTen} ({detailStudent.mssv})</h3>
+                <p className="text-white/70 text-xs mt-0.5">Tổng thực đóng: {formatVND(detailStudent.thucDong)} &middot; {detailStudent.items.length} môn học phần</p>
+              </div>
+              <button onClick={() => setDetailStudent(null)}><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border text-muted-foreground text-left">
+                    <th className="pb-2 font-semibold">Môn học</th>
+                    <th className="pb-2 font-semibold text-center">TC</th>
+                    <th className="pb-2 font-semibold text-right">Gốc</th>
+                    <th className="pb-2 font-semibold text-right">Miễn giảm</th>
+                    <th className="pb-2 font-semibold text-right">Thực đóng</th>
+                    <th className="pb-2 font-semibold text-center">Trạng thái</th>
+                    <th className="pb-2 font-semibold text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {detailStudent.items.map((it: any) => (
+                    <tr key={it.malhp} className="hover:bg-muted/30">
+                      <td className="py-2.5">
+                        <div className="font-bold text-foreground" style={PJS}>{it.tenMon}</div>
+                        <div className="text-[11px] text-muted-foreground font-mono">{it.maMon} &middot; Lớp: {it.malhp}</div>
+                      </td>
+                      <td className="py-2.5 text-center text-muted-foreground">{it.soTc}</td>
+                      <td className="py-2.5 text-right font-mono text-muted-foreground">{formatVND(it.hocPhiGoc)}</td>
+                      <td className="py-2.5 text-right font-mono text-amber-600">{it.mucGiam > 0 ? formatVND(it.mucGiam) : "—"}</td>
+                      <td className="py-2.5 text-right font-mono font-bold text-primary">{formatVND(it.thucDong)}</td>
+                      <td className="py-2.5 text-center">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${it.trangThai === 'Đã thanh toán' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                          {it.trangThai}
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-center">
+                        <button
+                          onClick={() => setEditItem({ mssv: detailStudent.mssv, item: it })}
+                          className="p-1 rounded text-muted-foreground hover:text-blue-600"
+                          title="Chỉnh sửa miễn giảm / học phí"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="px-6 py-4 border-t border-border flex justify-between items-center bg-card">
+              <button
+                onClick={() => setDetailStudent(null)}
+                className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted"
+                style={PJS}
+              >
+                Đóng
+              </button>
+              {detailStudent.trangThai !== 'Đã thanh toán' && (
+                <button
+                  onClick={() => handleConfirmPayAll(detailStudent.mssv)}
+                  className="px-5 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700"
+                  style={PJS}
+                >
+                  Xác nhận thanh toán toàn bộ
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Chỉnh sửa chi tiết một môn học phí */}
+      {editItem && (
+        <EditTuitionItemModal
+          item={editItem.item}
+          onClose={() => setEditItem(null)}
+          onSave={payload => handleSaveEditItem(editItem.mssv, editItem.item.malhp, payload)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Modal chỉnh sửa 1 môn học phí
+function EditTuitionItemModal({ item, onClose, onSave }: { item: any; onClose: () => void; onSave: (p: any) => void }) {
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
+
+  const [hocPhiGoc, setHocPhiGoc] = useState(item.hocPhiGoc || 0);
+  const [mucGiam, setMucGiam] = useState(item.mucGiam || 0);
+  const [trangThai, setTrangThai] = useState(item.trangThai || "Chưa thanh toán");
+  const [ghiChu, setGhiChu] = useState(item.ghiChu || "");
+
+  const thucDong = Math.max(0, hocPhiGoc - mucGiam);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+          <h3 className="font-bold text-sm" style={PJS}>{item.tenMon}</h3>
+          <button onClick={onClose}><X className="w-4 h-4" /></button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Học phí gốc (VNĐ)</label>
+            <input type="number" value={hocPhiGoc} onChange={e => setHocPhiGoc(Number(e.target.value))} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Miễn giảm / Học bổng (VNĐ)</label>
+            <input type="number" value={mucGiam} onChange={e => setMucGiam(Number(e.target.value))} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" />
+          </div>
+          <div className="p-3 bg-muted rounded-lg flex justify-between items-center text-xs font-semibold">
+            <span>Thực đóng sau giảm:</span>
+            <span className="text-primary text-sm font-bold">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(thucDong)}</span>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Trạng thái thanh toán</label>
+            <select value={trangThai} onChange={e => setTrangThai(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background">
+              <option value="Chưa thanh toán">Chưa thanh toán</option>
+              <option value="Đã thanh toán">Đã thanh toán</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Ghi chú</label>
+            <input value={ghiChu} onChange={e => setGhiChu(e.target.value)} placeholder="Nhập lý do miễn giảm hoặc ghi chú..." className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" style={INTER} />
+          </div>
+        </div>
+        <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-card">
+          <button onClick={onClose} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>Hủy</button>
+          <button onClick={() => onSave({ hocPhiGoc, mucGiam, trangThai, ghiChu })} className="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:opacity-90" style={PJS}>
+            Lưu thay đổi
+          </button>
         </div>
       </div>
     </div>

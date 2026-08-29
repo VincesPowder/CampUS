@@ -1438,3 +1438,396 @@ def export_exams_csv():
         return res
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+# ══════════════════════════════════════════════════════════════════════════════
+# ─── QUẢN LÝ HỌC PHÍ (ADMIN TUITION MANAGEMENT) ──────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+from app.models.tuition import HocPhi
+
+def ensure_tuition_seed_data():
+    try:
+        if HocPhi.query.count() == 0:
+            students = SinhVien.query.all()
+            lhps = LopHocPhan.query.all()
+            if not students or not lhps: return
+
+            for idx, sv in enumerate(students):
+                # Gán 3-4 môn học phần cho mỗi sinh viên
+                enrolled_lhps = lhps[(idx % 4): (idx % 4) + 4]
+                for lhp in enrolled_lhps:
+                    mh = lhp.monhoc
+                    sotc = mh.sotc if (mh and mh.sotc) else 4
+                    goc = float(sotc * 450000)  # 450,000 đ / tín chỉ
+                    
+                    giam = float(goc * 0.2) if idx % 5 == 0 else 0.0  # Miễn giảm học bổng 20%
+                    thuc = goc - giam
+                    is_paid = (idx % 3 != 0)
+                    
+                    hp = HocPhi(
+                        mssv=sv.mssv,
+                        malhp=lhp.malhp,
+                        sotchp=sotc,
+                        hocphi_goc=goc,
+                        mucgiam=giam,
+                        hotro=0.0,
+                        chiphikhac=0.0,
+                        thucdong=thuc,
+                        ghichu="Học phí chính khóa học kỳ 1" if idx % 5 != 0 else "Học bổng khuyến khích học tập 20%",
+                        trangthai_thanhtoan="Đã thanh toán" if is_paid else "Chưa thanh toán",
+                        ngaythanhtoan=datetime.now() if is_paid else None
+                    )
+                    db.session.add(hp)
+            db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print("Lỗi seed tuition data:", e)
+
+# ── 1. Thống kê & Tổng quan học phí ──
+@admin_bp.route('/tuition/stats', methods=['GET'])
+def get_tuition_stats():
+    try:
+        ensure_tuition_seed_data()
+        records = HocPhi.query.all()
+        
+        total_due = sum(r.thucdong or 0 for r in records)
+        total_paid = sum(r.thucdong or 0 for r in records if r.trangthai_thanhtoan == 'Đã thanh toán')
+        total_debt = total_due - total_paid
+
+        # Đếm số sinh viên
+        all_students = set(r.mssv for r in records)
+        paid_students = set(r.mssv for r in records if r.trangthai_thanhtoan == 'Đã thanh toán')
+        
+        return jsonify({
+            "status": "success",
+            "data": {
+                "totalDue": total_due,
+                "totalPaid": total_paid,
+                "totalDebt": total_debt,
+                "totalStudents": len(all_students),
+                "paidStudents": len(paid_students),
+                "completionRate": round((total_paid / total_due * 100)) if total_due > 0 else 0
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 2. Danh sách học phí gom nhóm theo sinh viên ──
+@admin_bp.route('/tuition/students', methods=['GET'])
+def get_tuition_students():
+    try:
+        ensure_tuition_seed_data()
+        search = request.args.get('search', '').strip().lower()
+        status_filter = request.args.get('status', 'all')
+
+        records = HocPhi.query.all()
+        
+        # Gom nhóm theo MSSV
+        students_map = {}
+        for r in records:
+            sv = r.sinhvien
+            lhp = r.lophocphan
+            mh = lhp.monhoc if lhp else None
+
+            if r.mssv not in students_map:
+                students_map[r.mssv] = {
+                    "mssv": r.mssv,
+                    "hoTen": sv.hoten if sv else f"Sinh viên {r.mssv}",
+                    "lop": sv.nienkhoa or "K24",
+                    "soMon": 0,
+                    "tongTC": 0,
+                    "hocPhiGoc": 0.0,
+                    "mucGiam": 0.0,
+                    "thucDong": 0.0,
+                    "trangThai": "Đã thanh toán",
+                    "ngayThanhToan": None,
+                    "items": []
+                }
+
+            group = students_map[r.mssv]
+            group["soMon"] += 1
+            group["tongTC"] += (r.sotchp or 0)
+            group["hocPhiGoc"] += (r.hocphi_goc or 0.0)
+            group["mucGiam"] += (r.mucgiam or 0.0)
+            group["thucDong"] += (r.thucdong or 0.0)
+            
+            if r.trangthai_thanhtoan != 'Đã thanh toán':
+                group["trangThai"] = "Chưa thanh toán"
+
+            if r.ngaythanhtoan:
+                group["ngayThanhToan"] = r.ngaythanhtoan.strftime('%d/%m/%Y')
+
+            group["items"].append({
+                "malhp": r.malhp,
+                "maMon": mh.mamh if mh else (lhp.mamh if lhp else ""),
+                "tenMon": mh.tenmh if mh else (lhp.tenlop if lhp else "Môn học phần"),
+                "soTc": r.sotchp,
+                "hocPhiGoc": r.hocphi_goc,
+                "mucGiam": r.mucgiam,
+                "thucDong": r.thucdong,
+                "trangThai": r.trangthai_thanhtoan,
+                "ngayThanhToan": r.ngaythanhtoan.strftime('%d/%m/%Y') if r.ngaythanhtoan else "—",
+                "ghiChu": r.ghichu or "—"
+            })
+
+        result = list(students_map.values())
+
+        # Lọc theo trạng thái và từ khóa tìm kiếm
+        filtered = []
+        for s in result:
+            if status_filter == 'paid' and s["trangThai"] != 'Đã thanh toán': continue
+            if status_filter == 'unpaid' and s["trangThai"] != 'Chưa thanh toán': continue
+            if search and (search not in s["hoTen"].lower() and search not in s["mssv"].lower() and search not in s["lop"].lower()):
+                continue
+            filtered.append(s)
+
+        return jsonify({"status": "success", "data": filtered}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 3. Thu học phí / Cập nhật trạng thái thanh toán sinh viên ──
+@admin_bp.route('/tuition/students/<mssv>/pay', methods=['POST'])
+def pay_student_all_tuition(mssv):
+    try:
+        records = HocPhi.query.filter_by(mssv=mssv).all()
+        if not records:
+            return jsonify({"status": "error", "message": "Không tìm thấy hồ sơ học phí của sinh viên"}), 404
+
+        now = datetime.now()
+        for r in records:
+            r.trangthai_thanhtoan = "Đã thanh toán"
+            r.ngaythanhtoan = now
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": f"Đã xác nhận thanh toán học phí thành công cho sinh viên {mssv}"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 4. Chỉnh sửa chi tiết một khoản học phí ──
+@admin_bp.route('/tuition/records/<mssv>/<malhp>', methods=['PUT'])
+def update_tuition_record(mssv, malhp):
+    try:
+        data = request.get_json() or {}
+        hp = HocPhi.query.filter_by(mssv=mssv, malhp=malhp).first()
+        if not hp:
+            return jsonify({"status": "error", "message": "Không tìm thấy khoản học phí"}), 404
+
+        if 'mucGiam' in data: hp.mucgiam = float(data['mucGiam'])
+        if 'hocPhiGoc' in data: hp.hocphi_goc = float(data['hocPhiGoc'])
+        if 'ghiChu' in data: hp.ghichu = data['ghiChu']
+        if 'trangThai' in data: 
+            hp.trangthai_thanhtoan = data['trangThai']
+            if data['trangThai'] == 'Đã thanh toán':
+                hp.ngaythanhtoan = datetime.now()
+
+        # Tự động tính lại thực đóng
+        hp.thucdong = max(0.0, float(hp.hocphi_goc or 0.0) - float(hp.mucgiam or 0.0))
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Cập nhật học phí thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 5. Xuất danh sách học phí ra file CSV ──
+@admin_bp.route('/tuition/export', methods=['GET'])
+def export_tuition_csv():
+    try:
+        records = HocPhi.query.all()
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        writer.writerow(["STT", "MSSV", "Họ và tên", "Mã môn", "Tên môn học", "Số TC", "Học phí gốc", "Miễn giảm", "Thực đóng", "Trạng thái", "Ngày thanh toán", "Ghi chú"])
+
+        for idx, r in enumerate(records):
+            sv = r.sinhvien
+            lhp = r.lophocphan
+            mh = lhp.monhoc if lhp else None
+
+            writer.writerow([
+                idx + 1,
+                r.mssv,
+                sv.hoten if sv else "",
+                mh.mamh if mh else (lhp.mamh if lhp else ""),
+                mh.tenmh if mh else "",
+                r.sotchp or 0,
+                f"{int(r.hocphi_goc or 0):,}",
+                f"{int(r.mucgiam or 0):,}",
+                f"{int(r.thucdong or 0):,}",
+                r.trangthai_thanhtoan,
+                r.ngaythanhtoan.strftime('%d/%m/%Y') if r.ngaythanhtoan else "",
+                r.ghichu or ""
+            ])
+
+        res = make_response(output.getvalue())
+        res.headers["Content-Disposition"] = "attachment; filename=danh_sach_hoc_phi.csv"
+        res.headers["Content-type"] = "text/csv; charset=utf-8-sig"
+        return res
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+# ══════════════════════════════════════════════════════════════════════════════
+# ─── QUẢN LÝ THÔNG BÁO (ADMIN NOTIFICATIONS MANAGEMENT) ──────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+from app.models.notification import ThongBao, SvThongBao
+
+def ensure_notification_seed_data():
+    try:
+        if ThongBao.query.count() == 0:
+            first_khoa = Khoa.query.first()
+            makhoa_val = first_khoa.makhoa if first_khoa else None
+
+            tb1 = ThongBao(
+                matb="TB01",
+                tieude="Thông báo về việc đóng học phí học kỳ 1 năm học 2025–2026",
+                noidung="Phòng Kế hoạch Tài chính thông báo thời hạn đóng học phí học kỳ 1 từ ngày 01/09/2025 đến hết ngày 30/09/2025. Sinh viên xem chi tiết biểu phí tại tab Học phí.",
+                ngaydang=datetime.now(),
+                makhoa=makhoa_val
+            )
+            tb2 = ThongBao(
+                matb="TB02",
+                tieude="Lịch thi kết thúc học phần học kỳ 1 năm học 2025–2026",
+                noidung="Phòng Đào tạo thông báo lịch thi chính thức các môn đại cương và chuyên ngành. Sinh viên kiểm tra số báo danh và phòng thi trong tab Lịch thi.",
+                ngaydang=datetime.now(),
+                makhoa=makhoa_val
+            )
+            tb3 = ThongBao(
+                matb="TB03",
+                tieude="Chương trình học bổng khuyến khích học tập kỳ 2",
+                noidung="Phòng Công tác Sinh viên thông báo danh sách sinh viên đủ điều kiện nhận học bổng khuyến khích học tập dựa trên kết quả rèn luyện và GPA.",
+                ngaydang=datetime.now(),
+                makhoa=makhoa_val
+            )
+            db.session.add_all([tb1, tb2, tb3])
+            db.session.commit()
+
+            # Gán thông báo cho toàn bộ sinh viên
+            students = SinhVien.query.all()
+            for sv in students:
+                for tb in [tb1, tb2, tb3]:
+                    db.session.add(SvThongBao(mssv=sv.mssv, matb=tb.matb, trangthai_doc=0))
+            db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print("Lỗi seed thông báo:", e)
+
+# ── 1. Danh sách thông báo cho Admin ──
+@admin_bp.route('/notifications', methods=['GET'])
+def get_admin_notifications():
+    try:
+        ensure_notification_seed_data()
+        search = request.args.get('search', '').strip().lower()
+        dept_filter = request.args.get('department', 'all')
+
+        thongbaos = ThongBao.query.order_by(ThongBao.ngaydang.desc()).all()
+        total_students = SinhVien.query.count() or 1
+        result = []
+
+        for tb in thongbaos:
+            # Nhận diện đơn vị gửi
+            donvi = getattr(tb.khoa, 'tenkhoa', None) if hasattr(tb, 'khoa') and tb.khoa else None
+            if not donvi:
+                t_lower = (tb.tieude or "").lower()
+                if "học phí" in t_lower or "tài chính" in t_lower:
+                    donvi = "Phòng Kế hoạch Tài chính"
+                elif "học bổng" in t_lower or "công tác" in t_lower:
+                    donvi = "Phòng Công tác SV"
+                elif "lịch thi" in t_lower or "học phần" in t_lower or "đào tạo" in t_lower:
+                    donvi = "Phòng Đào tạo"
+                else:
+                    donvi = "Khoa CNTT"
+
+            # Đếm số lượng sinh viên đã đọc thông báo này
+            read_count = SvThongBao.query.filter_by(matb=tb.matb, trangthai_doc=1).count()
+            target_count = SvThongBao.query.filter_by(matb=tb.matb).count() or total_students
+            rate = round((read_count / target_count) * 100) if target_count > 0 else 0
+
+            item = {
+                "id": tb.matb,
+                "matb": tb.matb,
+                "title": tb.tieude,
+                "tieuDe": tb.tieude,
+                "content": tb.noidung or "",
+                "noiDung": tb.noidung or "",
+                "date": tb.ngaydang.strftime('%d/%m/%Y %H:%M') if tb.ngaydang else "Vừa xong",
+                "ngayDang": tb.ngaydang.strftime('%d/%m/%Y %H:%M') if tb.ngaydang else "Vừa xong",
+                "department": donvi,
+                "target": "Toàn trường",
+                "readCount": read_count,
+                "totalTarget": target_count,
+                "readRate": rate,
+                "status": "sent"
+            }
+
+            if dept_filter != 'all' and item["department"] != dept_filter:
+                continue
+            if search and (search not in item["title"].lower() and search not in item["content"].lower()):
+                continue
+
+            result.append(item)
+
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 2. Tạo thông báo mới và phát cho sinh viên ──
+@admin_bp.route('/notifications', methods=['POST'])
+def create_admin_notification():
+    try:
+        data = request.get_json() or {}
+        matb = f"TB_{int(datetime.now().timestamp())}"
+        
+        first_khoa = Khoa.query.first()
+        makhoa_val = first_khoa.makhoa if first_khoa else None
+
+        tb = ThongBao(
+            matb=matb,
+            tieude=data.get('title') or data.get('tieuDe', 'Thông báo mới'),
+            noidung=data.get('content') or data.get('noiDung', ''),
+            ngaydang=datetime.now(),
+            makhoa=makhoa_val
+        )
+        db.session.add(tb)
+
+        # Tự động gán thông báo mới vào bảng SV_THONGBAO cho tất cả sinh viên
+        students = SinhVien.query.all()
+        for sv in students:
+            db.session.add(SvThongBao(mssv=sv.mssv, matb=matb, trangthai_doc=0))
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Đã phát thông báo mới thành công", "id": matb}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 3. Chỉnh sửa thông báo ──
+@admin_bp.route('/notifications/<matb>', methods=['PUT'])
+def update_admin_notification(matb):
+    try:
+        data = request.get_json() or {}
+        tb = ThongBao.query.filter_by(matb=matb).first()
+        if not tb:
+            return jsonify({"status": "error", "message": "Không tìm thấy thông báo"}), 404
+
+        if 'title' in data or 'tieuDe' in data:
+            tb.tieude = data.get('title') or data.get('tieuDe')
+        if 'content' in data or 'noiDung' in data:
+            tb.noidung = data.get('content') or data.get('noiDung')
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Cập nhật thông báo thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 4. Xóa thông báo ──
+@admin_bp.route('/notifications/<matb>', methods=['DELETE'])
+def delete_admin_notification(matb):
+    try:
+        SvThongBao.query.filter_by(matb=matb).delete()
+        ThongBao.query.filter_by(matb=matb).delete()
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Đã xóa thông báo thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
