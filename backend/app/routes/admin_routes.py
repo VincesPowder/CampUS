@@ -838,3 +838,603 @@ def update_academic_year(year_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+    
+# ══════════════════════════════════════════════════════════════════════════════
+# ─── QUẢN LÝ KHẢO SÁT (ADMIN SURVEY MANAGEMENT) ──────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+from app.models.survey import KhaoSat, CauHoiKhaoSat, SvKhaoSat, TraLoiKhaoSat
+from app.models.student import SinhVien
+import re
+
+# ── 1. Lấy danh sách khảo sát cho Admin ──
+@admin_bp.route('/surveys', methods=['GET'])
+def get_admin_surveys():
+    try:
+        search = request.args.get('search', '').strip().lower()
+        status_filter = request.args.get('status', 'all')
+
+        surveys = KhaoSat.query.all()
+        total_students = SinhVien.query.count() or 1
+        result = []
+
+        for ks in surveys:
+            # Đếm số lượng sinh viên đã nộp khảo sát
+            submitted_count = SvKhaoSat.query.filter_by(maks=ks.maks, trangthai_lam='1').count()
+            target_count = SvKhaoSat.query.filter_by(maks=ks.maks).count() or total_students
+            rate = round((submitted_count / target_count) * 100) if target_count > 0 else 0
+
+            # Phân loại trạng thái (active / closed)
+            is_active = True
+            if ks.handon:
+                try:
+                    deadline_dt = datetime.strptime(str(ks.handon).strip(), '%Y-%m-%d')
+                    is_active = datetime.now().date() <= deadline_dt.date()
+                except Exception:
+                    pass
+
+            st_key = "active" if is_active else "closed"
+
+            item = {
+                "id": ks.maks,
+                "maks": ks.maks,
+                "title": ks.tenks,
+                "description": ks.noidung or "",
+                "deadline": ks.handon or "2026-08-30",
+                "status": st_key,
+                "totalTarget": target_count,
+                "submittedCount": submitted_count,
+                "responseRate": rate,
+                "questionsCount": len(ks.cauhois) if hasattr(ks, 'cauhois') else 0
+            }
+
+            if status_filter != 'all' and item["status"] != status_filter:
+                continue
+            if search and (search not in item["title"].lower() and search not in item["description"].lower()):
+                continue
+
+            result.append(item)
+
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 2. Xem chi tiết & Thống kê kết quả khảo sát ──
+@admin_bp.route('/surveys/<maks>', methods=['GET'])
+def get_admin_survey_detail(maks):
+    try:
+        ks = KhaoSat.query.filter_by(maks=maks).first()
+        if not ks:
+            return jsonify({"status": "error", "message": "Không tìm thấy khảo sát"}), 404
+
+        questions = CauHoiKhaoSat.query.filter_by(maks=ks.maks).order_by(CauHoiKhaoSat.thutu).all()
+        questions_data = []
+
+        for q in questions:
+            # Lấy toàn bộ câu trả lời của câu hỏi này
+            answers = TraLoiKhaoSat.query.filter_by(mach=q.mach).all()
+            
+            ratings_list = []
+            text_comments = []
+            rating_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+
+            for a in answers:
+                if a.noidung_traloi:
+                    match = re.search(r"Rating:\s*(\d+)\.\s*Comment:\s*(.*)", a.noidung_traloi, re.IGNORECASE | re.DOTALL)
+                    if match:
+                        r_val = int(match.group(1))
+                        if 1 <= r_val <= 5:
+                            ratings_list.append(r_val)
+                            rating_counts[r_val] += 1
+                        cmt = match.group(2).strip()
+                        if cmt: text_comments.append(cmt)
+                    else:
+                        text_comments.append(a.noidung_traloi)
+
+            total_ratings = len(ratings_list)
+            avg_rating = round(sum(ratings_list) / total_ratings, 1) if total_ratings > 0 else 0
+
+            # Phân tích % của từng mức sao (1 -> 5)
+            rating_breakdown = []
+            for star in range(5, 0, -1):
+                count = rating_counts[star]
+                pct = round((count / total_ratings) * 100) if total_ratings > 0 else 0
+                rating_breakdown.append({
+                    "star": star,
+                    "count": count,
+                    "percentage": pct
+                })
+
+            questions_data.append({
+                "id": q.mach,
+                "code": q.loai_cauhoi or "—",
+                "content": q.noidung_cauhoi,
+                "averageRating": avg_rating,
+                "totalRatings": total_ratings,
+                "ratingBreakdown": rating_breakdown,
+                "textResponses": text_comments
+            })
+
+        total_submitted = SvKhaoSat.query.filter_by(maks=maks, trangthai_lam='1').count()
+        total_target = SvKhaoSat.query.filter_by(maks=maks).count() or 1
+
+        return jsonify({
+            "status": "success",
+            "data": {
+                "id": ks.maks,
+                "title": ks.tenks,
+                "description": ks.noidung or "",
+                "deadline": ks.handon or "",
+                "submittedCount": total_submitted,
+                "totalTarget": total_target,
+                "responseRate": round((total_submitted / total_target) * 100),
+                "questions": questions_data
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 3. Tạo khảo sát mới ──
+@admin_bp.route('/surveys', methods=['POST'])
+def create_admin_survey():
+    try:
+        data = request.get_json() or {}
+        maks = f"KS_{int(datetime.now().timestamp())}"
+
+        ks = KhaoSat(
+            maks=maks,
+            tenks=data.get('title', 'Khảo sát mới'),
+            noidung=data.get('description', ''),
+            handon=data.get('deadline', '2026-08-30')
+        )
+        db.session.add(ks)
+
+        # Thêm danh sách câu hỏi / môn học cần đánh giá
+        questions = data.get('questions', [])
+        for idx, q in enumerate(questions):
+            mach = f"CH_{maks}_{idx+1}"
+            ch = CauHoiKhaoSat(
+                mach=mach,
+                maks=maks,
+                noidung_cauhoi=q.get('name') or q.get('content', f'Câu hỏi {idx+1}'),
+                loai_cauhoi=q.get('code') or q.get('type', 'Đánh giá'),
+                thutu=idx+1
+            )
+            db.session.add(ch)
+
+        # Gán khảo sát cho toàn bộ sinh viên trong CSDL
+        students = SinhVien.query.all()
+        for sv in students:
+            db.session.add(SvKhaoSat(mssv=sv.mssv, maks=maks, trangthai_lam='0'))
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Tạo khảo sát thành công", "id": maks}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 4. Xóa khảo sát ──
+@admin_bp.route('/surveys/<maks>', methods=['DELETE'])
+def delete_admin_survey(maks):
+    try:
+        ks = KhaoSat.query.filter_by(maks=maks).first()
+        if not ks:
+            return jsonify({"status": "error", "message": "Không tìm thấy khảo sát"}), 404
+
+        # Xóa câu trả lời của các câu hỏi thuộc khảo sát này
+        cauhois = CauHoiKhaoSat.query.filter_by(maks=maks).all()
+        for ch in cauhois:
+            TraLoiKhaoSat.query.filter_by(mach=ch.mach).delete()
+
+        # Xóa phân công sinh viên, câu hỏi và khảo sát
+        SvKhaoSat.query.filter_by(maks=maks).delete()
+        CauHoiKhaoSat.query.filter_by(maks=maks).delete()
+        db.session.delete(ks)
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Đã xóa khảo sát thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 5. Xuất kết quả khảo sát ra file CSV ──
+@admin_bp.route('/surveys/<maks>/export', methods=['GET'])
+def export_admin_survey(maks):
+    try:
+        ks = KhaoSat.query.filter_by(maks=maks).first()
+        if not ks: return jsonify({"status": "error", "message": "Không tìm thấy"}), 404
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["MSSV", "Mã câu hỏi", "Nội dung câu hỏi", "Điểm đánh giá (Rating)", "Ý kiến nhận xét", "Thời gian làm"])
+
+        cauhois = {ch.mach: ch.noidung_cauhoi for ch in CauHoiKhaoSat.query.filter_by(maks=maks).all()}
+        answers = TraLoiKhaoSat.query.filter(TraLoiKhaoSat.mach.in_(list(cauhois.keys()))).all()
+
+        for a in answers:
+            rating = ""
+            comment = a.noidung_traloi or ""
+            if a.noidung_traloi:
+                match = re.search(r"Rating:\s*(\d+)\.\s*Comment:\s*(.*)", a.noidung_traloi, re.IGNORECASE | re.DOTALL)
+                if match:
+                    rating = match.group(1)
+                    comment = match.group(2).strip()
+
+            writer.writerow([
+                a.mssv,
+                a.mach,
+                cauhois.get(a.mach, ""),
+                rating,
+                comment,
+                a.thoigian_traloi.strftime('%d/%m/%Y %H:%M') if a.thoigian_traloi else ""
+            ])
+
+        res = make_response(output.getvalue())
+        res.headers["Content-Disposition"] = f"attachment; filename=ket_qua_khao_sat_{maks}.csv"
+        res.headers["Content-type"] = "text/csv; charset=utf-8-sig"
+        return res
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+# ══════════════════════════════════════════════════════════════════════════════
+# ─── QUẢN LÝ LỊCH HỌC & LỊCH THI (SCHEDULE & EXAMS) ──────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+from app.models.schedule import LichHoc, LichThi
+
+def parse_time_val(time_str):
+    if not time_str: return None
+    try:
+        t_clean = str(time_str).strip().split('–')[0].strip().split('-')[0].strip()
+        return datetime.strptime(t_clean, '%H:%M').time()
+    except Exception:
+        return None
+
+def ensure_schedule_seed_data():
+    try:
+        lhps = LopHocPhan.query.all()
+        if not lhps: return
+
+        if LichHoc.query.count() == 0:
+            thu_list = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"]
+            phong_list = ["C.42", "I.23", "F.102", "B.31", "E.201", "Lab 03"]
+            
+            for idx, lhp in enumerate(lhps[:15]):
+                lh = LichHoc(
+                    malichhoc=f"LH_{lhp.malhp}_{idx+1}",
+                    malhp=lhp.malhp,
+                    tuan="1–15",
+                    ngaybatdau=parse_date("01/09/2025"),
+                    ngayketthuc=parse_date("15/01/2026"),
+                    thu=thu_list[idx % len(thu_list)],
+                    thoigian_bd=parse_time_val("07:30"),
+                    thoigian_kt=parse_time_val("10:00"),
+                    phonghoc=phong_list[idx % len(phong_list)],
+                    hinhthuchoc="Trực tiếp" if idx % 4 != 0 else "Trực tuyến"
+                )
+                db.session.add(lh)
+            db.session.commit()
+
+        if LichThi.query.count() == 0:
+            phong_thi = ["I.42", "C.31", "F.201", "E.102", "B.22"]
+            for idx, lhp in enumerate(lhps[:12]):
+                lt = LichThi(
+                    malichthi=f"LT_{lhp.malhp}_{idx+1}",
+                    malhp=lhp.malhp,
+                    ngaythi=parse_date(f"{20 + (idx % 8)}/11/2026"),
+                    giothi=parse_time_val("07:30" if idx % 2 == 0 else "13:30"),
+                    thoigianlambai=90 if idx % 3 != 0 else 120,
+                    phongthi=phong_thi[idx % len(phong_thi)]
+                )
+                db.session.add(lt)
+            db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print("Lỗi seed schedule:", e)
+
+# ── 1. Danh sách Lịch học (TKB) ──
+# Thêm hàm chuẩn hóa thứ
+def normalize_thu(thu_str):
+    if not thu_str: return "Thứ hai"
+    t = str(thu_str).strip().lower()
+    if "hai" in t or t == "2": return "Thứ hai"
+    if "ba" in t or t == "3": return "Thứ ba"
+    if "tư" in t or "tu" in t or t == "4": return "Thứ tư"
+    if "năm" in t or "nam" in t or t == "5": return "Thứ năm"
+    if "sáu" in t or "sau" in t or t == "6": return "Thứ sáu"
+    if "bảy" in t or "bay" in t or t == "7": return "Thứ bảy"
+    if "nhật" in t or "nhat" in t or "cn" in t: return "Chủ nhật"
+    return thu_str
+
+@admin_bp.route('/schedule/classes', methods=['GET'])
+def get_admin_classes():
+    try:
+        ensure_schedule_seed_data()
+        nam_hoc = request.args.get('namHoc', '')
+        hoc_ky = request.args.get('hocKy', '')
+        thu = request.args.get('thu', '')
+        search = request.args.get('search', '').strip().lower()
+
+        lich_hocs = LichHoc.query.join(LopHocPhan).all()
+        result = []
+
+        for lh in lich_hocs:
+            lhp = lh.lophocphan
+            mh = lhp.monhoc if lhp else None
+            
+            bd_str = lh.thoigian_bd.strftime('%H:%M') if lh.thoigian_bd else "07:30"
+            kt_str = lh.thoigian_kt.strftime('%H:%M') if lh.thoigian_kt else "11:10"
+            thu_chuan = normalize_thu(lh.thu)
+
+            item = {
+                "id": lh.malichhoc,
+                "malichhoc": lh.malichhoc,
+                "malhp": lh.malhp,
+                "maMon": mh.mamh if mh else (lhp.mamh if lhp else ""),
+                "tenMon": mh.tenmh if mh else (lhp.tenlop if lhp else "Môn học"),
+                "lop": lhp.tenlop if lhp else "24C07",
+                "giangVien": lhp.tengv if lhp else "Chưa phân công",
+                "thu": thu_chuan,
+                "tiet": "1–4" if bd_str.startswith("07") else "7–10",
+                "gio": f"{bd_str} – {kt_str}",
+                "phong": lh.phonghoc or "I.44",
+                "tuan": lh.tuan or "1",
+                "hinhThuc": lh.hinhthuchoc or "Trực tiếp",
+                "hocKy": 1,
+                "namHoc": "25-26"
+            }
+
+            # Lọc theo thứ chuẩn hóa
+            if thu and thu != "all":
+                if normalize_thu(item["thu"]) != normalize_thu(thu):
+                    continue
+
+            if search:
+                if (search not in item["tenMon"].lower() and 
+                    search not in item["maMon"].lower() and 
+                    search not in item["giangVien"].lower() and 
+                    search not in item["phong"].lower() and 
+                    search not in item["lop"].lower()):
+                    continue
+
+            result.append(item)
+
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 2. Thêm / Sửa / Xóa Lịch học ──
+@admin_bp.route('/schedule/classes', methods=['POST'])
+def create_class_schedule():
+    try:
+        data = request.get_json() or {}
+        malhp = data.get('malhp')
+        if not malhp:
+            first_lhp = LopHocPhan.query.first()
+            malhp = first_lhp.malhp if first_lhp else "HP001"
+
+        malh = f"LH_{int(datetime.now().timestamp())}"
+        lh = LichHoc(
+            malichhoc=malh,
+            malhp=malhp,
+            tuan=data.get('tuan', '1–15'),
+            thu=data.get('thu', 'Thứ hai'),
+            thoigian_bd=parse_time_val(data.get('gio', '07:30')),
+            thoigian_kt=parse_time_val("10:00"),
+            phonghoc=data.get('phong', 'C.42'),
+            hinhthuchoc=data.get('hinhThuc', 'Trực tiếp')
+        )
+        db.session.add(lh)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Thêm lịch học thành công"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@admin_bp.route('/schedule/classes/<id>', methods=['PUT'])
+def update_class_schedule(id):
+    try:
+        data = request.get_json() or {}
+        lh = LichHoc.query.filter_by(malichhoc=id).first()
+        if not lh: return jsonify({"status": "error", "message": "Không tìm thấy lịch học"}), 404
+
+        if 'thu' in data: lh.thu = data['thu']
+        if 'phong' in data: lh.phonghoc = data['phong']
+        if 'tuan' in data: lh.tuan = data['tuan']
+        if 'hinhThuc' in data: lh.hinhthuchoc = data['hinhThuc']
+        if 'gio' in data: lh.thoigian_bd = parse_time_val(data['gio'])
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Cập nhật lịch học thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@admin_bp.route('/schedule/classes/<id>', methods=['DELETE'])
+def delete_class_schedule(id):
+    try:
+        LichHoc.query.filter_by(malichhoc=id).delete()
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Đã xóa lịch học"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 3. Danh sách Lịch thi ──
+@admin_bp.route('/schedule/exams', methods=['GET'])
+def get_admin_exams():
+    try:
+        ensure_schedule_seed_data()
+        search = request.args.get('search', '').strip().lower()
+
+        lich_this = LichThi.query.join(LopHocPhan).all()
+        result = []
+
+        thu_names = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"]
+
+        for lt in lich_this:
+            lhp = lt.lophocphan
+            mh = lhp.monhoc if lhp else None
+            
+            ngay_str = format_date(lt.ngaythi) or "28/11/2026"
+            thu_str = "Thứ hai"
+            if lt.ngaythi:
+                thu_str = thu_names[lt.ngaythi.weekday()]
+
+            gio_str = lt.giothi.strftime('%H:%M') if lt.giothi else "07:30"
+            ca_str = "Ca 1" if gio_str.startswith("07") else ("Ca 2" if gio_str.startswith("09") else "Ca 3")
+
+            item = {
+                "id": lt.malichthi,
+                "malichthi": lt.malichthi,
+                "malhp": lt.malhp,
+                "tenMon": mh.tenmh if mh else (lhp.tenlop if lhp else "Môn thi"),
+                "maNhom": lhp.tenlop if lhp else "24C07",
+                "ngayThi": ngay_str,
+                "thu": thu_str,
+                "ca": ca_str,
+                "gio": f"{gio_str} – 09:30",
+                "thoiGian": f"{lt.thoigianlambai or 90} phút",
+                "phong": lt.phongthi or "I.42",
+                "soThi": lt.sothisinh or 45,
+                "hinhThuc": lt.hinhthucthi or "Tự luận",
+                "hocKy": 1,
+                "namHoc": "25-26"
+            }
+
+            if search:
+                if (search not in item["tenMon"].lower() and 
+                    search not in item["maNhom"].lower() and 
+                    search not in item["phong"].lower()):
+                    continue
+
+            result.append(item)
+
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 4. Thêm / Sửa / Xóa Lịch thi ──
+@admin_bp.route('/schedule/exams', methods=['POST'])
+def create_exam_schedule():
+    try:
+        data = request.get_json() or {}
+        first_lhp = LopHocPhan.query.first()
+        malhp = first_lhp.malhp if first_lhp else "HP001"
+
+        malt = f"LT_{int(datetime.now().timestamp())}"
+        
+        tg_num = 90
+        try:
+            tg_num = int(str(data.get('thoiGian', '90')).replace('phút', '').strip())
+        except Exception:
+            pass
+
+        lt = LichThi(
+            malichthi=malt,
+            malhp=malhp,
+            ngaythi=parse_date(data.get('ngayThi')),
+            giothi=parse_time_val(data.get('gio', '07:30')),
+            thoigianlambai=tg_num,
+            phongthi=data.get('phong', 'I.42')
+        )
+        db.session.add(lt)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Thêm lịch thi thành công"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@admin_bp.route('/schedule/exams/<id>', methods=['PUT'])
+def update_exam_schedule(id):
+    try:
+        data = request.get_json() or {}
+        lt = LichThi.query.filter_by(malichthi=id).first()
+        if not lt: return jsonify({"status": "error", "message": "Không tìm thấy lịch thi"}), 404
+
+        if 'ngayThi' in data: lt.ngaythi = parse_date(data['ngayThi'])
+        if 'phong' in data: lt.phongthi = data['phong']
+        if 'thoiGian' in data:
+            try: lt.thoigianlambai = int(str(data['thoiGian']).replace('phút', '').strip())
+            except Exception: pass
+        if 'gio' in data: lt.giothi = parse_time_val(data['gio'])
+
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Cập nhật lịch thi thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@admin_bp.route('/schedule/exams/<id>', methods=['DELETE'])
+def delete_exam_schedule(id):
+    try:
+        LichThi.query.filter_by(malichthi=id).delete()
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Đã xóa lịch thi"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ── 5. Xuất Lịch học / Lịch thi ra file CSV ──
+@admin_bp.route('/schedule/classes/export', methods=['GET'])
+def export_classes_csv():
+    try:
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["STT", "Mã MH", "Tên môn học", "Lớp", "Giảng viên", "Thứ", "Thời gian", "Phòng", "Tuần", "Hình thức"])
+
+        lich_hocs = LichHoc.query.join(LopHocPhan).all()
+        for idx, lh in enumerate(lich_hocs):
+            lhp = lh.lophocphan
+            mh = lhp.monhoc if lhp else None
+            bd = lh.thoigian_bd.strftime('%H:%M') if lh.thoigian_bd else "07:30"
+            kt = lh.thoigian_kt.strftime('%H:%M') if lh.thoigian_kt else "10:00"
+            writer.writerow([
+                idx + 1,
+                mh.mamh if mh else (lhp.mamh if lhp else ""),
+                mh.tenmh if mh else "",
+                lhp.tenlop if lhp else "",
+                lhp.tengv if lhp else "",
+                lh.thu or "",
+                f"{bd} - {kt}",
+                lh.phonghoc or "",
+                lh.tuan or "",
+                lh.hinhthuchoc or ""
+            ])
+
+        res = make_response(output.getvalue())
+        res.headers["Content-Disposition"] = "attachment; filename=thoi_khoa_bieu.csv"
+        res.headers["Content-type"] = "text/csv; charset=utf-8-sig"
+        return res
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@admin_bp.route('/schedule/exams/export', methods=['GET'])
+def export_exams_csv():
+    try:
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["STT", "Tên môn học", "Mã nhóm", "Ngày thi", "Thứ", "Giờ thi", "Thời gian", "Phòng thi", "Số thí sinh", "Hình thức"])
+
+        lich_this = LichThi.query.join(LopHocPhan).all()
+        for idx, lt in enumerate(lich_this):
+            lhp = lt.lophocphan
+            mh = lhp.monhoc if lhp else None
+            writer.writerow([
+                idx + 1,
+                mh.tenmh if mh else "",
+                lhp.tenlop if lhp else "",
+                format_date(lt.ngaythi),
+                "Thứ hai",
+                lt.giothi.strftime('%H:%M') if lt.giothi else "07:30",
+                f"{lt.thoigianlambai or 90} phút",
+                lt.phongthi or "",
+                lt.sothisinh or 45,
+                lt.hinhthucthi or ""
+            ])
+
+        res = make_response(output.getvalue())
+        res.headers["Content-Disposition"] = "attachment; filename=lich_thi.csv"
+        res.headers["Content-type"] = "text/csv; charset=utf-8-sig"
+        return res
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
