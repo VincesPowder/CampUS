@@ -1,8 +1,9 @@
 // ─── Shared components, schedule types, data, and TKBCellCard ───────────────
 // Used by App.tsx, StudentSections.tsx, and AdminSections.tsx
 import React, { useState, useRef, useEffect } from "react";
-import { HelpCircle, Mail, X } from "lucide-react";
+import { HelpCircle, Mail, X, Copy, Check } from "lucide-react";
 import logoImg from "@/imports/Artboard_5.png";
+
 const CONTACTS = [
   { label: "Phòng đào tạo",  mail: "daotao@hcmus.edu.vn" },
   { label: "Phòng giáo vụ",  mail: "giaovu@hcmus.edu.vn" },
@@ -25,10 +26,31 @@ export function SidebarLogo({ open }: { open: boolean }) {
   );
 }
 
-
 export function HelpButton() {
   const [open, setOpen] = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [contacts, setContacts] = useState<any[]>([
+    { label: "Giáo vụ", mail: "giaovu@fit.hcmus.edu.vn", role: "Học vụ" },
+    { label: "Phòng Đào tạo", mail: "pdt_khtn@hcmus.edu.vn", role: "Học vụ" },
+    { label: "AmongUS", mail: "campusofficial2026@gmail.com", role: "Hỗ trợ kĩ thuật" },
+  ]);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/contacts')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.data && data.data.length > 0) {
+          setContacts(data.data.map((c: any) => ({
+            label: c.label,
+            mail: c.email || c.mail,
+            phone: c.phone,
+            role: c.role
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -38,23 +60,77 @@ export function HelpButton() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const handleCopy = (email: string, idx: number) => {
+    navigator.clipboard.writeText(email);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
+  };
+
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen(o => !o)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground" title="Liên hệ hỗ trợ">
+      <button 
+        onClick={() => setOpen(o => !o)} 
+        className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground" 
+        title="Liên hệ hỗ trợ"
+      >
         <HelpCircle className="w-5 h-5" />
       </button>
+
       {open && (
-        <div className="fixed left-1/2 -translate-x-1/2 top-[58px] w-max max-w-[calc(100vw-1.5rem)] sm:absolute sm:left-auto sm:translate-x-0 sm:right-0 sm:top-full sm:mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 200 }}>
-          <div className="px-4 py-2.5 border-b border-border">
-            <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Liên hệ hỗ trợ</h3>
+        <div 
+          className="fixed left-1/2 -translate-x-1/2 top-[58px] w-max max-w-[calc(100vw-1.5rem)] sm:absolute sm:left-auto sm:translate-x-0 sm:right-0 sm:top-full sm:mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" 
+          style={{ zIndex: 200 }}
+        >
+          <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
+            <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Liên hệ hỗ trợ
+            </h3>
+            <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
+
           <div className="divide-y divide-border">
-            {CONTACTS.map(c => (
-              <div key={c.label} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 hover:bg-secondary/40 transition-colors">
-                <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{c.label}:</span>
-                <a href={`mailto:${c.mail}`} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  <Mail className="w-3.5 h-3.5 shrink-0" />{c.mail}
+            {contacts.map((c, idx) => (
+              <div 
+                key={c.label || idx} 
+                className="px-4 py-2.5 flex items-center gap-3 hover:bg-secondary/40 transition-colors"
+              >
+                {/* Cột Tên & Vai trò: cố định chiều rộng (210px) để dấu : thẳng hàng */}
+                <div className="w-[210px] shrink-0 flex items-center justify-between pr-2">
+                  <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    {c.label}
+                    {c.role && (
+                      <span className="text-[11px] text-muted-foreground font-normal ml-1">
+                        ({c.role})
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-sm font-medium text-foreground">:</span>
+                </div>
+
+                {/* Cột Email */}
+                <a 
+                  href={`mailto:${c.mail}`} 
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors font-mono" 
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  <Mail className="w-3.5 h-3.5 shrink-0" />
+                  {c.mail}
                 </a>
+
+                {/* Nút Copy: ml-auto tự động đẩy sát về lề phải */}
+                <button
+                  onClick={() => handleCopy(c.mail, idx)}
+                  className="p-1.5 ml-auto rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+                  title="Sao chép email"
+                >
+                  {copiedIdx === idx ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
               </div>
             ))}
           </div>
@@ -63,7 +139,6 @@ export function HelpButton() {
     </div>
   );
 }
-
 // ─── Name helpers ─────────────────────────────────────────────────────────────
 
 export function getInitials(fullName: string): string {

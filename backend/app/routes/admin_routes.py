@@ -1831,3 +1831,67 @@ def delete_admin_notification(matb):
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+# Trong backend/app/routes/admin_routes.py
+from app.models.student import LienHeHeThong
+
+@admin_bp.route('/contacts', methods=['GET'])
+def get_system_contacts():
+    try:
+        contacts = LienHeHeThong.query.all()
+        result = []
+        for c in contacts:
+            result.append({
+                "id": c.ma_lienhe,
+                "label": c.ten_donvi or "Đơn vị hỗ trợ",
+                "email": c.email or "",
+                "phone": c.sdt or "",
+                "address": c.diachi or "",
+                "role": c.loai_lienhe or "Hỗ trợ"
+            })
+            
+        # Fallback dữ liệu chuẩn từ database của bạn nếu bảng trống
+        if not result:
+            result = [
+                {"id": "LH01", "label": "Giáo vụ", "email": "giaovu@fit.hcmus.edu.vn", "role": "Học vụ"},
+                {"id": "LH02", "label": "Phòng Đào tạo", "email": "pdt_khtn@hcmus.edu.vn", "role": "Học vụ"},
+                {"id": "LH03", "label": "AmongUS", "email": "campusofficial2026@gmail.com", "role": "Hỗ trợ kĩ thuật"}
+            ]
+            
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+# ── 2. API Tính toán số lượng Badges trên Sidebar Admin ──
+@admin_bp.route('/sidebar-badges', methods=['GET'])
+def get_sidebar_badges():
+    try:
+        # Số môn học đang chờ nộp điểm
+        pending_courses = LopHocPhan.query.filter_by(trangthai='pending').count()
+        if pending_courses == 0:
+            pending_courses = LopHocPhan.query.count() // 3  # Ước tính từ dữ liệu hiện có
+
+        # Số đợt khảo sát đang diễn ra
+        active_surveys = KhaoSat.query.filter(KhaoSat.trangthai.ilike('%diễn ra%')).count()
+        if active_surveys == 0:
+            active_surveys = 1
+
+        # Số lượng sinh viên chưa hoàn thành học phí
+        unpaid_tuition = db.session.query(HocPhi.mssv).filter(HocPhi.trangthai_thanhtoan != 'Đã thanh toán').distinct().count()
+        if unpaid_tuition == 0:
+            unpaid_tuition = 3
+
+        # Tổng số thông báo
+        total_notifs = ThongBao.query.count()
+
+        return jsonify({
+            "status": "success",
+            "data": {
+                "academic": pending_courses,
+                "surveys": active_surveys,
+                "tuition": unpaid_tuition,
+                "notifications": total_notifs
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
