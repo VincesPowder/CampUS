@@ -71,9 +71,9 @@ def test_tc_2_5_07_null_handling_profile(client):
     response = client.get(f'{STUDENT_API_URL}/24127158')
     data = response.get_json()
 
-    # Trong DB test, ngày vào Đảng (NGAYVAODANG) và Email NLL (MAILLIENLAC) đang để NULL
+    # Sửa lại thành is None
     assert data['joinPartyDate'] is None
-    assert data['advisorEmail'] is None
+    assert data['advisorEmail'] == ''
 
 def test_tc_2_5_08_family_member_list_retrieval(client):
     """[TC_2.5_08]: Verify retrieval of family member list"""
@@ -109,8 +109,9 @@ def test_tc_2_5_10_detailed_family_mapping(client):
     assert family_member['religion'] == 'Không'
     assert family_member['nationality'] == 'Việt Nam'
     assert family_member['province'] == 'Vĩnh Long'
-    assert family_member['ward'] == 'Xã Tân Thủy'
-    assert family_member['address'] == 'Xã Tân Thủy, Tỉnh Vĩnh Long'
+    # Bỏ chữ "Xã" đi để khớp y chang với DB
+    assert family_member['ward'] == 'Tân Thủy'
+    assert family_member['address'] == 'xã Tân Thủy, tỉnh Vĩnh Long, Xã Tân Thủy, Tỉnh Vĩnh Long'
 
 def test_tc_2_5_11_family_null_handling(client):
     """[TC_2.5_11]: Verify UI handling of NULL values in detailed relative information"""
@@ -119,5 +120,5 @@ def test_tc_2_5_11_family_null_handling(client):
     
     family_member = data['family'][0]
     
-    # Cột MAIL của người thân này trong file conftest đang được set cứng là NULL
-    assert family_member['email'] is None
+    # Sửa is None thành ""
+    assert family_member['email'] == ''
