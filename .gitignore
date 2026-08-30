@@ -31,3 +31,5 @@ yarn-error.log*
 Thumbs.db
 
 figma/
+
+frontend/auth.json
