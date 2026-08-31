@@ -65,35 +65,36 @@ def get_exam_schedule(mssv=None):
     data = ScheduleService.get_exam_schedule(mssv_query, ma_hocky)
     return jsonify({"status": "success", "data": data}), 200
 
+# backend/app/routes/student_routes.py (Đoạn route xuất file)
+
 @student_bp.route('/schedule/weekly/export', methods=['GET'])
 @student_bp.route('/<mssv>/schedule/weekly/export', methods=['GET'])
-def export_weekly_excel(mssv=None):
+def export_weekly_csv(mssv=None):
     mssv_query = mssv or request.args.get('mssv', default='', type=str)
     ma_hocky = request.args.get('ma_hocky', default='HK001', type=str)
     week_number = request.args.get('week', default=1, type=int)
 
-    excel_file = ScheduleService.export_weekly_schedule_excel(mssv_query, ma_hocky, week_number)
+    csv_file = ScheduleService.export_weekly_schedule_csv(mssv_query, ma_hocky, week_number)
     return send_file(
-        excel_file,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        csv_file,
+        mimetype="text/csv; charset=utf-8-sig",
         as_attachment=True,
-        download_name=f"TKB_Tuan_{week_number}.xlsx"
+        download_name=f"TKB_Tuan_{week_number}.csv"
     )
 
 @student_bp.route('/schedule/exams/export', methods=['GET'])
 @student_bp.route('/<mssv>/schedule/exams/export', methods=['GET'])
-def export_exams_excel(mssv=None):
+def export_exams_csv(mssv=None):
     mssv_query = mssv or request.args.get('mssv', default='', type=str)
     ma_hocky = request.args.get('ma_hocky', default='HK001', type=str)
 
-    excel_file = ScheduleService.export_exam_schedule_excel(mssv_query, ma_hocky)
+    csv_file = ScheduleService.export_exam_schedule_csv(mssv_query, ma_hocky)
     return send_file(
-        excel_file,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        csv_file,
+        mimetype="text/csv; charset=utf-8-sig",
         as_attachment=True,
-        download_name="Lich_Thi.xlsx"
+        download_name="Lich_Thi.csv"
     )
-
 
 # =============================================================================
 # 2. PROFILE & FAMILY ROUTES (HỒ SƠ CÁ NHÂN & GIA ĐÌNH)
@@ -365,47 +366,65 @@ def mark_all_notifications_read(mssv):
 @student_bp.route('/<mssv>/surveys', methods=['GET'])
 def get_surveys(mssv):
     from app.models.survey import SvKhaoSat, KhaoSat, CauHoiKhaoSat, TraLoiKhaoSat
-    sv_surveys = db.session.query(SvKhaoSat, KhaoSat).join(
-        KhaoSat, SvKhaoSat.maks == KhaoSat.maks
-    ).filter(SvKhaoSat.mssv == mssv).all()
+    
+    # Bảng quy đổi chữ cái sang thang điểm 1 - 5
+    LETTER_TO_RATING = {
+        'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1,
+        'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1
+    }
 
-    if not sv_surveys:
-        surveys = KhaoSat.query.all()
-        for ks in surveys:
-            exists = SvKhaoSat.query.filter_by(mssv=mssv, maks=ks.maks).first()
-            if not exists:
-                db.session.add(SvKhaoSat(mssv=mssv, maks=ks.maks, trangthai_lam='0'))
-        db.session.commit()
-        sv_surveys = db.session.query(SvKhaoSat, KhaoSat).join(
-            KhaoSat, SvKhaoSat.maks == KhaoSat.maks
-        ).filter(SvKhaoSat.mssv == mssv).all()
+    # 1. Lấy tất cả khảo sát có trong hệ thống
+    all_surveys = KhaoSat.query.all()
 
     result = []
-    for sv_ks, ks in sv_surveys:
-        is_done = str(sv_ks.trangthai_lam) in ['1', 'Hoàn thành', 'Đã hoàn thành']
+    for ks in all_surveys:
+        sv_ks = SvKhaoSat.query.filter_by(mssv=mssv, maks=ks.maks).first()
+        is_done = sv_ks is not None and str(sv_ks.trangthai_lam) in ['1', 'Hoàn thành', 'Đã hoàn thành']
+        
         questions = CauHoiKhaoSat.query.filter_by(maks=ks.maks).order_by(CauHoiKhaoSat.thutu).all()
         courses_list = []
         
         for q in questions:
+            is_essay = "tự luận" in (q.loai_cauhoi or "").lower()
+            
             course_info = {
                 "id": q.mach,
-                "code": q.loai_cauhoi or "—",
+                "code": q.loai_cauhoi or "Trắc nghiệm",
+                "type": q.loai_cauhoi or "Trắc nghiệm",
                 "name": q.noidung_cauhoi,
                 "rating": None,
                 "comment": ""
             }
+            
             if is_done:
                 traloi = TraLoiKhaoSat.query.filter_by(mach=q.mach, mssv=mssv).first()
                 if traloi and traloi.noidung_traloi:
-                    match = re.search(r"Rating:\s*(\d+)\.\s*Comment:\s*(.*)", traloi.noidung_traloi, re.IGNORECASE | re.DOTALL)
-                    if match:
-                        course_info["rating"] = int(match.group(1))
-                        course_info["comment"] = match.group(2).strip()
+                    raw_text = traloi.noidung_traloi.strip()
+                    
+                    if is_essay:
+                        # Câu hỏi tự luận: toàn bộ text là nội dung trả lời
+                        course_info["comment"] = raw_text
                     else:
-                        course_info["comment"] = traloi.noidung_traloi
+                        # Câu hỏi trắc nghiệm: kiểm tra các dạng lưu trữ
+                        # Dạng 1: "Rating: 5. Comment: ..."
+                        match = re.search(r"Rating:\s*(\d+)(?:\.\s*Comment:\s*(.*))?", raw_text, re.IGNORECASE | re.DOTALL)
+                        if match:
+                            course_info["rating"] = int(match.group(1))
+                            course_info["comment"] = (match.group(2) or "").strip()
+                        # Dạng 2: Chữ cái A, B, C, D, E (từ CSDL seed)
+                        elif raw_text in LETTER_TO_RATING:
+                            course_info["rating"] = LETTER_TO_RATING[raw_text]
+                            course_info["comment"] = ""  # Xóa ký tự A khỏi ô góp ý
+                        # Dạng 3: Số đơn lẻ "1", "2", "3", "4", "5"
+                        elif raw_text.isdigit() and 1 <= int(raw_text) <= 5:
+                            course_info["rating"] = int(raw_text)
+                            course_info["comment"] = ""
+                        else:
+                            course_info["comment"] = raw_text
+                            
             courses_list.append(course_info)
         
-        deadline_str = format_date(ks.handon) if ks.handon else "2026-08-15"
+        deadline_str = format_date(ks.handon) if ks.handon else "2026-09-05"
         result.append({
             "id": ks.maks,
             "title": ks.tenks,
@@ -425,8 +444,14 @@ def submit_survey(mssv, maks):
 
     for mach, res in responses.items():
         rating = res.get('rating')
-        comment = res.get('comment') or ""
-        noidung = f"Rating: {rating}. Comment: {comment}" if rating else comment
+        comment = (res.get('comment') or "").strip()
+
+        if rating is not None and comment:
+            noidung = f"Rating: {rating}. Comment: {comment}"
+        elif rating is not None:
+            noidung = f"Rating: {rating}"
+        else:
+            noidung = comment
 
         traloi = TraLoiKhaoSat.query.filter_by(mach=mach, mssv=mssv).first()
         if traloi:
@@ -444,7 +469,6 @@ def submit_survey(mssv, maks):
 
     db.session.commit()
     return jsonify({"status": "success", "message": "Nộp khảo sát thành công"}), 200
-
 
 # =============================================================================
 # 6. ACADEMIC & PROGRESS ROUTES (HỌC TẬP & TIẾN ĐỘ ĐÀO TẠO)
