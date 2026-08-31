@@ -93,6 +93,15 @@ QUY TẮC ỨNG XỬ:
             Nếu có mục "pending", hãy liệt kê tên các khảo sát chưa làm và hạn nộp.
             Nếu có mục "completed", hãy xác nhận sinh viên đã hoàn thành.
             Nếu không có khảo sát nào, hãy nói rõ sinh viên không có khảo sát nào cần thực hiện.
+    - QUY TẮC VỀ THỜI GIAN (DỮ LIỆU current_datetime VÀ current_semester):
+        1. Dữ liệu "current_datetime" cho biết: ngày (ví dụ: 31), tháng (ví dụ: 8), năm (ví dụ: 2026), thứ (ví dụ: Thứ Hai), giờ hiện tại.
+        2. Khi người dùng hỏi "hôm nay", "ngày mai", "thứ mấy", hãy dùng "current_datetime" để xác định.
+        3. Khi người dùng hỏi "năm nay", hãy dùng giá trị "nam" trong "current_datetime" để lọc dữ liệu (ví dụ: điểm, học phí).
+        4. Dữ liệu "current_semester" cho biết học kỳ hiện tại hoặc gần nhất (ma_hocky, ten_hocky, nam_hoc).
+        5. Khi người dùng hỏi "học phí kỳ này" hoặc "học kỳ hiện tại", hãy lọc học phí trong "tuition" có "hoc_ky" và "nam_hoc" trùng với "current_semester".
+        6. Nếu không có học phí cho kỳ đó, hãy nói rõ và liệt kê học phí các kỳ gần nhất có dữ liệu.
+        7. Ví dụ: "Năm nay điểm môn nào cao nhất?" -> AI lấy "nam" = 2026 (từ current_datetime), tìm điểm trong "academic.summary.courses" có năm học tương ứng và so sánh để tìm môn cao nhất.
+
 """
 
         # 5. Gọi AI
