@@ -8,7 +8,7 @@ import {
 import logoImg from "@/imports/Artboard_5.png";
 import {
   NOTIFICATIONS, STUDENT_PROFILE,
-  BOT_GREET_TEXT, CHAT_SUGGESTIONS, mockReply,
+  BOT_GREET_TEXT, CHAT_SUGGESTIONS,
   type Notification,
 } from "../data/mockData";
 import { AdminApp } from "./AdminSections";
@@ -159,22 +159,66 @@ function AIChatbot() {
     }
   }, [open]);
 
-  function send(text?: string) {
-    const q = (text ?? input).trim();
-    if (!q || typing) return;
-    const now = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-    setMessages(prev => [...prev, { role: "user", text: q, time: now }]);
-    setInput("");
-    setTyping(true);
-    setTimeout(() => {
-      const reply = mockReply(q);
-      setMessages(prev => [...prev, {
-        role: "bot", text: reply,
-        time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-      }]);
-      setTyping(false);
-    }, 900 + Math.random() * 700);
+  async function send(text?: string) {
+  const q = (text ?? input).trim();
+  if (!q || typing) return;
+
+  const now = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  setMessages(prev => [...prev, { role: "user", text: q, time: now }]);
+  setInput("");
+  setTyping(true);
+
+  // Lấy token từ local storage
+  const token = localStorage.getItem("campus_token");
+  if (!token) {
+    setTyping(false);
+    setMessages(prev => [...prev, {
+      role: "bot",
+      text: "Bạn chưa đăng nhập hoặc phiên đã hết hạn. Vui lòng đăng nhập lại.",
+      time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    }]);
+    return;
   }
+
+  try {
+    const res = await fetch("/api/chatbot/ask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      // Chỉ gửi tin nhắn; MSSV KHÔNG được gửi từ frontend
+      body: JSON.stringify({ message: q }),
+    });
+
+    if (!res.ok) {
+      // Cố gắng phân tích thông báo lỗi từ backend
+      let errorMsg = "Có lỗi xảy ra, vui lòng thử lại sau.";
+      try {
+        const errData = await res.json();
+        if (errData && errData.message) errorMsg = errData.message;
+      } catch (e) { /* bỏ qua lỗi phân tích JSON */ }
+      throw new Error(errorMsg);
+    }
+
+    const data = await res.json();
+    const reply = data.data?.reply || "Xin lỗi, tôi chưa hiểu câu hỏi của bạn.";
+
+    setMessages(prev => [...prev, {
+      role: "bot",
+      text: reply,
+      time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    }]);
+  } catch (err: any) {
+    setMessages(prev => [...prev, {
+      role: "bot",
+      text: err.message || "Đã xảy ra lỗi khi kết nối máy chủ. Vui lòng thử lại sau.",
+      time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    }]);
+  } finally {
+    setTyping(false);
+  }
+}
 
   return (
     <>
