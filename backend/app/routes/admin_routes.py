@@ -590,6 +590,15 @@ def get_academic_courses():
             so_sv = KetQuaHocTap.query.filter_by(malhp=lhp.malhp).count()
             if so_sv == 0:
                 so_sv = SinhVien.query.count()
+                
+            # Chuẩn hóa trạng thái từ DB (Closed -> locked, Open -> uploaded)
+            raw_tt = str(lhp.trangthai or "").strip().lower()
+            if "close" in raw_tt or "lock" in raw_tt or "khóa" in raw_tt:
+                st_val = "locked"
+            elif "open" in raw_tt or "upload" in raw_tt or "nộp" in raw_tt:
+                st_val = "uploaded"
+            else:
+                st_val = "pending"
 
             item = {
                 "id": lhp.malhp,
@@ -602,7 +611,7 @@ def get_academic_courses():
                 "giangVien": lhp.tengv or "Chưa phân công",
                 "emailGV": lhp.mailgv or "",
                 "soSV": so_sv,
-                "status": lhp.trangthai or "pending",
+                "status": st_val,
                 "ngayNopDiem": "20/07/2026" if lhp.trangthai in ["uploaded", "locked"] else None,
                 "hocKy": hk_so,
                 "namHoc": nh_val,
@@ -1375,12 +1384,17 @@ def delete_exam_schedule(id):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # ── 5. Xuất Lịch học / Lịch thi ra file CSV ──
+# backend/app/routes/admin_routes.py (Hàm export_classes_csv)
+
 @admin_bp.route('/schedule/classes/export', methods=['GET'])
 def export_classes_csv():
     try:
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["STT", "Mã MH", "Tên môn học", "Lớp", "Giảng viên", "Thứ", "Thời gian", "Phòng", "Tuần", "Hình thức"])
+        writer.writerow([
+            "STT", "Mã MH", "Tên môn học", "Lớp", "Giảng viên", 
+            "Thứ", "Thời gian", "Phòng", "Tuần", "Ngày bắt đầu", "Ngày kết thúc", "Hình thức"
+        ])
 
         lich_hocs = LichHoc.query.join(LopHocPhan).all()
         for idx, lh in enumerate(lich_hocs):
@@ -1398,6 +1412,8 @@ def export_classes_csv():
                 f"{bd} - {kt}",
                 lh.phonghoc or "",
                 lh.tuan or "",
+                format_date(lh.ngaybatdau),
+                format_date(lh.ngayketthuc),
                 lh.hinhthuchoc or ""
             ])
 
@@ -1862,33 +1878,39 @@ def get_system_contacts():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
     
-# ── 2. API Tính toán số lượng Badges trên Sidebar Admin ──
+# ── API Tính toán số lượng Badges trên Sidebar Admin ──
 @admin_bp.route('/sidebar-badges', methods=['GET'])
 def get_sidebar_badges():
     try:
-        # Số môn học đang chờ nộp điểm
-        pending_courses = LopHocPhan.query.filter_by(trangthai='pending').count()
-        if pending_courses == 0:
-            pending_courses = LopHocPhan.query.count() // 3  # Ước tính từ dữ liệu hiện có
+        # 1. Số môn học phần đang chờ nộp điểm hoặc chưa khóa
+        pending_courses = LopHocPhan.query.filter(
+            ~LopHocPhan.trangthai.ilike('%closed%'),
+            ~LopHocPhan.trangthai.ilike('%locked%')
+        ).count()
 
-        # Số đợt khảo sát đang diễn ra
-        active_surveys = KhaoSat.query.filter(KhaoSat.trangthai.ilike('%diễn ra%')).count()
+        # 2. Số đợt khảo sát đang diễn ra (hạn nộp chưa kết thúc)
+        now_str = datetime.now().strftime('%Y-%m-%d')
+        active_surveys = KhaoSat.query.filter(KhaoSat.handon >= now_str).count()
         if active_surveys == 0:
-            active_surveys = 1
+            active_surveys = KhaoSat.query.count()
 
-        # Số lượng sinh viên chưa hoàn thành học phí
-        unpaid_tuition = db.session.query(HocPhi.mssv).filter(HocPhi.trangthai_thanhtoan != 'Đã thanh toán').distinct().count()
-        if unpaid_tuition == 0:
-            unpaid_tuition = 3
+        # 3. Số sinh viên chưa hoàn tất học phí
+        unpaid_tuition = db.session.query(HocPhi.mssv).filter(
+            HocPhi.trangthai_thanhtoan != 'Đã thanh toán',
+            HocPhi.trangthai_thanhtoan != 1,
+            HocPhi.trangthai_thanhtoan != '1'
+        ).distinct().count()
 
-        # Tổng số thông báo
+        # 4. Tổng số thông báo đã phát hành
         total_notifs = ThongBao.query.count()
 
         return jsonify({
             "status": "success",
             "data": {
+                "students": 0,
                 "academic": pending_courses,
-                "surveys": active_surveys,
+                "survey": active_surveys,
+                "schedule": 0,
                 "tuition": unpaid_tuition,
                 "notifications": total_notifs
             }

@@ -1,10 +1,11 @@
 # backend/app/services/schedule_service.py
 import io
-import re
-import pandas as pd
-from datetime import datetime, timedelta
+import csv
+from datetime import datetime
 
-from app.models.tuition import HocKyNamHoc, MonHoc, LopHocPhan, HocPhi
+from app import db
+from app.models.academic import HocKyNamHoc, MonHoc, LopHocPhan, KetQuaHocTap
+from app.models.tuition import HocPhi
 from app.models.schedule import LichHoc, LichThi
 
 MAP_THU_TO_INT = {
@@ -18,7 +19,7 @@ MAP_THU_TO_INT = {
 }
 
 DAY_NAMES = {
-    2: "Thứ 2", 3: "Thứ 3", 4: "Thứ 4", 5: "Thứ 5", 6: "Thứ 6", 7: "Thứ 7", 8: "Chủ nhật"
+    2: "Thứ hai", 3: "Thứ ba", 4: "Thứ tư", 5: "Thứ năm", 6: "Thứ sáu", 7: "Thứ bảy", 8: "Chủ nhật"
 }
 
 DAYS_OF_WEEK_VI = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"]
@@ -39,7 +40,7 @@ def fmt_date(d):
     if not d:
         return ""
     if hasattr(d, 'strftime'):
-        return d.strftime('%d/%m/%Y')
+        return d.strftime('%Y-%m-%d')  # Ví dụ: 2024-09-16, 2024-10-07
     return str(d)
 
 class ScheduleService:
@@ -47,15 +48,21 @@ class ScheduleService:
     def get_filter_options(mssv):
         """Lấy danh sách năm học, học kỳ và các tuần có sẵn của sinh viên."""
         try:
-            hocphi_records = HocPhi.query.filter_by(mssv=mssv).all() if mssv else []
-            malhp_list = [hp.malhp for hp in hocphi_records if hp.malhp]
-            
+            # Ưu tiên lấy từ KETQUA_HOCTAP, fallback sang HOCPHI
+            malhp_list = []
+            if mssv:
+                kq_records = KetQuaHocTap.query.filter_by(mssv=mssv).all()
+                malhp_list = [kq.malhp for kq in kq_records if kq.malhp]
+                if not malhp_list:
+                    hp_records = HocPhi.query.filter_by(mssv=mssv).all()
+                    malhp_list = [hp.malhp for hp in hp_records if hp.malhp]
+
             if malhp_list:
                 classes = LopHocPhan.query.filter(LopHocPhan.malhp.in_(malhp_list)).all()
                 ma_hk_list = list(set([c.ma_hocky for c in classes if c.ma_hocky]))
-                semesters = HocKyNamHoc.query.filter(HocKyNamHoc.ma_hocky.in_(ma_hk_list)).all() if ma_hk_list else HocKyNamHoc.query.all()
+                semesters = HocKyNamHoc.query.filter(HocKyNamHoc.ma_hocky.in_(ma_hk_list)).order_by(HocKyNamHoc.ma_hocky.desc()).all() if ma_hk_list else HocKyNamHoc.query.all()
             else:
-                semesters = HocKyNamHoc.query.all()
+                semesters = HocKyNamHoc.query.order_by(HocKyNamHoc.ma_hocky.desc()).all()
             
             result = []
             for sem in semesters:
@@ -71,6 +78,8 @@ class ScheduleService:
                     "ten_hocky": sem.ten_hocky or sem.ma_hocky,
                     "namhoc": sem.namhoc or "",
                     "label": f"{sem.ten_hocky} ({sem.namhoc})" if sem.namhoc else sem.ten_hocky,
+                    "ngayBatDau": fmt_date(sem.ngaybatdau),
+                    "ngayKetThuc": fmt_date(sem.ngayketthuc),
                     "weeks": weeks
                 })
             return result
@@ -82,8 +91,14 @@ class ScheduleService:
     def get_weekly_schedule(mssv, ma_hocky, week_number):
         days_data = {day: [] for day in range(2, 9)}
         try:
-            hocphi_records = HocPhi.query.filter_by(mssv=mssv).all() if mssv else []
-            malhp_list = [hp.malhp for hp in hocphi_records if hp.malhp]
+            # Lấy danh sách lớp học phần của sinh viên
+            malhp_list = []
+            if mssv:
+                kq_records = KetQuaHocTap.query.filter_by(mssv=mssv).all()
+                malhp_list = [kq.malhp for kq in kq_records if kq.malhp]
+                if not malhp_list:
+                    hp_records = HocPhi.query.filter_by(mssv=mssv).all()
+                    malhp_list = [hp.malhp for hp in hp_records if hp.malhp]
 
             if not malhp_list:
                 classes = LopHocPhan.query.filter_by(ma_hocky=ma_hocky).all()
@@ -98,7 +113,7 @@ class ScheduleService:
             if not valid_malhp:
                 return {"ma_hocky": ma_hocky, "week_number": week_number, "days": days_data, "total_classes": 0}
 
-            # Lọc theo tuần (xử lý an toàn cho cả '1', 1, và NULL)
+            # Lọc lịch học theo tuần
             query = LichHoc.query.filter(LichHoc.malhp.in_(valid_malhp))
             if week_number and week_number > 0:
                 query = query.filter((LichHoc.tuan == str(week_number)) | (LichHoc.tuan == int(week_number)) | (LichHoc.tuan == None))
@@ -129,9 +144,12 @@ class ScheduleService:
                     "end_period": end_p,
                     "time_range": f"{t_start} - {t_end}",
                     "room": item.phonghoc or "Chưa xếp",
+                    "tuan": item.tuan or str(week_number),
+                    "ngayBatDau": fmt_date(item.ngaybatdau),
+                    "ngayKetThuc": fmt_date(item.ngayketthuc),
                     "lecturer": lhp.tengv if lhp else "",
                     "email": getattr(lhp, 'mailgv', '') or "",
-                    "hinhthuc": item.hinhthuchoc or "TẬP TRUNG",
+                    "hinhthuc": item.hinhthuchoc or "Trực tiếp",
                     "format": getattr(lhp, 'ngonngu', 'Tiếng Việt') or "Tiếng Việt"
                 })
 
@@ -152,8 +170,13 @@ class ScheduleService:
     def get_exam_schedule(mssv, ma_hocky):
         """Lấy danh sách lịch thi chi tiết từ bảng LICH_THI."""
         try:
-            hocphi_records = HocPhi.query.filter_by(mssv=mssv).all() if mssv else []
-            malhp_list = [hp.malhp for hp in hocphi_records if hp.malhp]
+            malhp_list = []
+            if mssv:
+                kq_records = KetQuaHocTap.query.filter_by(mssv=mssv).all()
+                malhp_list = [kq.malhp for kq in kq_records if kq.malhp]
+                if not malhp_list:
+                    hp_records = HocPhi.query.filter_by(mssv=mssv).all()
+                    malhp_list = [hp.malhp for hp in hp_records if hp.malhp]
 
             if not malhp_list:
                 classes = LopHocPhan.query.filter_by(ma_hocky=ma_hocky).all()
@@ -175,7 +198,6 @@ class ScheduleService:
                 lhp = ex.lophocphan
                 mh = lhp.monhoc if lhp else None
                 
-                # Tự động tính Thứ trong tuần từ ngày thi
                 if ex.ngaythi:
                     thu_str = DAYS_OF_WEEK_VI[ex.ngaythi.weekday()]
                 else:
@@ -211,51 +233,78 @@ class ScheduleService:
             print("Lỗi get_exam_schedule:", e)
             return []
 
+    # ── Xuất TKB tuần ra CSV (Đã bổ sung cột Ngày bắt đầu, Ngày kết thúc) ──
     @staticmethod
-    def export_weekly_schedule_excel(mssv, ma_hocky, week_number):
+    def export_weekly_schedule_csv(mssv, ma_hocky, week_number):
         schedule_data = ScheduleService.get_weekly_schedule(mssv, ma_hocky, week_number)
-        rows = []
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        headers = [
+            "STT", "Thứ", "Mã Môn", "Tên Môn Học", "Mã Lớp", "Tiết", 
+            "Thời Gian", "Phòng", "Tuần", "Ngày bắt đầu", "Ngày kết thúc", 
+            "Giảng Viên", "Hình Thức"
+        ]
+        writer.writerow(headers)
+        
+        stt = 1
         for day, items in schedule_data["days"].items():
             day_label = DAY_NAMES.get(day, f"Thứ {day}")
             for it in items:
-                rows.append({
-                    "Thứ": day_label,
-                    "Mã Môn": it["mamh"],
-                    "Tên Môn Học": it["tenmh"],
-                    "Mã Lớp": it["malhp"],
-                    "Tiết": it["period_range"],
-                    "Thời Gian": it["time_range"],
-                    "Phòng": it["room"],
-                    "Giảng Viên": it["lecturer"],
-                    "Hình Thức": it["hinhthuc"]
-                })
-        df = pd.DataFrame(rows) if rows else pd.DataFrame(columns=["Thứ", "Mã Môn", "Tên Môn Học", "Mã Lớp", "Tiết", "Thời Gian", "Phòng", "Giảng Viên", "Hình Thức"])
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name=f"TKB_Tuan_{week_number}")
-        output.seek(0)
-        return output
+                writer.writerow([
+                    stt,
+                    day_label,
+                    it.get("mamh", ""),
+                    it.get("tenmh", ""),
+                    it.get("malhp", ""),
+                    it.get("period_range", ""),
+                    it.get("time_range", ""),
+                    it.get("room", ""),
+                    it.get("tuan", ""),
+                    it.get("ngayBatDau", ""),
+                    it.get("ngayKetThuc", ""),
+                    it.get("lecturer", ""),
+                    it.get("hinhthuc", "")
+                ])
+                stt += 1
+                
+        return io.BytesIO(output.getvalue().encode('utf-8-sig'))
+
+    # ── Xuất Lịch thi ra CSV ──
+    @staticmethod
+    def export_exam_schedule_csv(mssv, ma_hocky):
+        exam_data = ScheduleService.get_exam_schedule(mssv, ma_hocky)
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        headers = [
+            "STT", "Mã Môn", "Tên Môn Học", "Mã Lớp", "Số TC", 
+            "Thứ", "Ngày Thi", "Giờ Thi", "Thời Gian Làm Bài", "Phòng Thi", "Hình Thức Thi"
+        ]
+        writer.writerow(headers)
+        
+        for it in exam_data:
+            writer.writerow([
+                it.get("stt", ""),
+                it.get("mamh", ""),
+                it.get("tenmh", ""),
+                it.get("malhp", ""),
+                it.get("sotc", ""),
+                it.get("thu", ""),
+                it.get("exam_date", ""),
+                it.get("time_range", ""),
+                it.get("thoiGian", ""),
+                it.get("room", ""),
+                it.get("exam_format", "")
+            ])
+            
+        return io.BytesIO(output.getvalue().encode('utf-8-sig'))
+
+    # Alias tương thích ngược
+    @staticmethod
+    def export_weekly_schedule_excel(mssv, ma_hocky, week_number):
+        return ScheduleService.export_weekly_schedule_csv(mssv, ma_hocky, week_number)
 
     @staticmethod
     def export_exam_schedule_excel(mssv, ma_hocky):
-        exam_data = ScheduleService.get_exam_schedule(mssv, ma_hocky)
-        rows = []
-        for it in exam_data:
-            rows.append({
-                "STT": it["stt"],
-                "Mã Môn": it["mamh"],
-                "Tên Môn Học": it["tenmh"],
-                "Mã Lớp": it["malhp"],
-                "Thứ": it["thu"],
-                "Ngày Thi": it["exam_date"],
-                "Giờ Thi": it["time_range"],
-                "Thời Gian Làm Bài": it["thoiGian"],
-                "Phòng Thi": it["room"],
-                "Hình Thức Thi": it["exam_format"]
-            })
-        df = pd.DataFrame(rows) if rows else pd.DataFrame(columns=["STT", "Mã Môn", "Tên Môn Học", "Mã Lớp", "Thứ", "Ngày Thi", "Giờ Thi", "Thời Gian Làm Bài", "Phòng Thi", "Hình Thức Thi"])
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name="Lich_Thi")
-        output.seek(0)
-        return output
+        return ScheduleService.export_exam_schedule_csv(mssv, ma_hocky)
