@@ -36,4 +36,8 @@ def create_app():
     from app.routes.admin_routes import admin_bp
     app.register_blueprint(admin_bp)
     
+    # 4. ĐĂNG KÝ BLUEPRINT CHO CHATBOT AI (Đã thêm để tránh lỗi 404)
+    from app.routes.ai_routes import ai_bp
+    app.register_blueprint(ai_bp)
+    
     return app
