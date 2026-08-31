@@ -1,4 +1,6 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
+import { makeWeek, TKB_DATA, type TKBEntry, type TKBCell } from "../app/shared";
+
 
 export type FamilyMember = {
   name: string;
@@ -43,8 +45,12 @@ export type StudentProfile = {
   personalEmail: string;
   officialEmail: string;
   enrolledDate: string;
+  joinUnionDate: string;
+  joinPartyDate: string;
   advisor: string;
   advisorPhone: string;
+  advisorEmail: string;
+  advisorRelation: string;
   bankNumber: string;
   bank: string;
   bankBranch: string;
@@ -53,8 +59,8 @@ export type StudentProfile = {
 // ─── Student profile ──────────────────────────────────────────────────────────
 
 export const STUDENT_PROFILE: StudentProfile = {
-  mssv:             "24127001",
-  fullName:         "Nguyễn Văn An",
+  mssv:             "24127023",
+  fullName:         "Nguyễn Văn Nam",
   dob:              "15/03/2006",
   placeOfBirth:     "TP. Hồ Chí Minh",
   gender:           "Nam",
@@ -77,10 +83,14 @@ export const STUDENT_PROFILE: StudentProfile = {
   contactAddress:   "456 Lê Văn Sỹ, Q.3, TP.HCM",
   phone:            "0901 234 567",
   personalEmail:    "nguyenvanan@gmail.com",
-  officialEmail:    "21127001@student.hcmus.edu.vn",
+  officialEmail:    "21127023@student.hcmus.edu.vn",
   enrolledDate:     "01/09/2024",
+  joinUnionDate:    "15/03/2022",
+  joinPartyDate:    "—",
   advisor:          "TS. Trần Văn Bình",
   advisorPhone:     "0912 345 678",
+  advisorEmail:     "tvbinh@hcmus.edu.vn",
+  advisorRelation:  "Giảng viên cố vấn",
   bankNumber:       "9704 1234 5678 9012",
   bank:             "Vietcombank",
   bankBranch:       "TP. Hồ Chí Minh",
@@ -243,6 +253,8 @@ export const TUITION_DATA: TuitionSemester[] = [
 export type Account = {
   username: string;
   label: string;
+  name: string;
+  msid: string;
   email: string;
   initials: string;
   pass: string;
@@ -250,8 +262,8 @@ export type Account = {
 };
 
 export const ACCOUNTS: Account[] = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin" },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" },
+  { username: "admin",   label: "Quản trị viên", name: "Nguyễn Minh Toàn",        msid: "AD2024001", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin" },
+  { username: "student", label: "Sinh viên",      name: "Nguyễn Văn Khoa",         msid: "24127001",  email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" },
 ];
 
 // ─── Notifications ────────────────────────────────────────────────────────────
@@ -506,10 +518,30 @@ export const MOCK_RESULTS: Record<string, { question: SurveyQuestion; data: { la
 
 export type GradeStatus = "pending" | "uploaded" | "locked";
 
+
+// ─── Academic Year ────────────────────────────────────────────────────────────
+
+export type AcademicYear = {
+  id: string;
+  label: string;
+  ngayBatDau: string;
+  ngayKetThuc: string;
+  soHocKy: number;
+  status: "open" | "closed";
+};
+
+export const ACADEMIC_YEARS: AcademicYear[] = [
+  { id: "23-24", label: "2023–2024", ngayBatDau: "04/09/2023", ngayKetThuc: "31/08/2024", soHocKy: 3, status: "closed" },
+  { id: "24-25", label: "2024–2025", ngayBatDau: "02/09/2024", ngayKetThuc: "31/08/2025", soHocKy: 3, status: "closed" },
+  { id: "25-26", label: "2025–2026", ngayBatDau: "01/09/2025", ngayKetThuc: "31/08/2026", soHocKy: 3, status: "open"  },
+  { id: "26-27", label: "2026–2027", ngayBatDau: "01/09/2026", ngayKetThuc: "31/08/2027", soHocKy: 3, status: "open" },
+];
+
 export type AdminCourseItem = {
   id: string; maMon: string; tenMon: string; lop: string; soTC: number;
   giangVien: string; emailGV: string; soSV: number; khoa: string;
   status: GradeStatus; namHoc: string; hocKy: number; ngayNopDiem?: string;
+  soTiet?: number; maNhom?: string; tenNhom?: string;
 };
 
 export type StudentGradeRow = {
@@ -551,6 +583,62 @@ export function makeMockGrades(courseId: string): StudentGradeRow[] {
     return { ...s, diemCC: cc, diemGK: gk, diemCK: ck, diemTK: tk, ghiChu: "" };
   });
 }
+
+// ─── Course Group Map ─────────────────────────────────────────────────────────
+
+export const COURSE_GROUP_MAP: Record<string, string> = {
+  "BAA00004": "LL_CT", "BAA00101": "LL_CT", "BAA00012": "LL_CT",
+  "BAA00005": "XH_TC",
+  "MTH00005": "TN_BB", "MTH00006": "TN_BB", "MTH00008": "TN_BB",
+  "MTH00009": "TN_BB", "MTH00057": "TN_BB", "MTH00058": "TN_BB",
+  "PHY00005": "TN_TC1",
+  "CSC00004": "TH_BB",
+  "BAA00021": "GD_TC", "BAA00022": "GD_TC",
+  "BAA00030": "GD_QP",
+  "CSC10003": "CN_CS", "CSC10004": "CN_CS", "CSC10008": "CN_CS",
+  "CSC10012": "CN_CS", "CSC10014": "CN_CS", "CSC14003": "CN_CS",
+  "CSC10002": "CN_NG",
+  "CSC10121": "CN_TD",
+};
+
+// ─── Admin TKB / Class Schedule Data ─────────────────────────────────────────
+
+function mkAdmin(tenMon: string, gv: string, phong: string, span = 2, isLab = false): TKBEntry {
+  return {
+    tenMon, maNhom: "24C04", tiet: span === 2 ? "1–5" : "3–5",
+    gv, email: gv.toLowerCase().replace(/[^a-z]/g, "") + "@hcmus.edu.vn",
+    hinhThuc: "TẬP TRUNG", ngonNgu: "Tiếng Việt", phong, isLab, span,
+  };
+}
+
+export const CNTT_TKB: Record<number, Record<number, TKBCell[]>> = {
+  28: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null] }),
+  29: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null] }),
+  30: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính", "P.H.Long", "C.11"), null] }),
+  31: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 0: [null, null, null, null] }),
+  32: makeWeek({ 1: [mkAdmin("Lập trình C++ (KT GK)", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính", "P.H.Long", "C.11"), null] }),
+  33: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính", "P.H.Long", "C.11"), null] }),
+  34: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null] }),
+  35: makeWeek({ 1: [mkAdmin("Lập trình C++", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính (KT GK)", "P.H.Long", "C.11"), null] }),
+  36: makeWeek({ 1: [mkAdmin("Lập trình C++ (Ôn tập)", "N.V.Tuấn", "B.21"), null, null, null],
+                 3: [null, null, mkAdmin("Kiến trúc máy tính (Ôn tập)", "P.H.Long", "C.11"), null] }),
+  37: makeWeek({ 1: [null, null, null, null], 3: [null, null, null, null] }),
+  38: makeWeek({ 1: [null, null, null, null], 2: [null, null, null, null],
+                 3: [null, null, null, null], 4: [null, null, null, null] }),
+};
+
+export const LOP_INFO: Record<string, { khoa: string; data: Record<number, Record<number, TKBCell[]>> }> = {
+  "24C04": { khoa: "Khoa CNTT",              data: CNTT_TKB },
+  "24C05": { khoa: "Khoa CNTT",              data: TKB_DATA },
+  "24C06": { khoa: "Khoa Toán – Tin học", data: TKB_DATA },
+  "24C07": { khoa: "Khoa Kinh tế",        data: TKB_DATA },
+};
+
 
 // ─── Progress / Credit Group Data ────────────────────────────────────────────
 
@@ -618,3 +706,66 @@ export const AVAILABLE_SURVEYS: Survey[] = [
     ],
   },
 ];
+
+
+// ─── AI Chatbot data ──────────────────────────────────────────────────────────
+
+export const BOT_GREET_TEXT = "Xin chào! Tôi là **HCMUS AI** — trợ lý học vụ của bạn.\nTôi có thể giúp tra cứu lịch học, điểm số, học phí và các thắc mắc học vụ. Bạn cần hỗ trợ gì?";
+
+export const CHAT_SUGGESTIONS = [
+  "Lịch học hôm nay?",
+  "Học phí còn bao nhiêu?",
+  "Khi nào đăng ký môn?",
+  "Cách xem điểm thi?",
+];
+
+export function mockReply(q: string): string {
+  const s = q.toLowerCase();
+  if (s.includes("học phí") || s.includes("đóng tiền") || s.includes("còn bao nhiêu"))
+    return "Học phí học kỳ 3 năm 2025-2026 có hạn đóng đến **15/08/2026**. Số tiền còn lại bạn có thể xem tại mục **Học phí** trong sidebar. Thanh toán qua cổng trực tuyến hoặc tại phòng Tài vụ (B002).";
+  if (s.includes("lịch học") || s.includes("thời khóa biểu") || s.includes("hôm nay"))
+    return "Thời khóa biểu tuần hiện tại của bạn có thể xem tại mục **Lịch học & Thi**. Hôm nay bạn có buổi học Cơ sở dữ liệu lúc 7:30 tại phòng B201. Kiểm tra chi tiết tại tab Lịch học nhé!";
+  if (s.includes("điểm") || s.includes("kết quả") || s.includes("xem điểm"))
+    return "Điểm các môn học được cập nhật tại mục **Học tập → Tiến độ**. Nếu có thắc mắc về điểm, bạn nên liên hệ giảng viên phụ trách hoặc nộp đơn **phúc khảo** qua Phòng Đào tạo.";
+  if (s.includes("đăng ký môn") || s.includes("đăng ký học"))
+    return "Lịch đăng ký môn học kỳ tới sẽ được thông báo qua **Thông báo hệ thống**. Thông thường mở từ tuần 14–16 của học kỳ. Hãy kiểm tra mục Thông báo thường xuyên để không bỏ lỡ!";
+  if (s.includes("khảo sát"))
+    return "Bạn có các **khảo sát chưa hoàn thành**. Vui lòng vào mục **Khảo sát** và điền trước thời hạn — nếu không sẽ bị khóa quyền đăng ký môn của học kỳ tiếp theo.";
+  if (s.includes("nghỉ học") || s.includes("xin nghỉ") || s.includes("vắng"))
+    return "Để xin nghỉ có phép, bạn cần nộp đơn tại **Phòng Đào tạo (B001)** trước buổi học. Lưu ý: vắng quá **20% số buổi** sẽ bị cấm thi cuối kỳ theo quy chế.";
+  if (s.includes("thư viện"))
+    return "Thư viện HCMUS mở cửa **7:30–21:30** các ngày trong tuần (thứ 7 đến 17:00). Cần thẻ sinh viên để mượn sách. Tra cứu đầu sách tại **lib.hcmus.edu.vn**.";
+  if (s.includes("wifi") || s.includes("mạng"))
+    return "Sinh viên có thể kết nối WiFi **HCMUS-EDU** bằng tài khoản MSSV và mật khẩu cổng thông tin. Nếu không kết nối được, liên hệ Phòng CNTT tại A205.";
+  if (s.includes("cảm ơn") || s.includes("thanks") || s.includes("ok"))
+    return "Không có gì, rất vui được hỗ trợ bạn! Nếu còn câu hỏi nào khác, tôi luôn ở đây. Chúc bạn học tốt!";
+  return "Tôi ghi nhận câu hỏi của bạn. Để được hỗ trợ chi tiết hơn, bạn có thể:\n• Đến **Phòng Đào tạo** (B001, Cơ sở 1)\n• Email: **daotao@hcmus.edu.vn**\n• Hotline: **(028) 3835 4266**\n\nTôi có thể giúp gì thêm không?";
+}
+
+// ─── Admin UI option lists ────────────────────────────────────────────────────
+
+export const EXAM_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  "Thực hành":   { bg: "#f0fdf4", text: "#16a34a" },
+  "Tự luận":     { bg: "#fffbeb", text: "#b45309" },
+  "Trắc nghiệm": { bg: "#eff6ff", text: "#1d4ed8" },
+};
+
+export const GRADE_EDIT_REASONS = [
+  "Phúc khảo (Grade Appeal)",
+  "Sai sót nhập liệu (Data Entry Error)",
+  "Điểm bổ sung (Make-up Grade)",
+  "Khác (Other)",
+];
+
+export const NOTIF_KHOA_OPTS = [
+  "", "Khoa CNTT", "Khoa Toán – Tin học", "Khoa Vật lý",
+  "Khoa Hóa học", "Khoa Sinh học", "Khoa Môi trường",
+];
+
+export const NOTIF_PHONG_OPTS = [
+  "", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Tài chính",
+  "Phòng Khảo thí & ĐBCL", "Ban Giám hiệu",
+];
+
+export const TUITION_HK_LIST = ["HK1", "HK2", "HK3"];
+

@@ -1,110 +1,193 @@
-import { useState } from 'react';
+// frontend/src/app/components/Login.tsx
+import React, { useState, useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from '../authConfig';
-import { Button } from './ui/button';
-import { Alert } from './ui/alert';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "./ui/alert-dialog";
+import bgImage from "@imports/bg.jpg"; 
 
-export default function Login() {
-    const { instance } = useMsal();
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+type LoginProps = {
+  onLogin: (role: "admin" | "student", method: "local" | "msal", profileData?: any) => void;
+};
 
-    const handleLogin = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            // Bước 4 & 5: Gọi popup Microsoft để user đăng nhập [source: 2]
-            const response = await instance.loginPopup(loginRequest);
-            const userEmail = response.account?.username || "";
-
-            // Xử lý nhánh Alternative Flow 1 ngay tại frontend để tối ưu [source: 2]
-            if (!userEmail.endsWith("@student.hcmus.edu.vn")) {
-                setError("Hệ thống chỉ hỗ trợ đăng nhập bằng email sinh viên (@student.hcmus.edu.vn). Vui lòng thử lại.");
-                await instance.logoutPopup(); // Force logout tk sai
-                setIsLoading(false);
-                return;
-            }
-
-            // Bước 6: Gửi token xuống Backend
-            const backendRes = await fetch('http://localhost:5000/api/auth/ms-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: response.accessToken })
-            });
-
-            const data = await backendRes.json();
-
-            if (!backendRes.ok) {
-                setError(data.error || "Đăng nhập thất bại. Vui lòng cấp quyền truy cập hoặc thử lại."); // [source: 2]
-                setIsLoading(false);
-                return;
-            }
-
-            // Lưu token JWT của backend và chuyển hướng
-            localStorage.setItem('campus_token', data.token);
-            window.location.href = '/dashboard';
-
-        } catch (err) {
-            // Xử lý nhánh Alternative Flow 2 (từ chối quyền hoặc lỗi popup) [source: 2]
-            setError("Đăng nhập thất bại. Vui lòng cấp quyền truy cập hoặc thử lại.");
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-            <div className="p-8 bg-white shadow-lg rounded-xl max-w-md w-full text-center">
-                <h1 className="text-3xl font-bold mb-2 text-primary">CampUS</h1>
-                <p className="text-gray-500 mb-8">Nền tảng quản lý học tập thông minh</p>
-                
-                {error && (
-                    <Alert variant="destructive" className="mb-6 text-left">
-                        {error}
-                    </Alert>
-                )}
-
-                <Button 
-                    onClick={handleLogin} 
-                    className="w-full h-12 text-md mb-6"
-                    disabled={isLoading}
-                >
-                    {isLoading ? "Đang kết nối..." : "Đăng nhập với tài khoản sinh viên"}
-                </Button>
-                
-                {/* Use-case 2.2: Forgot Password Dialog [source: 2] */}
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <button className="text-sm text-blue-600 hover:underline">
-                            Quên mật khẩu?
-                        </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Quên mật khẩu?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Mật khẩu của bạn được quản lý bởi hệ thống Microsoft Workspace của trường. Bạn sẽ được chuyển hướng đến cổng hỗ trợ của nhà trường để khôi phục.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Hủy</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => window.open('https://myaccount.microsoft.com/security-info', '_blank')}>
-                                Đến trang Khôi phục
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-        </div>
+// Hàm decode JWT an toàn hỗ trợ đầy đủ Unicode tiếng Việt
+function parseJwt(token: string) {
+  try {
+    const base64Url = token.split('.');
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
     );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    try {
+      const base64Url = token.split('.');
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(window.atob(base64));
+    } catch {
+      return null;
+    }
+  }
+}
+
+export default function Login({ onLogin }: LoginProps) {
+  const { instance, accounts, inProgress } = useMsal();
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+
+  useEffect(() => {
+    if (inProgress !== "none") return;
+
+    const existingToken = localStorage.getItem('campus_token');
+    const isLoggingIn = sessionStorage.getItem('campus_is_logging_in');
+
+    if (accounts.length === 0) {
+      if (isLoggingIn) sessionStorage.removeItem('campus_is_logging_in');
+      return;
+    }
+
+    // 1. Tự động khôi phục phiên chính xác từ token
+    if (existingToken) {
+      const decodedData = parseJwt(existingToken);
+      if (decodedData) {
+        // Kiểm tra token đã hết hạn chưa
+        if (decodedData.exp && decodedData.exp * 1000 < Date.now()) {
+          localStorage.removeItem('campus_token');
+          return;
+        }
+
+        const userRole = (decodedData.role as "admin" | "student") || "student";
+        onLogin(userRole, "msal", decodedData);
+        return;
+      } else {
+        localStorage.removeItem('campus_token');
+      }
+      return;
+    }
+
+    // 2. Xử lý đăng nhập sau khi Microsoft redirect về
+    if (isLoggingIn === 'true') {
+      const processLogin = async () => {
+        setIsProcessing(true);
+        try {
+          const account = accounts[0];
+          const userEmail = account.username || "";
+
+          const response = await instance.acquireTokenSilent({
+            ...loginRequest,
+            account: account
+          });
+
+          const backendRes = await fetch('/api/auth/ms-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                token: response.accessToken, 
+                email: userEmail,
+                name: account?.name
+            })
+          });
+
+          const resData = await backendRes.json();
+          if (!backendRes.ok) {
+            setError(resData.message || "Đăng nhập thất bại.");
+            sessionStorage.removeItem('campus_is_logging_in');
+            await instance.logoutRedirect({ account: account, postLogoutRedirectUri: window.location.origin });
+            return;
+          }
+
+          localStorage.setItem('campus_token', resData.token);
+          sessionStorage.removeItem('campus_is_logging_in'); 
+
+          // Nhận đúng role (admin hoặc student) từ Backend
+          const finalRole = resData.role as "admin" | "student";
+          onLogin(finalRole, "msal", resData.data);
+
+        } catch (err: any) {
+          setError("Lỗi xác thực. Vui lòng thử đăng nhập lại.");
+          sessionStorage.removeItem('campus_is_logging_in');
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+
+      processLogin();
+    }
+  }, [inProgress, accounts, instance, onLogin]);
+
+  const handleMsLogin = async () => {
+    try {
+      setError(null);
+      sessionStorage.setItem('campus_is_logging_in', 'true');
+      setIsProcessing(true);
+      await instance.loginRedirect({
+        ...loginRequest,
+        prompt: "select_account",
+      });
+    } catch (e) {
+      console.error(e);
+      setError("Không thể chuyển hướng đến Microsoft.");
+      setIsProcessing(false);
+      sessionStorage.removeItem('campus_is_logging_in');
+    }
+  };
+
+  const isLoading = inProgress !== "none" || isProcessing;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,22,40,0.55) 0%, rgba(10,22,40,0.72) 100%)" }} />
+
+      <div className="relative z-10 w-full max-w-sm mx-4">
+        <div className="rounded-2xl shadow-2xl overflow-hidden">
+          <div className="px-8 pt-8 pb-7 text-center" style={{ background: "linear-gradient(135deg,#11284D 0%,#264B6F 100%)" }}>
+            <div className="w-16 h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl font-bold text-white" style={PJS}>C</span>
+            </div>
+            <h1 className="text-xl font-bold text-white" style={PJS}>CampUS</h1>
+            <p className="text-white/55 text-xs mt-1">Trường ĐH Khoa học Tự nhiên — ĐHQG HCM</p>
+          </div>
+
+          <div className="bg-white pt-7 pb-3 flex flex-col items-center">
+            <h2 className="font-bold mb-6 text-center text-[15px]" style={{ ...PJS, color: "var(--primary)" }}>ĐĂNG NHẬP</h2>
+
+            {error && (
+              <div className="w-10/12 bg-red-50 text-red-500 text-xs px-3 py-2 mb-4 rounded border border-red-100 text-center leading-relaxed">
+                {error}
+              </div>
+            )}
+
+            <button
+              onClick={handleMsLogin}
+              disabled={isLoading}
+              className="inline-flex items-center gap-3 px-4 py-3 rounded border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#F4EFDF]/60 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" className="flex-shrink-0">
+                <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
+                <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
+                <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
+                <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              </svg>
+              <span className="text-sm font-semibold group-hover:text-[#11284D] transition-colors" style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
+                {isLoading ? "Đang xử lý..." : "Đăng nhập với Microsoft"}
+              </span>
+            </button>
+
+            <p className="text-center text-[11px] mt-8 leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
+              Vui lòng sử dụng email chính thức nhà trường đã cung cấp
+              <br />
+              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn / @hcmus.edu.vn)</span>
+            </p>
+
+            <p className="text-center text-[10px] mt-5" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

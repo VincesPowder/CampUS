@@ -1,62 +1,91 @@
-from flask import Blueprint, request, jsonify
-from app.models.user import User
-from app import db
-from datetime import datetime
+# backend/app/routes/auth_routes.py
+from flask import Blueprint, request, jsonify, current_app
+from sqlalchemy import func
+from app.models.admin import AdminGiaoVu
+from app.models.student import SinhVien
+import jwt
+import datetime
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-@auth_bp.route('/api/auth/ms-login', methods=['POST'])
+@auth_bp.route('/ms-login', methods=['POST'])
 def ms_login():
-    data = request.get_json()
-    ms_token = data.get('token')
-    
-    # 1. Decode và verify token với Microsoft Entra ID (Dùng thư viện msal hoặc PyJWT)
-    # Giả sử hàm verify_ms_token trả về payload chứa email, name, avatar
-    # user_info = verify_ms_token(ms_token) 
-    
-    # if not user_info:
-    #     return jsonify({"error": "Đăng nhập thất bại. Vui lòng cấp quyền truy cập hoặc thử lại."}), 401
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    name = data.get('name', '')
 
-    # email = user_info.get('email')
-    
-    # # 2. Kiểm tra domain email (Alternative Flow 1)
-    # if not email.endswith('@student.hcmus.edu.vn'):
-    #     return jsonify({"error": "Hệ thống chỉ hỗ trợ đăng nhập bằng email sinh viên (@student.hcmus.edu.vn). Vui lòng thử lại."}), 403
-        
-    # # 3. Auto-provisioning: Kiểm tra user có trong DB chưa
-    # user = User.query.filter_by(email=email).first()
-    
-    # if not user:
-    #     # Nếu chưa có, tự động tạo mới
-    #     user = User(
-    #         email=email,
-    #         name=user_info.get('name'),
-    #         avatar_url=user_info.get('avatar_url')
-    #     )
-    #     db.session.add(user)
-    
-    # # Cập nhật thời gian đăng nhập
-    # user.last_login = datetime.utcnow()
-    # db.session.commit()
-    
-    # # 4. Tạo JWT hoặc Session Cookie nội bộ của hệ thống và trả về cho Frontend
-    # session_token = generate_app_token(user.id)
-    
-    # return jsonify({
-    #     "message": "Đăng nhập thành công",
-    #     "token": session_token,
-    #     "user": {"name": user.name, "email": user.email, "avatar": user.avatar_url}
-    # }), 200  
-    
-    print(f"Nhận được token từ Frontend: {ms_token[:20]}...")
-    
-    # Trả về Mock Data luôn để Frontend có thông tin lưu vào localStorage
-    return jsonify({
-        "message": "Đăng nhập thành công (Chế độ Mock)",
-        "token": "mock_jwt_token_123456789",
-        "user": {
-            "name": "billie", 
-            "email": "billie@student.hcmus.edu.vn", 
-            "avatar": ""
+    if not email:
+        return jsonify({"status": "error", "message": "Email không được để trống."}), 400
+
+    secret_key = str(current_app.config.get('SECRET_KEY') or 'campus_secret_key_2026_hcmus_super_secret_key_32bytes')
+
+    # 1. Kiểm tra nếu là ADMIN / GIÁO VỤ (tìm theo cột email trong ADMIN_GIAOVU)
+    admin = AdminGiaoVu.query.filter(func.lower(AdminGiaoVu.email) == email).first()
+    if admin:
+        if admin.trangthai and admin.trangthai.lower() in ['khóa', 'locked', 'inactive']:
+            return jsonify({"status": "error", "message": "Tài khoản giáo vụ đang bị tạm khóa."}), 403
+
+        admin_data = admin.to_dict()
+        token_payload = {
+            "sub": str(admin.magv),
+            "email": str(admin.email),
+            "name": str(admin.hoten or name),
+            "role": "admin",
+            "msid": str(admin.magv),
+            "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7)
         }
-    }), 200
+        token = jwt.encode(token_payload, secret_key, algorithm="HS256")
+        if isinstance(token, bytes):
+            token = token.decode('utf-8')
+
+        return jsonify({
+            "status": "success",
+            "role": "admin",
+            "token": token,
+            "data": admin_data
+        }), 200
+
+    # 2. Kiểm tra nếu là SINH VIÊN (tìm theo mailtruong hoặc theo mssv)
+    sinhvien = SinhVien.query.filter(func.lower(SinhVien.mailtruong) == email).first()
+    
+    # Fallback: nếu mailtruong trong DB chưa cập nhật hoặc tìm theo tiền tố MSSV của email
+    if not sinhvien:
+        mssv_candidate = email.split('@')[0].strip()
+        sinhvien = SinhVien.query.filter(func.lower(SinhVien.mssv) == mssv_candidate.lower()).first()
+
+    if sinhvien:
+        student_data = sinhvien.to_dict() if hasattr(sinhvien, 'to_dict') else {
+            "mssv": sinhvien.mssv,
+            "name": sinhvien.hoten,
+            "hoten": sinhvien.hoten,
+            "email": sinhvien.mailtruong or email,
+            "mailtruong": sinhvien.mailtruong or email,
+            "role": "student"
+        }
+        student_data['email'] = sinhvien.mailtruong or email
+        student_data['role'] = 'student'
+
+        token_payload = {
+            "sub": str(sinhvien.mssv),
+            "email": str(sinhvien.mailtruong or email),
+            "name": str(sinhvien.hoten or name),
+            "role": "student",
+            "mssv": str(sinhvien.mssv),
+            "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7)
+        }
+        token = jwt.encode(token_payload, secret_key, algorithm="HS256")
+        if isinstance(token, bytes):
+            token = token.decode('utf-8')
+
+        return jsonify({
+            "status": "success",
+            "role": "student",
+            "token": token,
+            "data": student_data
+        }), 200
+
+    # 3. Email không có trong hệ thống
+    return jsonify({
+        "status": "error",
+        "message": f"Tài khoản {email} không tồn tại trong hệ thống HCMUS."
+    }), 403

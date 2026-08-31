@@ -1,11 +1,17 @@
 # Dependencies
 node_modules/
 
+*.db
+__pycache__/
+*.pyc
+.pytest_cache/
+
 # Build
 dist/
 build/
 
 # Environment variables
+venv/
 .env
 .env.local
 .env.*.local
@@ -23,3 +29,7 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+figma/
+
+frontend/auth.json
