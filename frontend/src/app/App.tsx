@@ -1,27 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
 import {
   User, ChevronRight, LogOut, X,
   ChevronsLeft, ChevronsRight, Bell,
   MessageCircle, Send, Sparkles, ChevronDown, Minimize2,
-  HelpCircle, Mail,
 } from "lucide-react";
-import bgImage from "@/imports/bg.jpg";
+import logoImg from "@/imports/Artboard_5.png";
 import {
   NOTIFICATIONS, STUDENT_PROFILE,
+  BOT_GREET_TEXT, CHAT_SUGGESTIONS, mockReply,
   type Notification,
 } from "../data/mockData";
 import { AdminApp } from "./AdminSections";
+import { HelpButton } from "./shared";
 import {
   NAV_ITEMS, SECTION_TITLES,
   TuitionSection, AcademicSection, ProfileSection,
   SurveySection, ScheduleSection, NotificationsSection,
   type NavSection,
 } from "./StudentSections";
+import Login from "./components/Login";
 
-// ─── Accounts ────────────────────────────────────────────────────────────────
 const ACCOUNTS = [
-  { username: "admin",   label: "Quản trị viên", email: "admin@hcmus.edu.vn",            initials: "AD", pass: "abc", role: "admin"   as const },
-  { username: "student", label: "Sinh viên",      email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
+  { username: "admin", label: "Quản trị viên", name: "Quản trị viên", msid: "admin", email: "admin@hcmus.edu.vn", initials: "AD", pass: "abc", role: "admin" as const },
+  { username: "student", label: "Sinh viên", email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
 ];
 
 // ─── Account Picker Modal ─────────────────────────────────────────────────────
@@ -30,18 +32,21 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
       <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
         <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#C8C0A8]">
-          <div>
-            <p className="text-xs text-[#718096] mb-0.5">Chọn tài khoản để tiếp tục với</p>
-            <h2 className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>
-              CampUS — HCMUS
-            </h2>
+          <div className="flex items-center gap-2.5">
+            <img src={logoImg} alt="CampUS" style={{ mixBlendMode: "multiply" }} className="w-9 h-9 object-contain flex-shrink-0" />
+            <div>
+              <p className="text-xs text-[#718096] mb-0.5">Chọn tài khoản để tiếp tục với</p>
+              <h2 className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>
+                CampUS — HCMUS
+              </h2>
+            </div>
           </div>
           <div className="flex items-center gap-1">
             <svg width="16" height="16" viewBox="0 0 21 21" fill="none">
-              <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
-              <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
-              <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
-              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+              <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+              <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+              <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+              <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
             </svg>
             <span className="text-xs font-semibold text-[#4A6080]">Microsoft</span>
           </div>
@@ -78,75 +83,11 @@ function AccountPickerModal({ onLogin }: { onLogin: (role: "admin" | "student") 
   );
 }
 
-// ─── Login Page ───────────────────────────────────────────────────────────────
-function LoginPage({ onLogin }: { onLogin: (role: "admin" | "student") => void }) {
-  const [showPicker, setShowPicker] = useState(false);
-  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background photo */}
-      <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-      {/* Dark overlay */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,22,40,0.55) 0%, rgba(10,22,40,0.72) 100%)" }} />
-
-      <div className="relative z-10 w-full max-w-sm mx-4">
-        {/* Card */}
-        <div className="rounded-2xl shadow-2xl overflow-hidden">
-
-          {/* ── Top: Navy branding ── */}
-          <div className="px-8 pt-8 pb-7 text-center" style={{ background: "linear-gradient(135deg,#11284D 0%,#264B6F 100%)" }}>
-            <div className="w-16 h-16 rounded-full bg-white/15 border border-white/25 flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl font-bold text-white" style={PJS}>C</span>
-            </div>
-            <h1 className="text-xl font-bold text-white" style={PJS}>CampUS</h1>
-            <p className="text-white/55 text-xs mt-1">Trường ĐH Khoa học Tự nhiên — ĐHQG HCM</p>
-          </div>
-
-          {/* ── Bottom: White, image-3 style ── */}
-          <div className="bg-white pt-7 pb-3 flex flex-col items-center">
-            <h2 className="font-bold mb-6 text-center text-[15px]" style={{ ...PJS, color: "var(--primary)" }}>ĐĂNG NHẬP</h2>
-
-            {/* Microsoft button */}
-            <button
-              onClick={() => setShowPicker(true)}
-              className="inline-flex items-center gap-3 px-4 py-3 rounded border border-[#BFBB9A] hover:border-[#11284D] hover:bg-[#F4EFDF]/60 transition-all group"
-            >
-              {/* Windows logo */}
-              <svg width="20" height="20" viewBox="0 0 21 21" fill="none" className="flex-shrink-0">
-                <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
-                <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
-                <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
-                <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-              </svg>
-              <span className="text-sm font-semibold group-hover:text-[#11284D] transition-colors" style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
-                Đăng nhập với Microsoft
-              </span>
-            </button>
-
-            {/* Note */}
-            <p className="text-center text-[11px] mt-8 leading-relaxed" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>
-              Vui lòng sử dụng email chính thức nhà trường đã cung cấp
-              <br />
-              <span style={{ color: "var(--primary)" }}>(@student.hcmus.edu.vn)</span>
-            </p>
-
-            {/* Footer inside white section */}
-            <p className="text-center text-[10px] mt-4" style={{ color: "var(--muted-foreground)", fontFamily: "'Inter', sans-serif" }}>©GROUP 3 - AMONG US · HCMUS</p>
-          </div>
-        </div>
-      </div>
-
-      {showPicker && <AccountPickerModal onLogin={role => { setShowPicker(false); onLogin(role); }} />}
-    </div>
-  );
-}
-
 // ─── Logout Confirm ───────────────────────────────────────────────────────────
-function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+export function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
+      <div className="rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center bg-[#ffffff]">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "var(--background)" }}>
           <LogOut className="w-6 h-6" style={{ color: "var(--accent)" }} />
         </div>
@@ -162,12 +103,12 @@ function LogoutConfirm({ onConfirm, onCancel }: { onConfirm: () => void; onCance
 }
 
 // ─── Logout Success ───────────────────────────────────────────────────────────
-function LogoutSuccess() {
+export function LogoutSuccess() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
-      <div className="bg-[#F4EFDF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
+      <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-xs mx-4 p-6 text-center">
         <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#f0fdf4" }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
         </div>
         <p className="font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã đăng xuất thành công!</p>
       </div>
@@ -178,41 +119,7 @@ function LogoutSuccess() {
 // ─── AI Chatbot ───────────────────────────────────────────────────────────────
 type ChatMsg = { role: "user" | "bot"; text: string; time: string };
 
-const BOT_GREET: ChatMsg = {
-  role: "bot",
-  text: "Xin chào! Tôi là **HCMUS AI** — trợ lý học vụ của bạn.\nTôi có thể giúp tra cứu lịch học, điểm số, học phí và các thắc mắc học vụ. Bạn cần hỗ trợ gì?",
-  time: "",
-};
-
-const SUGGESTIONS = [
-  "Lịch học hôm nay?",
-  "Học phí còn bao nhiêu?",
-  "Khi nào đăng ký môn?",
-  "Cách xem điểm thi?",
-];
-
-function mockReply(q: string): string {
-  const s = q.toLowerCase();
-  if (s.includes("học phí") || s.includes("đóng tiền") || s.includes("còn bao nhiêu"))
-    return "Học phí học kỳ 3 năm 2025-2026 có hạn đóng đến **15/08/2026**. Số tiền còn lại bạn có thể xem tại mục **Học phí** trong sidebar. Thanh toán qua cổng trực tuyến hoặc tại phòng Tài vụ (B002).";
-  if (s.includes("lịch học") || s.includes("thời khóa biểu") || s.includes("hôm nay"))
-    return "Thời khóa biểu tuần hiện tại của bạn có thể xem tại mục **Lịch học & Thi**. Hôm nay bạn có buổi học Cơ sở dữ liệu lúc 7:30 tại phòng B201. Kiểm tra chi tiết tại tab Lịch học nhé!";
-  if (s.includes("điểm") || s.includes("kết quả") || s.includes("xem điểm"))
-    return "Điểm các môn học được cập nhật tại mục **Học tập → Tiến độ**. Nếu có thắc mắc về điểm, bạn nên liên hệ giảng viên phụ trách hoặc nộp đơn **phúc khảo** qua Phòng Đào tạo.";
-  if (s.includes("đăng ký môn") || s.includes("đăng ký học"))
-    return "Lịch đăng ký môn học kỳ tới sẽ được thông báo qua **Thông báo hệ thống**. Thông thường mở từ tuần 14–16 của học kỳ. Hãy kiểm tra mục Thông báo thường xuyên để không bỏ lỡ!";
-  if (s.includes("khảo sát"))
-    return "Bạn có các **khảo sát chưa hoàn thành**. Vui lòng vào mục **Khảo sát** và điền trước thời hạn — nếu không sẽ bị khóa quyền đăng ký môn của học kỳ tiếp theo.";
-  if (s.includes("nghỉ học") || s.includes("xin nghỉ") || s.includes("vắng"))
-    return "Để xin nghỉ có phép, bạn cần nộp đơn tại **Phòng Đào tạo (B001)** trước buổi học. Lưu ý: vắng quá **20% số buổi** sẽ bị cấm thi cuối kỳ theo quy chế.";
-  if (s.includes("thư viện"))
-    return "Thư viện HCMUS mở cửa **7:30–21:30** các ngày trong tuần (thứ 7 đến 17:00). Cần thẻ sinh viên để mượn sách. Tra cứu đầu sách tại **lib.hcmus.edu.vn**.";
-  if (s.includes("wifi") || s.includes("mạng"))
-    return "Sinh viên có thể kết nối WiFi **HCMUS-EDU** bằng tài khoản MSSV và mật khẩu cổng thông tin. Nếu không kết nối được, liên hệ Phòng CNTT tại A205.";
-  if (s.includes("cảm ơn") || s.includes("thanks") || s.includes("ok"))
-    return "Không có gì, rất vui được hỗ trợ bạn! Nếu còn câu hỏi nào khác, tôi luôn ở đây. Chúc bạn học tốt! 🎓";
-  return "Tôi ghi nhận câu hỏi của bạn. Để được hỗ trợ chi tiết hơn, bạn có thể:\n• Đến **Phòng Đào tạo** (B001, Cơ sở 1)\n• Email: **daotao@hcmus.edu.vn**\n• Hotline: **(028) 3835 4266**\n\nTôi có thể giúp gì thêm không?";
-}
+const BOT_GREET: ChatMsg = { role: "bot", text: BOT_GREET_TEXT, time: "" };
 
 function renderBotText(text: string) {
   const lines = text.split("\n");
@@ -273,7 +180,7 @@ function AIChatbot() {
     <>
       <div className="fixed bottom-[88px] md:bottom-20 right-5 z-40 flex flex-col rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 origin-bottom-right"
         style={{
-          width: "min(360px, calc(100vw - 24px))", background: "var(--background)",
+          width: "min(360px, calc(100vw - 24px))", background: "#ffffff",
           maxHeight: minimized ? 56 : 520,
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -314,7 +221,7 @@ function AIChatbot() {
                   <div className="max-w-[76%]">
                     <div className="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm"
                       style={{
-                        background: m.role === "user" ? PRIMARY : "#fff",
+                        background: m.role === "user" ? PRIMARY : "#EBF4FF",
                         color: m.role === "user" ? "#fff" : "#101A2C",
                         borderBottomRightRadius: m.role === "user" ? 4 : undefined,
                         borderBottomLeftRadius:  m.role === "bot"  ? 4 : undefined,
@@ -333,11 +240,10 @@ function AIChatbot() {
                   <div className="w-7 h-7 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: PRIMARY }}>
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="bg-[#F4EFDF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-[#C8C0A8] flex items-center gap-1">
-                    {[0,1,2].map(d => (
-                      <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
-                        style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
-                    ))}
+                  <div className="bg-[#EBF4FF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-blue-100 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block" style={{ animation: "bounce 1.2s 0s infinite" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block" style={{ animation: "bounce 1.2s 0.2s infinite" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block" style={{ animation: "bounce 1.2s 0.4s infinite" }} />
                   </div>
                 </div>
               )}
@@ -345,7 +251,7 @@ function AIChatbot() {
             </div>
             {messages.length <= 1 && !typing && (
               <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                {SUGGESTIONS.map(s => (
+                {CHAT_SUGGESTIONS.map(s => (
                   <button key={s} onClick={() => send(s)}
                     className="text-xs px-3 py-1.5 rounded-full border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors" style={PJS}>
                     {s}
@@ -353,7 +259,7 @@ function AIChatbot() {
                 ))}
               </div>
             )}
-            <div className="px-3 py-3 border-t border-[#C8C0A8] bg-[#F4EFDF] flex items-end gap-2">
+            <div className="px-3 py-3 border-t border-gray-100 bg-white flex items-end gap-2">
               <textarea ref={inputRef} rows={1} value={input}
                 onChange={e => {
                   setInput(e.target.value);
@@ -362,7 +268,7 @@ function AIChatbot() {
                 }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Nhập câu hỏi... (Enter để gửi)"
-                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-[#E8E0CC] leading-relaxed"
+                className="flex-1 resize-none rounded-xl border border-[#BFBB9A] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 leading-relaxed bg-[#ffffff]"
                 style={{ ...INTER, maxHeight: 96, overflowY: "auto" }} />
               <button onClick={() => send()} disabled={!input.trim() || typing}
                 className="w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center text-white transition-all"
@@ -392,103 +298,205 @@ function AIChatbot() {
   );
 }
 
-// ─── Help Button ─────────────────────────────────────────────────────────────
-const CONTACTS = [
-  { label: "Phòng đào tạo", mail: "daotao@hcmus.edu.vn" },
-  { label: "Phòng giáo vụ", mail: "giaovu@hcmus.edu.vn" },
-  { label: "Phòng kỹ thuật", mail: "kythuat@hcmus.edu.vn" },
-];
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInitials(fullName: string): string {
+  const words = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0][0].toUpperCase();
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+}
 
-function HelpButton() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+function abbreviateName(fullName: string): string {
+  const words = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  return words.map(w => w[0].toUpperCase()).join(".");
+}
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+export function getRelativeTime(dateString: string): string {
+  if (!dateString) return "";
+  
+  let date = new Date(dateString);
+  
+  if (isNaN(date.getTime())) {
+    const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4})\s?(\d{2})?:?(\d{2})?/);
+    if (parts) {
+      const day = Number(parts);
+      const month = Number(parts) - 1;
+      const year = Number(parts);
+      const hour = parts ? Number(parts) : 0;
+      const minute = parts ? Number(parts) : 0;
+      date = new Date(year, month, day, hour, minute);
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+  }
 
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-        title="Liên hệ hỗ trợ"
-      >
-        <HelpCircle className="w-5 h-5" />
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50, whiteSpace: "nowrap" }}>
-          <div className="px-4 py-2.5 border-b border-border">
-            <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Liên hệ hỗ trợ</h3>
-          </div>
-          <div className="divide-y divide-border">
-            {CONTACTS.map(c => (
-              <div key={c.label} className="px-4 py-2.5 flex items-center gap-4 hover:bg-secondary/40 transition-colors">
-                <span className="text-sm font-medium text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{c.label}:</span>
-                <a
-                  href={`mailto:${c.mail}`}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  <Mail className="w-3.5 h-3.5 shrink-0" />
-                  {c.mail}
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  if (isNaN(date.getTime())) return dateString;
+
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInMins = Math.floor(diffInMs / (1000 * 60));
+  
+  if (diffInMins < 60) return `${Math.max(1, diffInMins)} phút trước`;
+  
+  const diffInHours = Math.floor(diffInMins / 60);
+  const remainingMins = diffInMins % 60;
+  
+  if (diffInHours < 24) {
+    return remainingMins > 0 ? `${diffInHours} giờ ${remainingMins} phút trước` : `${diffInHours} giờ trước`;
+  }
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  const remainingHours = diffInHours % 24;
+  
+  if (diffInDays < 30) {
+    return remainingHours > 0 ? `${diffInDays} ngày ${remainingHours} giờ trước` : `${diffInDays} ngày trước`;
+  }
+  
+  return date.toLocaleDateString('vi-VN');
+}
+
+function formatShortcutName(fullName: string): string {
+  if (!fullName) return "";
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0];
+  
+  const lastWord = words.pop();
+  const initials = words.map(w => w[0].toUpperCase()).join(".");
+  return `${initials}.${lastWord}`;
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { instance, accounts } = useMsal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<"student" | "admin">("student");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState<NavSection>("profile");
   const [academicSubTab, setAcademicSubTab] = useState<"summary" | "progress">("summary");
+  const [scheduleTab, setScheduleTab] = useState<"tkb" | "thi">("tkb");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
-  const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
+  const [studentAvatarUrl, setStudentAvatarUrl] = useState<string | null>(null);
+  const [selectedNotif, setSelectedNotif] = useState<any | null>(null);
+  const [notifs, setNotifs] = useState<any[]>([]);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [pendingSurveys, setPendingSurveys] = useState(0);
+
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
+  const fullName = accounts[0]?.name || "Nguyễn Văn A";
+  const [adminProfile, setAdminProfile] = useState<any>(ACCOUNTS[0]);
 
-  function handleLogin(role: "admin" | "student") {
+  // Fetch thông báo & khảo sát khi sinh viên đăng nhập
+  useEffect(() => {
+    if (isLoggedIn && userRole === "student") {
+      fetch(`/api/students/${currentMssv}/notifications`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            setNotifs(data.data);
+            setUnreadNotifs(data.data.filter((n:any) => !n.trangThaiDoc || Number(n.trangThaiDoc) === 0).length);
+          }
+        })
+        .catch(err => console.error("Lỗi fetch thông báo:", err));
+
+      fetch(`/api/students/${currentMssv}/surveys`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success" && data.data) {
+            setPendingSurveys(data.data.filter((s:any) => s.status !== "completed").length);
+          }
+        })
+        .catch(err => console.error("Fetch surveys error:", err));
+    }
+  }, [isLoggedIn, userRole, currentMssv]);
+
+  // Hàm đánh dấu đã đọc 1 thông báo
+  const markRead = async (maTb: string) => {
+    const target = notifs.find(n => n.maTb === maTb);
+    if (target && (!target.trangThaiDoc || Number(target.trangThaiDoc) === 0)) {
+      setNotifs(prev => prev.map(n => n.maTb === maTb ? { ...n, trangThaiDoc: 1 } : n));
+      setUnreadNotifs(u => Math.max(0, u - 1));
+      try {
+        await fetch(`/api/students/${currentMssv}/notifications/${maTb}/read`, { method: 'POST' });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  // Hàm đánh dấu đã đọc tất cả
+  const markAllRead = async () => {
+    setNotifs(prev => prev.map(n => ({ ...n, trangThaiDoc: 1 })));
+    setUnreadNotifs(0);
+    try {
+      await fetch(`/api/students/${currentMssv}/notifications/read-all`, { method: 'POST' });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const unread = unreadNotifs;
+
+  function handleLogin(role: "admin" | "student", method?: "local" | "msal", profileData?: any) {
     setUserRole(role);
+    if (role === "admin" && profileData) {
+      setAdminProfile({
+        ...profileData,
+        name: profileData.name || profileData.hoten || profileData.label || "Quản trị viên",
+        msid: profileData.msid || profileData.magv || profileData.username || "admin",
+      });
+    }
     setIsLoggedIn(true);
   }
+
+  // Hàm xử lý dọn dẹp phiên và đăng xuất Microsoft hoàn toàn
+  const performLogout = () => {
+    localStorage.removeItem("campus_token");
+    sessionStorage.clear();
+    setIsLoggedIn(false);
+
+    if (instance.getAllAccounts().length > 0) {
+      instance.setActiveAccount(null);
+    }
+
+    try {
+      instance.logoutRedirect({
+        postLogoutRedirectUri: window.location.origin
+      });
+    } catch (error) {
+      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    }
+  };
 
   function handleLogoutConfirm() {
     setShowLogoutConfirm(false);
     setShowLogoutSuccess(true);
+
     setTimeout(() => {
       setShowLogoutSuccess(false);
-      setIsLoggedIn(false);
-    }, 1800);
+      performLogout();
+    }, 1600);
   }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (notifRef.current  && !notifRef.current.contains(e.target as Node))  setNotifOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
       if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const unread = NOTIFICATIONS.filter(n => !n.read).length;
-
-  if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
-  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} />;
-
+  if (!isLoggedIn) return <Login onLogin={handleLogin} />;
+  
+  // Truyền trực tiếp performLogout vào AdminApp
+  if (userRole === "admin") {
+    return <AdminApp onLogout={performLogout} HelpButton={HelpButton} adminProfile={adminProfile} />;
+  }
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {showLogoutConfirm && <LogoutConfirm onConfirm={handleLogoutConfirm} onCancel={() => setShowLogoutConfirm(false)} />}
@@ -498,10 +506,8 @@ export default function App() {
       <aside className="flex-shrink-0 hidden md:flex flex-col transition-all duration-300 ease-in-out overflow-hidden"
         style={{ width: sidebarOpen ? 192 : 52, background: "var(--primary)" }}>
         <div className="flex flex-col items-center pt-5 pb-4 px-3 flex-shrink-0">
-          <div className="relative flex-shrink-0" style={{ width: sidebarOpen ? 100 : 44, height: sidebarOpen ? 100 : 44, transition: "all 0.3s" }}>
-            <svg width="100%" height="100%" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
-            </svg>
+          <div className="rounded-full flex items-center justify-center flex-shrink-0" style={{ width: sidebarOpen ? 72 : 36, height: sidebarOpen ? 72 : 36, background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.3)", transition: "all 0.3s", padding: sidebarOpen ? 12 : 6 }}>
+            <img src={logoImg} alt="CampUS" style={{ mixBlendMode: "screen", filter: "brightness(0) invert(1)" }} className="w-full h-full object-contain" />
           </div>
           {sidebarOpen && (
             <div className="text-center mt-2.5">
@@ -515,6 +521,10 @@ export default function App() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            let badgeCount = 0;
+            if (item.id === "notifications") badgeCount = unreadNotifs;
+            if (item.id === "survey") badgeCount = pendingSurveys;
+
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 title={!sidebarOpen ? item.label : undefined}
@@ -526,12 +536,12 @@ export default function App() {
                 {sidebarOpen && (
                   <>
                     <span className={`flex-1 text-left whitespace-nowrap text-white ${active ? "text-[14px]" : "text-[13px]"}`}>{item.label}</span>
-                    {item.badge && (
-                      <span className="text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: "var(--accent)", fontSize: "10px" }}>{item.badge}</span>
+                    {badgeCount > 0 && (
+                      <span className="text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5" style={{ background: "var(--accent)", fontSize: "10px" }}>{badgeCount}</span>
                     )}
                   </>
                 )}
-                {!sidebarOpen && item.badge && (
+                {!sidebarOpen && badgeCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: "var(--accent)" }} />
                 )}
               </button>
@@ -540,13 +550,21 @@ export default function App() {
         </nav>
         <div className="mx-4 mt-2 h-px bg-white/10" />
         <div className={`p-4 flex items-center gap-3 flex-shrink-0 ${sidebarOpen ? "" : "justify-center"}`}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
-            <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</span>
+          <div className="w-9 h-9 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center" style={{ background: "rgba(213,179,112,0.12)", border: "2px solid rgba(213,179,112,0.3)" }}>
+            {studentAvatarUrl
+              ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" />
+              : <span className="text-sm font-bold" style={{ color: "var(--accent)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {getInitials(fullName)}
+                </span>}
           </div>
           {sidebarOpen && (
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Nguyễn Văn An</div>
-              <div className="text-xs text-white/40 truncate font-mono">21127001</div>
+              <div className="text-sm font-semibold text-white truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                {formatShortcutName(fullName)}
+              </div>
+              <div className="text-xs text-white/40 truncate font-mono">
+                {currentMssv}
+              </div>
             </div>
           )}
         </div>
@@ -555,20 +573,16 @@ export default function App() {
       {/* ── Main ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="flex-shrink-0 bg-card border-b border-border px-4 py-3 flex items-center gap-3 relative z-40">
-          {/* Sidebar toggle — desktop only */}
           <button onClick={() => setSidebarOpen(s => !s)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hidden md:block">
             {sidebarOpen ? <ChevronsLeft className="w-5 h-5" /> : <ChevronsRight className="w-5 h-5" />}
           </button>
-          {/* Mobile: app logo/brand */}
           <div className="flex items-center gap-2 md:hidden">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "var(--primary)" }}>
-              <span className="text-white text-[10px] font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>C</span>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.92)", padding: 3 }}>
+              <img src={logoImg} alt="CampUS" style={{ mixBlendMode: "multiply" }} className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-sm text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{SECTION_TITLES[activeSection]}</span>
           </div>
-          {/* Desktop: breadcrumb */}
           <div className="hidden md:flex items-center gap-1.5">
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {SECTION_TITLES[activeSection]}
             </span>
@@ -580,57 +594,90 @@ export default function App() {
                 </span>
               </>
             )}
+            {activeSection === "schedule" && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {scheduleTab === "tkb" ? "TKB Tuần" : "TKB Thi"}
+                </span>
+              </>
+            )}
           </div>
           <div className="ml-auto flex items-center gap-1.5">
             <HelpButton />
             <div className="relative" ref={notifRef}>
-              <button onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+              <button 
+                onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} 
+                className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+              >
                 <Bell className="w-5 h-5" />
-                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}>{unread}</span>}
+                {unread > 0 && (
+                  <span 
+                    className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}
+                  >
+                    {unread > 9 ? '9+' : unread}
+                  </span>
+                )}
               </button>
+
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
+                <div className="fixed left-3 right-3 top-[58px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 200 }}>
                   <div className="px-4 py-3 border-b border-border">
                     <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Thông báo</h3>
                   </div>
                   <div className="max-h-80 overflow-y-auto divide-y divide-border">
-                    {NOTIFICATIONS.map(n => (
-                      <div key={n.id} className={`px-4 py-3 hover:bg-secondary/50 transition-colors ${!n.read ? "bg-secondary/30" : ""}`}>
-                        <div className="flex items-start gap-2 mb-1">
-                          {!n.read && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                          <p className={`text-xs leading-snug flex-1 ${!n.read ? "font-semibold text-foreground" : "text-foreground"}`}>{n.title}</p>
+                    {notifs.map(n => {
+                      const isUnread = !n.trangThaiDoc || Number(n.trangThaiDoc) === 0;
+                      return (
+                        <div key={n.maTb} onClick={() => { markRead(n.maTb); setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }}
+                          className={`px-4 py-3 hover:bg-secondary/40 transition-colors cursor-pointer ${isUnread ? "bg-secondary/50" : ""}`}>
+                          <div className="flex items-start gap-2 mb-1">
+                            {isUnread && <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: "var(--accent)" }} />}
+                            <p className={`text-xs leading-snug flex-1 ${isUnread ? "font-semibold text-foreground" : "text-foreground"}`}>{n.tieuDe}</p>
+                          </div>
+                          <div className="flex items-center justify-between mt-1 pl-4">
+                            <span className="text-xs text-muted-foreground">{n.ngayDang ? getRelativeTime(n.ngayDang) : "Vừa xong"}</span>
+                            <span className="text-xs font-medium" style={{ color: "var(--primary)" }}>Chi tiết →</span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between mt-1 pl-4">
-                          <span className="text-xs text-muted-foreground">{n.time}</span>
-                          <button onClick={() => { setSelectedNotif(n); setActiveSection("notifications"); setNotifOpen(false); }} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>Chi tiết</button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="border-t border-border">
-                    <button onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} className="w-full py-3 text-sm font-semibold hover:bg-secondary/50 transition-colors" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tất cả</button>
+                    <button onClick={() => { setActiveSection("notifications"); setNotifOpen(false); setSelectedNotif(null); }} className="w-full py-3 text-sm font-semibold hover:bg-secondary/30 transition-colors" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tất cả</button>
                   </div>
                 </div>
               )}
             </div>
             <div className="relative" ref={avatarRef}>
-              <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}>
-                NV
+              <button 
+                onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} 
+                className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center hover:opacity-80 transition-opacity" 
+                style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "12px" }}
+              >
+                {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
               </button>
+              
               {avatarOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
-                  <div className="px-4 py-4 flex items-center gap-3 border-b border-border">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-base" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NV</div>
-                    <div className="min-w-0">
-                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{STUDENT_PROFILE.fullName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{STUDENT_PROFILE.officialEmail}</div>
+                <div className="absolute right-0 top-full mt-3 w-[320px] bg-card border border-border rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden" style={{ zIndex: 50 }}>
+                  <div className="px-5 py-4 flex items-center gap-3.5 border-b border-border">
+                    <div className="w-[50px] h-[50px] rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center font-bold text-lg" style={{ background: "rgba(213,179,112,0.12)", color: "var(--accent)", border: "2px solid rgba(213,179,112,0.25)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                      {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-[15px] leading-tight text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        {fullName.toUpperCase()}
+                      </div>
+                      <div className="text-[13px] text-muted-foreground mt-1 tracking-tight">
+                        {currentMssv}@student.hcmus.edu.vn
+                      </div>
                     </div>
                   </div>
-                  <div className="py-1">
-                    <button onClick={() => { setActiveSection("profile"); setAvatarOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors text-foreground">
+                  <div className="py-2">
+                    <button onClick={() => { setActiveSection("profile"); setAvatarOpen(false); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[15px] hover:bg-secondary/40 transition-colors text-foreground font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <User className="w-4 h-4 text-muted-foreground" /> Hồ sơ cá nhân
                     </button>
-                    <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/60 transition-colors text-destructive">
+                    <button onClick={() => { setAvatarOpen(false); setShowLogoutConfirm(true); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[15px] hover:bg-secondary/40 transition-colors text-destructive font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       <LogOut className="w-4 h-4" /> Đăng xuất
                     </button>
                   </div>
@@ -644,12 +691,22 @@ export default function App() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 pb-20 md:pb-6 bg-background">
-          {activeSection === "profile"        && <ProfileSection />}
+          {activeSection === "profile"        && <ProfileSection avatarUrl={studentAvatarUrl} onAvatarChange={setStudentAvatarUrl} />}
           {activeSection === "academic"       && <AcademicSection subTab={academicSubTab} setSubTab={setAcademicSubTab} />}
-          {activeSection === "survey"         && <SurveySection />}
-          {activeSection === "schedule"       && <ScheduleSection />}
+          {activeSection === "survey"         && <SurveySection onDone={() => setPendingSurveys(s => Math.max(0, s - 1))} />}
+          {activeSection === "schedule"       && <ScheduleSection tab={scheduleTab} setTab={setScheduleTab} />}
           {activeSection === "tuition"        && <TuitionSection />}
-          {activeSection === "notifications"  && <NotificationsSection selectedNotif={selectedNotif} setSelectedNotif={setSelectedNotif} />}
+          {activeSection === "notifications" && (
+            <NotificationsSection
+              notifs={notifs}
+              selectedNotif={selectedNotif}
+              setSelectedNotif={(n: any) => {
+                if (n) markRead(n.maTb || n.matb);
+                setSelectedNotif(n);
+              }}
+              markAllRead={markAllRead}
+            />
+          )}
         </main>
       </div>
 
@@ -659,15 +716,19 @@ export default function App() {
           {NAV_ITEMS.map(item => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            let badgeCount = 0;
+            if (item.id === "notifications") badgeCount = unreadNotifs;
+            if (item.id === "survey") badgeCount = pendingSurveys;
+
             return (
               <button key={item.id} onClick={() => setActiveSection(item.id)}
                 className="flex-1 flex flex-col items-center gap-0.5 pt-2 pb-2.5 px-0.5 transition-colors"
                 style={{ color: active ? "var(--primary)" : "#718096" }}>
                 <div className="relative">
                   <Icon className="w-5 h-5" />
-                  {item.badge && (
+                  {badgeCount > 0 && (
                     <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 rounded-full text-white flex items-center justify-center font-bold"
-                      style={{ background: "var(--accent)", fontSize: "8px" }}>{item.badge}</span>
+                      style={{ background: "var(--accent)", fontSize: "8px" }}>{badgeCount}</span>
                   )}
                 </div>
                 <span className="text-[8.5px] font-medium leading-tight text-center w-full truncate px-0.5"
