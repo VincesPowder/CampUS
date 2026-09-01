@@ -131,7 +131,7 @@ FLASK_ENV=development
 SECRET_KEY=your_super_secret_key_campus
 
 # API Key cho các tính năng AI (Chatbox, Recommender)
-GEMINI_API_KEY=your_google_gemini_api_key_here
+AI_API_KEY=your_google_gemini_api_key_here
 ```
 
 ---
