@@ -1950,6 +1950,7 @@ type AdminScheduleEntry = {
   lop: string;
   giangVien: string;
   thu: string;
+  ngay?: string;
   tiet: string;
   gio: string;
   phong: string;
@@ -1973,6 +1974,7 @@ function ScheduleModal({ item, onClose, onSave }: {
     lop: "24C07",
     giangVien: "Giảng viên",
     thu: "Thứ hai",
+    ngay: "16/09/2024 – 21/09/2024",
     tiet: "1–3",
     gio: "07:30 – 10:00",
     phong: "C.42",
@@ -1998,6 +2000,15 @@ function ScheduleModal({ item, onClose, onSave }: {
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Lớp</label><input value={form.lop} onChange={e => set("lop", e.target.value)} className={iCls} placeholder="VD: 24C07" /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Giảng viên</label><input value={form.giangVien} onChange={e => set("giangVien", e.target.value)} className={iCls} placeholder="Tên giảng viên..." /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Thứ</label><select value={form.thu} onChange={e => set("thu", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}>{thuOpts.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+          <div>
+            <label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Ngày học</label>
+            <input 
+              value={form.ngay || ""} 
+              onChange={e => set("ngay", e.target.value)} 
+              className={iCls} 
+              placeholder="VD: 30/09/2024 – 05/10/2024" 
+            />
+          </div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Giờ học</label><input value={form.gio} onChange={e => set("gio", e.target.value)} className={iCls} placeholder="VD: 07:30 – 10:00" /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Phòng học</label><input value={form.phong} onChange={e => set("phong", e.target.value)} className={iCls} placeholder="VD: C.42" /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Tuần học</label><input value={form.tuan} onChange={e => set("tuan", e.target.value)} className={iCls} placeholder="VD: 1–15" /></div>
@@ -2235,7 +2246,7 @@ function AdminScheduleSection() {
           <table className="w-full text-xs" style={{ minWidth: 800 }}>
             <thead>
               <tr style={{ background: "var(--primary)" }}>
-                {["STT","Mã MH","Tên môn học","Lớp","Giảng viên","Thứ","Thời gian","Phòng","Tuần","Hình thức",""].map(h => (
+                {["STT","Mã MH","Tên môn học","Lớp","Giảng viên","Thứ","Ngày","Thời gian","Phòng","Tuần","Hình thức",""].map(h => (
                   <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
                 ))}
               </tr>
@@ -2253,6 +2264,9 @@ function AdminScheduleSection() {
                   <td className="px-3 py-2.5 text-muted-foreground">{c.lop}</td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.giangVien}</td>
                   <td className="px-3 py-2.5 font-semibold text-primary" style={PJS}>{c.thu}</td>
+                  <td className="px-3 py-2.5 font-mono text-muted-foreground whitespace-nowrap">
+                    {c.ngay || "23–29/09/2026"}
+                  </td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.gio}</td>
                   <td className="px-3 py-2.5 font-semibold text-foreground">{c.phong}</td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.tuan}</td>
