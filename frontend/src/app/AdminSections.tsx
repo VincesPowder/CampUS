@@ -23,6 +23,16 @@ import {
   EXAM_STATUS_COLORS, GRADE_EDIT_REASONS, NOTIF_KHOA_OPTS, NOTIF_PHONG_OPTS, TUITION_HK_LIST,
 } from "../data/mockData";
 
+export const getAdminEmail = () => {
+  return localStorage.getItem("user_email") || "24127262@student.hcmus.edu.vn";
+};
+
+export const adminFetch = (url: string, options: RequestInit = {}) => {
+  const headers = new Headers(options.headers || {});
+  headers.set("X-Admin-Email", getAdminEmail());
+  return fetch(url, { ...options, headers });
+};
+
 // ─── Admin: Student Detail / Edit Modal ──────────────────────────────────────
 type StudentModalMode = "view" | "edit";
 
@@ -71,20 +81,20 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
   useEffect(() => {
-    if (student?.mssv) {
-      setLoading(true);
-      fetch(`/api/admin/students/${student.mssv}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "success") {
-            setForm(data.data);
-            setFamilyData(data.data.family || []);
-          }
-        })
-        .catch(err => console.error("Lỗi fetch chi tiết sinh viên:", err))
-        .finally(() => setLoading(false));
-    }
-  }, [student?.mssv]);
+  if (student?.mssv) {
+    setLoading(true);
+    adminFetch(`/api/admin/students/${student.mssv}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          setForm(data.data);
+          setFamilyData(data.data.family || []);
+        }
+      })
+      .catch(err => console.error("Lỗi fetch chi tiết sinh viên:", err))
+      .finally(() => setLoading(false));
+  }
+}, [student?.mssv]);
 
   const editableFields: { label: string; key: string }[] = [
     { label: "Họ và tên",    key: "hoTen" },
@@ -99,28 +109,28 @@ function StudentModal({ student, mode: initMode, onClose, onSave }: {
   ];
 
   const handleSaveChanges = async () => {
-    try {
-      const payload = {
-        ...form,
-        family: familyData
-      };
-      const res = await fetch(`/api/admin/students/${student.mssv}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.status === "success") {
-        onSave(payload);
-        setMode("view");
-      } else {
-        alert(data.message || "Lỗi lưu dữ liệu.");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Không thể kết nối đến máy chủ.");
+  try {
+    const payload = {
+      ...form,
+      family: familyData
+    };
+    const res = await adminFetch(`/api/admin/students/${student.mssv}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === "success") {
+      onSave(payload);
+      setMode("view");
+    } else {
+      alert(data.message || "Lỗi lưu dữ liệu.");
     }
-  };
+  } catch (e) {
+    console.error(e);
+    alert("Không thể kết nối đến máy chủ.");
+  }
+};
 
   const handleAddFamilyMember = () => {
     setFamilyData(prev => [
@@ -393,7 +403,7 @@ function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: a
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/students', {
+      const res = await adminFetch('/api/admin/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(draft)
@@ -478,24 +488,22 @@ function StudentManagement() {
 
   // 1. Fetch danh sách sinh viên từ backend
   const fetchStudents = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/students');
-      const data = await res.json();
-      if (data.status === 'success') {
-        setStudents(data.data);
-      }
-    } catch (e) {
-      console.error("Lỗi fetch danh sách sinh viên:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const res = await adminFetch('/api/admin/students'); // Thay fetch -> adminFetch
+    const data = await res.json();
+    if (data.status === 'success') setStudents(data.data);
+  } catch (e) {
+    console.error("Lỗi fetch sinh viên:", e);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 2. Fetch trạng thái quyền chỉnh sửa hồ sơ
   const fetchPermission = async () => {
     try {
-      const res = await fetch('/api/admin/profile-edit-permission');
+      const res = await adminFetch('/api/admin/profile-edit-permission');
       const data = await res.json();
       if (data.status === 'success' && data.data) {
         setGlobalPerm(data.data);
@@ -514,7 +522,7 @@ function StudentManagement() {
   const handleSavePermission = async (newPerm: GlobalEditPerm) => {
     setGlobalPerm(newPerm);
     try {
-      await fetch('/api/admin/profile-edit-permission', {
+      await adminFetch('/api/admin/profile-edit-permission', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPerm)
@@ -528,7 +536,7 @@ function StudentManagement() {
   const handleDeleteStudent = async () => {
     if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/students/${deleteTarget.mssv}`, {
+      const res = await adminFetch(`/api/admin/students/${deleteTarget.mssv}`, {
         method: 'DELETE'
       });
       const data = await res.json();
@@ -546,8 +554,8 @@ function StudentManagement() {
 
   // 5. Xuất file CSV
   const handleExportCSV = () => {
-    window.open('/api/admin/students/export', '_blank');
-  };
+  window.open(`/api/admin/students/export?admin_email=${encodeURIComponent(getAdminEmail())}`, '_blank');
+};
 
   // 6. Nhập file CSV
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -558,7 +566,7 @@ function StudentManagement() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/admin/students/import', {
+      const res = await adminFetch('/api/admin/students/import', {
         method: 'POST',
         body: formData
       });
@@ -828,7 +836,7 @@ function AdminSurveySection() {
   const fetchSurveys = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/surveys?status=${activeStatus}&search=${encodeURIComponent(search)}`);
+      const res = await adminFetch(`/api/admin/surveys?status=${activeStatus}&search=${encodeURIComponent(search)}`);
       const data = await res.json();
       if (data.status === 'success') {
         setSurveys(data.data);
@@ -848,7 +856,7 @@ function AdminSurveySection() {
   const handleDelete = async (maks: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa khảo sát này và toàn bộ kết quả phản hồi?")) return;
     try {
-      const res = await fetch(`/api/admin/surveys/${maks}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/surveys/${maks}`, { method: "DELETE" });
       const data = await res.json();
       if (data.status === 'success') {
         fetchSurveys();
@@ -863,7 +871,7 @@ function AdminSurveySection() {
     setResultModal(s);
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/admin/surveys/${s.id}`);
+      const res = await adminFetch(`/api/admin/surveys/${s.id}`);
       const data = await res.json();
       if (data.status === 'success') {
         setDetailData(data.data);
@@ -964,7 +972,7 @@ function AdminSurveySection() {
                     <BarChart2 className="w-3.5 h-3.5" /> Kết quả
                   </button>
                   <button
-                    onClick={() => window.open(`/api/admin/surveys/${s.id}/export`, '_blank')}
+                    onClick={() => window.open(`/api/admin/surveys/${s.id}/export?admin_email=${encodeURIComponent(getAdminEmail())}`, '_blank')}
                     className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                     title="Xuất kết quả CSV"
                   >
@@ -1071,7 +1079,7 @@ function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCrea
     if (!title.trim()) { alert("Vui lòng nhập tiêu đề khảo sát."); return; }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/surveys', {
+      const res = await adminFetch('/api/admin/surveys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description, deadline, questions })
@@ -1134,7 +1142,7 @@ function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCrea
     </div>
   );
 }
-// ─── Admin: Academic / Grade Management ──────────────────────────────────────
+// ─── Helper Functions & Styles ───────────────────────────────────────────────
 function calcTK(cc: number | null, gk: number | null, ck: number | null): number | null {
   if (cc === null || gk === null || ck === null) return null;
   return Math.round((cc * 0.1 + gk * 0.3 + ck * 0.6) * 10) / 10;
@@ -1146,6 +1154,14 @@ function gradeColor(d: number | null): string {
   return "#dc2626";
 }
 
+function isYearOpen(status: any): boolean {
+  if (status === true || status === 1 || status === "1") return true;
+  if (status === false || status === 0 || status === "0") return false;
+  const s = String(status || "").toLowerCase().trim();
+  return s === "open" || s === "mở" || s === "đang mở" || s === "hoạt động" || s === "active";
+}
+
+// ─── Modal: Chỉnh sửa điểm sinh viên ─────────────────────────────────────────
 function GradeEditModal({ student, courseId, onClose, onSave }: {
   student: StudentGradeRow; courseId?: string; onClose: () => void;
   onSave: (updated: StudentGradeRow) => void;
@@ -1173,7 +1189,7 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
     setSubmitting(true);
     try {
       if (courseId) {
-        await fetch(`/api/admin/academic/courses/${courseId}/grades/${student.mssv}`, {
+        await adminFetch(`/api/admin/academic/courses/${courseId}/grades/${student.mssv}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedPayload)
@@ -1192,9 +1208,14 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
 
   const scoreInput = (label: string, pct: string, val: string, set: (v: string) => void) => (
     <div key={label}>
-      <label className="block text-xs font-semibold text-muted-foreground mb-1" style={PJS}>{label} <span className="font-normal text-muted-foreground">({pct})</span></label>
-      <input type="number" min={0} max={10} step={0.1} value={val} onChange={e => set(e.target.value)}
-        className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" style={INTER} />
+      <label className="block text-xs font-semibold text-muted-foreground mb-1" style={PJS}>
+        {label} <span className="font-normal text-muted-foreground">({pct})</span>
+      </label>
+      <input 
+        type="number" min={0} max={10} step={0.1} value={val} onChange={e => set(e.target.value)}
+        className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-background" 
+        style={INTER} 
+      />
     </div>
   );
 
@@ -1202,8 +1223,13 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
       <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-border flex items-center justify-between" style={{ background: "linear-gradient(135deg,#11284D,#264B6F)" }}>
-          <div><p className="text-white font-bold text-sm" style={PJS}>Chỉnh sửa điểm</p><p className="text-white/70 text-xs mt-0.5" style={INTER}>{student.mssv} — {student.hoTen}</p></div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-card/20 hover:bg-card/30 flex items-center justify-center text-white transition-colors"><X className="w-4 h-4" /></button>
+          <div>
+            <p className="text-white font-bold text-sm" style={PJS}>Chỉnh sửa điểm</p>
+            <p className="text-white/70 text-xs mt-0.5" style={INTER}>{student.mssv} — {student.hoTen}</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-card/20 hover:bg-card/30 flex items-center justify-center text-white transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-3 gap-3">
@@ -1213,10 +1239,14 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
           </div>
           <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: "var(--background)" }}>
             <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Điểm tổng kết (tự động)</span>
-            <span className="text-lg font-bold" style={{ ...PJS, color: gradeColor(tkPreview) }}>{tkPreview !== null ? tkPreview.toFixed(1) : "—"}</span>
+            <span className="text-lg font-bold" style={{ ...PJS, color: gradeColor(tkPreview) }}>
+              {tkPreview !== null ? tkPreview.toFixed(1) : "—"}
+            </span>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1" style={PJS}>Lý do chỉnh sửa <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-semibold text-muted-foreground mb-1" style={PJS}>
+              Lý do chỉnh sửa <span className="text-red-500">*</span>
+            </label>
             <select value={lyDo} onChange={e => setLyDo(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 bg-card" style={INTER}>
               <option value="">— Chọn lý do —</option>
               {lyDoOptions.map(o => <option key={o} value={o}>{o}</option>)}
@@ -1224,14 +1254,18 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
           </div>
           {isOther && (
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground mb-1" style={PJS}>Mô tả lý do <span className="text-red-500">*</span></label>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1" style={PJS}>
+                Mô tả lý do <span className="text-red-500">*</span>
+              </label>
               <textarea rows={2} value={customLyDo} onChange={e => setCustomLyDo(e.target.value)} placeholder="Nhập lý do cụ thể..."
-                className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2" style={INTER} />
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 bg-background" style={INTER} />
             </div>
           )}
         </div>
         <div className="px-6 py-4 bg-card border-t border-border flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted transition-colors" style={PJS}>Hủy</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted transition-colors" style={PJS}>
+            Hủy
+          </button>
           <button onClick={handleSave} disabled={!canSave || submitting} className="px-5 py-2 rounded-lg text-sm font-bold text-white transition-colors"
             style={{ ...PJS, background: canSave && !submitting ? "#11284D" : "#9ca3af", cursor: canSave && !submitting ? "pointer" : "not-allowed" }}>
             {submitting ? "Đang lưu..." : "Lưu thay đổi"}
@@ -1242,89 +1276,7 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
   );
 }
 
-function AddMonHocYearModal({ yearId, maxHK, initial, onClose, onSave }: {
-  yearId: string; maxHK: number;
-  initial?: AdminCourseItem | null;
-  onClose: () => void;
-  onSave: (course: AdminCourseItem) => void;
-}) {
-  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-  const iCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card transition-colors";
-  const isEdit = !!initial;
-  const [maMon, setMaMon] = useState(initial?.maMon ?? "");
-  const [tenMon, setTenMon] = useState(initial?.tenMon ?? "");
-  const [soTC, setSoTC] = useState(initial?.soTC ?? 3);
-  const [soTiet, setSoTiet] = useState(initial?.soTiet ?? 45);
-  const [hocKy, setHocKy] = useState(initial?.hocKy ?? 1);
-  const [maNhom, setMaNhom] = useState(initial?.maNhom ?? "");
-  const [tenNhom, setTenNhom] = useState(initial?.tenNhom ?? "");
-  const [khoa, setKhoa] = useState(initial?.khoa ?? "CNTT");
-  const canSave = maMon.trim() && tenMon.trim();
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border" style={{ background: "var(--primary)" }}>
-          <p className="font-bold text-white text-sm" style={PJS}>{isEdit ? "Chỉnh sửa môn học" : "Thêm môn học vào năm học"}</p>
-          <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
-        </div>
-        <div className="p-6 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Mã môn *</label>
-              <input value={maMon} onChange={e => setMaMon(e.target.value.toUpperCase())} placeholder="VD: CSC10006" className={iCls} disabled={isEdit} />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Học kỳ *</label>
-              <select value={hocKy} onChange={e => setHocKy(Number(e.target.value))} className={iCls} style={PJS}>
-                {Array.from({ length: maxHK }, (_, i) => i + 1).map(hk => (
-                  <option key={hk} value={hk}>Học kỳ {hk}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Tên môn học *</label>
-            <input value={tenMon} onChange={e => setTenMon(e.target.value)} placeholder="VD: Cơ sở dữ liệu" className={iCls} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Số TC</label>
-              <input type="number" value={soTC} min={1} max={8} onChange={e => setSoTC(Number(e.target.value))} className={iCls} />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Số tiết</label>
-              <input type="number" value={soTiet} min={1} onChange={e => setSoTiet(Number(e.target.value))} className={iCls} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Mã nhóm</label>
-              <input value={maNhom} onChange={e => setMaNhom(e.target.value)} placeholder="VD: L01" className={iCls} />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Tên nhóm</label>
-              <input value={tenNhom} onChange={e => setTenNhom(e.target.value)} placeholder="VD: Nhóm 1" className={iCls} />
-            </div>
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Khoa</label>
-            <input value={khoa} onChange={e => setKhoa(e.target.value)} placeholder="VD: CNTT" className={iCls} />
-          </div>
-        </div>
-        <div className="flex gap-3 px-6 py-4 border-t border-border">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
-          <button disabled={!canSave} onClick={() => onSave({ ...(initial ?? { id: `c${Date.now()}`, lop: maNhom || "24C01", giangVien: "Giảng viên", emailGV: "", soSV: 0, status: "pending" as const }), maMon: maMon.trim(), tenMon: tenMon.trim(), soTC, soTiet, hocKy, maNhom: maNhom.trim(), tenNhom: tenNhom.trim(), khoa, namHoc: yearId })}
-            className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold transition-opacity disabled:opacity-40"
-            style={{ background: "var(--primary)", ...PJS }}>
-            {isEdit ? "Lưu thay đổi" : "Thêm môn học"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+// ─── Modal: Thêm / Chỉnh sửa Năm học ──────────────────────────────────────────
 function AcademicYearModal({ year, onClose, onSave }: {
   year: AcademicYear | null;
   onClose: () => void;
@@ -1337,7 +1289,7 @@ function AcademicYearModal({ year, onClose, onSave }: {
   const [soHocKy, setSoHocKy] = useState(year?.soHocKy ?? 3);
   const [ngayBatDau, setNgayBatDau] = useState(year?.ngayBatDau ?? "");
   const [ngayKetThuc, setNgayKetThuc] = useState(year?.ngayKetThuc ?? "");
-  const [status, setStatus] = useState<AcademicYear["status"]>(year?.status ?? "open");
+  const [status, setStatus] = useState<AcademicYear["status"]>(isYearOpen(year?.status) ? "open" : "closed");
 
   const namKetThuc = namBatDau + 1;
   const shortId = `${String(namBatDau).slice(2)}-${String(namKetThuc).slice(2)}`;
@@ -1391,7 +1343,12 @@ function AcademicYearModal({ year, onClose, onSave }: {
                 return (
                   <button key={s} onClick={() => setStatus(s)} type="button"
                     className="flex-1 py-2 rounded-lg border text-xs font-semibold transition-all"
-                    style={{ background: status === s ? cfg.color + "18" : "#fff", borderColor: status === s ? cfg.color : "var(--border)", color: status === s ? cfg.color : "var(--muted-foreground)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    style={{ 
+                      background: status === s ? cfg.color + "18" : "var(--card)", 
+                      borderColor: status === s ? cfg.color : "var(--border)", 
+                      color: status === s ? cfg.color : "var(--muted-foreground)", 
+                      fontFamily: "'Plus Jakarta Sans', sans-serif" 
+                    }}>
                     {cfg.label}
                   </button>
                 );
@@ -1411,7 +1368,8 @@ function AcademicYearModal({ year, onClose, onSave }: {
   );
 }
 
-function AdminAcademicSection() {
+// ─── Main Component: AdminAcademicSection ───────────────────────────────────
+export function AdminAcademicSection() {
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
   const PRIMARY = "#11284D";
@@ -1419,11 +1377,6 @@ function AdminAcademicSection() {
   const [activeTab, setActiveTab] = useState<"courses" | "years">("courses");
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [yearModal, setYearModal] = useState<AcademicYear | null | "new">(null);
-  const [selectedYear, setSelectedYear] = useState<AcademicYear | null>(null);
-  const [yearHkFilter, setYearHkFilter] = useState<number | "all">("all");
-  const [yearSearch, setYearSearch] = useState("");
-  const [addMonHocModal, setAddMonHocModal] = useState(false);
-  const [editYearCourse, setEditYearCourse] = useState<AdminCourseItem | null>(null);
   const [screen, setScreen] = useState<"list" | "detail">("list");
   const [selectedCourse, setSelectedCourse] = useState<AdminCourseItem | null>(null);
   const [filterNamHoc, setFilterNamHoc] = useState("all");
@@ -1440,34 +1393,39 @@ function AdminAcademicSection() {
 
   // 1. Fetch toàn bộ môn học phần trực tiếp từ Database
   const fetchCourses = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filterNamHoc && filterNamHoc !== "all") params.append("namHoc", filterNamHoc);
-      if (filterHK !== "all") params.append("hocKy", String(filterHK));
-      if (filterStatus !== "all") params.append("status", filterStatus);
-      if (filterKhoa !== "all") params.append("khoa", filterKhoa);
-      if (search) params.append("search", search);
+  setLoading(true);
+  try {
+    const params = new URLSearchParams();
+    if (filterNamHoc && filterNamHoc !== "all") params.append("namHoc", filterNamHoc);
+    if (filterHK !== "all") params.append("hocKy", String(filterHK));
+    if (filterStatus !== "all") params.append("status", filterStatus);
+    if (filterKhoa !== "all") params.append("khoa", filterKhoa);
+    if (search) params.append("search", search);
 
-      const res = await fetch(`/api/admin/academic/courses?${params.toString()}`);
-      const data = await res.json();
-      if (data.status === "success") {
-        setCourses(data.data);
-      }
-    } catch (e) {
-      console.error("Lỗi fetch danh sách môn học:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const res = await adminFetch(`/api/admin/academic/courses?${params.toString()}`); // Thay bằng adminFetch
+    const data = await res.json();
+    if (data.status === "success") setCourses(data.data);
+  } catch (e) {
+    console.error("Lỗi fetch môn học:", e);
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // 2. Fetch danh sách năm học từ Database
+  // 2. Fetch danh sách năm học từ Database và chuẩn hoá trạng thái open/closed
   const fetchYears = async () => {
     try {
-      const res = await fetch('/api/admin/academic/years');
+      const res = await adminFetch('/api/admin/academic/years');
       const data = await res.json();
-      if (data.status === "success") {
-        setAcademicYears(data.data);
+      if (data.status === "success" && data.data) {
+        const normalized = data.data.map((y: any) => {
+          const rawStatus = y.status ?? y.trangThai ?? y.trangthai ?? y.trangthai_mo;
+          return {
+            ...y,
+            status: isYearOpen(rawStatus) ? "open" : "closed"
+          };
+        });
+        setAcademicYears(normalized);
       }
     } catch (e) {
       console.error("Lỗi fetch năm học:", e);
@@ -1481,32 +1439,29 @@ function AdminAcademicSection() {
 
   const namHocOptions = ["all", ...Array.from(new Set(courses.map(c => c.namHoc)))];
   const khoaOptions = Array.from(new Set(courses.map(c => c.khoa).filter(Boolean))).sort();
-
   const filtered = courses;
 
   async function openDetail(course: AdminCourseItem) {
-    if (course.status === "pending") return;
-    setSelectedCourse(course);
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/academic/courses/${course.id}/grades`);
-      const data = await res.json();
-      if (data.status === "success") {
-        setGrades(data.data);
-      }
-    } catch (e) {
-      console.error("Lỗi fetch điểm lớp học phần:", e);
-    } finally {
-      setLoading(false);
-      setGradeSearch("");
-      setScreen("detail");
-    }
+  if (course.status === "pending") return;
+  setSelectedCourse(course);
+  setLoading(true);
+  try {
+    const res = await adminFetch(`/api/admin/academic/courses/${course.id}/grades`); // adminFetch
+    const data = await res.json();
+    if (data.status === "success") setGrades(data.data);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoading(false);
+    setGradeSearch("");
+    setScreen("detail");
   }
+}
 
   async function handleLockPublish() {
     if (!selectedCourse) return;
     try {
-      const res = await fetch(`/api/admin/academic/courses/${selectedCourse.id}/lock`, { method: "POST" });
+      const res = await adminFetch(`/api/admin/academic/courses/${selectedCourse.id}/lock`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success") {
         const today = new Date().toLocaleDateString("vi-VN");
@@ -1525,11 +1480,10 @@ function AdminAcademicSection() {
   }
 
   const handleExportGrades = () => {
-    if (!selectedCourse) return;
-    window.open(`/api/admin/academic/courses/${selectedCourse.id}/export-grades`, '_blank');
-  };
+  if (!selectedCourse) return;
+  window.open(`/api/admin/academic/courses/${selectedCourse.id}/export-grades?admin_email=${encodeURIComponent(getAdminEmail())}`, '_blank');
+};
 
-  // Hàm statusBadge an toàn tuyệt đối với mọi dữ liệu
   const statusBadge = (status: any, small = false) => {
     const raw = String(status || "").toLowerCase();
     let cfg = { bg: "#f3f4f6", text: "#6b7280", label: "Đang chờ", dot: "#9ca3af" };
@@ -1544,9 +1498,9 @@ function AdminAcademicSection() {
 
     return (
       <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${small ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-xs"}`}
-            style={{ background: cfg?.bg || "#f3f4f6", color: cfg?.text || "#6b7280", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg?.dot || "#9ca3af" }} />
-        {cfg?.label || "Đang chờ"}
+            style={{ background: cfg.bg, color: cfg.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
+        {cfg.label}
       </span>
     );
   };
@@ -1569,7 +1523,7 @@ function AdminAcademicSection() {
       const url = isEdit ? `/api/admin/academic/years/${y.id}` : `/api/admin/academic/years`;
       const method = isEdit ? "PUT" : "POST";
       
-      await fetch(url, {
+      await adminFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(y)
@@ -1583,7 +1537,8 @@ function AdminAcademicSection() {
 
   const setCurrentYear = async (id: string) => {
     try {
-      await fetch(`/api/admin/academic/years/${id}`, {
+      setAcademicYears(prev => prev.map(y => y.id === id ? { ...y, status: "open" } : y));
+      await adminFetch(`/api/admin/academic/years/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "open" })
@@ -1596,7 +1551,8 @@ function AdminAcademicSection() {
 
   const closeYear = async (id: string) => {
     try {
-      await fetch(`/api/admin/academic/years/${id}`, {
+      setAcademicYears(prev => prev.map(y => y.id === id ? { ...y, status: "closed" } : y));
+      await adminFetch(`/api/admin/academic/years/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "closed" })
@@ -1608,10 +1564,22 @@ function AdminAcademicSection() {
   };
 
   if (screen === "list") {
-    const pending  = filtered.filter(c => c.status === "pending").length;
-    const uploaded = filtered.filter(c => c.status === "uploaded").length;
-    const locked   = filtered.filter(c => c.status === "locked").length;
+    const pending  = filtered.filter(c => {
+      const s = String(c.status || "").toLowerCase();
+      return s === "pending" || s === "chưa nộp";
+    }).length;
 
+    const uploaded = filtered.filter(c => {
+      const s = String(c.status || "").toLowerCase();
+      return s === "uploaded" || s === "open" || s.includes("tải");
+    }).length;
+
+    const locked   = filtered.filter(c => {
+      const s = String(c.status || "").toLowerCase();
+      return s === "locked" || s === "closed" || s.includes("khóa");
+    }).length;
+
+    // Đếm chính xác số lượng năm học mở và đóng
     const yOpen   = academicYears.filter(y => y.status === "open").length;
     const yClosed = academicYears.filter(y => y.status === "closed").length;
 
@@ -1634,7 +1602,7 @@ function AdminAcademicSection() {
           ))}
         </div>
 
-        {/* Môn học & Điểm tab */}
+        {/* ══════════════════ TAB 1: MÔN HỌC & ĐIỂM ══════════════════ */}
         {activeTab === "courses" && (
           <>
             <div className="flex gap-3 mb-5">
@@ -1753,7 +1721,7 @@ function AdminAcademicSection() {
           </>
         )}
 
-        {/* Năm học tab */}
+        {/* ══════════════════ TAB 2: NĂM HỌC ══════════════════ */}
         {activeTab === "years" && (
           <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
             {yearModal !== null && (
@@ -1783,43 +1751,50 @@ function AdminAcademicSection() {
                 <table className="w-full text-xs" style={{ minWidth: 680 }}>
                   <thead>
                     <tr style={{ background: "var(--primary)" }}>
-                      {["Năm học", "Mã", "Ngày bắt đầu", "Ngày kết thúc", "Số HK", "Trạng thái", ""].map(h => (
+                      {["Năm học", "Mã", "Ngày bắt đầu", "Ngày kết thúc", "Số HK", "Trạng thái", "Thao tác"].map(h => (
                         <th key={h} className="px-4 py-3 text-left text-white font-semibold whitespace-nowrap" style={PJS}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {academicYears.map((y, i) => (
-                      <tr key={y.id} className="border-b border-border hover:brightness-[0.97] transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
-                        <td className="px-4 py-3 font-bold text-foreground" style={PJS}>{y.label}</td>
-                        <td className="px-4 py-3 font-mono text-muted-foreground">{y.id}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{y.ngayBatDau || "—"}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{y.ngayKetThuc || "—"}</td>
-                        <td className="px-4 py-3 text-center text-muted-foreground">{y.soHocKy}</td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${y.status === "open" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-                            {y.status === "open" ? "Mở" : "Đóng"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => setYearModal(y)} title="Chỉnh sửa" className="p-1.5 rounded-md hover:bg-muted text-muted-foreground">
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            {y.status !== "open" && (
-                              <button onClick={() => setCurrentYear(y.id)} title="Mở năm học" className="p-1.5 rounded-md hover:bg-green-50 text-green-600">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                            {y.status !== "closed" && (
-                              <button onClick={() => closeYear(y.id)} title="Đóng năm học" className="p-1.5 rounded-md hover:bg-muted text-gray-500">
-                                <Lock className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {academicYears.length === 0 ? (
+                      <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">Chưa có năm học nào trong hệ thống.</td></tr>
+                    ) : (
+                      academicYears.map((y, i) => {
+                        const isOpen = y.status === "open";
+                        return (
+                          <tr key={y.id} className="border-b border-border hover:brightness-[0.97] transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                            <td className="px-4 py-3 font-bold text-foreground" style={PJS}>{y.label}</td>
+                            <td className="px-4 py-3 font-mono text-muted-foreground">{y.id}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{y.ngayBatDau || "—"}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{y.ngayKetThuc || "—"}</td>
+                            <td className="px-4 py-3 text-center text-muted-foreground">{y.soHocKy}</td>
+                            <td className="px-4 py-3">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${isOpen ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? "bg-green-500" : "bg-gray-400"}`} />
+                                {isOpen ? "Mở" : "Đóng"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => setYearModal(y)} title="Chỉnh sửa" className="p-1.5 rounded-md hover:bg-muted text-muted-foreground">
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                {!isOpen ? (
+                                  <button onClick={() => setCurrentYear(y.id)} title="Mở năm học" className="p-1.5 rounded-md hover:bg-green-50 text-green-600">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                  </button>
+                                ) : (
+                                  <button onClick={() => closeYear(y.id)} title="Đóng năm học" className="p-1.5 rounded-md hover:bg-muted text-gray-500">
+                                    <Lock className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -1830,7 +1805,7 @@ function AdminAcademicSection() {
     );
   }
 
-  // View Chi tiết bảng điểm của Lớp học phần
+  // ══════════════════ VIEW CHI TIẾT BẢNG ĐIỂM ══════════════════
   const course = selectedCourse!;
   const isLocked = course.status === "locked";
   const filteredGrades = grades.filter(g => {
@@ -1958,6 +1933,7 @@ function AdminAcademicSection() {
     </div>
   );
 }
+
 // ─── Admin: Schedule Section ──────────────────────────────────────────────────
 type AdminScheduleTab = "schedule" | "exams";
 
@@ -2107,7 +2083,7 @@ function AdminScheduleSection() {
       if (filterThu !== "all") params.append("thu", filterThu);
       if (search) params.append("search", search);
 
-      const res = await fetch(`/api/admin/schedule/classes?${params.toString()}`);
+      const res = await adminFetch(`/api/admin/schedule/classes?${params.toString()}`);
       const data = await res.json();
       if (data.status === 'success') {
         setClasses(data.data);
@@ -2126,7 +2102,7 @@ function AdminScheduleSection() {
       const params = new URLSearchParams();
       if (search) params.append("search", search);
 
-      const res = await fetch(`/api/admin/schedule/exams?${params.toString()}`);
+      const res = await adminFetch(`/api/admin/schedule/exams?${params.toString()}`);
       const data = await res.json();
       if (data.status === 'success') {
         setExams(data.data);
@@ -2150,7 +2126,7 @@ function AdminScheduleSection() {
     const method = isEdit ? "PUT" : "POST";
 
     try {
-      await fetch(url, {
+      await adminFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)
@@ -2166,7 +2142,7 @@ function AdminScheduleSection() {
   const handleDeleteSchedule = async (id: any) => {
     if (!confirm("Bạn có chắc muốn xóa lịch học này?")) return;
     try {
-      await fetch(`/api/admin/schedule/classes/${id}`, { method: "DELETE" });
+      await adminFetch(`/api/admin/schedule/classes/${id}`, { method: "DELETE" });
       fetchClasses();
     } catch (e) {
       console.error(e);
@@ -2180,7 +2156,7 @@ function AdminScheduleSection() {
     const method = isEdit ? "PUT" : "POST";
 
     try {
-      await fetch(url, {
+      await adminFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)
@@ -2196,7 +2172,7 @@ function AdminScheduleSection() {
   const handleDeleteExam = async (id: any) => {
     if (!confirm("Bạn có chắc muốn xóa lịch thi này?")) return;
     try {
-      await fetch(`/api/admin/schedule/exams/${id}`, { method: "DELETE" });
+      await adminFetch(`/api/admin/schedule/exams/${id}`, { method: "DELETE" });
       fetchExams();
     } catch (e) {
       console.error(e);
@@ -2344,7 +2320,7 @@ function AdminNotificationsSection() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/notifications?department=${encodeURIComponent(selectedDept)}&search=${encodeURIComponent(search)}`);
+      const res = await adminFetch(`/api/admin/notifications?department=${encodeURIComponent(selectedDept)}&search=${encodeURIComponent(search)}`);
       const data = await res.json();
       if (data.status === 'success') {
         setNotifications(data.data);
@@ -2364,7 +2340,7 @@ function AdminNotificationsSection() {
   const handleDelete = async (matb: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa thông báo này?")) return;
     try {
-      const res = await fetch(`/api/admin/notifications/${matb}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/notifications/${matb}`, { method: "DELETE" });
       const data = await res.json();
       if (data.status === 'success') {
         fetchNotifications();
@@ -2555,7 +2531,7 @@ function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; o
     const method = isEdit ? "PUT" : "POST";
 
     try {
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content, department })
@@ -2632,24 +2608,22 @@ function AdminTuitionSection() {
 
   // 1. Fetch dữ liệu học phí & thống kê từ Backend
   const fetchTuitionData = async () => {
-    setLoading(true);
-    try {
-      const [resList, resStats] = await Promise.all([
-        fetch(`/api/admin/tuition/students?status=${statusFilter}&search=${encodeURIComponent(search)}`),
-        fetch('/api/admin/tuition/stats')
-      ]);
-
-      const dataList = await resList.json();
-      const dataStats = await resStats.json();
-
-      if (dataList.status === 'success') setStudents(dataList.data);
-      if (dataStats.status === 'success') setStats(dataStats.data);
-    } catch (e) {
-      console.error("Lỗi fetch học phí:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const [resList, resStats] = await Promise.all([
+      adminFetch(`/api/admin/tuition/students?status=${statusFilter}&search=${encodeURIComponent(search)}`),
+      adminFetch('/api/admin/tuition/stats')
+    ]);
+    const dataList = await resList.json();
+    const dataStats = await resStats.json();
+    if (dataList.status === 'success') setStudents(dataList.data);
+    if (dataStats.status === 'success') setStats(dataStats.data);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchTuitionData();
@@ -2659,7 +2633,7 @@ function AdminTuitionSection() {
   const handleConfirmPayAll = async (mssv: string) => {
     if (!confirm(`Xác nhận thu toàn bộ học phí cho sinh viên ${mssv}?`)) return;
     try {
-      const res = await fetch(`/api/admin/tuition/students/${mssv}/pay`, { method: "POST" });
+      const res = await adminFetch(`/api/admin/tuition/students/${mssv}/pay`, { method: "POST" });
       const data = await res.json();
       if (data.status === 'success') {
         fetchTuitionData();
@@ -2678,7 +2652,7 @@ function AdminTuitionSection() {
   // 3. Cập nhật chi tiết 1 khoản học phí
   const handleSaveEditItem = async (mssv: string, malhp: string, payload: any) => {
     try {
-      const res = await fetch(`/api/admin/tuition/records/${mssv}/${malhp}`, {
+      const res = await adminFetch(`/api/admin/tuition/records/${mssv}/${malhp}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -2987,6 +2961,18 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
   const [readSurveyIds, setReadSurveyIds] = useState<Set<string>>(new Set());
   const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
+  const [badges, setBadges] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+  adminFetch('/api/admin/sidebar-badges')
+    .then(res => res.json())
+    .then(json => {
+      if (json.status === 'success' && json.data) {
+        setBadges(json.data);
+      }
+    })
+    .catch(err => console.warn("Lỗi tải sidebar badges:", err));
+}, [section]);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -3051,14 +3037,45 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
           {ADMIN_NAV.map(item => {
             const Icon = item.icon;
             const active = section === item.id;
+            const badgeCount = badges[item.id] || 0;
+
             return (
-              <button key={item.id} onClick={() => setSection(item.id)} title={!sidebarOpen ? item.label : undefined}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150"
-                style={{ background: active ? "rgba(255,255,255,0.18)" : "transparent", color: active ? "#fff" : "rgba(255,255,255,0.7)", fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: active ? 600 : 500, justifyContent: sidebarOpen ? "flex-start" : "center" }}
+              <button
+                key={item.id}
+                onClick={() => setSection(item.id)}
+                title={!sidebarOpen ? item.label : undefined}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 relative"
+                style={{
+                  background: active ? "rgba(255,255,255,0.18)" : "transparent",
+                  color: active ? "#fff" : "rgba(255,255,255,0.7)",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontWeight: active ? 600 : 500,
+                  justifyContent: sidebarOpen ? "flex-start" : "center",
+                }}
                 onMouseEnter={e => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
-                onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}>
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
+              >
                 <Icon className="w-5 h-5 flex-shrink-0" style={{ color: active ? "#D5B370" : "inherit" }} />
-                {sidebarOpen && <span className="flex-1 text-left text-[13px] whitespace-nowrap">{item.label}</span>}
+
+                {sidebarOpen ? (
+                  <>
+                    <span className="flex-1 text-left text-[13px] whitespace-nowrap">{item.label}</span>
+                    {/* Badge số màu vàng nổi bật */}
+                    {badgeCount > 0 && (
+                      <span
+                        className="text-[11px] font-bold px-2 py-0.5 rounded-full text-white flex-shrink-0"
+                        style={{ background: "var(--accent)" }}
+                      >
+                        {badgeCount}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  /* Chấm đỏ nhỏ khi thu gọn Sidebar */
+                  badgeCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500" />
+                  )
+                )}
               </button>
             );
           })}
@@ -3097,56 +3114,7 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
           <div className="ml-auto flex items-center gap-2">
             {/* Help */}
             <HelpButton />
-            {/* Survey notification bell */}
-            <div className="relative" ref={notifRef}>
-              <button onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }}
-                className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-                <Bell className="w-5 h-5" />
-                {unreadNotifs.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}>
-                    {unreadNotifs.length}
-                  </span>
-                )}
-              </button>
-              {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-2xl overflow-hidden" style={{ zIndex: 50 }}>
-                  <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
-                    <h3 className="font-bold text-sm" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Kết quả khảo sát</h3>
-                    {unreadNotifs.length > 0 && (
-                      <button onClick={() => setReadSurveyIds(new Set(surveyNotifs.map(s => s.id)))}
-                        className="text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                        Đánh dấu đã đọc
-                      </button>
-                    )}
-                  </div>
-                  <div className="max-h-72 overflow-y-auto divide-y divide-border">
-                    {surveyNotifs.length === 0 ? (
-                      <p className="px-4 py-6 text-sm text-center text-muted-foreground">Không có thông báo mới</p>
-                    ) : surveyNotifs.map(s => {
-                      const isUnread = !readSurveyIds.has(s.id);
-                      return (
-                        <div key={s.id} className="px-4 py-3 flex items-start gap-3 hover:bg-secondary/40 transition-colors cursor-pointer"
-                          onClick={() => { setReadSurveyIds(prev => new Set([...prev, s.id])); setSection("survey"); setNotifOpen(false); }}>
-                          {isUnread && <span className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0" style={{ background: "var(--accent)" }} />}
-                          {!isUnread && <span className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0 opacity-0" />}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-foreground leading-snug truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{s.title}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">Có thêm <span className="font-bold text-foreground">{s.responses}</span> lượt phản hồi</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="border-t border-border px-4 py-2">
-                    <button onClick={() => { setSection("survey"); setNotifOpen(false); }}
-                      className="w-full text-center text-xs font-semibold py-1 hover:text-primary transition-colors"
-                      style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                      Xem tất cả khảo sát
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+
             {/* Admin avatar dropdown */}
             <div className="relative" ref={avatarRef}>
               <button onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }}

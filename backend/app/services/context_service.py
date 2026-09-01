@@ -3,61 +3,6 @@ from app.models.student import SinhVien, LienHeHeThong
 from app.models.academic import KetQuaHocTap, LopHocPhan, MonHoc, HocKyNamHoc
 from app.models.tuition import HocPhi
 from app import db
-from datetime import datetime
-
-
-def get_current_or_nearest_semester():
-    """
-    Xác định học kỳ hiện tại hoặc học kỳ gần nhất với ngày hiện tại.
-    
-    Returns:
-        HocKyNamHoc object hoặc None nếu không có dữ liệu.
-    """
-    today = datetime.now().date()
-
-    # Lấy tất cả các học kỳ có ngày bắt đầu và kết thúc (để tránh lỗi None)
-    semesters = HocKyNamHoc.query.filter(
-        HocKyNamHoc.ngaybatdau.isnot(None),
-        HocKyNamHoc.ngayketthuc.isnot(None)
-    ).all()
-
-    if not semesters:
-        return None
-
-    # 1. Tìm học kỳ đang diễn ra (ngày hôm nay nằm trong khoảng)
-    for sem in semesters:
-        if sem.ngaybatdau <= today <= sem.ngayketthuc:
-            return sem
-
-    # 2. Nếu đang nghỉ giữa các kỳ, ưu tiên học kỳ sắp tới (để chuẩn bị đóng học phí)
-    upcoming = [sem for sem in semesters if sem.ngaybatdau > today]
-    if upcoming:
-        return min(upcoming, key=lambda s: s.ngaybatdau)
-
-    # 3. Nếu không còn kỳ nào trong tương lai (đã kết thúc hết), lấy kỳ gần nhất vừa kết thúc
-    past = [sem for sem in semesters if sem.ngayketthuc < today]
-    if past:
-        return max(past, key=lambda s: s.ngayketthuc)
-
-    return None
-
-
-def get_current_datetime_info():
-    """
-    Lấy thông tin thời gian hiện tại: ngày, tháng, năm, thứ, giờ.
-    """
-    now = datetime.now()
-    thu_vi = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"]
-    
-    return {
-        "ngay": now.day,
-        "thang": now.month,
-        "nam": now.year,
-        "thu": thu_vi[now.weekday()],  # 0 là Thứ 2
-        "ngay_thang_nam": now.strftime("%d/%m/%Y"),
-        "gio": now.strftime("%H:%M")
-    }
-
 
 def build_student_context(mssv: str) -> dict:
     """
@@ -70,9 +15,7 @@ def build_student_context(mssv: str) -> dict:
         "schedule": {},
         "exam": [],
         "tuition": [], 
-        "surveys": {"pending": [], "completed": []},
-        "current_semester": {},
-        "current_datetime": {}
+        "surveys": {"pending": [], "completed": []} 
     }
 
     # 1. Lấy thông tin sinh viên
@@ -106,22 +49,6 @@ def build_student_context(mssv: str) -> dict:
     except Exception as e:
         print(f"[CHATBOT ERROR] Lỗi lấy thông tin giáo vụ: {str(e)}")
         context["student"]["faculty_advisor_email"] = "giaovu@fit.hcmus.edu.vn"
-
-    # 1.5: Xác định học kỳ hiện tại / gần nhất
-    current_sem = get_current_or_nearest_semester()
-    if current_sem:
-        context["current_semester"] = {
-            "ma_hocky": current_sem.ma_hocky,
-            "ten_hocky": current_sem.ten_hocky,
-            "nam_hoc": current_sem.namhoc,
-            "ngay_bat_dau": current_sem.ngaybatdau.strftime('%d/%m/%Y') if current_sem.ngaybatdau else "",
-            "ngay_ket_thuc": current_sem.ngayketthuc.strftime('%d/%m/%Y') if current_sem.ngayketthuc else ""
-        }
-    else:
-        context["current_semester"] = {}
-
-    # 1.6: Bổ sung thông tin thời gian thực tế
-    context["current_datetime"] = get_current_datetime_info()
 
     # 2. Gọi AcademicService để lấy điểm và tiến độ
     try:
