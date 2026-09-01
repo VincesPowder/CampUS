@@ -24,7 +24,13 @@ import {
 } from "../data/mockData";
 
 export const getAdminEmail = () => {
-  return localStorage.getItem("user_email") || "24127262@student.hcmus.edu.vn";
+  return (
+    localStorage.getItem("user_email") ||
+    localStorage.getItem("email") ||
+    sessionStorage.getItem("user_email") ||
+    (window as any).__CURRENT_ADMIN_EMAIL__ ||
+    "24127262@student.hcmus.edu.vn"
+  );
 };
 
 export const adminFetch = (url: string, options: RequestInit = {}) => {
@@ -2962,6 +2968,14 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
   const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const [badges, setBadges] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const email = adminProfile?.email || (adminProfile as any)?.mail || "";
+    if (email) {
+      localStorage.setItem("user_email", email);
+      (window as any).__CURRENT_ADMIN_EMAIL__ = email;
+    }
+  }, [adminProfile]);
 
   useEffect(() => {
   adminFetch('/api/admin/sidebar-badges')
