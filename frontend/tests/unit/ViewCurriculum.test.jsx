@@ -27,17 +27,44 @@ describe('Unit Test: View Curriculum (UC 2.8)', () => {
     });
 
     it('[TC_2.8_03 & 04]: Verify rendering of detailed curriculum sections and course detail mapping', async () => {
+        // SỬA LỖI Ở ĐÂY: Khởi tạo global.fetch thành hàm mock của Vitest
+        global.fetch = vi.fn();
+
+        // Bây giờ gọi mockResolvedValueOnce sẽ hoạt động bình thường
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                status: 'success',
+                data: {
+                    general_info: {},
+                    credit_groups: [
+                        { code: 'TN_BB', name: 'Nhóm KHTN', done: 4, req: 24 }
+                    ],
+                    courses_by_group: {
+                        "TN_BB": [
+                            { maMon: 'MTH001', tenMon: 'Giải tích 1', soTC: 4, namHoc: '24-25', hocKy: 'HK1', diem10: 8.5 }
+                        ]
+                    },
+                    current_courses: [],
+                    radar_data: []
+                }
+            })
+        });
+
         render(<ProgressSection />);
 
-        // [TC_03]: Header bảng kết quả chi tiết theo từng nhóm xuất hiện
-        expect(screen.getByText(/KẾT QUẢ CHI TIẾT THEO TỪNG NHÓM HỌC PHẦN/i)).toBeInTheDocument();
+        // [TC_03]: Header bảng kết quả chi tiết.
+        expect(await screen.findByText(/KẾT QUẢ CHI TIẾT THEO TỪNG NHÓM HỌC PHẦN/i)).toBeInTheDocument();
 
         // [TC_04]: Kiểm tra các cột tiêu đề dữ liệu môn học. 
-        // Vì có nhiều bảng (mỗi nhóm 1 bảng) nên tiêu đề lặp lại, ta dùng getAllByText
         expect(screen.getAllByText('Mã MH').length).toBeGreaterThan(0);
         expect(screen.getAllByText('Tên MH').length).toBeGreaterThan(0);
         expect(screen.getAllByText('Số TC').length).toBeGreaterThan(0);
         expect(screen.getAllByText('Năm Học').length).toBeGreaterThan(0);
+
+        // Đảm bảo dữ liệu môn học mock đã thực sự xuất hiện
+        expect(screen.getByText('Giải tích 1')).toBeInTheDocument();
+        expect(screen.getByText('MTH001')).toBeInTheDocument();
     });
 
     it('[TC_2.8_05]: Verify fallback logic for missing course names', async () => {
