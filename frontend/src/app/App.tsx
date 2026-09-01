@@ -8,7 +8,7 @@ import {
 import logoImg from "@/imports/Artboard_5.png";
 import {
   NOTIFICATIONS, STUDENT_PROFILE,
-  BOT_GREET_TEXT, CHAT_SUGGESTIONS, mockReply,
+  BOT_GREET_TEXT, CHAT_SUGGESTIONS,
   type Notification,
 } from "../data/mockData";
 import { AdminApp } from "./AdminSections";
@@ -22,7 +22,7 @@ import {
 import Login from "./components/Login";
 
 const ACCOUNTS = [
-  { username: "admin", label: "Quản trị viên", email: "admin@hcmus.edu.vn", initials: "AD", pass: "abc", role: "admin" as const },
+  { username: "admin", label: "Quản trị viên", name: "Quản trị viên", msid: "admin", email: "admin@hcmus.edu.vn", initials: "AD", pass: "abc", role: "admin" as const },
   { username: "student", label: "Sinh viên", email: "24127001@student.hcmus.edu.vn", initials: "NV", pass: "123", role: "student" as const },
 ];
 
@@ -159,22 +159,66 @@ function AIChatbot() {
     }
   }, [open]);
 
-  function send(text?: string) {
-    const q = (text ?? input).trim();
-    if (!q || typing) return;
-    const now = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-    setMessages(prev => [...prev, { role: "user", text: q, time: now }]);
-    setInput("");
-    setTyping(true);
-    setTimeout(() => {
-      const reply = mockReply(q);
-      setMessages(prev => [...prev, {
-        role: "bot", text: reply,
-        time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-      }]);
-      setTyping(false);
-    }, 900 + Math.random() * 700);
+  async function send(text?: string) {
+  const q = (text ?? input).trim();
+  if (!q || typing) return;
+
+  const now = new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  setMessages(prev => [...prev, { role: "user", text: q, time: now }]);
+  setInput("");
+  setTyping(true);
+
+  // Lấy token từ local storage
+  const token = localStorage.getItem("campus_token");
+  if (!token) {
+    setTyping(false);
+    setMessages(prev => [...prev, {
+      role: "bot",
+      text: "Bạn chưa đăng nhập hoặc phiên đã hết hạn. Vui lòng đăng nhập lại.",
+      time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    }]);
+    return;
   }
+
+  try {
+    const res = await fetch("/api/chatbot/ask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      // Chỉ gửi tin nhắn; MSSV KHÔNG được gửi từ frontend
+      body: JSON.stringify({ message: q }),
+    });
+
+    if (!res.ok) {
+      // Cố gắng phân tích thông báo lỗi từ backend
+      let errorMsg = "Có lỗi xảy ra, vui lòng thử lại sau.";
+      try {
+        const errData = await res.json();
+        if (errData && errData.message) errorMsg = errData.message;
+      } catch (e) { /* bỏ qua lỗi phân tích JSON */ }
+      throw new Error(errorMsg);
+    }
+
+    const data = await res.json();
+    const reply = data.data?.reply || "Xin lỗi, tôi chưa hiểu câu hỏi của bạn.";
+
+    setMessages(prev => [...prev, {
+      role: "bot",
+      text: reply,
+      time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    }]);
+  } catch (err: any) {
+    setMessages(prev => [...prev, {
+      role: "bot",
+      text: err.message || "Đã xảy ra lỗi khi kết nối máy chủ. Vui lòng thử lại sau.",
+      time: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
+    }]);
+  } finally {
+    setTyping(false);
+  }
+}
 
   return (
     <>
@@ -241,10 +285,9 @@ function AIChatbot() {
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                   </div>
                   <div className="bg-[#EBF4FF] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm border border-blue-100 flex items-center gap-1">
-                    {[0,1,2].map(d => (
-                      <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block"
-                        style={{ animation: `bounce 1.2s ${d * 0.2}s infinite` }} />
-                    ))}
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block" style={{ animation: "bounce 1.2s 0s infinite" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block" style={{ animation: "bounce 1.2s 0.2s infinite" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8898AA] inline-block" style={{ animation: "bounce 1.2s 0.4s infinite" }} />
                   </div>
                 </div>
               )}
@@ -301,14 +344,14 @@ function AIChatbot() {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getInitials(fullName: string): string {
-  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  const words = (fullName || "").trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "?";
   if (words.length === 1) return words[0][0].toUpperCase();
   return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
 function abbreviateName(fullName: string): string {
-  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  const words = (fullName || "").trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "";
   return words.map(w => w[0].toUpperCase()).join(".");
 }
@@ -318,21 +361,18 @@ export function getRelativeTime(dateString: string): string {
   
   let date = new Date(dateString);
   
-  // Nếu JavaScript không hiểu chuỗi ngày (Invalid Date)
   if (isNaN(date.getTime())) {
-    // Tìm định dạng DD/MM/YYYY HH:mm (Ví dụ: 26/07/2026 00:00)
     const parts = dateString.match(/(\d{2})\/(\d{2})\/(\d{4})\s?(\d{2})?:?(\d{2})?/);
     if (parts) {
-      const day = Number(parts[1]);
-      const month = Number(parts[2]) - 1; // Tháng trong JS bắt đầu từ 0
-      const year = Number(parts[3]);
-      const hour = parts[4] ? Number(parts[4]) : 0;
-      const minute = parts[5] ? Number(parts[5]) : 0;
+      const day = Number(parts);
+      const month = Number(parts) - 1;
+      const year = Number(parts);
+      const hour = parts ? Number(parts) : 0;
+      const minute = parts ? Number(parts) : 0;
       date = new Date(year, month, day, hour, minute);
     }
   }
 
-  // Nếu vẫn không parse được, đành trả về chuỗi gốc
   if (isNaN(date.getTime())) return dateString;
 
   const now = new Date();
@@ -390,10 +430,11 @@ export default function App() {
 
   const notifRef  = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158"; // (Có thể đổi fallback thành 24... để khớp với giao diện)
+  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
   const fullName = accounts[0]?.name || "Nguyễn Văn A";
+  const [adminProfile, setAdminProfile] = useState<any>(ACCOUNTS[0]);
 
- // Fetch thông báo & khảo sát khi vừa đăng nhập
+  // Fetch thông báo & khảo sát khi sinh viên đăng nhập
   useEffect(() => {
     if (isLoggedIn && userRole === "student") {
       fetch(`/api/students/${currentMssv}/notifications`)
@@ -417,11 +458,10 @@ export default function App() {
     }
   }, [isLoggedIn, userRole, currentMssv]);
 
-  // Hàm gọi API đánh dấu Đã đọc 1 thông báo
+  // Hàm đánh dấu đã đọc 1 thông báo
   const markRead = async (maTb: string) => {
     const target = notifs.find(n => n.maTb === maTb);
     if (target && (!target.trangThaiDoc || Number(target.trangThaiDoc) === 0)) {
-      // Cập nhật UI ngay lập tức
       setNotifs(prev => prev.map(n => n.maTb === maTb ? { ...n, trangThaiDoc: 1 } : n));
       setUnreadNotifs(u => Math.max(0, u - 1));
       try {
@@ -432,7 +472,7 @@ export default function App() {
     }
   };
 
-  // Hàm gọi API đánh dấu Đã đọc tất cả
+  // Hàm đánh dấu đã đọc tất cả
   const markAllRead = async () => {
     setNotifs(prev => prev.map(n => ({ ...n, trangThaiDoc: 1 })));
     setUnreadNotifs(0);
@@ -443,14 +483,38 @@ export default function App() {
     }
   };
 
-  // Đếm số thông báo chưa đọc
   const unread = unreadNotifs;
 
-
-  function handleLogin(role: "admin" | "student") {
+  function handleLogin(role: "admin" | "student", method?: "local" | "msal", profileData?: any) {
     setUserRole(role);
+    if (role === "admin" && profileData) {
+      setAdminProfile({
+        ...profileData,
+        name: profileData.name || profileData.hoten || profileData.label || "Quản trị viên",
+        msid: profileData.msid || profileData.magv || profileData.username || "admin",
+      });
+    }
     setIsLoggedIn(true);
   }
+
+  // Hàm xử lý dọn dẹp phiên và đăng xuất Microsoft hoàn toàn
+  const performLogout = () => {
+    localStorage.removeItem("campus_token");
+    sessionStorage.clear();
+    setIsLoggedIn(false);
+
+    if (instance.getAllAccounts().length > 0) {
+      instance.setActiveAccount(null);
+    }
+
+    try {
+      instance.logoutRedirect({
+        postLogoutRedirectUri: window.location.origin
+      });
+    } catch (error) {
+      window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    }
+  };
 
   function handleLogoutConfirm() {
     setShowLogoutConfirm(false);
@@ -458,20 +522,8 @@ export default function App() {
 
     setTimeout(() => {
       setShowLogoutSuccess(false);
-      setIsLoggedIn(false);
-      localStorage.removeItem("campus_token");
-      if (instance.getAllAccounts().length > 0) {
-        instance.setActiveAccount(null);
-      }
-      try {
-        instance.logoutRedirect({
-          postLogoutRedirectUri: window.location.origin
-        });
-      } catch (error) {
-        sessionStorage.clear();
-        window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
-      }
-    }, 1800);
+      performLogout();
+    }, 1600);
   }
 
   useEffect(() => {
@@ -484,8 +536,11 @@ export default function App() {
   }, []);
 
   if (!isLoggedIn) return <Login onLogin={handleLogin} />;
-  if (userRole === "admin") return <AdminApp onLogout={() => setIsLoggedIn(false)} HelpButton={HelpButton} adminProfile={ACCOUNTS[0]} />;
-
+  
+  // Truyền trực tiếp performLogout vào AdminApp
+  if (userRole === "admin") {
+    return <AdminApp onLogout={performLogout} HelpButton={HelpButton} adminProfile={adminProfile} />;
+  }
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {showLogoutConfirm && <LogoutConfirm onConfirm={handleLogoutConfirm} onCancel={() => setShowLogoutConfirm(false)} />}
@@ -562,18 +617,15 @@ export default function App() {
       {/* ── Main ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="flex-shrink-0 bg-card border-b border-border px-4 py-3 flex items-center gap-3 relative z-40">
-          {/* Sidebar toggle — desktop only */}
           <button onClick={() => setSidebarOpen(s => !s)} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hidden md:block">
             {sidebarOpen ? <ChevronsLeft className="w-5 h-5" /> : <ChevronsRight className="w-5 h-5" />}
           </button>
-          {/* Mobile: app logo/brand */}
           <div className="flex items-center gap-2 md:hidden">
             <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.92)", padding: 3 }}>
               <img src={logoImg} alt="CampUS" style={{ mixBlendMode: "multiply" }} className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-sm text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{SECTION_TITLES[activeSection]}</span>
           </div>
-          {/* Desktop: breadcrumb */}
           <div className="hidden md:flex items-center gap-1.5">
             <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {SECTION_TITLES[activeSection]}
@@ -597,15 +649,12 @@ export default function App() {
           </div>
           <div className="ml-auto flex items-center gap-1.5">
             <HelpButton />
-            {/* --- ĐOẠN MÃ DROP-DOWN THÔNG BÁO DÀNH CHO APP.TSX (KẾT NỐI API) --- */}
             <div className="relative" ref={notifRef}>
               <button 
                 onClick={() => { setNotifOpen(o => !o); setAvatarOpen(false); }} 
                 className="relative p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
               >
                 <Bell className="w-5 h-5" />
-                
-                {/* Badge đếm số lượng thông báo (Khớp màu và position) */}
                 {unread > 0 && (
                   <span 
                     className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-white rounded-full flex items-center justify-center font-bold" style={{ fontSize: "9px" }}
@@ -645,7 +694,6 @@ export default function App() {
               )}
             </div>
             <div className="relative" ref={avatarRef}>
-              {/* Nút bấm chỉ hiển thị hình tròn Avatar */}
               <button 
                 onClick={() => { setAvatarOpen(o => !o); setNotifOpen(false); }} 
                 className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center hover:opacity-80 transition-opacity" 
@@ -654,7 +702,6 @@ export default function App() {
                 {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
               </button>
               
-              {/* Dropdown Menu - Tăng kích thước chiều rộng lên 320px */}
               {avatarOpen && (
                 <div className="absolute right-0 top-full mt-3 w-[320px] bg-card border border-border rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden" style={{ zIndex: 50 }}>
                   <div className="px-5 py-4 flex items-center gap-3.5 border-b border-border">
@@ -662,11 +709,9 @@ export default function App() {
                       {studentAvatarUrl ? <img src={studentAvatarUrl} alt="avatar" className="w-full h-full object-cover" /> : getInitials(fullName)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      {/* In hoa tên sinh viên */}
                       <div className="font-semibold text-[15px] leading-tight text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                         {fullName.toUpperCase()}
                       </div>
-                      {/* Bỏ truncate, thiết lập font size phù hợp để email hiện đầy đủ */}
                       <div className="text-[13px] text-muted-foreground mt-1 tracking-tight">
                         {currentMssv}@student.hcmus.edu.vn
                       </div>
@@ -700,7 +745,7 @@ export default function App() {
               notifs={notifs}
               selectedNotif={selectedNotif}
               setSelectedNotif={(n: any) => {
-                if (n) markRead(n.matb);
+                if (n) markRead(n.maTb || n.matb);
                 setSelectedNotif(n);
               }}
               markAllRead={markAllRead}

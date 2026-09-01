@@ -13,6 +13,15 @@ class Nganh(db.Model):
     makhoa = db.Column(db.String(20), db.ForeignKey('KHOA.MAKHOA'), name='MAKHOA')
     
     khoa = db.relationship('Khoa', backref='nganhs')
+    
+class ChuyenNganh(db.Model):
+    __tablename__ = 'CHUYENNGANH'
+    __table_args__ = {'extend_existing': True}
+    macn = db.Column(db.String(15), primary_key=True, name='MACN')
+    tencn = db.Column(db.String(80), nullable=False, name='TENCN')
+    manganh = db.Column(db.String(15), db.ForeignKey('NGANH.MANGANH'), name='MANGANH')
+    
+    nganh = db.relationship('Nganh', backref='chuyennganhs')
 
 class DotCapNhatHoSo(db.Model):
     __tablename__ = 'DOT_CAPNHAT_HOSO'
@@ -96,3 +105,17 @@ class NguoiThan(db.Model):
 
     # Thiết lập relationship ngược lại với bảng SinhVien
     sinhvien = db.relationship('SinhVien', backref=db.backref('nguoithan_list', lazy=True))
+    
+# Thêm vào backend/app/models/student.py
+
+class LienHeHeThong(db.Model):
+    __tablename__ = 'LIENHE_HETHONG'
+    __table_args__ = {'extend_existing': True}
+    
+    ma_lienhe = db.Column(db.String(10), primary_key=True, name='MA_LIENHE')
+    ten_donvi = db.Column(db.String(100), name='TEN_DONVI')
+    loai_lienhe = db.Column(db.String(50), name='LOAI_LIENHE')
+    email = db.Column(db.String(100), name='EMAIL')
+    sdt = db.Column(db.String(20), name='SDT')
+    diachi = db.Column(db.String(255), name='DIACHI')
+    ghichu = db.Column(db.Text, name='GHICHU')

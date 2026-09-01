@@ -715,7 +715,7 @@ export const BOT_GREET_TEXT = "Xin chào! Tôi là **HCMUS AI** — trợ lý h�
 export const CHAT_SUGGESTIONS = [
   "Lịch học hôm nay?",
   "Học phí còn bao nhiêu?",
-  "Khi nào đăng ký môn?",
+  "Lộ trình học tập sắp tới của tôi?",
   "Cách xem điểm thi?",
 ];
 

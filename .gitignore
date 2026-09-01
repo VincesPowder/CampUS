@@ -32,5 +32,4 @@ Thumbs.db
 
 figma/
 
-# DB
-backend/database/campus.db
+frontend/auth.json

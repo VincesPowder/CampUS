@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Kiểm tra chức năng Đăng nhập - Frontend E2E', () => {
-
+    test.use({ storageState: { cookies: [], origins: [] } });
     // Mở trang web trước mỗi test case để đảm bảo trạng thái luôn mới
     test.beforeEach(async ({ page }) => {
         await page.goto('http://127.0.0.1:5173/');
@@ -87,8 +87,10 @@ test.describe('Kiểm tra chức năng Đăng nhập - Frontend E2E', () => {
     });
 
 
-    test('[TC_2.1_05]: Báo lỗi khi nhập username không tồn tại (Lỗi từ MS)', async ({ page }) => {
-        // Test case này giữ nguyên để tương tác thật với màn hình đăng nhập Microsoft
+    test('[TC_2.1_05]: Báo lỗi khi nhập username không tồn tại (Lỗi từ MS)', async ({ page, context }) => {
+        // Thêm 2 dòng này để xóa sạch phiên đăng nhập cũ, ép Microsoft hiện lại form nhập email
+        await context.clearCookies();
+        await page.evaluate(() => window.sessionStorage.clear());
 
         await page.getByRole('button', { name: /Đăng nhập với Microsoft/i }).click();
 

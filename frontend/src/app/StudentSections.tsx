@@ -449,7 +449,7 @@ export function TuitionSection() {
   );
 }
 
-// ─── GPA helpers ──────────────────────────────────────────────────────────────
+// ─── GPA helpers & Course Mapping ─────────────────────────────────────────────
 function gpaFromScore(s: number) {
   if (s >= 8.5) return 4.0;
   if (s >= 8.0) return 3.7;
@@ -462,43 +462,60 @@ function gpaFromScore(s: number) {
   return 0;
 }
 
-// ─── Progress Section ─────────────────────────────────────────────────────────
-const COURSE_GROUP_MAP: Record<string, string> = {
-  "BAA00004": "LL_CT", "BAA00101": "LL_CT", "BAA00012": "LL_CT",
-  "BAA00005": "XH_TC",
-  "MTH00005": "TN_BB", "MTH00006": "TN_BB", "MTH00007": "TN_BB",
-  "MTH00008": "TN_BB", "MTH00009": "TN_BB", "MTH00058": "TN_BB", "MTH00057": "TN_BB",
-  "PHY00005": "TN_TC1",
-  "CSC00004": "TH_BB",
-  "BAA00021": "GD_TC", "BAA00022": "GD_TC",
-  "BAA00030": "GD_QP",
-  "CSC10003": "CN_CS", "CSC10004": "CN_CS", "CSC10006": "CN_CS",
-  "CSC10007": "CN_CS", "CSC10008": "CN_CS", "CSC10009": "CN_CS",
-  "CSC10012": "CN_CS", "CSC10014": "CN_CS", "CSC14003": "CN_CS",
-  "CSC10002": "CN_NG",
-  "CSC10121": "CN_TD",
+// =============================================================================
+// PROGRESS SECTION (TIẾN ĐỘ HỌC TẬP & DỰ ĐOÁN ĐIỂM)
+// =============================================================================
+
+// Chuẩn số tín chỉ yêu cầu mặc định theo từng nhóm (nếu CSDL chưa set TC_YEUCAU)
+const DEFAULT_GROUP_REQ: Record<string, number> = {
+  "LL_CT": 14,
+  "XH_TC": 2,
+  "TN_BB": 24,
+  "TN_TC1": 4,
+  "TN_TC2": 8,
+  "TH_BB": 4,
+  "CN_CS": 38,
+  "CN_NG": 16,
+  "CN_TC": 8,
+  "CN_TD": 6,
+  "CN_TN_BB": 6,
+  "CN_TN_TC": 4,
+  "GD_TC": 4,
+  "GD_QP": 4,
 };
 
-function fmtYear(y: string) {
-  const [a, b] = y.split("-");
-  return `20${a}-20${b}`;
-}
+export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
+  const { accounts } = useMsal();
+  const mssv = studentMssv || (accounts[0]?.username ? accounts[0].username.split("@")[0] : "24127158");
 
-function ScoreBadge({ score }: { score: number | null }) {
-  if (score === null) return <span className="text-muted-foreground text-xs">—</span>;
-  const bg = score >= 8 ? "#22c55e" : score >= 5 ? "#f59e0b" : "#ef4444";
-  return (
-    <span className="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-bold text-white" style={{ background: bg, minWidth: 38 }}>
-      {score.toFixed(1)}
-    </span>
-  );
-}
+  const [loading, setLoading] = useState<boolean>(true);
+  const [progressData, setProgressData] = useState<any>(null);
 
-export function ProgressSection() {
-  const totalReq  = CREDIT_GROUPS_DATA.reduce((s, g) => s + g.req, 0);
-  const totalDone = CREDIT_GROUPS_DATA.reduce((s, g) => s + g.done, 0);
-  const totalDebt = 5;
-  const totalLeft = totalReq - totalDone - totalDebt;
+  // 1. Gọi API lấy dữ liệu tiến độ từ DB
+  useEffect(() => {
+    async function loadProgress() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/students/${mssv}/academic/progress`);
+        const json = await res.json();
+        if (json.status === "success" && json.data) {
+          setProgressData(json.data);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải tiến độ từ Backend:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProgress();
+  }, [mssv]);
+
+  // Trích xuất dữ liệu tổng hợp
+  const gen = progressData?.general_info || {};
+  const totalReq = gen.tong_tc_yc || 138;
+  const totalDone = gen.tong_tc_dat || 83;
+  const totalDebt = progressData?.debt_credits || 0;
+  const totalLeft = Math.max(0, totalReq - totalDone - totalDebt);
 
   const PIE_DATA = [
     { name: "Hoàn thành", value: totalDone, color: "var(--primary)" },
@@ -506,105 +523,126 @@ export function ProgressSection() {
     { name: "Đang nợ",    value: totalDebt, color: "var(--accent)" },
   ];
 
-  const years = Array.from(new Set(COURSE_DATA.map(c => c.namHoc)));
-  const [selYear, setSelYear] = useState(years[0]);
-  const [selSem,  setSelSem]  = useState<number>(() => {
-    const s = Array.from(new Set(COURSE_DATA.filter(c => c.namHoc === years[0]).map(c => c.hocKy))).sort();
-    return s[0];
-  });
-  const [selCourse, setSelCourse] = useState<string>(() => {
-    const first = COURSE_DATA.filter(c => c.namHoc === years[0] && c.hocKy === Array.from(new Set(COURSE_DATA.filter(c2 => c2.namHoc === years[0]).map(c2 => c2.hocKy))).sort()[0]);
-    return first[0]?.maMon ?? "";
-  });
-  const [ccScore,   setCcScore]   = useState("");
-  const [gkScore,   setGkScore]   = useState("");
-  const [ckScore,   setCkScore]   = useState("");
-  const [bonusScore, setBonusScore] = useState("");
-  const [ccWeight,  setCcWeight]  = useState(10);
-  const [gkWeight,  setGkWeight]  = useState(30);
-  const [targetScoreStr, setTargetScoreStr] = useState("7.0");
-  const targetScore10 = Math.min(10, Math.max(0, parseFloat(targetScoreStr) || 0));
+  // Danh sách môn học thực tế từ CSDL để đưa vào bộ dự đoán điểm
+  const currentCourses: any[] = progressData?.current_courses || [];
+  
+  // Trích xuất danh sách Năm học & Học kỳ thực tế từ DB
+  const years = Array.from(new Set(currentCourses.map(c => c.namHoc))).filter(Boolean);
+  const displayYears = years.length > 0 ? years : ["24-25", "25-26"];
+  
+  const [selYear, setSelYear] = useState<string>(displayYears[0]);
+  const semsForYear = Array.from(new Set(currentCourses.filter(c => c.namHoc === selYear).map(c => c.hocKy))).filter(Boolean);
+  const displaySems = semsForYear.length > 0 ? semsForYear : ["HK1", "HK2", "HK3"];
+
+  const [selSem, setSelSem] = useState<string>(displaySems[0] || "HK1");
+  const coursesInSem = currentCourses.filter(c => c.namHoc === selYear && (c.hocKy === selSem || `HK${c.hocKy}` === selSem));
+  const [selCourse, setSelCourse] = useState<string>(coursesInSem[0]?.maMon || "");
+
+  // Đồng bộ chọn môn khi đổi Năm học / Học kỳ
+  useEffect(() => {
+    if (displayYears.length > 0 && !displayYears.includes(selYear)) {
+      setSelYear(displayYears[0]);
+    }
+  }, [displayYears]);
+
+  useEffect(() => {
+    if (coursesInSem.length > 0) {
+      setSelCourse(coursesInSem[0].maMon);
+    }
+  }, [selYear, selSem, currentCourses.length]);
+
+  // State nhập điểm mô phỏng
+  const [ccScore, setCcScore] = useState<string>("10.0");
+  const [gkScore, setGkScore] = useState<string>("");
+  const [ckScore, setCkScore] = useState<string>("");
+  const [bonusScore, setBonusScore] = useState<string>("");
+  const [ccWeight, setCcWeight] = useState<number>(20);
+  const [gkWeight, setGkWeight] = useState<number>(30);
+  const [targetScoreStr, setTargetScoreStr] = useState<string>("8.0");
   const [predictTarget, setPredictTarget] = useState<"cc" | "gk" | "ck">("ck");
 
-  const semsForYear  = Array.from(new Set(COURSE_DATA.filter(c => c.namHoc === selYear).map(c => c.hocKy))).sort();
-  const validSem     = semsForYear.includes(selSem) ? selSem : semsForYear[0];
-  const coursesInSem = COURSE_DATA.filter(c => c.namHoc === selYear && c.hocKy === validSem);
-  const validCourse  = coursesInSem.find(c => c.maMon === selCourse)?.maMon ?? (coursesInSem[0]?.maMon ?? "");
-  const course       = coursesInSem.find(c => c.maMon === validCourse);
+  const selectedCourseObj = coursesInSem.find(c => c.maMon === selCourse);
 
-  const prevKey = useRef("");
+  // Tự động điền điểm GK & CK thực tế từ DB khi chọn môn
   useEffect(() => {
-    const key = `${selYear}-${validSem}-${validCourse}`;
-    if (prevKey.current !== key) {
-      prevKey.current = key;
-      setGkScore(course?.diemGK != null ? String(course.diemGK) : "");
-      setCkScore(course?.diemCK != null ? String(course.diemCK) : "");
+    if (selectedCourseObj) {
+      setGkScore(selectedCourseObj.diemGK != null ? String(selectedCourseObj.diemGK) : "");
+      setCkScore(selectedCourseObj.diemCK != null ? String(selectedCourseObj.diemCK) : "");
     }
-  }, [selYear, validSem, validCourse, course]);
+  }, [selCourse, selYear, selSem]);
 
-  const ckWeight   = Math.max(0, 100 - ccWeight - gkWeight);
-  const ccNum      = parseFloat(ccScore) || 0;
-  const gkNum      = parseFloat(gkScore) || 0;
-  const ckNum      = parseFloat(ckScore) || 0;
-  const bonusNum   = Math.min(parseFloat(bonusScore) || 0, 1);
-  const hasAny     = ccScore !== "" || gkScore !== "" || ckScore !== "";
-  const rawScore   = hasAny ? (ccNum * ccWeight + gkNum * gkWeight + ckNum * ckWeight) / 100 : null;
+  // Logic tính toán mô phỏng điểm
+  const ckWeight = Math.max(0, 100 - ccWeight - gkWeight);
+  const ccNum = parseFloat(ccScore) || 0;
+  const gkNum = parseFloat(gkScore) || 0;
+  const ckNum = parseFloat(ckScore) || 0;
+  const bonusNum = Math.min(parseFloat(bonusScore) || 0, 1);
+
+  const hasAnyScore = ccScore !== "" || gkScore !== "" || ckScore !== "";
+  const rawScore = hasAnyScore ? (ccNum * ccWeight + gkNum * gkWeight + ckNum * ckWeight) / 100 : null;
   const totalScore = rawScore !== null ? Math.min(10, rawScore + bonusNum) : null;
-  const gpaEst     = totalScore !== null ? gpaFromScore(totalScore) : null;
 
+  const targetScore10 = Math.min(10, Math.max(0, parseFloat(targetScoreStr) || 0));
   const adjustedTarget = Math.max(0, targetScore10 - bonusNum);
   const predWeight = predictTarget === "cc" ? ccWeight : predictTarget === "gk" ? gkWeight : ckWeight;
   const predContribOthers =
     predictTarget === "cc" ? gkNum * gkWeight + ckNum * ckWeight :
     predictTarget === "gk" ? ccNum * ccWeight + ckNum * ckWeight :
                              ccNum * ccWeight + gkNum * gkWeight;
-  const predicted  = predWeight > 0 ? (adjustedTarget * 100 - predContribOthers) / predWeight : null;
-  const feasible   = predicted !== null && predicted >= 0 && predicted <= 10;
-  const weightSum  = ccWeight + gkWeight + ckWeight;
+
+  const predicted = predWeight > 0 ? (adjustedTarget * 100 - predContribOthers) / predWeight : null;
+  const feasible = predicted !== null && predicted >= 0 && predicted <= 10;
+  const weightSum = ccWeight + gkWeight + ckWeight;
+
+  // Dữ liệu Radar từ API Backend
+  const RADAR_GROUPS = progressData?.radar_data || [
+    { label: ["Trí tuệ nhân tạo", "& KH Dữ liệu"], fullName: "Trí tuệ nhân tạo & Khoa học dữ liệu", score: 8.2, fullMark: 10, specs: ["Khoa học máy tính", "Công nghệ tri thức", "Thị giác máy tính", "Khoa học dữ liệu"] },
+    { label: ["Hệ thống & Mạng"], fullName: "Hệ thống & Mạng", score: 7.5, fullMark: 10, specs: ["Mạng máy tính và Viễn thông", "(hướng An toàn thông tin)"] },
+    { label: ["Phân tích &", "PT Phần mềm"], fullName: "Phân tích & Phát triển Phần mềm", score: 8.5, fullMark: 10, specs: ["Công nghệ phần mềm", "Hệ thống thông tin"] },
+    { label: ["Tổng quan", "& Ứng dụng rộng"], fullName: "Tổng quan & Ứng dụng rộng", score: 7.8, fullMark: 10, specs: ["Công nghệ thông tin"] },
+  ];
+
+  // Danh sách nhóm học phần từ API DB
+  const creditGroupsFromApi: any[] = progressData?.credit_groups || [];
+  const coursesByGroupFromApi: Record<string, any[]> = progressData?.courses_by_group || {};
 
   const selectCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-[var(--input-background)]";
-  const inputCls  = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary";
-
-  // Build grouped course map
-  const groupedCourses = new Map<string, typeof COURSE_DATA>();
-  COURSE_DATA.forEach(c => {
-    const grp = COURSE_GROUP_MAP[c.maMon];
-    if (!grp) return;
-    if (!groupedCourses.has(grp)) groupedCourses.set(grp, []);
-    groupedCourses.get(grp)!.push(c);
-  });
-
   const thCls = "px-3 py-2 text-left text-[11px] font-semibold border-b border-border";
   const tdCls = "px-3 py-2 text-[11px] border-b border-border";
 
   return (
     <div className="space-y-4">
-      {/* ── Row 1: Thông tin chung + Nhóm học phần ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-card border border-border overflow-hidden">
+      {/* ── Row 1: Thêm items-start để 2 bảng tự ôm sát viền ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        {/* Bảng trái: Thông tin chung */}
+        <div className="bg-card border border-border overflow-hidden rounded-xl shadow-sm">
           <div className="px-4 py-2.5 text-xs font-bold text-white text-center" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Thông tin chung
+            Thông tin chung & Chuẩn đầu ra
           </div>
           <table className="w-full text-xs" style={{ borderCollapse: "collapse", fontFamily: "'Inter', sans-serif" }}>
             <tbody>
               {([
-                ["Mã SV",              STUDENT_PROFILE.mssv],
-                ["Họ tên SV",          STUDENT_PROFILE.fullName],
-                ["Giáo dục đại cương", "40/56"],
-                ["KT cơ sở ngành",     "30/38"],
-                ["Tốt nghiệp",         "0/10"],
-                ["Chuyên ngành",       "3/34"],
-                ["Đạt GDTC",          "Chưa cập nhật"],
-                ["Đạt GDQP",          "Chưa cập nhật"],
-                ["Đạt TĐNN",          "Chưa cập nhật"],
-                ["Tổng TC tích lũy",  `${totalDone}/${totalReq}`],
-                ["Điểm TB tích lũy",  "2.85"],
-                ["Đủ ĐK tốt nghiệp", "Chưa"],
+                ["Mã SV",              gen.mssv || mssv],
+                ["Họ tên SV",          gen.fullName || STUDENT_PROFILE.fullName],
+                ["Giáo dục đại cương", `${gen.gddc || "40/56"}`],
+                ["KT cơ sở ngành",     `${gen.csn || "30/38"}`],
+                ["Tốt nghiệp",         `${gen.tot_nghiep || "0/10"}`],
+                ["Chuyên ngành",       `${gen.chuyen_nganh || "3/34"}`],
+                ["Đạt GDTC",          gen.gdtc === "0" || gen.gdtc === 0 ? "Chưa đạt" : (gen.gdtc || "Chưa cập nhật")],
+                ["Đạt GDQP",          gen.gdqp === "0" || gen.gdqp === 0 ? "Chưa đạt" : (gen.gdqp || "Chưa cập nhật")],
+                ["Đạt TĐNN",          gen.tdnn === "0" || gen.tdnn === 0 ? "Chưa đạt" : (gen.tdnn || "Chưa cập nhật")],
+                ["Tổng TC tích lũy",  `${totalDone}/${totalReq} TC`],
+                ["Điểm TB tích lũy",  `${gen.diem_tb_tichluy || 8.1} / 10.0`],
+                // Sửa hiển thị 0 -> Chưa
+                ["Đủ ĐK tốt nghiệp", (gen.dudieukientn === "1" || gen.dudieukientn === 1 || gen.dudieukientn === "Đạt") ? "Đạt" : "Chưa Đạt"],
               ] as [string, string][]).map(([label, value], i) => (
                 <tr key={label} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
                   <td className="px-3 py-2 text-muted-foreground border-b border-border leading-tight">{label}</td>
                   <td className="px-3 py-2 border-b border-border text-left font-medium leading-tight"
-                    style={{ color: label === "Tổng TC tích lũy" ? "#11284D" : label === "Đủ ĐK tốt nghiệp" ? "#D5B370" : "#101A2C", fontWeight: label === "Tổng TC tích lũy" ? 700 : 500 }}>
+                    style={{ 
+                      color: label === "Tổng TC tích lũy" ? "#11284D" : label === "Đủ ĐK tốt nghiệp" ? "#D5B370" : "#101A2C", 
+                      fontWeight: label === "Tổng TC tích lũy" ? 700 : 500 
+                    }}>
                     {value}
                   </td>
                 </tr>
@@ -613,18 +651,29 @@ export function ProgressSection() {
           </table>
         </div>
 
-        <div className="bg-card border border-border overflow-hidden">
+        {/* Bảng phải: Nhóm học phần */}
+        <div className="bg-card border border-border overflow-hidden rounded-xl shadow-sm">
           <div className="px-4 py-2.5 text-xs font-bold text-white text-center" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Nhóm học phần
           </div>
           <table className="w-full text-xs" style={{ borderCollapse: "collapse", fontFamily: "'Inter', sans-serif" }}>
             <tbody>
-              {CREDIT_GROUPS_DATA.filter(g => g.req > 0).map((g, i) => {
-                const done = g.done >= g.req;
+              {creditGroupsFromApi.map((g, i) => {
+                const reqCount = g.req || DEFAULT_GROUP_REQ[g.code] || 0;
+                const done = g.done >= reqCount;
+                
+                // Phân biệt tên nếu trùng nhóm KHTN
+                let displayName = g.name;
+                if (g.code === "TN_BB") displayName = "Toán - KHTN - Công nghệ (Bắt buộc)";
+                if (g.code === "TN_TC1") displayName = "Toán - KHTN - Công nghệ (Tự chọn 1)";
+                if (g.code === "TN_TC2") displayName = "Toán - KHTN - Công nghệ (Tự chọn 2)";
+
                 return (
                   <tr key={g.code} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
-                    <td className="px-3 py-2 text-foreground border-b border-border leading-tight">{g.name}</td>
-                    <td className="px-3 py-2 border-b border-border text-right font-bold whitespace-nowrap" style={{ color: done ? "#22c55e" : "var(--primary)" }}>{g.done}/{g.req}</td>
+                    <td className="px-3 py-2 text-foreground border-b border-border leading-tight">{displayName}</td>
+                    <td className="px-3 py-2 border-b border-border text-right font-bold whitespace-nowrap" style={{ color: done ? "#22c55e" : "var(--primary)" }}>
+                      {g.done}/{reqCount} TC
+                    </td>
                   </tr>
                 );
               })}
@@ -633,55 +682,68 @@ export function ProgressSection() {
         </div>
       </div>
 
-      {/* ── Row 2: Kết quả chi tiết (left) + Charts (right) ── */}
+      {/* ── Row 2: Kết quả chi tiết môn học (DB) + Charts & Dự đoán điểm ── */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Left: Kết quả chi tiết theo nhóm học phần */}
-        <div className="bg-card border border-border overflow-hidden flex flex-col">
+        <div className="bg-card border border-border overflow-hidden flex flex-col rounded-xl shadow-sm h-full">
           <div className="px-4 py-3 font-bold text-sm text-white flex-shrink-0 text-center" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "0.04em" }}>
             KẾT QUẢ CHI TIẾT THEO TỪNG NHÓM HỌC PHẦN
           </div>
+          {/* Xóa max-h-[720px], để flex-1 tự lấp đầy */}
           <div className="overflow-x-auto overflow-y-auto flex-1">
-            {CREDIT_GROUPS_DATA.filter(g => groupedCourses.has(g.code)).map(g => {
-              const rows = groupedCourses.get(g.code)!;
-              return (
-                <div key={g.code} className="mb-0">
-                  <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "#dde4f5" }}>
-                    <span className="text-[12px] font-semibold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{g.name}</span>
-                    <span className="text-[11px]" style={{ color: "var(--primary)", opacity: 0.7, fontFamily: "'Inter', sans-serif" }}>(Tích lũy: {g.done}/{g.req})</span>
-                  </div>
-                  <table className="w-full" style={{ borderCollapse: "collapse", fontFamily: "'Inter', sans-serif" }}>
-                    <thead>
-                      <tr style={{ background: "#f1f5f9" }}>
-                        <th className={thCls} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Mã MH</th>
-                        <th className={thCls} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif", width: "38%" }}>Tên MH</th>
-                        <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Số TC</th>
-                        <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm Học</th>
-                        <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>HK</th>
-                        <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((c, ri) => (
-                        <tr key={`${c.maMon}-${c.namHoc}-${c.hocKy}`} style={{ background: ri % 2 === 0 ? "#fff" : "#f8fafc" }}>
-                          <td className={`${tdCls} font-mono text-muted-foreground`}>{c.maMon}</td>
-                          <td className={`${tdCls} text-foreground`}>{c.tenMon || c.maMon}</td>
-                          <td className={`${tdCls} text-center text-foreground`}>{c.soTC || "—"}</td>
-                          <td className={`${tdCls} text-center text-muted-foreground`}>{fmtYear(c.namHoc)}</td>
-                          <td className={`${tdCls} text-center text-muted-foreground`}>{c.hocKy}</td>
-                          <td className={`${tdCls} text-center font-mono font-bold`}>{c.diem10 != null ? c.diem10.toFixed(1) : "—"}</td>
+            {Object.keys(coursesByGroupFromApi).length > 0 ? (
+              creditGroupsFromApi.filter(g => coursesByGroupFromApi[g.code] && coursesByGroupFromApi[g.code].length > 0).map(g => {
+                const rows = coursesByGroupFromApi[g.code] || [];
+                const reqCount = g.req || DEFAULT_GROUP_REQ[g.code] || 0;
+                return (
+                  <div key={g.code} className="mb-0">
+                    <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: "#dde4f5" }}>
+                      <span className="text-[12px] font-semibold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{g.name}</span>
+                      <span className="text-[11px] font-medium" style={{ color: "var(--primary)", opacity: 0.8, fontFamily: "'Inter', sans-serif" }}>
+                        (Tích lũy: {g.done}/{reqCount} TC)
+                      </span>
+                    </div>
+                    <table className="w-full" style={{ borderCollapse: "collapse", fontFamily: "'Inter', sans-serif" }}>
+                      <thead>
+                        <tr style={{ background: "#f1f5f9" }}>
+                          <th className={thCls} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Mã MH</th>
+                          <th className={thCls} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif", width: "38%" }}>Tên MH</th>
+                          <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Số TC</th>
+                          <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm Học</th>
+                          <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>HK</th>
+                          <th className={`${thCls} text-center`} style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Điểm</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })}
+                      </thead>
+                      <tbody>
+                        {rows.map((c: any, ri: number) => (
+                          <tr key={`${c.maMon}-${ri}`} style={{ background: ri % 2 === 0 ? "#fff" : "#f8fafc" }}>
+                            <td className={`${tdCls} font-mono text-muted-foreground`}>{c.maMon}</td>
+                            <td className={`${tdCls} text-foreground font-medium`}>{c.tenMon}</td>
+                            <td className={`${tdCls} text-center text-foreground`}>{c.soTC}</td>
+                            <td className={`${tdCls} text-center text-muted-foreground`}>{c.namHoc}</td>
+                            <td className={`${tdCls} text-center text-muted-foreground`}>{c.hocKy}</td>
+                            <td className={`${tdCls} text-center font-mono font-bold text-blue-900`}>
+                              {c.diem10 != null ? Number(c.diem10).toFixed(1) : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-8 text-center text-muted-foreground text-xs">
+                {loading ? "Đang tải dữ liệu môn học..." : "Chưa có dữ liệu kết quả học tập."}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right: Charts */}
+        {/* Right: Charts & Dự đoán điểm số */}
         <div className="space-y-3">
-          <div className="bg-card border border-border p-4">
+          {/* Biểu đồ Donut */}
+          <div className="bg-card border border-border p-4 rounded-xl shadow-sm">
             <h3 className="text-sm font-bold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>Tiến độ tín chỉ</h3>
             <p className="text-xs text-muted-foreground mb-2">Hoàn thành / Còn thiếu / Đang nợ</p>
             {(() => {
@@ -690,8 +752,8 @@ export function ProgressSection() {
               let cumAngle = -Math.PI / 2;
               const slices = PIE_DATA.map(d => {
                 const startA = cumAngle;
-                const sweep = (d.value / total) * 2 * Math.PI * 0.995;
-                cumAngle += (d.value / total) * 2 * Math.PI;
+                const sweep = (d.value / (total || 1)) * 2 * Math.PI * 0.995;
+                cumAngle += (d.value / (total || 1)) * 2 * Math.PI;
                 const endA = startA + sweep;
                 const large = sweep > Math.PI ? 1 : 0;
                 const path = [
@@ -724,30 +786,19 @@ export function ProgressSection() {
             })()}
           </div>
 
-          <div className="bg-card border border-border p-4 overflow-hidden">
+          {/* Biểu đồ Radar */}
+          <div className="bg-card border border-border p-4 overflow-hidden rounded-xl shadow-sm">
             <h3 className="text-sm font-bold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--primary)" }}>Chỉ số phù hợp chuyên ngành</h3>
             <p className="text-xs text-muted-foreground mb-2">Di chuột vào trục để xem chi tiết</p>
             {(() => {
-              const GROUPS = [
-                { label: ["Trí tuệ nhân tạo", "& KH Dữ liệu"], fullName: "Trí tuệ nhân tạo & Khoa học dữ liệu", score: 7.6, fullMark: 10,
-                  specs: ["Khoa học máy tính", "Công nghệ tri thức", "Thị giác máy tính", "Khoa học dữ liệu"] },
-                { label: ["Hệ thống & Mạng"], fullName: "Hệ thống & Mạng", score: 6.7, fullMark: 10,
-                  specs: ["Mạng máy tính và Viễn thông", "(hướng An toàn thông tin)"] },
-                { label: ["Phân tích &", "PT Phần mềm"], fullName: "Phân tích & Phát triển Phần mềm", score: 8.0, fullMark: 10,
-                  specs: ["Công nghệ phần mềm", "Hệ thống thông tin"] },
-                { label: ["Tổng quan", "& Ứng dụng rộng"], fullName: "Tổng quan & Ứng dụng rộng", score: 7.3, fullMark: 10,
-                  specs: ["Công nghệ thông tin"] },
-              ];
               const cx = 140, cy = 140, r = 88;
               const n = 4;
-              // standard orientation: top / right / bottom / left
-              const angles = GROUPS.map((_, i) => (i * 2 * Math.PI / n) - Math.PI / 2);
+              const angles = RADAR_GROUPS.map((_, i) => (i * 2 * Math.PI / n) - Math.PI / 2);
               const levels = [0.25, 0.5, 0.75, 1.0];
-              const scorePts = GROUPS.map((d, i) => { const ratio = d.score / d.fullMark; return `${cx + r * ratio * Math.cos(angles[i])},${cy + r * ratio * Math.sin(angles[i])}`; }).join(" ");
-              const dotPts = GROUPS.map((d, i) => { const ratio = d.score / d.fullMark; return { x: cx + r * ratio * Math.cos(angles[i]), y: cy + r * ratio * Math.sin(angles[i]) }; });
+              const scorePts = RADAR_GROUPS.map((d: any, i: number) => { const ratio = d.score / d.fullMark; return `${cx + r * ratio * Math.cos(angles[i])},${cy + r * ratio * Math.sin(angles[i])}`; }).join(" ");
+              const dotPts = RADAR_GROUPS.map((d: any, i: number) => { const ratio = d.score / d.fullMark; return { x: cx + r * ratio * Math.cos(angles[i]), y: cy + r * ratio * Math.sin(angles[i]) }; });
               const labelR = r + 24;
-              const ttW = 162, ttPad = 8, ttLineH = 13;
-              // scale ticks on top axis (i=0): 2.5, 5, 7.5, 10
+              const ttPad = 8, ttLineH = 13;
               const ticks = levels.map(lvl => ({ lvl, val: Math.round(lvl * 10) }));
 
               return (
@@ -759,32 +810,24 @@ export function ProgressSection() {
                     .rg:hover .rlbl { fill: #11284D; font-weight: 700; }
                     .rg:hover .rdot { r: 5; fill: #D5B370; }
                   `}</style>
-
-                  {/* concentric circle grid */}
                   {levels.map((lvl, i) => (
                     <circle key={i} cx={cx} cy={cy} r={r * lvl} fill="none" stroke="#D1D5DB" strokeWidth={i === 3 ? 1.5 : 0.8} />
                   ))}
-                  {/* axis lines */}
-                  {GROUPS.map((_, i) => (
+                  {RADAR_GROUPS.map((_: any, i: number) => (
                     <line key={i} x1={cx} y1={cy} x2={cx + r * Math.cos(angles[i])} y2={cy + r * Math.sin(angles[i])} stroke="#9CA3AF" strokeWidth="1" />
                   ))}
-                  {/* scale ticks on top axis */}
                   {ticks.map(({ lvl, val }) => (
                     <text key={val} x={cx + 4} y={cy - r * lvl + 3} fontSize="7.5" fill="#9CA3AF" fontFamily="Inter, sans-serif">{val}</text>
                   ))}
-
-                  {/* score polygon */}
                   <polygon points={scorePts} fill="#11284D" fillOpacity="0.15" stroke="#11284D" strokeWidth="2" strokeLinejoin="round" />
-
-                  {/* axis groups (hover) */}
-                  {GROUPS.map((d, i) => {
+                  {RADAR_GROUPS.map((d: any, i: number) => {
                     const lx = cx + labelR * Math.cos(angles[i]);
                     const ly = cy + labelR * Math.sin(angles[i]);
                     const pt = dotPts[i];
                     const anchor = i === 1 ? "start" : i === 3 ? "end" : "middle";
                     const tw = 200;
-                    const ttH = ttPad * 2 + 14 + 13 + d.specs.length * ttLineH + 4;
-                    // all tooltips point inward toward chart center
+                    const specsList = d.specs || [];
+                    const ttH = ttPad * 2 + 14 + 13 + specsList.length * ttLineH + 4;
                     let ttX = lx - tw / 2;
                     let ttY = ly + 6;
                     if (i === 0) { ttX = lx - tw / 2; ttY = ly + 4; }
@@ -797,16 +840,16 @@ export function ProgressSection() {
                         <circle cx={lx} cy={ly} r={26} fill="transparent" />
                         <circle className="rdot" cx={pt.x} cy={pt.y} r={3.5} fill="#11284D" />
                         <text className="rlbl" x={lx} y={ly - (d.label.length - 1) * 6} textAnchor={anchor} fontSize="9" fill="#4A5568" fontFamily="Inter, sans-serif">
-                          {d.label.map((line, li) => (
+                          {d.label.map((line: string, li: number) => (
                             <tspan key={li} x={lx} dy={li === 0 ? 0 : 12}>{line}</tspan>
                           ))}
                         </text>
                         <g className="rtt">
                           <rect x={ttX} y={ttY} width={tw} height={ttH} rx="5" fill="white" stroke="#C5CCB7" strokeWidth="1" style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.14))" }} />
                           <text x={ttX + ttPad} y={ttY + ttPad + 10} fontSize="10" fontWeight="700" fill="#11284D" fontFamily="Inter, sans-serif">{d.fullName}</text>
-                          <text x={ttX + ttPad} y={ttY + ttPad + 23} fontSize="9" fill="#D5B370" fontFamily="Inter, sans-serif" fontWeight="600">Điểm nhóm: {d.score.toFixed(1)} / {d.fullMark}</text>
+                          <text x={ttX + ttPad} y={ttY + ttPad + 23} fontSize="9" fill="#D5B370" fontFamily="Inter, sans-serif" fontWeight="600">Điểm nhóm: {Number(d.score).toFixed(1)} / {d.fullMark}</text>
                           <line x1={ttX + ttPad} y1={ttY + ttPad + 30} x2={ttX + tw - ttPad} y2={ttY + ttPad + 30} stroke="#EEE9E0" strokeWidth="1" />
-                          {d.specs.map((s, si) => (
+                          {specsList.map((s: string, si: number) => (
                             <text key={si} x={ttX + ttPad} y={ttY + ttPad + 43 + si * ttLineH} fontSize="8.5" fill="#374151" fontFamily="Inter, sans-serif">• {s}</text>
                           ))}
                         </g>
@@ -819,36 +862,38 @@ export function ProgressSection() {
           </div>
 
           {/* ── Grade Predictor ── */}
-          <div className="bg-card border border-border overflow-hidden">
+          <div className="bg-card border border-border overflow-hidden rounded-xl shadow-sm">
             <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "var(--primary)" }}>
               <BarChart2 className="w-4 h-4 text-white/70" />
               <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Dự Đoán Điểm Số</h3>
             </div>
             <div className="p-4 space-y-4">
-              {/* Row 1 – selectors */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wide">Năm học</label>
-                  <select value={selYear} onChange={e => { setSelYear(e.target.value); const s = Array.from(new Set(COURSE_DATA.filter(c => c.namHoc === e.target.value).map(c => c.hocKy))).sort(); setSelSem(s[0]); }} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", background: "white" }}>
-                    {years.map(y => <option key={y} value={y}>{y}</option>)}
+                  <select value={selYear} onChange={e => setSelYear(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", background: "white" }}>
+                    {displayYears.map(y => <option key={y} value={y}>{y}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wide">Học kỳ</label>
-                  <select value={validSem} onChange={e => setSelSem(Number(e.target.value))} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", background: "white" }}>
-                    {semsForYear.map(s => <option key={s} value={s}>HK {s}</option>)}
+                  <select value={selSem} onChange={e => setSelSem(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", background: "white" }}>
+                    {displaySems.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wide">Môn học</label>
-                  <select value={validCourse} onChange={e => setSelCourse(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", background: "white" }}>
-                    {coursesInSem.map(c => <option key={c.maMon} value={c.maMon}>{c.tenMon || c.maMon}</option>)}
+                  <select value={selCourse} onChange={e => setSelCourse(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif", background: "white" }}>
+                    {coursesInSem.length > 0 ? (
+                      coursesInSem.map(c => <option key={c.maMon} value={c.maMon}>{c.tenMon || c.maMon}</option>)
+                    ) : (
+                      <option value="">Không có môn</option>
+                    )}
                   </select>
                 </div>
               </div>
 
-              {/* Row 2 – score table */}
-              <div className="border border-border overflow-hidden">
+              <div className="border border-border overflow-hidden rounded-lg">
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr style={{ background: "#dde4f5" }}>
@@ -895,7 +940,6 @@ export function ProgressSection() {
                         </tr>
                       );
                     })}
-                    {/* Bonus row */}
                     <tr style={{ background: "#f1f5f9" }}>
                       <td className="px-3 py-2 font-medium text-foreground border-b border-border">Điểm cộng</td>
                       <td className="px-3 py-2 text-center text-[10px] text-muted-foreground border-b border-l border-border">10%</td>
@@ -917,27 +961,24 @@ export function ProgressSection() {
                 )}
               </div>
 
-              {/* Row 3 – two result panels side by side */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Left: total score calculator */}
-                <div className="border border-border p-3 flex flex-col gap-1.5" style={{ background: "#dde4f5" }}>
+                <div className="border border-border p-3 flex flex-col gap-1.5 rounded-lg" style={{ background: "#dde4f5" }}>
                   <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide text-center">Điểm tổng kết</div>
-                  <div className="flex items-baseline gap-1 mt-1">
+                  <div className="flex items-baseline gap-1 mt-1 justify-center">
                     <span className="text-3xl font-bold leading-none" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                       {ccScore !== "" && gkScore !== "" && ckScore !== "" && totalScore !== null
                         ? totalScore.toFixed(2) : "—"}
                     </span>
                     <span className="text-sm text-muted-foreground">/10</span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground text-center">
                     {ccScore === "" || gkScore === "" || ckScore === ""
                       ? "Nhập đủ CC + GK + CK để xem kết quả"
                       : "Đã tính đủ 3 thành phần"}
                   </p>
                 </div>
 
-                {/* Right: prediction */}
-                <div className="border border-border p-3 space-y-1.5">
+                <div className="border border-border p-3 space-y-1.5 rounded-lg bg-white">
                   <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Dự đoán điểm</div>
                   <div className="flex items-center gap-2">
                     <label className="text-[10px] text-muted-foreground whitespace-nowrap">Mục tiêu:</label>
@@ -947,7 +988,7 @@ export function ProgressSection() {
                       className="flex-1 border border-border px-2 py-1 text-xs text-center font-bold focus:outline-none focus:border-primary bg-white" style={{ color: "var(--primary)" }} />
                   </div>
                   <hr className="border-border" />
-                  <div className="flex items-baseline gap-2 flex-wrap">
+                  <div className="flex items-baseline gap-2 flex-wrap justify-center">
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                       Cần {predictTarget === "cc" ? "QT" : predictTarget === "gk" ? "GK" : "CK"}:
                     </span>
@@ -976,7 +1017,11 @@ export function ProgressSection() {
   );
 }
 
-// ─── Academic Section (Khớp type với App.tsx) ─────────────────────────────────
+
+// =============================================================================
+// ACADEMIC SECTION (TỔNG KẾT & TIẾN ĐỘ)
+// =============================================================================
+
 export type AcademicTabType = "summary" | "progress" | "tong-ket" | "tien-do";
 
 export function AcademicSection({ 
@@ -992,8 +1037,8 @@ export function AcademicSection({
   setTab?: (t: any) => void;
   studentMssv?: string;
 }) {
-  const API_BASE = "http://127.0.0.1:5000/api/students";
-  const mssv = studentMssv || localStorage.getItem("mssv") || "24127158";
+  const { accounts } = useMsal();
+  const mssv = studentMssv || (accounts[0]?.username ? accounts[0].username.split("@")[0] : "24127158");
 
   const [internalTab, setInternalTab] = useState<AcademicTabType>("summary");
   const rawTab = controlledSubTab ?? controlledTab ?? internalTab;
@@ -1013,292 +1058,140 @@ export function AcademicSection({
 
   const [selectedHocKy, setSelectedHocKy] = useState<string>("ALL");
   const [summaryData, setSummaryData] = useState<any>(null);
-  const [progressData, setProgressData] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [summaryLoading, setSummaryLoading] = useState<boolean>(false);
 
-  // State cho Dự Đoán Điểm Số
-  const [targetScore, setTargetScore] = useState<number>(8.0);
-  const [weightQT, setWeightQT] = useState<number>(20);
-  const [weightGK, setWeightGK] = useState<number>(30);
-  const [weightCK, setWeightCK] = useState<number>(50);
-  const [scoreQT, setScoreQT] = useState<string>("8.0");
-  const [scoreGK, setScoreGK] = useState<string>("7.5");
-  const [predictedCK, setPredictedCK] = useState<number | null>(null);
-  const [isImpossible, setIsImpossible] = useState<boolean>(false);
-
+  // Gọi API lấy Bảng điểm tổng kết từ DB
   useEffect(() => {
     async function loadSummary() {
-      setLoading(true);
+      if (!isSummary) return;
+      setSummaryLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/${mssv}/academic/summary?ma_hocky=${selectedHocKy}`);
+        const res = await fetch(`/api/students/${mssv}/academic/summary?ma_hocky=${selectedHocKy}`);
         const json = await res.json();
-        if (json.status === "success") setSummaryData(json.data);
+        if (json.status === "success" && json.data) {
+          setSummaryData(json.data);
+        }
       } catch (err) {
-        console.warn("Lỗi tải bảng điểm:", err);
+        console.warn("Lỗi tải bảng điểm tổng kết:", err);
       } finally {
-        setLoading(false);
+        setSummaryLoading(false);
       }
     }
-    if (isSummary) loadSummary();
+    loadSummary();
   }, [selectedHocKy, isSummary, mssv]);
 
-  useEffect(() => {
-    async function loadProgress() {
-      setLoading(true);
-      try {
-        const res = await fetch(`${API_BASE}/${mssv}/academic/progress`);
-        const json = await res.json();
-        if (json.status === "success") setProgressData(json.data);
-      } catch (err) {
-        console.warn("Lỗi tải tiến độ:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (isProgress) loadProgress();
-  }, [isProgress, mssv]);
-
-  useEffect(() => {
-    const wQT = Number(weightQT) / 100.0;
-    const wGK = Number(weightGK) / 100.0;
-    const wCK = Number(weightCK) / 100.0;
-    const sQT = parseFloat(scoreQT) || 0;
-    const sGK = parseFloat(scoreGK) || 0;
-    const target = Number(targetScore) || 0;
-
-    if (wCK > 0) {
-      const requiredCK = (target - (sQT * wQT) - (sGK * wGK)) / wCK;
-      const rounded = Math.round(requiredCK * 10) / 10;
-      setIsImpossible(rounded > 10.0 || rounded < 0);
-      setPredictedCK(rounded);
-    }
-  }, [targetScore, weightQT, weightGK, weightCK, scoreQT, scoreGK]);
-
-  const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white cursor-pointer";
+  const dbCourses: any[] = summaryData?.courses || [];
 
   return (
-    <div className="w-full space-y-6">
-      {/* ── Tabs Navigation ── */}
+    <div className="space-y-4">
+      {/* Tab Switcher */}
       <div className="flex items-center border-b border-border">
         {[
           { id: "summary" as const, label: "Tổng kết", active: isSummary },
-          { id: "progress" as const, label: "Tiến độ học tập & Dự đoán điểm", active: isProgress }
+          { id: "progress" as const, label: "Tiến độ học tập", active: isProgress }
         ].map(t => (
-          <button
-            key={t.id}
-            onClick={() => handleTabChange(t.id)}
+          <button key={t.id} onClick={() => handleTabChange(t.id)}
             className="px-6 py-2.5 text-sm font-medium transition-colors relative"
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              color: t.active ? "var(--primary)" : "var(--muted-foreground)",
-              fontWeight: t.active ? 600 : 400,
-              background: "transparent"
-            }}
-          >
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: t.active ? "var(--primary)" : "var(--muted-foreground)", fontWeight: t.active ? 600 : 400, background: "transparent" }}>
             {t.label}
-            {t.active && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--primary)", marginBottom: -1 }} />
-            )}
+            {t.active && <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--primary)", marginBottom: -1 }} />}
           </button>
         ))}
       </div>
 
-      {/* ══════════════════ TAB 1: TỔNG KẾT ══════════════════ */}
+      {/* ── TAB 1: TỔNG KẾT BẢNG ĐIỂM (DATABASE) ── */}
       {isSummary && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Học kỳ:</label>
-              <select
-                value={selectedHocKy}
-                onChange={e => setSelectedHocKy(e.target.value)}
-                className={selectCls}
-              >
+              <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
+              <select value={selectedHocKy} onChange={e => setSelectedHocKy(e.target.value)}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white cursor-pointer" style={{ fontFamily: "'Inter', sans-serif" }}>
                 <option value="ALL">Toàn khóa học</option>
                 <option value="HK001">Học kỳ 1 (2024-2025)</option>
                 <option value="HK002">Học kỳ 2 (2024-2025)</option>
-                <option value="HK003">Học kỳ 1 (2025-2026)</option>
+                <option value="HK003">Học kỳ 3 (2024-2025)</option>
+                <option value="HK004">Học kỳ 1 (2025-2026)</option>
+                <option value="HK005">Học kỳ 2 (2025-2026)</option>
+                <option value="HK006">Học kỳ 3 (2025-2026)</option>
               </select>
             </div>
 
             {summaryData && (
-              <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-3 text-xs font-semibold">
                 <div className="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg text-blue-900">
-                  GPA Thang 10: <span className="text-sm font-bold text-blue-700">{summaryData.gpa_10}</span>
+                  GPA Hệ 10: <span className="text-sm font-bold text-blue-700">{summaryData.gpa_10 ?? "—"}</span>
                 </div>
                 <div className="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-emerald-900">
-                  GPA Thang 4: <span className="text-sm font-bold text-emerald-700">{summaryData.gpa_4}</span>
+                  GPA Hệ 4: <span className="text-sm font-bold text-emerald-700">{summaryData.gpa_4 ?? "—"}</span>
                 </div>
                 <div className="bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-lg text-purple-900">
-                  Số TC Tích lũy: <span className="text-sm font-bold text-purple-700">{summaryData.total_passed}</span>
+                  Số TC Tích lũy: <span className="text-sm font-bold text-purple-700">{summaryData.total_passed ?? 0}</span>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm" style={{ minWidth: 800 }}>
-                <thead>
-                  <tr style={{ background: "var(--primary)" }}>
-                    {["Mã MH", "Tên môn học", "Số TC", "Học kỳ", "Quá trình", "Giữa kỳ", "Cuối kỳ", "Tổng kết (10)", "Điểm chữ", "Hệ 4", "Kết quả"].map(h => (
-                      <th key={h} className="px-3 py-3 text-left text-xs font-bold text-white border-r border-white/10 last:border-r-0 whitespace-nowrap">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr><td colSpan={11} className="py-12 text-center text-sm text-muted-foreground">Đang tải bảng điểm...</td></tr>
-                  ) : !summaryData?.courses?.length ? (
-                    <tr><td colSpan={11} className="py-12 text-center text-sm text-muted-foreground">Chưa có dữ liệu điểm</td></tr>
-                  ) : (
-                    summaryData.courses.map((c: any, idx: number) => (
-                      <tr key={idx} className="hover:bg-blue-50/50 transition-colors" style={{ background: idx % 2 === 0 ? "#fff" : "#f8fafc" }}>
-                        <td className="px-3 py-2.5 border-b border-border font-mono text-xs text-muted-foreground">{c.mamh}</td>
-                        <td className="px-3 py-2.5 border-b border-border font-semibold text-foreground">{c.tenmh}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center font-semibold">{c.sotc}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-xs text-muted-foreground">{c.ten_hocky}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center">{c.diem_qt ?? "—"}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center">{c.diem_gk ?? "—"}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center">{c.diem_ck ?? "—"}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center font-bold text-blue-700">{c.diem_tongket ?? "—"}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center font-semibold">{c.diem_chu}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center font-semibold">{c.diem_he4}</td>
-                        <td className="px-3 py-2.5 border-b border-border text-center">
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${c.ketqua === "Đạt" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"}`}>
-                            {c.ketqua}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="bg-card rounded-xl border border-border overflow-x-auto shadow-sm">
+            <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "var(--primary)" }}>
+                  {[
+                    { label: "STT",          cls: "w-10  text-center" },
+                    { label: "Mã môn học",   cls: "w-24  text-center" },
+                    { label: "Tên môn học",  cls: "text-left" },
+                    { label: "Số TC",        cls: "w-12  text-center" },
+                    { label: "Học kỳ",       cls: "w-20  text-center" },
+                    { label: "Lớp",          cls: "w-20  text-center" },
+                    { label: "Điểm GK",      cls: "w-16  text-center" },
+                    { label: "Điểm CK",      cls: "w-16  text-center" },
+                    { label: "Tổng kết (10)", cls: "w-20  text-center" },
+                    { label: "Điểm chữ",     cls: "w-16  text-center" },
+                    { label: "Hệ 4",         cls: "w-14  text-center" },
+                    { label: "Kết quả",      cls: "w-20  text-center" },
+                  ].map(c => (
+                    <th key={c.label} className={`px-2 py-2.5 font-semibold text-white whitespace-nowrap ${c.cls}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {summaryLoading ? (
+                  <tr><td colSpan={12} className="py-8 text-center text-muted-foreground">Đang tải bảng điểm từ cơ sở dữ liệu...</td></tr>
+                ) : dbCourses.length === 0 ? (
+                  <tr><td colSpan={12} className="py-8 text-center text-muted-foreground">Chưa có môn học nào trong học kỳ này.</td></tr>
+                ) : (
+                  dbCourses.map((row: any, i: number) => (
+                    <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }} className="hover:brightness-95 transition-all">
+                      <td className="px-2 py-2 text-center text-muted-foreground font-mono">{i + 1}</td>
+                      <td className="px-2 py-2 text-center font-medium" style={{ color: "var(--primary)" }}>{row.mamh}</td>
+                      <td className="px-2 py-2 text-left font-medium">{row.tenmh}</td>
+                      <td className="px-2 py-2 text-center font-semibold">{row.sotc}</td>
+                      <td className="px-2 py-2 text-center text-muted-foreground">{row.ten_hocky || row.mahocky}</td>
+                      <td className="px-2 py-2 text-center text-muted-foreground">{row.malhp}</td>
+                      <td className="px-2 py-2 text-center">{row.diem_gk ?? "—"}</td>
+                      <td className="px-2 py-2 text-center">{row.diem_ck ?? "—"}</td>
+                      <td className="px-2 py-2 text-center font-bold font-mono text-blue-900">{row.diem_tongket ?? "—"}</td>
+                      <td className="px-2 py-2 text-center font-semibold">{row.diem_chu ?? "—"}</td>
+                      <td className="px-2 py-2 text-center">{row.diem_he4 ?? "—"}</td>
+                      <td className="px-2 py-2 text-center">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${row.ketqua === "Đạt" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"}`}>
+                          {row.ketqua || "Đạt"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        </div>
+        </>
       )}
 
-      {/* ══════════════════ TAB 2: TIẾN ĐỘ & DỰ ĐOÁN ĐIỂM SỐ ══════════════════ */}
-      {isProgress && (
-        <div className="space-y-6">
-          {progressData && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-card rounded-xl border border-border p-4 shadow-sm flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xs font-bold text-muted-foreground uppercase">Tiến độ tích lũy</h3>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-blue-900">{progressData.completed_credits}</span>
-                    <span className="text-sm font-semibold text-slate-500">/ {progressData.total_credits} Tín chỉ</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Đã hoàn thành {Math.round((progressData.completed_credits / progressData.total_credits) * 100)}% chương trình</p>
-                </div>
-                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-3">
-                  <div className="bg-blue-600 h-full rounded-full" style={{ width: `${(progressData.completed_credits / progressData.total_credits) * 100}%` }} />
-                </div>
-              </div>
-
-              <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase">Điểm trung bình (GPA)</h3>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-3xl font-extrabold text-emerald-700">{progressData.gpa}</span>
-                  <span className="text-sm font-semibold text-slate-500">/ 10.0</span>
-                </div>
-                <p className="text-xs text-emerald-600 font-medium mt-1">Xếp loại: {progressData.gpa >= 8.0 ? "Giỏi" : progressData.gpa >= 7.0 ? "Khá" : "Trung bình"}</p>
-              </div>
-
-              <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase mb-2">Chuẩn điều kiện tốt nghiệp</h3>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span>Giáo dục thể chất:</span>
-                    <span className={progressData.conditions.gdtc ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
-                      {progressData.conditions.gdtc ? "✓ Đã đạt" : "Chưa đạt"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Giáo dục quốc phòng:</span>
-                    <span className={progressData.conditions.gdqp ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
-                      {progressData.conditions.gdqp ? "✓ Đã đạt" : "Chưa đạt"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Chứng chỉ ngoại ngữ:</span>
-                    <span className={progressData.conditions.foreign_language ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
-                      {progressData.conditions.foreign_language ? "✓ Đã đạt" : "Chưa đạt"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Module Dự Đoán Điểm Số */}
-          <div className="bg-card rounded-xl border border-border p-5 shadow-sm space-y-4">
-            <div className="border-b pb-3">
-              <h2 className="text-base font-bold text-slate-800">Dự Đoán Điểm Số Cần Đạt</h2>
-              <p className="text-xs text-muted-foreground">Tính toán điểm thi cuối kỳ cần đạt để đạt mục tiêu tổng kết môn học</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              <div className="lg:col-span-8 space-y-3">
-                <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div>
-                    <label className="font-semibold block mb-1">Tỉ lệ Quá trình (%)</label>
-                    <input type="number" value={weightQT} onChange={e => setWeightQT(Number(e.target.value))} className="w-full border rounded p-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="font-semibold block mb-1">Tỉ lệ Giữa kỳ (%)</label>
-                    <input type="number" value={weightGK} onChange={e => setWeightGK(Number(e.target.value))} className="w-full border rounded p-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="font-semibold block mb-1">Tỉ lệ Cuối kỳ (%)</label>
-                    <input type="number" value={weightCK} onChange={e => setWeightCK(Number(e.target.value))} className="w-full border rounded p-2 text-sm" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div>
-                    <label className="font-semibold block mb-1">Điểm Quá trình (0-10)</label>
-                    <input type="number" step="0.1" value={scoreQT} onChange={e => setScoreQT(e.target.value)} className="w-full border rounded p-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="font-semibold block mb-1">Điểm Giữa kỳ (0-10)</label>
-                    <input type="number" step="0.1" value={scoreGK} onChange={e => setScoreGK(e.target.value)} className="w-full border rounded p-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="font-semibold block mb-1 text-blue-700">Mục tiêu Tổng kết (0-10)</label>
-                    <input type="number" step="0.1" value={targetScore} onChange={e => setTargetScore(Number(e.target.value))} className="w-full border-2 border-blue-500 rounded p-2 text-sm font-bold text-blue-900" />
-                  </div>
-                </div>
-              </div>
-
-              <div className={`lg:col-span-4 p-5 rounded-xl border flex flex-col items-center justify-center text-center ${isImpossible ? "bg-rose-50 border-rose-200" : "bg-blue-50 border-blue-200"}`}>
-                <span className="text-xs font-semibold uppercase text-slate-600">Điểm thi cuối kỳ cần đạt:</span>
-                <span className={`text-4xl font-extrabold mt-2 ${isImpossible ? "text-rose-600" : "text-blue-900"}`}>
-                  {isImpossible ? "Không khả thi" : (predictedCK !== null ? predictedCK : "—")}
-                </span>
-                {isImpossible && (
-                  <p className="text-[11px] text-rose-600 font-medium mt-1">
-                    Cần đạt {predictedCK} điểm (vượt quá 10 điểm) để đạt mục tiêu này!
-                  </p>
-                )}
-                {!isImpossible && predictedCK !== null && (
-                  <p className="text-[11px] text-blue-700 mt-1">
-                    Thi đạt ≥ {predictedCK} điểm để đạt mục tiêu {targetScore} điểm tổng kết.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── TAB 2: TIẾN ĐỘ HỌC TẬP & DỰ ĐOÁN ĐIỂM (DATABASE) ── */}
+      {isProgress && <ProgressSection studentMssv={mssv} />}
     </div>
   );
 }
-// ─── Profile Section ─────────────────────────────────────────────────────────
 // ─── Profile Section (Hoàn thiện API & Giao diện Figma 100%) ────────────────
 export function ProfileSection({ avatarUrl, onAvatarChange, onProfileSave }: { avatarUrl: string | null; onAvatarChange: (url: string) => void; onProfileSave?: (p: typeof STUDENT_PROFILE) => void }) {
   const [loading, setLoading] = useState(true);
@@ -1476,14 +1369,14 @@ async function handleSave() {
           {/* Cols 2-4: fields, 3 per row */}
           <div className="sm:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 sm:gap-y-4">
             <Field label="MSSV"                value={saved.mssv} />
-            <Field label="Ngày sinh"           value={saved.dob} />
-            <Field label="Nơi sinh"            value={saved.placeOfBirth} />
-            <Field label="Giới tính"           value={saved.gender} />
-            <Field label="Khóa"                value={saved.course} />
-            <Field label="Bậc đào tạo"         value={saved.level} />
-            <Field label="Ngành"               value={saved.major} />
-            <Field label="Loại hình đào tạo"   value={saved.trainingType} />
-            <Field label="Chuyên ngành"        value={saved.specialization} />
+            <Field label="Ngày sinh"           value={saved.dob || saved.ngaysinh} />
+            <Field label="Nơi sinh"            value={saved.placeOfBirth || saved.noisinh} />
+            <Field label="Giới tính"           value={saved.gender || saved.gioitinh} />
+            <Field label="Khóa"                value={saved.course || saved.nienkhoa} />
+            <Field label="Bậc đào tạo"         value={saved.level || saved.bacdaotao} />
+            <Field label="Ngành"               value={saved.major || saved.tennganh || saved.nganh} />
+            <Field label="Loại hình đào tạo"   value={saved.trainingType || saved.loaidaotao} />
+            <Field label="Chuyên ngành"        value={saved.specialization || saved.chuyenNganh || saved.chuyennganh || saved.tenchuyennganh || "Chưa phân chuyên ngành"} />
           </div>
         </div>
       </div>
