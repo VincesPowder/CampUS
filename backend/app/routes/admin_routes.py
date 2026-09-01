@@ -958,6 +958,14 @@ def get_admin_classes():
             bd_str = lh.thoigian_bd.strftime('%H:%M') if lh.thoigian_bd else "07:30"
             kt_str = lh.thoigian_kt.strftime('%H:%M') if lh.thoigian_kt else "11:10"
             thu_chuan = normalize_thu(lh.thu)
+            
+            ngay_str = ""
+            if lh.ngaybatdau and lh.ngayketthuc:
+                ngay_str = f"{lh.ngaybatdau.strftime('%d/%m/%Y')} – {lh.ngayketthuc.strftime('%d/%m/%Y')}"
+            elif lh.ngaybatdau:
+                ngay_str = f"{lh.ngaybatdau.strftime('%d/%m/%Y')} – {lh.ngaybatdau.strftime('%d/%m/%Y')}"
+            else:
+                ngay_str = "16/09/2024 – 21/09/2024"
 
             item = {
                 "id": lh.malichhoc,
@@ -968,6 +976,7 @@ def get_admin_classes():
                 "lop": lhp.tenlop if lhp else "24C07",
                 "giangVien": lhp.tengv if lhp else "Chưa phân công",
                 "thu": thu_chuan,
+                "ngay": ngay_str,
                 "tiet": "1–4" if bd_str.startswith("07") else "7–10",
                 "gio": f"{bd_str} – {kt_str}",
                 "phong": lh.phonghoc or "I.44",
@@ -1217,7 +1226,7 @@ def export_classes_csv():
     try:
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["STT", "Mã MH", "Tên môn học", "Lớp", "Giảng viên", "Thứ", "Thời gian", "Phòng", "Tuần", "Ngày bắt đầu", "Ngày kết thúc", "Hình thức"])
+        writer.writerow(["STT", "Mã MH", "Tên môn học", "Lớp", "Giảng viên", "Thứ", "Ngày", "Thời gian", "Phòng", "Tuần", "Ngày bắt đầu", "Ngày kết thúc", "Hình thức"])
 
         query = LichHoc.query.join(LopHocPhan).join(MonHoc)
         if not g.is_super_admin and g.makhoa:
@@ -1665,10 +1674,27 @@ def get_admin_surveys():
             is_active = True
             if ks.handon:
                 try:
-                    deadline_dt = datetime.strptime(str(ks.handon).strip(), '%Y-%m-%d')
-                    is_active = datetime.now().date() <= deadline_dt.date()
+                    now = datetime.now()
+                    raw_handon = str(ks.handon).strip()
+                    
+                    # Thử parse các định dạng ngày giờ có thể có trong CSDL
+                    parsed_dt = None
+                    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d', '%d/%m/%Y %H:%M:%S', '%d/%m/%Y'):
+                        try:
+                            parsed_dt = datetime.strptime(raw_handon, fmt)
+                            break
+                        except ValueError:
+                            pass
+                    
+                    if parsed_dt:
+                        is_active = (now <= parsed_dt)
+                    else:
+                        # Fallback lấy 10 ký tự đầu YYYY-MM-DD
+                        d_part = raw_handon.split(' ')[0]
+                        deadline_date = datetime.strptime(d_part, '%Y-%m-%d').date()
+                        is_active = (now.date() <= deadline_date)
                 except Exception:
-                    pass
+                    is_active = False
 
             st_key = "active" if is_active else "closed"
 
