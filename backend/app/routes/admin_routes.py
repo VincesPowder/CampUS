@@ -119,6 +119,36 @@ def tinh_diem_chu(diem_he10):
     if d >= 4.0: return "D", "Đạt"
     return "F", "Không đạt"
 
+def xac_dinh_ca_thi(giothi_val):
+    """
+    Phân loại ca thi chuẩn theo giờ bắt đầu trong DB
+    """
+    if not giothi_val:
+        return "Ca 1"
+    
+    if hasattr(giothi_val, 'hour'):
+        hour = giothi_val.hour
+        minute = giothi_val.minute
+    else:
+        try:
+            parts = str(giothi_val).split(':')
+            hour = int(parts[0])
+            minute = int(parts) if len(parts) > 1 else 0
+        except Exception:
+            return "Ca 1"
+            
+    total_minutes = hour * 60 + minute
+
+    if total_minutes < 9 * 60 + 15:       # Trước 09:15 -> Ca 1
+        return "Ca 1"
+    elif total_minutes < 12 * 60:         # 09:15 đến 12:00 -> Ca 2
+        return "Ca 2"
+    elif total_minutes < 15 * 60:         # 12:00 đến 15:00 -> Ca 3
+        return "Ca 3"
+    elif total_minutes < 17 * 60 + 30:    # 15:00 đến 17:30 -> Ca 4
+        return "Ca 4"
+    else:                                 # Sau 17:30 -> Ca 5
+        return "Ca 5"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ─── 0. THÔNG TIN ADMIN HIỆN TẠI ──────────────────────────────────────────────
@@ -1113,7 +1143,6 @@ def get_admin_exams():
 
         query = LichThi.query.join(LopHocPhan).join(MonHoc)
         
-        # 🎯 Chỉ lấy Lịch thi của những lớp mà sinh viên CNTT đăng ký thi
         if not g.is_super_admin and g.makhoa:
             subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
                 .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
@@ -1135,8 +1164,11 @@ def get_admin_exams():
             if lt.ngaythi:
                 thu_str = thu_names[lt.ngaythi.weekday()]
 
+            # 🎯 1. Chỉ lấy giờ bắt đầu HH:MM từ DB
             gio_str = lt.giothi.strftime('%H:%M') if lt.giothi else "07:30"
-            ca_str = "Ca 1" if gio_str.startswith("07") else ("Ca 2" if gio_str.startswith("09") else "Ca 3")
+            
+            # 🎯 2. Tính ca thi chuẩn xác
+            ca_str = xac_dinh_ca_thi(lt.giothi)
 
             item = {
                 "id": lt.malichthi,
@@ -1147,7 +1179,7 @@ def get_admin_exams():
                 "ngayThi": ngay_str,
                 "thu": thu_str,
                 "ca": ca_str,
-                "gio": f"{gio_str} – 09:30",
+                "gio": gio_str,
                 "thoiGian": f"{lt.thoigianlambai or 90} phút",
                 "phong": lt.phongthi or "I.42",
                 "soThi": lt.sothisinh or 45,
