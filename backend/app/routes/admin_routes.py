@@ -638,12 +638,22 @@ def get_academic_courses():
 
         query = LopHocPhan.query.join(MonHoc).join(HocKyNamHoc)
         
-        # Phân quyền: Giáo vụ chỉ xem các LHP môn của Khoa mình
+        # 🎯 CHỈ LẤY CÁC MÔN DO SINH VIÊN CỦA KHOA (MSSV) ĐĂNG KÝ HỌC:
+        # (Loại bỏ các lớp Tin học cơ sở của khoa khác không có SV CNTT học)
         if not g.is_super_admin and g.makhoa:
-            query = query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
+            subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
+                .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+                .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+                .filter(Nganh.makhoa == g.makhoa)\
+                .distinct().subquery()
+                
+            query = query.filter(LopHocPhan.malhp.in_(subquery_lhp_sv))
 
         lhps = query.all()
         result = []
+
+        # Tên khoa quản lý (mặc định CNTT cho admin CSC)
+        ten_khoa_admin = "CNTT" if g.makhoa == "CSC" else ("Toán - Tin" if g.makhoa == "MTH" else "CNTT")
 
         for lhp in lhps:
             mh = lhp.monhoc
@@ -655,14 +665,15 @@ def get_academic_courses():
             elif hk and "HK2" in hk.ten_hocky: hk_so = 2
             elif hk and "HK3" in hk.ten_hocky: hk_so = 3
 
-            ten_khoa = "CNTT"
-            if mh and mh.mamh.startswith("MTH"): ten_khoa = "Toán - Tin"
-            elif mh and mh.mamh.startswith("PHY"): ten_khoa = "Vật lý"
-            elif mh and mh.mamh.startswith("CHE"): ten_khoa = "Hóa học"
-
-            so_sv = KetQuaHocTap.query.filter_by(malhp=lhp.malhp).count()
-            if so_sv == 0:
-                so_sv = SinhVien.query.count()
+            # Đếm số sinh viên của khoa đang học lớp này
+            if not g.is_super_admin and g.makhoa:
+                so_sv = KetQuaHocTap.query\
+                    .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+                    .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+                    .filter(KetQuaHocTap.malhp == lhp.malhp, Nganh.makhoa == g.makhoa)\
+                    .count()
+            else:
+                so_sv = KetQuaHocTap.query.filter_by(malhp=lhp.malhp).count()
                 
             raw_tt = str(lhp.trangthai or "").strip().lower()
             if "close" in raw_tt or "lock" in raw_tt or "khóa" in raw_tt:
@@ -679,7 +690,7 @@ def get_academic_courses():
                 "lop": lhp.tenlop or "24C01",
                 "soTC": mh.sotc if mh else 3,
                 "soTiet": mh.sotiet if mh else 45,
-                "khoa": ten_khoa,
+                "khoa": ten_khoa_admin,  # 👈 Hiển thị đồng nhất CNTT cho tất cả môn của SV CNTT
                 "giangVien": lhp.tengv or "Chưa phân công",
                 "emailGV": lhp.mailgv or "",
                 "soSV": so_sv,
@@ -707,6 +718,7 @@ def get_academic_courses():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 @admin_bp.route('/academic/courses/<course_id>/grades', methods=['GET'])
 @faculty_required
 def get_course_grades(course_id):
@@ -715,11 +727,15 @@ def get_course_grades(course_id):
         if not lhp:
             return jsonify({"status": "error", "message": "Không tìm thấy lớp học phần"}), 404
             
+        query_kq = KetQuaHocTap.query.filter_by(malhp=course_id)
+        
+        # 🎯 Khi mở bảng điểm lớp (dù là môn Vật lý hay Toán), Giáo vụ chỉ quản lý điểm của SV Khoa mình
         if not g.is_super_admin and g.makhoa:
-            if lhp.monhoc and not lhp.monhoc.mamh.startswith(g.makhoa):
-                return jsonify({"status": "error", "message": "Không có quyền xem điểm môn học khoa khác"}), 403
-            
-        kqs = KetQuaHocTap.query.filter_by(malhp=course_id).all()
+            query_kq = query_kq.join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+                               .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+                               .filter(Nganh.makhoa == g.makhoa)
+
+        kqs = query_kq.all()
         grades_list = []
         for kq in kqs:
             sv = kq.sinhvien
@@ -737,21 +753,19 @@ def get_course_grades(course_id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 @admin_bp.route('/academic/courses/<course_id>/grades/<mssv>', methods=['PUT'])
 @faculty_required
 def update_student_grade(course_id, mssv):
     try:
-        lhp = LopHocPhan.query.filter_by(malhp=course_id).first()
-        if not lhp:
-            return jsonify({"status": "error", "message": "Không tìm thấy lớp học phần"}), 404
-            
+        # Kiểm tra xem sinh viên được sửa điểm có thuộc khoa của Giáo vụ không
         if not g.is_super_admin and g.makhoa:
-            if lhp.monhoc and not lhp.monhoc.mamh.startswith(g.makhoa):
-                return jsonify({"status": "error", "message": "Không có quyền sửa điểm môn học khoa khác"}), 403
+            sv = SinhVien.query.filter_by(mssv=mssv).first()
+            if sv and sv.nganh and sv.nganh.makhoa != g.makhoa:
+                return jsonify({"status": "error", "message": "Không có quyền sửa điểm sinh viên thuộc khoa khác"}), 403
 
         data = request.get_json() or {}
         kq = KetQuaHocTap.query.filter_by(malhp=course_id, mssv=mssv).first()
-        
         if not kq:
             kq = KetQuaHocTap(mssv=mssv, malhp=course_id)
             db.session.add(kq)
@@ -946,8 +960,16 @@ def get_admin_classes():
         search = request.args.get('search', '').strip().lower()
 
         query = LichHoc.query.join(LopHocPhan).join(MonHoc)
+        
+        # 🎯 Chỉ lấy Lịch học của những lớp mà sinh viên CNTT theo học
         if not g.is_super_admin and g.makhoa:
-            query = query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
+            subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
+                .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+                .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+                .filter(Nganh.makhoa == g.makhoa)\
+                .distinct().subquery()
+                
+            query = query.filter(LopHocPhan.malhp.in_(subquery_lhp_sv))
 
         lich_hocs = query.all()
         result = []
@@ -958,7 +980,7 @@ def get_admin_classes():
             bd_str = lh.thoigian_bd.strftime('%H:%M') if lh.thoigian_bd else "07:30"
             kt_str = lh.thoigian_kt.strftime('%H:%M') if lh.thoigian_kt else "11:10"
             thu_chuan = normalize_thu(lh.thu)
-            
+
             ngay_str = ""
             if lh.ngaybatdau and lh.ngayketthuc:
                 ngay_str = f"{lh.ngaybatdau.strftime('%d/%m/%Y')} – {lh.ngayketthuc.strftime('%d/%m/%Y')}"
@@ -1090,8 +1112,16 @@ def get_admin_exams():
         search = request.args.get('search', '').strip().lower()
 
         query = LichThi.query.join(LopHocPhan).join(MonHoc)
+        
+        # 🎯 Chỉ lấy Lịch thi của những lớp mà sinh viên CNTT đăng ký thi
         if not g.is_super_admin and g.makhoa:
-            query = query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
+            subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
+                .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+                .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+                .filter(Nganh.makhoa == g.makhoa)\
+                .distinct().subquery()
+                
+            query = query.filter(LopHocPhan.malhp.in_(subquery_lhp_sv))
 
         lich_this = query.all()
         result = []
@@ -1949,22 +1979,30 @@ def get_system_contacts():
 @faculty_required
 def get_sidebar_badges():
     try:
-        # 1. Đếm môn học phần chờ nộp điểm theo Khoa
+        # 1. Đếm môn học phần chờ nộp điểm của sinh viên thuộc Khoa
         course_query = LopHocPhan.query.join(MonHoc).filter(
             ~LopHocPhan.trangthai.ilike('%closed%'),
             ~LopHocPhan.trangthai.ilike('%locked%')
         )
         if not g.is_super_admin and g.makhoa:
-            course_query = course_query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
+            subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
+                .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+                .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+                .filter(Nganh.makhoa == g.makhoa)\
+                .distinct().subquery()
+            course_query = course_query.filter(
+                (LopHocPhan.malhp.in_(subquery_lhp_sv)) |
+                (MonHoc.mamh.like(f"{g.makhoa}%"))
+            )
         pending_courses = course_query.count()
 
-        # 2. Đếm số khảo sát còn hạn
+        # 2. Khảo sát còn hạn
         now_str = datetime.now().strftime('%Y-%m-%d')
         active_surveys = KhaoSat.query.filter(KhaoSat.handon >= now_str).count()
         if active_surveys == 0:
             active_surveys = KhaoSat.query.count()
 
-        # 3. Đếm số sinh viên nợ học phí theo Khoa
+        # 3. Sinh viên nợ học phí theo Khoa
         tuition_query = db.session.query(HocPhi.mssv).join(SinhVien).join(Nganh).filter(
             HocPhi.trangthai_thanhtoan != 'Đã thanh toán',
             HocPhi.trangthai_thanhtoan != 1,
@@ -1974,7 +2012,7 @@ def get_sidebar_badges():
             tuition_query = tuition_query.filter(Nganh.makhoa == g.makhoa)
         unpaid_tuition = tuition_query.distinct().count()
 
-        # 4. Đếm số thông báo theo Khoa
+        # 4. Thông báo theo Khoa
         notif_query = ThongBao.query
         if not g.is_super_admin and g.makhoa:
             notif_query = notif_query.filter((ThongBao.makhoa == g.makhoa) | (ThongBao.makhoa == None))
