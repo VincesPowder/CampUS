@@ -24,10 +24,11 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
         });
 
         render(<SurveySection />);
-        expect(await screen.findByText(/Không có khảo sát nào cần thực hiện/i)).toBeInTheDocument();
+        // UI render "Không có khảo sát nào" thay vì "Không có khảo sát nào cần thực hiện"
+        expect(await screen.findByText(/Không có khảo sát nào/i)).toBeInTheDocument();
     });
 
-    it('[TC_2.10_02]: Verify auto-open logic when there is exactly one pending survey', async () => {
+    it('[TC_2.10_02]: Verify opening a pending survey from list', async () => {
         global.fetch.mockResolvedValueOnce({
             ok: true,
             json: async () => ({
@@ -40,8 +41,14 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
         });
 
         render(<SurveySection />);
+
+        // CẬP NHẬT: Không còn auto-open, phải click vào card Khảo sát
+        const surveyCard = await screen.findByText('Khảo sát HK1');
+        fireEvent.click(surveyCard);
+
         expect(await screen.findByText(/Cấu trúc dữ liệu/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Gửi đánh giá/i })).toBeInTheDocument();
+        // Tên nút là "Gửi khảo sát" thay vì "Gửi đánh giá"
+        expect(screen.getByRole('button', { name: /Gửi khảo sát/i })).toBeInTheDocument();
     });
 
     it('[TC_2.10_03]: Verify styling differences between Completed and Pending surveys in list view', async () => {
@@ -57,7 +64,8 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
         });
 
         render(<SurveySection />);
-        expect(await screen.findByText(/Đã Hoàn thành/i)).toBeInTheDocument();
+        // UI hiển thị "✓ Đã hoàn thành" thay vì "Đã Hoàn thành"
+        expect(await screen.findByText(/✓ Đã hoàn thành/i)).toBeInTheDocument();
         expect(screen.getByText(/Hạn: 2026-08-16/i)).toBeInTheDocument();
     });
 
@@ -68,21 +76,23 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
                 status: 'success',
                 data: [{
                     id: 'KS01', title: 'Khảo sát HK1', status: 'completed', description: 'Mô tả', deadline: '2026-10-10',
-                    courses: [{ id: 'MH01', name: 'Môn A', code: 'A1', rating: 4, comment: 'Dạy rất nhiệt tình' }]
+                    courses: [{ id: 'MH01', name: 'Môn A', code: 'A1', type: 'Trắc nghiệm', rating: 4, comment: 'Dạy rất nhiệt tình' }]
                 }]
             })
         });
 
         render(<SurveySection />);
+        // Mở khảo sát từ list
         const surveyCard = await screen.findByText('Khảo sát HK1');
         fireEvent.click(surveyCard);
 
-        expect(await screen.findByText(/Bản xem trước/i)).toBeInTheDocument();
+        // UI hiển thị "Bản xem lại" thay vì "Bản xem trước"
+        expect(await screen.findByText(/Bản xem lại/i)).toBeInTheDocument();
 
         const textareas = screen.getAllByRole('textbox');
         expect(textareas[0]).toHaveValue('Dạy rất nhiệt tình');
         expect(textareas[0]).toHaveAttribute('readonly');
-        expect(screen.queryByRole('button', { name: /Gửi đánh giá/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /Gửi khảo sát/i })).not.toBeInTheDocument();
     });
 
     it('[TC_2.10_05 & TC_2.10_06]: Verify rating selection and submit button validation (allRated logic)', async () => {
@@ -93,30 +103,34 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
                 data: [{
                     id: 'KS01', title: 'Khảo sát HK1', status: 'pending', description: 'Mô tả', deadline: '2026-10-10',
                     courses: [
-                        { id: 'MH01', name: 'Toán', code: 'T1', rating: null, comment: '' },
-                        { id: 'MH02', name: 'Lý', code: 'L1', rating: null, comment: '' }
+                        { id: 'MH01', name: 'Toán', code: 'T1', type: 'Trắc nghiệm', rating: null, comment: '' },
+                        { id: 'MH02', name: 'Lý', code: 'L1', type: 'Trắc nghiệm', rating: null, comment: '' }
                     ]
                 }]
             })
         });
 
         render(<SurveySection />);
-        const submitBtn = await screen.findByRole('button', { name: /Gửi đánh giá/i });
+        // Mở khảo sát
+        const surveyCard = await screen.findByText('Khảo sát HK1');
+        fireEvent.click(surveyCard);
+
+        const submitBtn = await screen.findByRole('button', { name: /Gửi khảo sát/i });
 
         expect(submitBtn).toBeDisabled();
-        expect(screen.getByText(/Vui lòng đánh giá tất cả 2 môn học/i)).toBeInTheDocument();
+        // Cập nhật Label warning mới
+        expect(screen.getByText(/Vui lòng hoàn thành tất cả các câu hỏi trắc nghiệm và tự luận trước khi gửi/i)).toBeInTheDocument();
 
-        // Sử dụng getByTitle thay vì text để chỉ match các Button đánh giá, không match Legend
         const ratingBtns = screen.getAllByTitle('Rất tốt');
 
         // Đánh giá Toán
         fireEvent.click(ratingBtns[0]);
         expect(submitBtn).toBeDisabled();
-        expect(screen.getByText(/Vui lòng đánh giá tất cả 2 môn học/i)).toBeInTheDocument();
+        expect(screen.getByText(/Vui lòng hoàn thành tất cả/i)).toBeInTheDocument();
 
         // Đánh giá Lý
         fireEvent.click(ratingBtns[1]);
-        expect(screen.queryByText(/Vui lòng đánh giá tất cả/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Vui lòng hoàn thành tất cả/i)).not.toBeInTheDocument();
         expect(submitBtn).not.toBeDisabled();
     });
 
@@ -127,13 +141,18 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
                 status: 'success',
                 data: [{
                     id: 'KS01', title: 'Khảo sát HK1', status: 'pending', description: 'Mô tả', deadline: '2026-10-10',
-                    courses: [{ id: 'MH01', name: 'Toán', code: 'T1', rating: null, comment: '' }]
+                    courses: [{ id: 'MH01', name: 'Toán', code: 'T1', type: 'Trắc nghiệm', rating: null, comment: '' }]
                 }]
             })
         });
 
         render(<SurveySection />);
-        const submitBtn = await screen.findByRole('button', { name: /Gửi đánh giá/i });
+
+        // Mở khảo sát
+        const surveyCard = await screen.findByText('Khảo sát HK1');
+        fireEvent.click(surveyCard);
+
+        const submitBtn = await screen.findByRole('button', { name: /Gửi khảo sát/i });
 
         fireEvent.click(screen.getByTitle('Rất tốt'));
 
@@ -146,8 +165,8 @@ describe('Unit Test: University Surveys (UC 2.10)', () => {
 
         expect(await screen.findByText(/Đã gửi đánh giá thành công!/i)).toBeInTheDocument();
 
-        // SỬA Ở ĐÂY: Bỏ regex / /, dùng exact match để lấy đúng nút "Quay lại" của thông báo thành công
-        const backBtn = screen.getByRole('button', { name: 'Quay lại', exact: true });
+        // Nút quay lại giờ là "Quay lại danh sách"
+        const backBtn = screen.getByRole('button', { name: 'Quay lại danh sách', exact: true });
         fireEvent.click(backBtn);
 
         expect(screen.queryByText(/Đã gửi đánh giá thành công!/i)).not.toBeInTheDocument();

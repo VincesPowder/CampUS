@@ -12,8 +12,8 @@ test.describe('Kiểm tra luồng Xem Tiến độ học tập - E2E (UC 2.7)', 
         const loginBtn = page.getByRole('button', { name: /Đăng nhập/i });
         if (await loginBtn.isVisible({ timeout: 2000 })) await loginBtn.click();
 
-        // Vào menu Học tập
-        await page.getByRole('button', { name: 'Học tập' }).click();
+        // Vào menu Học tập (SỬA LỖI Ở ĐÂY: Thêm exact: true để né nút Chat AI)
+        await page.getByRole('button', { name: 'Học tập', exact: true }).click();
 
         // Đảm bảo trang Học tập đã load xong
         await expect(page.getByRole('button', { name: 'Tổng kết' }).first()).toBeVisible();
@@ -44,7 +44,7 @@ test.describe('Kiểm tra luồng Xem Tiến độ học tập - E2E (UC 2.7)', 
         });
 
         // [TC_02]: Chọn một học kỳ có data từ dropdown
-        await page.locator('select').selectOption('HK001');
+        await page.locator('select').first().selectOption('HK001');
         await expect(page.getByText('Cấu trúc dữ liệu')).toBeVisible();
 
         // [TC_03]: Cột giữa kỳ bị null, expect UI hiển thị dấu "—"
@@ -52,14 +52,16 @@ test.describe('Kiểm tra luồng Xem Tiến độ học tập - E2E (UC 2.7)', 
 
         // [TC_04]: Chọn học kỳ không có data để test Empty State
         // Dùng Playwright evaluate để ép đổi giá trị select thêm option HK ảo
-        await page.locator('select').evaluate((node) => {
+        await page.locator('select').first().evaluate((node) => {
             const option = document.createElement('option');
             option.value = 'HK999';
             option.text = 'HK Ảo';
             node.appendChild(option);
         });
-        await page.locator('select').selectOption('HK999');
-        await expect(page.getByText('Chưa có dữ liệu điểm')).toBeVisible();
+        await page.locator('select').first().selectOption('HK999');
+
+        // SỬA LỖI UI MỚI: Update câu thông báo cho khớp với UI thực tế
+        await expect(page.getByText('Chưa có môn học nào trong học kỳ này.')).toBeVisible();
     });
 
     // =========================================================================
@@ -72,27 +74,35 @@ test.describe('Kiểm tra luồng Xem Tiến độ học tập - E2E (UC 2.7)', 
             await route.fulfill({
                 status: 200, json: {
                     status: 'success', data: {
-                        completed_credits: 40, total_credits: 120, gpa: 8.5,
-                        conditions: { gdtc: true, gdqp: true, foreign_language: false }
+                        // SỬA LỖI MOCK DATA: Đồng bộ chuẩn cấu trúc general_info
+                        general_info: { tong_tc_dat: 40, tong_tc_yc: 120 },
+                        credit_groups: [],
+                        courses_by_group: {},
+                        current_courses: [],
+                        radar_data: [
+                            { label: ["Trí tuệ nhân tạo", "& KH Dữ liệu"], fullName: "Trí tuệ nhân tạo & Khoa học dữ liệu", score: 8.2, fullMark: 10 }
+                        ]
                     }
                 }
             });
         });
 
         // [TC_01]: Chuyển sang tab Tiến độ học tập
-        // Sử dụng regex /Tiến độ học tập/i để bắt chuẩn xác text của nút
         const progressTab = page.getByRole('button', { name: /Tiến độ học tập/i });
         await progressTab.click();
 
-        // Xác nhận chuyển Tab thành công: Dropdown filter của tab Tổng kết phải biến mất
-        await expect(page.locator('select').first()).not.toBeVisible();
+        // Xác nhận chuyển Tab thành công: Chữ "Dự Đoán Điểm Số" sẽ xuất hiện
+        await expect(page.getByText('Dự Đoán Điểm Số').first()).toBeVisible();
 
         // [TC_05]: Kiểm tra Data binding (Thông tin chung - Hiện Tiến độ tích lũy)
-        await expect(page.getByText('Tiến độ tích lũy')).toBeVisible();
+        await expect(page.getByText('Tổng TC tích lũy')).toBeVisible();
+        await expect(page.getByRole('cell', { name: '40/120 TC' })).toBeVisible();
 
         // [TC_06 & 07]: Kiểm tra biểu đồ Radar và Tooltip (Hover)
         // Tìm element nhóm Radar (.rg) và hover
         const radarGroups = page.locator('g.rg'); // Các nhóm cánh sao trong SVG
+
+        await expect(radarGroups.first()).toBeVisible({ timeout: 5000 });
         if (await radarGroups.count() > 0) {
             const firstGroup = radarGroups.first();
             await firstGroup.hover();
