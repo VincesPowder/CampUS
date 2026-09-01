@@ -21,6 +21,33 @@ type LoginProps = {
   onLogin: (role: "admin" | "student", method: "local" | "msal") => void;
 };
 
+<<<<<<< Updated upstream
+=======
+// Hàm decode JWT an toàn hỗ trợ đầy đủ Unicode tiếng Việt
+function parseJwt(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(window.atob(base64));
+    } catch {
+      return null;
+    }
+  }
+}
+
+>>>>>>> Stashed changes
 export default function Login({ onLogin }: LoginProps) {
   const { instance, accounts, inProgress } = useMsal();
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +68,7 @@ export default function Login({ onLogin }: LoginProps) {
       return;
     }
 
+<<<<<<< Updated upstream
     // TRƯỜNG HỢP 1: ĐÃ CÓ TOKEN (Người dùng F5 tải lại trang)
     if (existingToken) {
       const userEmail = accounts[0].username || "";
@@ -55,6 +83,32 @@ export default function Login({ onLogin }: LoginProps) {
       } catch (error) {
         console.error("Lỗi giải mã token:", error);
         userRole = userEmail.includes("@student") ? "student" : "admin";
+=======
+    // 1. Tự động khôi phục phiên chính xác từ token đã lưu
+    if (existingToken) {
+      const decodedData = parseJwt(existingToken);
+      if (decodedData) {
+        // Kiểm tra token đã hết hạn chưa
+        if (decodedData.exp && decodedData.exp * 1000 < Date.now()) {
+          localStorage.removeItem('campus_token');
+          localStorage.removeItem('user_email');
+          return;
+        }
+
+        // 🎯 Lưu ngay email của phiên khôi phục vào localStorage
+        const email = decodedData.email || decodedData.preferred_username || decodedData.upn || accounts[0]?.username || "";
+        if (email) {
+          localStorage.setItem('user_email', email);
+          (window as any).__CURRENT_ADMIN_EMAIL__ = email;
+        }
+
+        const userRole = (decodedData.role as "admin" | "student") || "student";
+        onLogin(userRole, "msal", decodedData);
+        return;
+      } else {
+        localStorage.removeItem('campus_token');
+        localStorage.removeItem('user_email');
+>>>>>>> Stashed changes
       }
 
       onLogin(userRole, "msal");
@@ -98,14 +152,26 @@ export default function Login({ onLogin }: LoginProps) {
           if (!backendRes.ok) {
             setError(data.error || "Đăng nhập thất bại từ máy chủ Backend.");
             sessionStorage.removeItem('campus_is_logging_in');
+            localStorage.removeItem('campus_token');
+            localStorage.removeItem('user_email');
             await instance.logoutRedirect({ account: account, postLogoutRedirectUri: window.location.origin });
             return;
           }
 
+<<<<<<< Updated upstream
           // 4. Lưu token và vào App
           localStorage.setItem('campus_token', data.token);
           
           // QUAN TRỌNG: Xóa cờ đi sau khi login thành công. Nếu không xóa, lần sau bấm Logout nó sẽ tự động Login lại.
+=======
+          // 🎯 Lưu token VÀ email chính thức của tài khoản vừa đăng nhập
+          const finalEmail = resData.data?.email || resData.email || userEmail;
+          localStorage.setItem('campus_token', resData.token);
+          if (finalEmail) {
+            localStorage.setItem('user_email', finalEmail);
+            (window as any).__CURRENT_ADMIN_EMAIL__ = finalEmail;
+          }
+>>>>>>> Stashed changes
           sessionStorage.removeItem('campus_is_logging_in'); 
           onLogin(data.role || (userEmail.includes("@student") ? "student" : "admin"), "msal");
 

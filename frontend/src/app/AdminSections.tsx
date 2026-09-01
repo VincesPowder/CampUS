@@ -1342,6 +1342,7 @@ function AdminScheduleSection() {
         ))}
       </div>
 
+<<<<<<< Updated upstream
       {tab === "tkb" && (
         <div className="flex-1 flex flex-col min-h-0 gap-3">
           <div className="flex items-center gap-3 flex-wrap flex-shrink-0">
@@ -1350,6 +1351,268 @@ function AdminScheduleSection() {
               <select value={tuan} onChange={e => setTuan(Number(e.target.value))} className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif" }}>
                 {Array.from({ length: 52 }, (_, i) => i + 1).map(w => <option key={w} value={w}>Tuần {w}</option>)}
               </select>
+=======
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-2 mb-4 flex-shrink-0">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder={tab === "schedule" ? "Tìm theo tên môn, mã MH, phòng, GV, lớp..." : "Tìm môn thi, lớp, phòng thi..."}
+            className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg bg-card outline-none focus:border-primary" style={INTER} />
+        </div>
+        {tab === "schedule" && (
+          <select value={filterThu} onChange={e => setFilterThu(e.target.value)} className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-card" style={PJS}>
+            <option value="all">Tất cả thứ</option>
+            {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+        )}
+        <button onClick={() => window.open(tab === "schedule" ? '/api/admin/schedule/classes/export' : '/api/admin/schedule/exams/export', '_blank')}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:bg-muted bg-card transition-colors" style={PJS}>
+          <Download className="w-3.5 h-3.5" /> Xuất Excel
+        </button>
+        <button onClick={() => tab === "schedule" ? setScheduleModal("new") : setExamModal("new")}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-xs font-semibold hover:opacity-90 bg-primary transition-opacity" style={PJS}>
+          <Plus className="w-3.5 h-3.5" /> {tab === "schedule" ? "Thêm lịch học" : "Thêm lịch thi"}
+        </button>
+      </div>
+
+      {/* Table Content */}
+      <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border bg-card">
+        {tab === "schedule" ? (
+          <table className="w-full text-xs" style={{ minWidth: 800 }}>
+            <thead>
+              <tr style={{ background: "var(--primary)" }}>
+                {["STT","Mã MH","Tên môn học","Lớp","Giảng viên","Thứ","Ngày","Thời gian","Phòng","Tuần","Hình thức",""].map(h => (
+                  <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={11} className="text-center py-12 text-muted-foreground">Đang tải lịch học từ CSDL...</td></tr>
+              ) : classes.length === 0 ? (
+                <tr><td colSpan={11} className="text-center py-12 text-muted-foreground">Không có lịch học nào.</td></tr>
+              ) : classes.map((c, i) => (
+                <tr key={c.id} className="border-b border-border hover:brightness-95 transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                  <td className="pl-4 pr-3 py-2.5 text-muted-foreground">{i + 1}</td>
+                  <td className="px-3 py-2.5 font-semibold text-foreground" style={PJS}>{c.maMon}</td>
+                  <td className="px-3 py-2.5 font-medium text-foreground" style={PJS}>{c.tenMon}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{c.lop}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{c.giangVien}</td>
+                  <td className="px-3 py-2.5 font-semibold text-primary" style={PJS}>{c.thu}</td>
+                  <td className="px-3 py-2.5 font-mono text-muted-foreground whitespace-nowrap">
+                    {c.ngay || "23–29/09/2026"}
+                  </td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{c.gio}</td>
+                  <td className="px-3 py-2.5 font-semibold text-foreground">{c.phong}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{c.tuan}</td>
+                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded-full text-[11px] bg-muted text-primary font-medium">{c.hinhThuc}</span></td>
+                  <td className="px-3 py-2.5 text-right pr-4">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => setScheduleModal(c)} className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDeleteSchedule(c.id)} className="p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-50" title="Xóa"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <table className="w-full text-xs" style={{ minWidth: 800 }}>
+            <thead>
+              <tr style={{ background: "var(--primary)" }}>
+                {["STT","Tên môn học","Mã nhóm","Ngày thi","Thứ","Ca","Giờ thi","Thời gian","Phòng","Số thí sinh","Hình thức",""].map(h => (
+                  <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={12} className="text-center py-12 text-muted-foreground">Đang tải lịch thi từ CSDL...</td></tr>
+              ) : exams.length === 0 ? (
+                <tr><td colSpan={12} className="text-center py-12 text-muted-foreground">Không có lịch thi nào.</td></tr>
+              ) : exams.map((e, i) => (
+                <tr key={e.id} className="border-b border-border hover:brightness-95 transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                  <td className="pl-4 pr-3 py-2.5 text-muted-foreground">{i + 1}</td>
+                  <td className="px-3 py-2.5 font-bold text-foreground" style={PJS}>{e.tenMon}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground font-mono">{e.maNhom}</td>
+                  <td className="px-3 py-2.5 font-semibold text-foreground" style={PJS}>{e.ngayThi}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{e.thu}</td>
+                  <td className="px-3 py-2.5 font-semibold text-primary">{e.ca}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{e.gio}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{e.thoiGian}</td>
+                  <td className="px-3 py-2.5 font-bold text-accent">{e.phong}</td>
+                  <td className="px-3 py-2.5 text-center text-muted-foreground">{e.soThi}</td>
+                  <td className="px-3 py-2.5"><span className="px-2 py-0.5 rounded-full text-[11px] bg-muted text-primary font-medium">{e.hinhThuc}</span></td>
+                  <td className="px-3 py-2.5 text-right pr-4">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => setExamModal(e)} className="p-1 rounded text-muted-foreground hover:text-blue-600 hover:bg-blue-50" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDeleteExam(e.id)} className="p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-50" title="Xóa"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+// ─── Admin: Notifications Section (Quản lý Thông báo) ────────────────────────
+function AdminNotificationsSection() {
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [selectedDept, setSelectedDept] = useState("all");
+  const [createModal, setCreateModal] = useState(false);
+  const [viewItem, setViewItem] = useState<any | null>(null);
+  const [editItem, setEditItem] = useState<any | null>(null);
+
+  // 1. Fetch danh sách thông báo từ Backend
+  const fetchNotifications = async () => {
+    setLoading(true);
+    try {
+      const res = await adminFetch(`/api/admin/notifications?department=${encodeURIComponent(selectedDept)}&search=${encodeURIComponent(search)}`);
+      const data = await res.json();
+      if (data.status === 'success') {
+        setNotifications(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch thông báo:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [selectedDept, search]);
+
+  // 2. Xóa thông báo
+  const handleDelete = async (matb: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa thông báo này?")) return;
+    try {
+      const res = await adminFetch(`/api/admin/notifications/${matb}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.status === 'success') {
+        fetchNotifications();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const departments = ["all", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Kế hoạch Tài chính", "Khoa CNTT", "Khoa Toán - Tin",];
+  const totalReads = notifications.reduce((acc, n) => acc + (n.readCount || 0), 0);
+  const avgReadRate = notifications.length > 0 ? Math.round(notifications.reduce((acc, n) => acc + (n.readRate || 0), 0) / notifications.length) : 0;
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 flex-shrink-0">
+        {[
+          { label: "Tổng số thông báo", val: notifications.length, col: "var(--primary)" },
+          { label: "Đã phát hành", val: notifications.length, col: "#16a34a" },
+          { label: "Tổng lượt đọc", val: totalReads, col: "var(--accent)" },
+          { label: "Tỷ lệ đọc trung bình", val: `${avgReadRate}%`, col: "#2563eb" },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <span className="text-2xl font-bold block mb-1" style={{ color: s.col, ...PJS }}>{s.val}</span>
+            <span className="text-xs text-muted-foreground" style={INTER}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 flex-shrink-0">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {departments.map(d => (
+            <button
+              key={d}
+              onClick={() => setSelectedDept(d)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all whitespace-nowrap ${selectedDept === d ? "bg-primary text-white border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
+              style={PJS}
+            >
+              {d === "all" ? "Tất cả đơn vị" : d}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm theo tiêu đề, nội dung..."
+              className="pl-8 pr-3 py-1.5 text-xs border border-border rounded-lg bg-card outline-none focus:border-primary w-60"
+              style={INTER}
+            />
+          </div>
+          <button
+            onClick={() => setCreateModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold hover:opacity-90 transition-opacity bg-primary"
+            style={PJS}
+          >
+            <Plus className="w-3.5 h-3.5" /> Tạo thông báo
+          </button>
+        </div>
+      </div>
+
+      {/* Danh sách thông báo */}
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
+        {loading ? (
+          <p className="text-center py-12 text-muted-foreground text-sm">Đang tải danh sách thông báo...</p>
+        ) : notifications.length === 0 ? (
+          <p className="text-center py-12 text-muted-foreground text-sm">Không tìm thấy thông báo nào.</p>
+        ) : (
+          notifications.map(n => (
+            <div key={n.id} className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary" style={PJS}>
+                      {n.department}
+                    </span>
+                    <h3 className="font-bold text-base text-foreground" style={PJS}>{n.title}</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed" style={INTER}>
+                    {n.content}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap" style={INTER}>
+                    <span>Ngày đăng: <strong>{n.date}</strong></span>
+                    <span>Đối tượng: <strong>{n.target}</strong></span>
+                    <span>Đã xem: <strong>{n.readCount}/{n.totalTarget} ({n.readRate}%)</strong></span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setViewItem(n)}
+                    className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-primary hover:bg-muted"
+                    title="Xem chi tiết"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setEditItem(n)}
+                    className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-blue-600 hover:bg-muted"
+                    title="Chỉnh sửa"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(n.id)}
+                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50"
+                    title="Xóa thông báo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+>>>>>>> Stashed changes
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-muted-foreground" style={PJS}>Lớp:</span>
@@ -1366,6 +1629,7 @@ function AdminScheduleSection() {
               </button>
             </div>
           </div>
+<<<<<<< Updated upstream
           <div className="flex items-center justify-between flex-shrink-0">
             <button onClick={() => setTuan(t => Math.max(1, t - 1))} disabled={tuan <= 1}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-30 transition-all" style={PJS}>
@@ -1375,6 +1639,231 @@ function AdminScheduleSection() {
             <button onClick={() => setTuan(t => Math.min(52, t + 1))} disabled={tuan >= 52}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-30 transition-all" style={PJS}>
               Tuần sau <ChevronRight className="w-3.5 h-3.5" />
+=======
+        </div>
+      )}
+
+      {/* Modal Tạo thông báo mới */}
+      {createModal && (
+        <NotificationFormModal
+          onClose={() => setCreateModal(false)}
+          onSaved={() => { setCreateModal(false); fetchNotifications(); }}
+        />
+      )}
+
+      {/* Modal Chỉnh sửa thông báo */}
+      {editItem && (
+        <NotificationFormModal
+          initial={editItem}
+          onClose={() => setEditItem(null)}
+          onSaved={() => { setEditItem(null); fetchNotifications(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Modal tạo / chỉnh sửa thông báo
+function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; onClose: () => void; onSaved: () => void }) {
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
+
+  const adminEmail = getAdminEmail();
+  const defaultDept = adminEmail.includes("24127465") ? "Khoa Toán - Tin" : "Khoa CNTT";
+
+  const isEdit = !!initial;
+  const [title, setTitle] = useState(initial?.title || "");
+  const [content, setContent] = useState(initial?.content || "");
+  const [department, setDepartment] = useState(initial?.department || defaultDept);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSave = async () => {
+    if (!title.trim()) { alert("Vui lòng nhập tiêu đề thông báo."); return; }
+    if (!content.trim()) { alert("Vui lòng nhập nội dung thông báo."); return; }
+
+    setSubmitting(true);
+    const url = isEdit ? `/api/admin/notifications/${initial.id}` : `/api/admin/notifications`;
+    const method = isEdit ? "PUT" : "POST";
+
+    try {
+      const res = await adminFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, department })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        onSaved();
+      } else {
+        alert(data.message || "Lỗi lưu thông báo.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối máy chủ.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+          <h3 className="font-bold text-base" style={PJS}>{isEdit ? "Chỉnh sửa thông báo" : "Soạn thông báo mới"}</h3>
+          <button onClick={onClose}><X className="w-4 h-4" /></button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Tiêu đề thông báo *</label>
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Nhập tiêu đề..." className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background outline-none focus:border-primary" style={INTER} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Đơn vị phát hành</label>
+            <select value={department} onChange={e => setDepartment(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" style={PJS}>
+              <option value="Khoa CNTT">Khoa CNTT</option>
+              <option value="Khoa Toán - Tin">Khoa Toán - Tin</option>
+              <option value="Phòng Đào tạo">Phòng Đào tạo</option>
+              <option value="Phòng Công tác SV">Phòng Công tác SV</option>
+              <option value="Phòng Kế hoạch Tài chính">Phòng Kế hoạch Tài chính</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Nội dung thông báo *</label>
+            <textarea rows={5} value={content} onChange={e => setContent(e.target.value)} placeholder="Nhập nội dung thông báo gửi đến sinh viên..." className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background resize-none outline-none focus:border-primary leading-relaxed" style={INTER} />
+          </div>
+        </div>
+        <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-card">
+          <button onClick={onClose} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>Hủy</button>
+          <button onClick={handleSave} disabled={submitting} className="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:opacity-90 disabled:opacity-50" style={PJS}>
+            {submitting ? "Đang phát hành..." : (isEdit ? "Lưu thay đổi" : "Phát hành thông báo")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ─── Admin: Tuition Management (Quản lý Học phí) ─────────────────────────────
+function AdminTuitionSection() {
+  const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
+
+  const [students, setStudents] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({
+    totalDue: 0,
+    totalPaid: 0,
+    totalDebt: 0,
+    totalStudents: 0,
+    paidStudents: 0,
+    completionRate: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "unpaid">("all");
+  const [search, setSearch] = useState("");
+  const [detailStudent, setDetailStudent] = useState<any | null>(null);
+  const [editItem, setEditItem] = useState<{ mssv: string; item: any } | null>(null);
+
+  // 1. Fetch dữ liệu học phí & thống kê từ Backend
+  const fetchTuitionData = async () => {
+  setLoading(true);
+  try {
+    const [resList, resStats] = await Promise.all([
+      adminFetch(`/api/admin/tuition/students?status=${statusFilter}&search=${encodeURIComponent(search)}`),
+      adminFetch('/api/admin/tuition/stats')
+    ]);
+    const dataList = await resList.json();
+    const dataStats = await resStats.json();
+    if (dataList.status === 'success') setStudents(dataList.data);
+    if (dataStats.status === 'success') setStats(dataStats.data);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    fetchTuitionData();
+  }, [statusFilter, search]);
+
+  // 2. Xác nhận thanh toán học phí toàn bộ cho sinh viên
+  const handleConfirmPayAll = async (mssv: string) => {
+    if (!confirm(`Xác nhận thu toàn bộ học phí cho sinh viên ${mssv}?`)) return;
+    try {
+      const res = await adminFetch(`/api/admin/tuition/students/${mssv}/pay`, { method: "POST" });
+      const data = await res.json();
+      if (data.status === 'success') {
+        fetchTuitionData();
+        if (detailStudent && detailStudent.mssv === mssv) {
+          setDetailStudent(null);
+        }
+      } else {
+        alert(data.message || "Lỗi cập nhật học phí.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối máy chủ.");
+    }
+  };
+
+  // 3. Cập nhật chi tiết 1 khoản học phí
+  const handleSaveEditItem = async (mssv: string, malhp: string, payload: any) => {
+    try {
+      const res = await adminFetch(`/api/admin/tuition/records/${mssv}/${malhp}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        fetchTuitionData();
+        setEditItem(null);
+        if (detailStudent && detailStudent.mssv === mssv) {
+          setDetailStudent((prev: any) => ({
+            ...prev,
+            items: prev.items.map((it: any) => it.malhp === malhp ? { ...it, ...payload, thucDong: payload.hocPhiGoc - payload.mucGiam } : it)
+          }));
+        }
+      } else {
+        alert(data.message || "Lỗi lưu học phí.");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const formatVND = (num: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num || 0);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 flex-shrink-0">
+        {[
+          { label: "Tổng học phí phải thu", val: formatVND(stats.totalDue), col: "var(--primary)" },
+          { label: "Đã thu", val: formatVND(stats.totalPaid), col: "#16a34a" },
+          { label: "Công nợ chưa thu", val: formatVND(stats.totalDebt), col: "#dc2626" },
+          { label: "Tỷ lệ hoàn thành", val: `${stats.completionRate}% (${stats.paidStudents}/${stats.totalStudents} SV)`, col: "var(--accent)" },
+        ].map(s => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <span className="text-xl font-bold block mb-1" style={{ color: s.col, ...PJS }}>{s.val}</span>
+            <span className="text-xs text-muted-foreground" style={INTER}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          {(["all", "unpaid", "paid"] as const).map(st => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${statusFilter === st ? "bg-primary text-white border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
+              style={PJS}
+            >
+              {st === "all" ? "Tất cả" : st === "unpaid" ? "Chưa thanh toán" : "Đã thanh toán"}
+>>>>>>> Stashed changes
             </button>
           </div>
           <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
@@ -1398,6 +1887,7 @@ function AdminScheduleSection() {
                     })}
                   </tr>
                 </thead>
+<<<<<<< Updated upstream
                 <tbody>
                   {CA_LABELS.map((ca, caIdx) => (
                     <tr key={caIdx} style={{ background: caIdx % 2 === 0 ? "#fff" : "var(--background)", height: 110 }}>
@@ -1429,6 +1919,46 @@ function AdminScheduleSection() {
                       })}
                     </tr>
                   ))}
+=======
+                <tbody className="divide-y divide-border">
+                  {detailStudent.items.map((it: any) => {
+                    const isPaid = (
+                      it.trangThai === 'Đã thanh toán' || 
+                      it.trangThai === 1 || 
+                      it.trangThai === '1' ||
+                      it.trangThai === true
+                    );
+
+                    return (
+                      <tr key={it.malhp} className="hover:bg-muted/30">
+                        <td className="py-2.5">
+                          <div className="font-bold text-foreground" style={PJS}>{it.tenMon}</div>
+                          <div className="text-[11px] text-muted-foreground font-mono">{it.maMon} &middot; Lớp: {it.malhp}</div>
+                        </td>
+                        <td className="py-2.5 text-center text-muted-foreground">{it.soTc}</td>
+                        <td className="py-2.5 text-right font-mono text-muted-foreground">{formatVND(it.hocPhiGoc)}</td>
+                        <td className="py-2.5 text-right font-mono text-amber-600">{it.mucGiam > 0 ? formatVND(it.mucGiam) : "—"}</td>
+                        <td className="py-2.5 text-right font-mono font-bold text-primary">{formatVND(it.thucDong)}</td>
+                        
+                        <td className="py-2.5 text-center">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                            {isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                          </span>
+                        </td>
+                        
+                        <td className="py-2.5 text-center">
+                          <button
+                            onClick={() => setEditItem({ mssv: detailStudent.mssv, item: it })}
+                            className="p-1 rounded text-muted-foreground hover:text-blue-600"
+                            title="Chỉnh sửa miễn giảm / học phí"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+>>>>>>> Stashed changes
                 </tbody>
               </table>
             </div>
@@ -2003,6 +2533,52 @@ export function AdminApp({ onLogout }: { onLogout: () => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+<<<<<<< Updated upstream
+=======
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [readSurveyIds, setReadSurveyIds] = useState<Set<string>>(new Set());
+  const notifRef = useRef<HTMLDivElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
+  const [badges, setBadges] = useState<Record<string, number>>({});
+
+  const currentEmail = adminProfile?.email || (adminProfile as any)?.mail || "";
+  if (currentEmail) {
+    localStorage.setItem("user_email", currentEmail);
+    (window as any).__CURRENT_ADMIN_EMAIL__ = currentEmail;
+  }
+
+  useEffect(() => {
+    const email = adminProfile?.email || (adminProfile as any)?.mail || "";
+    if (email) {
+      localStorage.setItem("user_email", email);
+      (window as any).__CURRENT_ADMIN_EMAIL__ = email;
+    }
+  }, [adminProfile]);
+
+  useEffect(() => {
+  adminFetch('/api/admin/sidebar-badges')
+    .then(res => res.json())
+    .then(json => {
+      if (json.status === 'success' && json.data) {
+        setBadges(json.data);
+      }
+    })
+    .catch(err => console.warn("Lỗi tải sidebar badges:", err));
+}, [section]);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setAvatarOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const surveyNotifs = MOCK_ADMIN_SURVEYS.filter(s => s.status === "open" && s.responses > 0);
+  const unreadNotifs = surveyNotifs.filter(s => !readSurveyIds.has(s.id));
+>>>>>>> Stashed changes
 
   function handleLogout() {
     setShowLogoutConfirm(false);
@@ -2092,7 +2668,7 @@ export function AdminApp({ onLogout }: { onLogout: () => void }) {
             <button onClick={() => setShowLogoutConfirm(true)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-accent" title="Đăng xuất"><LogOut className="w-4 h-4" /></button>
           </div>
         </header>
-        <main className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
+        <main key={currentEmail} className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
           {section === "students"      && <StudentManagement />}
           {section === "survey"        && <AdminSurveySection />}
           {section === "tuition"       && <AdminTuitionSection />}
