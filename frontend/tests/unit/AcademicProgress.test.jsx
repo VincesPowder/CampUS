@@ -39,11 +39,18 @@ describe('Unit Test: View Academic Progress (UC 2.7)', () => {
                 });
             }
             if (url.includes('/progress')) {
+                // Đã cập nhật cấu trúc Mock Data khớp với logic parse của ProgressSection (general_info)
                 return Promise.resolve({
                     ok: true,
                     json: () => Promise.resolve({
                         status: "success",
-                        data: { completed_credits: 40, total_credits: 120, gpa: 8.5, conditions: { gdtc: true, gdqp: true, foreign_language: false } }
+                        data: {
+                            general_info: { tong_tc_dat: 40, tong_tc_yc: 120 },
+                            credit_groups: [],
+                            courses_by_group: {},
+                            current_courses: [],
+                            radar_data: []
+                        }
                     })
                 });
             }
@@ -58,18 +65,19 @@ describe('Unit Test: View Academic Progress (UC 2.7)', () => {
     it('[TC_2.7_01]: Verify tab switching between "Tổng kết" and "Tiến độ học tập"', async () => {
         render(<AcademicSection />);
 
-        // Mặc định ở tab Tổng kết, Combobox (Select lọc học kỳ) phải hiển thị
+        // Mặc định ở tab Tổng kết, Combobox (Select lọc học kỳ) phải hiển thị (chỉ có 1 cái)
         expect(screen.getByRole('combobox')).toBeInTheDocument();
 
         // Click chuyển sang Tab Tiến độ
         fireEvent.click(screen.getByRole('button', { name: /Tiến độ học tập/i }));
 
         await waitFor(() => {
-            // Dropdown biến mất, thay bằng UI của Tiến độ học tập
-            expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-            expect(screen.getByText('Dự Đoán Điểm Số Cần Đạt')).toBeInTheDocument();
+            // Xác nhận UI của Tiến độ học tập xuất hiện là đủ
+            expect(screen.getByText('Dự Đoán Điểm Số')).toBeInTheDocument();
+
+            // (Đã xóa dòng check queryByRole('combobox') vì bên này có tới 3 cái combobox của Dự đoán điểm)
         });
-    });
+    })
 
     // ==========================================
     // TC_2.7_02: Lọc Học kỳ
@@ -113,8 +121,8 @@ describe('Unit Test: View Academic Progress (UC 2.7)', () => {
 
         render(<AcademicSection subTab="tong-ket" />);
 
-        // Chờ giao diện render thông báo rỗng
-        expect(await screen.findByText('Chưa có dữ liệu điểm')).toBeInTheDocument();
+        // Chờ giao diện render thông báo rỗng khớp với text thực tế
+        expect(await screen.findByText('Chưa có môn học nào trong học kỳ này.')).toBeInTheDocument();
     });
 
     // ==========================================
@@ -123,9 +131,8 @@ describe('Unit Test: View Academic Progress (UC 2.7)', () => {
     it('[TC_2.7_05]: Verify "Thông tin chung" (General Info) data binding and math', async () => {
         render(<AcademicSection subTab="tien-do" />);
 
-        // Kiểm tra data binding hiển thị tiến độ từ API progress
-        expect(await screen.findByText('40')).toBeInTheDocument(); // completed_credits
-        expect(screen.getByText('/ 120 Tín chỉ')).toBeInTheDocument(); // total_credits
+        // Component ProgressSection ghép thẳng biến thành chuỗi `${totalDone}/${totalReq} TC`
+        expect(await screen.findByText('40/120 TC')).toBeInTheDocument();
     });
 
     // ==========================================
