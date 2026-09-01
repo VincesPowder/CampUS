@@ -1414,6 +1414,14 @@ def get_tuition_students():
             lhp = r.lophocphan
             mh = lhp.monhoc if lhp else None
 
+            #Chuẩn hóa kiểm tra đã thanh toán (chấp nhận cả 1, '1', True, 'Đã thanh toán')
+            is_item_paid = (
+                r.trangthai_thanhtoan is True or 
+                r.trangthai_thanhtoan == 1 or 
+                str(r.trangthai_thanhtoan).strip() in ['1', 'Đã thanh toán', 'paid']
+            )
+            trang_thai_chu = "Đã thanh toán" if is_item_paid else "Chưa thanh toán"
+
             if r.mssv not in students_map:
                 students_map[r.mssv] = {
                     "mssv": r.mssv,
@@ -1436,12 +1444,13 @@ def get_tuition_students():
             group["mucGiam"] += (r.mucgiam or 0.0)
             group["thucDong"] += (r.thucdong or 0.0)
             
-            if str(r.trangthai_thanhtoan) not in ['1', 'Đã thanh toán']:
+            if not is_item_paid:
                 group["trangThai"] = "Chưa thanh toán"
 
             if r.ngaythanhtoan:
                 group["ngayThanhToan"] = r.ngaythanhtoan.strftime('%d/%m/%Y')
 
+            # 🎯 Đưa trạng thái đã chuẩn hóa dạng chữ vào danh sách môn học
             group["items"].append({
                 "malhp": r.malhp,
                 "maMon": mh.mamh if mh else (lhp.mamh if lhp else ""),
@@ -1450,7 +1459,7 @@ def get_tuition_students():
                 "hocPhiGoc": r.hocphi_goc,
                 "mucGiam": r.mucgiam,
                 "thucDong": r.thucdong,
-                "trangThai": r.trangthai_thanhtoan,
+                "trangThai": trang_thai_chu, 
                 "ngayThanhToan": r.ngaythanhtoan.strftime('%d/%m/%Y') if r.ngaythanhtoan else "—",
                 "ghiChu": r.ghichu or "—"
             })
@@ -1581,7 +1590,7 @@ def get_admin_notifications():
 
         query = ThongBao.query
         
-        # Phân quyền: Giáo vụ chỉ xem thông báo của Khoa mình + Thông báo toàn trường (makhoa is None)
+        # Giáo vụ xem thông báo của khoa mình + thông báo chung toàn trường
         if not g.is_super_admin and g.makhoa:
             query = query.filter((ThongBao.makhoa == g.makhoa) | (ThongBao.makhoa == None))
 
@@ -1591,16 +1600,24 @@ def get_admin_notifications():
 
         for tb in thongbaos:
             donvi = getattr(tb.khoa, 'tenkhoa', None) if hasattr(tb, 'khoa') and tb.khoa else None
+            
             if not donvi:
-                t_lower = (tb.tieude or "").lower()
-                if "học phí" in t_lower or "tài chính" in t_lower:
-                    donvi = "Phòng Kế hoạch Tài chính"
-                elif "học bổng" in t_lower or "công tác" in t_lower:
-                    donvi = "Phòng Công tác SV"
-                elif "lịch thi" in t_lower or "học phần" in t_lower or "đào tạo" in t_lower:
-                    donvi = "Phòng Đào tạo"
-                else:
+                if tb.makhoa == 'MTH':
+                    donvi = "Khoa Toán - Tin"
+                elif tb.makhoa == 'CSC':
                     donvi = "Khoa CNTT"
+                else:
+                    t_lower = (tb.tieude or "").lower()
+                    if "toán" in t_lower:
+                        donvi = "Khoa Toán - Tin"
+                    elif "học phí" in t_lower or "tài chính" in t_lower:
+                        donvi = "Phòng Kế hoạch Tài chính"
+                    elif "học bổng" in t_lower or "công tác" in t_lower:
+                        donvi = "Phòng Công tác SV"
+                    elif "lịch thi" in t_lower or "học phần" in t_lower or "đào tạo" in t_lower:
+                        donvi = "Phòng Đào tạo"
+                    else:
+                        donvi = "Khoa CNTT"
 
             read_count = SvThongBao.query.filter_by(matb=tb.matb, trangthai_doc=1).count()
             target_count = SvThongBao.query.filter_by(matb=tb.matb).count() or total_students
@@ -1641,8 +1658,13 @@ def create_admin_notification():
         data = request.get_json() or {}
         matb = f"TB_{int(datetime.now().timestamp())}"
         
-        # Gán mã khoa theo quyền quản trị
-        makhoa_val = g.makhoa if (not g.is_super_admin and g.makhoa) else None
+        dept = data.get('department', '')
+        makhoa_val = g.makhoa
+        if not makhoa_val:
+            if "Toán" in dept or dept == "MTH":
+                makhoa_val = "MTH"
+            elif "CNTT" in dept or dept == "CSC":
+                makhoa_val = "CSC"
 
         tb = ThongBao(
             matb=matb,
@@ -1653,9 +1675,9 @@ def create_admin_notification():
         )
         db.session.add(tb)
 
-        # Phân phối thông báo tới sinh viên thuộc khoa (hoặc toàn trường)
-        if not g.is_super_admin and g.makhoa:
-            students = SinhVien.query.join(Nganh).filter(Nganh.makhoa == g.makhoa).all()
+        # Phân phối thông báo tới sinh viên thuộc khoa
+        if makhoa_val:
+            students = SinhVien.query.join(Nganh).filter(Nganh.makhoa == makhoa_val).all()
         else:
             students = SinhVien.query.all()
 
