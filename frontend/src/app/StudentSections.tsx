@@ -1505,51 +1505,97 @@ async function handleSave() {
 }
 
 
-// ─── Survey Section ───────────────────────────────────────────────────────────
-const RATING_LABELS: Record<number, string> = { 1: "Rất tệ", 2: "Tệ", 3: "Bình thường", 4: "Tốt", 5: "Rất tốt" };
+// ─── Survey Section (Đã khắc phục hoàn toàn lỗi TypeScript & phân loại Trắc nghiệm / Tự luận) ────
+const RATING_LABELS: Record<number, string> = { 
+  1: "Rất tệ", 
+  2: "Tệ", 
+  3: "Bình thường", 
+  4: "Tốt", 
+  5: "Rất tốt" 
+};
 
-function ratingColor(n: number) {
-  return n === 1 ? "#E8384D" : n === 2 ? "#F4703A" : n === 3 ? "#F9C02B" : n === 4 ? "#2ABDA8" : "#4BC06B";
+function ratingColor(n: number): string {
+  switch (n) {
+    case 1: return "#E8384D";
+    case 2: return "#F4703A";
+    case 3: return "#F9C02B";
+    case 4: return "#2ABDA8";
+    case 5: return "#4BC06B";
+    default: return "#3B82F6";
+  }
 }
 
 type CourseResponse = { 
   rating: number | null; 
-  detailed: boolean; 
-  comment: string 
+  comment: string;
 };
 
-function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: boolean; onDone: (id: string) => void }) {
+function SurveyForm({ 
+  survey, 
+  isReadOnly, 
+  onDone 
+}: { 
+  survey: any; 
+  isReadOnly?: boolean; 
+  onDone: (id: string) => void; 
+}) {
   const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
+  const currentMssv: string = accounts[0]?.username 
+    ? accounts[0].username.split('@')[0] 
+    : "24127158";
   
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [responses, setResponses] = useState<Record<string, CourseResponse>>({});
 
-  // Khởi tạo responses, hỗ trợ load lại dữ liệu cũ nếu backend trả về (c.rating, c.comment)
+  // Khởi tạo responses, hỗ trợ load lại dữ liệu cũ nếu đang ở chế độ xem lại
   useEffect(() => {
-    if (survey && survey.courses) {
-      setResponses(
-        Object.fromEntries(survey.courses.map((c: any) => [
-          c.id, 
-          { 
-            rating: c.rating ?? null, // Lấy rating cũ (nếu có)
-            detailed: false, 
-            comment: c.comment ?? ""  // Lấy comment cũ (nếu có)
-          }
-        ]))
-      );
+    if (survey && Array.isArray(survey.courses)) {
+      const initialMap: Record<string, CourseResponse> = {};
+      survey.courses.forEach((c: any) => {
+        initialMap[c.id] = {
+          rating: c.rating ?? null,
+          comment: c.comment ?? ""
+        };
+      });
+      setResponses(initialMap);
     }
   }, [survey]);
 
-  const setRating   = (id: string, v: number)  => setResponses(p => ({ ...p, [id]: { ...p[id], rating: v } }));
-  const setDetailed = (id: string, v: boolean) => setResponses(p => ({ ...p, [id]: { ...p[id], detailed: v } }));
-  const setComment  = (id: string, v: string)  => setResponses(p => ({ ...p, [id]: { ...p[id], comment: v } }));
-  
-  const allRated = survey.courses && survey.courses.length > 0 && survey.courses.every((c: any) => responses[c.id]?.rating !== null);
+  const setRating = (id: string, v: number): void => {
+    setResponses((p: Record<string, CourseResponse>) => ({ 
+      ...p, 
+      [id]: { ...(p[id] || { comment: "" }), rating: v } 
+    }));
+  };
 
-  const handleSubmit = async () => {
-    if (!allRated || isReadOnly) return;
+  const setComment = (id: string, v: string): void => {
+    setResponses((p: Record<string, CourseResponse>) => ({ 
+      ...p, 
+      [id]: { ...(p[id] || { rating: null }), comment: v } 
+    }));
+  };
+  
+  // Kiểm tra điều kiện hoàn thành cho từng câu (Trắc nghiệm cần rating, Tự luận cần comment)
+  const isQuestionAnswered = (c: any): boolean => {
+    const isEssay = (c.code?.toLowerCase().includes("tự luận") ?? false) || 
+                    (c.type?.toLowerCase().includes("tự luận") ?? false);
+    const res = responses[c.id];
+    if (isEssay) {
+      return (res?.comment ?? "").trim().length > 0;
+    } else {
+      return res?.rating !== null && res?.rating !== undefined;
+    }
+  };
+
+  const allAnswered: boolean = Boolean(
+    survey.courses && 
+    survey.courses.length > 0 && 
+    survey.courses.every((c: any) => isQuestionAnswered(c))
+  );
+
+  const handleSubmit = async (): Promise<void> => {
+    if (!allAnswered || isReadOnly) return;
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/students/${currentMssv}/surveys/${survey.id}/submit`, {
@@ -1564,7 +1610,7 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
       }
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Lỗi kết nối server.");
+      alert("Lỗi kết nối máy chủ.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1572,131 +1618,192 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
 
   if (submitted) {
     return (
-      <div className="bg-card rounded-2xl border border-border p-10 text-center">
+      <div className="bg-card rounded-2xl border border-border p-10 text-center shadow-sm">
         <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "#e8f5e9" }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
         </div>
-        <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Đã gửi đánh giá thành công!</h2>
-        <p className="text-sm text-muted-foreground mb-6">Cảm ơn bạn đã hoàn thành khảo sát. Ý kiến của bạn giúp nhà trường cải thiện chất lượng giảng dạy.</p>
-        <button onClick={() => onDone(survey.id)} className="px-6 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-          style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Quay lại</button>
+        <h2 className="text-xl font-bold mb-2 text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          Đã gửi đánh giá thành công!
+        </h2>
+        <p className="text-sm text-muted-foreground mb-6">
+          Cảm ơn bạn đã hoàn thành khảo sát. Ý kiến của bạn giúp nhà trường cải thiện chất lượng đào tạo.
+        </p>
+        <button 
+          type="button"
+          onClick={() => onDone(survey.id)} 
+          className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+          style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
+          Quay lại danh sách
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      {/* ── Survey header card ── */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 flex items-center justify-between" style={{ background: "var(--primary)" }}>
-          <h2 className="text-sm sm:text-base font-bold text-white leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{survey.title}</h2>
+    <div className="space-y-4">
+      {/* ── Tiêu đề khảo sát ── */}
+      <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+        <div className="px-5 py-4 flex items-center justify-between" style={{ background: "var(--primary)" }}>
+          <h2 className="text-base font-bold text-white leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {survey.title}
+          </h2>
           {isReadOnly && (
-            <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full whitespace-nowrap">
-              Bản xem trước
+            <span className="text-xs font-bold bg-white/20 text-white px-3 py-1 rounded-full whitespace-nowrap">
+              Bản xem lại
             </span>
           )}
         </div>
-        <div className="px-4 sm:px-6 py-4 space-y-3">
+        <div className="px-5 py-4 space-y-3">
           <p className="text-sm text-muted-foreground leading-relaxed">{survey.description}</p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">Hạn:</span>
-              <span className="text-xs font-semibold" style={{ color: "var(--accent)" }}>{survey.deadline}</span>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
+            <div>
+              <span className="text-muted-foreground">Hạn nộp: </span>
+              <span className="font-semibold" style={{ color: "var(--accent)" }}>{survey.deadline}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">Đơn vị:</span>
-              <span className="text-xs font-medium text-muted-foreground">ĐHKHTN, ĐHQG HCM</span>
-            </div>
-          </div>
-          <div className="pt-1 border-t border-border">
-            <p className="text-[11px] text-muted-foreground italic mb-2">Thang điểm từ 1 đến 5:</p>
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-              {[1,2,3,4,5].map(n => (
-                <div key={n} className="flex items-center gap-1.5">
-                  <span className="w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center text-white flex-shrink-0" style={{ background: ratingColor(n) }}>{n}</span>
-                  <span className="text-xs text-muted-foreground">{RATING_LABELS[n]}</span>
-                </div>
-              ))}
+            <div>
+              <span className="text-muted-foreground">Đơn vị: </span>
+              <span className="font-medium text-foreground">Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Course cards ── */}
+      {/* ── Danh sách câu hỏi ── */}
       {survey.courses.map((course: any, idx: number) => {
-        const res = responses[course.id] || { rating: null, comment: "" };
-        const rated = res.rating !== null;
+        const res: CourseResponse = responses[course.id] || { rating: null, comment: "" };
+        const isEssay: boolean = (course.code?.toLowerCase().includes("tự luận") ?? false) || 
+                                 (course.type?.toLowerCase().includes("tự luận") ?? false);
+        const rated: boolean = res.rating !== null;
+
         return (
-          <div key={course.id} className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div key={course.id} className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+            {/* Header câu hỏi */}
             <div className="px-4 py-3 flex items-start gap-3 border-b border-border" style={{ background: "#dde4f5" }}>
-              <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "var(--primary)" }}>{idx + 1}</span>
+              <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white flex-shrink-0 mt-0.5" style={{ background: "var(--primary)" }}>
+                {idx + 1}
+              </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{course.name}</p>
-                {course.code !== "—" && <p className="text-[11px] text-muted-foreground font-mono mt-0.5">{course.code}</p>}
+                <p className="text-sm font-bold text-foreground leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {course.name}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isEssay ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
+                    {isEssay ? "Tự luận" : "Trắc nghiệm"}
+                  </span>
+                </div>
               </div>
-              {rated && (
-                <span className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: ratingColor(res.rating!) + "22", color: ratingColor(res.rating!), fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  {RATING_LABELS[res.rating!]}
+              {!isEssay && rated && res.rating && (
+                <span 
+                  className="flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                  style={{ background: ratingColor(res.rating) + "22", color: ratingColor(res.rating) }}
+                >
+                  {RATING_LABELS[res.rating]}
                 </span>
               )}
             </div>
 
-            <div className="px-4 py-4 space-y-4">
-              <div className="space-y-3">
+            {/* Thân câu hỏi */}
+            <div className="px-5 py-4 space-y-4">
+              {/* 1. TRẮC NGHIỆM: Chọn từ 1 đến 5 sao */}
+              {!isEssay ? (
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 12 }}>Đánh giá chung về môn học và giảng viên</p>
+                  <p className="text-xs font-semibold text-foreground mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    Mức độ đánh giá (1: Rất tệ → 5: Rất tốt) <span className="text-red-500">*</span>
+                  </p>
                   <div className="flex gap-2 sm:gap-3">
-                    {[1,2,3,4,5].map(n => (
-                      <button key={n} 
-                        onClick={() => {
-                          if (isReadOnly) return; // Chặn click nếu đang ở chế độ xem
-                          setRating(course.id, n); 
-                          setDetailed(course.id, false); 
-                        }} 
+                    {[1, 2, 3, 4, 5].map((n: number) => (
+                      <button 
+                        key={n} 
+                        type="button"
+                        onClick={() => !isReadOnly && setRating(course.id, n)} 
                         title={RATING_LABELS[n]}
-                        className={`flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all ${isReadOnly ? "cursor-default opacity-90" : "active:scale-95"}`}
+                        className={`flex-1 sm:flex-none sm:w-11 sm:h-11 aspect-square rounded-full text-sm font-bold border-2 transition-all ${
+                          isReadOnly ? "cursor-default opacity-90" : "active:scale-95 hover:border-primary cursor-pointer"
+                        }`}
                         style={{
                           borderColor: res.rating === n ? ratingColor(n) : "#e2e8f0",
                           background: res.rating === n ? ratingColor(n) : "#fff",
                           color: res.rating === n ? "#fff" : "#4A5568",
                           fontFamily: "'Plus Jakarta Sans', sans-serif",
-                        }}>
+                        }}
+                      >
                         {n}
                       </button>
                     ))}
                   </div>
                 </div>
-              </div>
+              ) : (
+                /* 2. TỰ LUẬN: Khung nhập văn bản */
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    Nội dung trả lời / Ý kiến đóng góp <span className="text-red-500">*</span>
+                  </p>
+                  <textarea 
+                    value={res.comment} 
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(course.id, e.target.value)}
+                    readOnly={isReadOnly}
+                    placeholder={isReadOnly ? "Không có câu trả lời." : "Nhập câu trả lời hoặc ý kiến đóng góp của bạn tại đây..."} 
+                    rows={4}
+                    className={`w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none transition-colors ${
+                      isReadOnly 
+                        ? "bg-gray-50 cursor-default text-muted-foreground" 
+                        : "focus:border-primary text-foreground bg-white"
+                    }`}
+                    style={{ fontFamily: "'Inter', sans-serif" }} 
+                  />
+                </div>
+              )}
 
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Góp ý thêm (không bắt buộc)</p>
-                <textarea 
-                  value={res.comment} 
-                  onChange={e => setComment(course.id, e.target.value)}
-                  readOnly={isReadOnly} // Khóa text area
-                  placeholder={isReadOnly ? "Không có góp ý." : "Ý kiến của bạn về môn học, giảng viên..."} 
-                  rows={3}
-                  className={`w-full border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none transition-colors ${isReadOnly ? "bg-gray-50 focus:border-border cursor-default text-muted-foreground" : "focus:border-primary text-foreground"}`}
-                  style={{ fontFamily: "'Inter', sans-serif" }} />
-              </div>
+              {/* Nhận xét bổ sung cho câu Trắc nghiệm (tùy chọn) */}
+              {!isEssay && (
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">
+                    Góp ý thêm (không bắt buộc)
+                  </p>
+                  <textarea 
+                    value={res.comment} 
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(course.id, e.target.value)}
+                    readOnly={isReadOnly}
+                    placeholder={isReadOnly ? "Không có góp ý." : "Ý kiến bổ sung..."} 
+                    rows={2}
+                    className={`w-full border border-border rounded-xl px-3 py-2 text-sm outline-none resize-none transition-colors ${
+                      isReadOnly 
+                        ? "bg-gray-50 cursor-default text-muted-foreground" 
+                        : "focus:border-primary text-foreground bg-white"
+                    }`}
+                    style={{ fontFamily: "'Inter', sans-serif" }} 
+                  />
+                </div>
+              )}
             </div>
           </div>
         );
       })}
 
-      {/* ── Submit row (Ẩn hoàn toàn nếu isReadOnly) ── */}
+      {/* ── Nút Nộp bài ── */}
       {!isReadOnly && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pb-4">
-          {!allRated && (
-            <p className="text-xs text-amber-600 font-medium px-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Vui lòng đánh giá tất cả {survey.courses.length} môn học trước khi gửi.
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 pb-6">
+          {!allAnswered ? (
+            <p className="text-xs text-amber-600 font-medium">
+              * Vui lòng hoàn thành tất cả các câu hỏi trắc nghiệm và tự luận trước khi gửi.
             </p>
-          )}
-          <button disabled={!allRated || isSubmitting} onClick={handleSubmit}
-            className="sm:ml-auto px-7 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
-            style={{ background: allRated ? "#11284D" : "#C5CCB7", cursor: allRated ? "pointer" : "not-allowed", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {isSubmitting ? "Đang gửi..." : "Gửi đánh giá"}
+          ) : <div />}
+          
+          <button 
+            type="button"
+            disabled={!allAnswered || isSubmitting} 
+            onClick={handleSubmit}
+            className="px-8 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95"
+            style={{ 
+              background: allAnswered ? "#11284D" : "#C5CCB7", 
+              cursor: allAnswered ? "pointer" : "not-allowed", 
+              fontFamily: "'Plus Jakarta Sans', sans-serif" 
+            }}
+          >
+            {isSubmitting ? "Đang gửi..." : "Gửi khảo sát"}
           </button>
         </div>
       )}
@@ -1704,51 +1811,44 @@ function SurveyForm({ survey, isReadOnly, onDone }: { survey: any; isReadOnly?: 
   );
 }
 
+// ─── Component danh sách Khảo sát chính ───────────────────────────────────────
 export function SurveySection({ onDone }: { onDone?: () => void }) {
   const { accounts } = useMsal();
-  const currentMssv = accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158";
+  const currentMssv: string = accounts[0]?.username 
+    ? accounts[0].username.split('@')[0] 
+    : "24127158";
 
-  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [surveys, setSurveys] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setLoading(true);
     fetch(`/api/students/${currentMssv}/surveys`)
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === "success" && resData.data) {
+      .then((res: Response) => res.json())
+      .then((resData: any) => {
+        if (resData.status === "success" && Array.isArray(resData.data)) {
           setSurveys(resData.data);
-          const doneIds = resData.data
-            .filter((s: any) => s.status === "completed")
-            .map((s: any) => s.id);
-          setCompletedIds(new Set(doneIds));
-          
-          // Chỉ tự động mở form nếu có đúng 1 khảo sát VÀ nó chưa được hoàn thành
-          if (resData.data.length === 1 && resData.data[0].status !== "completed") {
-            setSelectedId(resData.data[0].id);
-          }
         }
       })
-      .catch(err => console.error("Fetch surveys error:", err))
+      .catch((err: any) => console.error("Fetch surveys error:", err))
       .finally(() => setLoading(false));
   }, [currentMssv]);
 
-  const selected = surveys.find(s => s.id === selectedId) ?? null;
-  const isSelectedDone = selected ? completedIds.has(selected.id) : false;
+  const selected: any | null = surveys.find((s: any) => s.id === selectedId) ?? null;
+  const isSelectedDone: boolean = selected ? selected.status === "completed" : false;
 
-  function handleDone(id: string) {
-    setCompletedIds(prev => new Set([...prev, id]));
-    // Cập nhật trạng thái local
-    setSurveys(prev => prev.map(s => s.id === id ? { ...s, status: "completed" } : s));
+  function handleDone(id: string): void {
+    setSurveys((prev: any[]) => 
+      prev.map((s: any) => s.id === id ? { ...s, status: "completed" } : s)
+    );
     setSelectedId(null);
     if (onDone) onDone();
   }
 
   if (loading) {
     return (
-      <div className="w-full py-20 text-center text-sm text-muted-foreground">
+      <div className="w-full py-20 text-center text-sm text-muted-foreground font-medium">
         Đang tải danh sách khảo sát...
       </div>
     );
@@ -1757,12 +1857,14 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
   if (surveys.length === 0) {
     return (
       <div className="w-full max-w-2xl mx-auto">
-        <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center text-center gap-4">
+        <div className="bg-card rounded-2xl border border-border p-12 flex flex-col items-center text-center gap-4 shadow-sm">
           <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "#E0D8C4" }}>
             <ClipboardList className="w-7 h-7" style={{ color: "var(--primary)" }} />
           </div>
           <div>
-            <p className="font-semibold text-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Không có khảo sát nào cần thực hiện</p>
+            <p className="font-semibold text-foreground mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Không có khảo sát nào
+            </p>
             <p className="text-xs text-muted-foreground">Khi có khảo sát mới, bạn sẽ nhận được thông báo.</p>
           </div>
         </div>
@@ -1772,29 +1874,42 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
 
   if (!selected) {
     return (
-      <div className="w-full max-w-2xl mx-auto space-y-4">
+      <div className="w-full max-w-3xl mx-auto space-y-4">
         <div>
-          <h2 className="text-base font-bold mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: "var(--foreground)" }}>Danh sách khảo sát</h2>
-          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu hoặc xem lại.</p>
+          <h2 className="text-base font-bold mb-1 text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Danh sách khảo sát
+          </h2>
+          <p className="text-xs text-muted-foreground">Chọn một khảo sát để bắt đầu làm bài hoặc xem lại.</p>
         </div>
-        {surveys.map(sv => {
-          const done = completedIds.has(sv.id);
+        {surveys.map((sv: any) => {
+          const done: boolean = sv.status === "completed";
           return (
-            <button key={sv.id} 
-              onClick={() => setSelectedId(sv.id)} // LUÔN CHO PHÉP CLICK VÀO KỂ CẢ KHI ĐÃ XONG
-              className="w-full text-left bg-card rounded-2xl border overflow-hidden transition-colors group hover:border-primary"
-              style={{ borderColor: done ? "#22c55e" : "var(--border)" }}>
-              <div className="h-1" style={{ background: done ? "#22c55e" : "var(--primary)" }} />
+            <button 
+              key={sv.id} 
+              type="button"
+              onClick={() => setSelectedId(sv.id)}
+              className="w-full text-left bg-card rounded-2xl border overflow-hidden transition-all group hover:border-primary shadow-sm hover:shadow"
+              style={{ borderColor: done ? "#22c55e" : "var(--border)" }}
+            >
+              <div className="h-1.5" style={{ background: done ? "#22c55e" : "var(--primary)" }} />
               <div className="px-5 py-4">
-                <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{sv.title}</p>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{sv.description}</p>
+                <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {sv.title}
+                </p>
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{sv.description}</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-[11px] text-muted-foreground">{sv.courses.length} môn học / câu hỏi</span>
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      {sv.courses.length} câu hỏi
+                    </span>
                   </div>
-                  <span className="text-[11px] font-semibold" style={{ color: done ? "#22c55e" : "var(--accent)" }}>
-                    {done ? "Đã Hoàn thành" : `Hạn: ${sv.deadline}`}
+                  <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                    done 
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                      : "bg-amber-50 text-amber-700 border border-amber-200"
+                  }`}>
+                    {done ? "✓ Đã hoàn thành" : `Hạn: ${sv.deadline}`}
                   </span>
                 </div>
               </div>
@@ -1807,43 +1922,84 @@ export function SurveySection({ onDone }: { onDone?: () => void }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      {/* Nút quay lại luôn được hiển thị khi đang trong chế độ form */}
-      <button onClick={() => setSelectedId(null)}
-        className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity"
-        style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <button 
+        type="button"
+        onClick={() => setSelectedId(null)}
+        className="flex items-center gap-1.5 text-xs font-semibold mb-4 hover:opacity-70 transition-opacity cursor-pointer"
+        style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      >
         <ChevronRight className="w-3.5 h-3.5 rotate-180" /> Quay lại danh sách khảo sát
       </button>
       
-      {/* Truyền cờ isReadOnly xuống SurveyForm nếu đã hoàn thành */}
       <SurveyForm survey={selected} isReadOnly={isSelectedDone} onDone={handleDone} />
     </div>
   );
 }
-
-
-// ─── Schedule Section (52 Tuần) ───────────────────────────────────────────────
-const API_BASE_URL = "http://127.0.0.1:5000/api/students";
-
-// Tạo sẵn danh sách 52 tuần trong năm học
-const WEEKS_52 = Array.from({ length: 52 }, (_, i) => ({
+// ─── Danh sách 10 tuần học ──────────────────────────────────────────────────
+const WEEKS_10 = Array.from({ length: 10 }, (_, i) => ({
   week_number: i + 1,
   label: `Tuần ${i + 1}`,
 }));
 
-export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (t: "tkb" | "thi") => void }) {
-  const [filterList, setFilterList] = useState<{ ma_hocky: string; ten_hocky: string; namhoc: string; label: string }[]>([]);
-  const [namHoc, setNamHoc] = useState("2024-2025");
-  const [hocKy,  setHocKy]  = useState("HK001");
-  const [tuan,   setTuan]   = useState(1); // Mặc định bắt đầu từ Tuần 1
+// Mốc ngày bắt đầu của các học kỳ (theo bảng HOCKY_NAMHOC trong DB)
+const SEMESTER_START_DATES: Record<string, string> = {
+  "HK001": "2024-09-16",
+  "HK002": "2025-02-24",
+  "HK003": "2025-07-14",
+  "HK004": "2025-09-29",
+  "HK005": "2026-01-12",
+  "HK006": "2026-05-18",
+};
 
+// Hàm tính 7 ngày trong tuần dựa trên ngày bắt đầu của học kỳ
+function getDynamicWeekDates(startDateStr: string, weekNum: number): string[] {
+  if (!startDateStr) return [];
+  const start = new Date(startDateStr);
+  const weekStart = new Date(start.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000);
+  const result: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    result.push(`${day}/${month}`);
+  }
+  return result;
+}
+
+const API_BASE_URL = "/api/students";
+
+export function ScheduleSection({ 
+  tab, 
+  setTab,
+  studentMssv 
+}: { 
+  tab: "tkb" | "thi"; 
+  setTab: (t: "tkb" | "thi") => void;
+  studentMssv?: string;
+}) {
+  const { accounts } = useMsal();
+  const mssv = studentMssv || (accounts[0]?.username ? accounts[0].username.split('@')[0] : "24127158");
+
+  const [filterList, setFilterList] = useState<{ ma_hocky: string; ten_hocky: string; namhoc: string; label: string; ngaybatdau?: string }[]>([]);
+  const [namHoc, setNamHoc] = useState<string>("25-26");
+  const [hocKy,  setHocKy]  = useState<string>("HK006");
+  const [tuan,   setTuan]   = useState<number>(1);
+
+  const [loading, setLoading] = useState<boolean>(false);
   const [apiWeekData, setApiWeekData] = useState<Record<number, TKBCell[]> | null>(null);
   const [apiExamData, setApiExamData] = useState<ExamEntry[] | null>(null);
 
   const TODAY_DAY = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-  const dates     = getWeekDates(tuan);
+
+  // Lấy ngày bắt đầu của học kỳ được chọn (ưu tiên từ API, fallback qua bảng mốc ngày)
+  const curSemObj = filterList.find(f => f.ma_hocky === hocKy);
+  const semStartDate = curSemObj?.ngaybatdau || SEMESTER_START_DATES[hocKy] || "2026-05-18";
+  
+  // Tính danh sách ngày động của 7 ngày trong tuần
+  const dates = getDynamicWeekDates(semStartDate, tuan);
   const selectCls = "border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-white cursor-pointer";
 
-  // 1. Lấy danh sách bộ lọc Học kỳ / Năm học từ Backend
+  // 1. Tải danh sách bộ lọc Học kỳ / Năm học
   useEffect(() => {
     async function loadFilters() {
       try {
@@ -1851,22 +2007,23 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
         const json = await res.json();
         if (json.status === "success" && json.data?.length > 0) {
           setFilterList(json.data);
-          setHocKy(json.data[0].ma_hocky || "HK001");
+          setHocKy(json.data[0].ma_hocky || "HK006");
           if (json.data[0].namhoc) setNamHoc(json.data[0].namhoc);
         }
       } catch (err) {
-        console.warn("Dùng bộ lọc mặc định:", err);
+        console.warn("Lỗi tải bộ lọc:", err);
       }
     }
     loadFilters();
   }, []);
 
-  // 2. Tải TKB Tuần hoặc Lịch Thi khi đổi Học kỳ / Tuần (từ 1 đến 52)
+  // 2. Tải TKB Tuần hoặc Lịch Thi
   useEffect(() => {
     async function fetchSchedule() {
+      setLoading(true);
       try {
         if (tab === "tkb") {
-          const res = await fetch(`${API_BASE_URL}/schedule/weekly?ma_hocky=${hocKy}&week=${tuan}`);
+          const res = await fetch(`${API_BASE_URL}/schedule/weekly?ma_hocky=${hocKy}&week=${tuan}&mssv=${mssv}`);
           const json = await res.json();
           if (json.status === "success" && json.data?.days) {
             const grid: Record<number, TKBCell[]> = {};
@@ -1886,7 +2043,7 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
                     tiet: `${it.start_period}–${it.end_period}`,
                     gv: it.lecturer || "",
                     email: it.email || "",
-                    hinhThuc: "TẬP TRUNG",
+                    hinhThuc: it.hinhthuchoc || "TẬP TRUNG",
                     ngonNgu: it.format || "Tiếng Việt",
                     phong: it.room,
                     isLab: it.loai_tiet === "TH",
@@ -1899,9 +2056,13 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
               }
             });
             setApiWeekData(grid);
+          } else {
+            const emptyGrid: Record<number, TKBCell[]> = {};
+            for (let d = 0; d < 7; d++) emptyGrid[d] = [null, null, null, null];
+            setApiWeekData(emptyGrid);
           }
         } else {
-          const res = await fetch(`${API_BASE_URL}/schedule/exams?ma_hocky=${hocKy}`);
+          const res = await fetch(`${API_BASE_URL}/schedule/exams?ma_hocky=${hocKy}&mssv=${mssv}`);
           const json = await res.json();
           if (json.status === "success" && json.data) {
             const mappedExams: ExamEntry[] = json.data.map((ex: any, idx: number) => ({
@@ -1917,31 +2078,34 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
               hinhThuc: ex.exam_format || "Tự luận",
             }));
             setApiExamData(mappedExams);
+          } else {
+            setApiExamData([]);
           }
         }
       } catch (err) {
-        console.warn("Fallback sang mock data:", err);
-        setApiWeekData(null);
-        setApiExamData(null);
+        console.warn("Lỗi kết nối API:", err);
+        setApiWeekData(TKB_DATA[tuan] || null);
+        setApiExamData(EXAM_DATA);
+      } finally {
+        setLoading(false);
       }
     }
     fetchSchedule();
-  }, [hocKy, tuan, tab]);
+  }, [hocKy, tuan, tab, mssv]);
 
-  // Xuất file Excel từ Backend
+  // Xuất file Excel
   const handleExportExcel = () => {
     if (tab === "tkb") {
-      window.open(`${API_BASE_URL}/schedule/weekly/export?ma_hocky=${hocKy}&week=${tuan}`, "_blank");
+      window.open(`${API_BASE_URL}/schedule/weekly/export?ma_hocky=${hocKy}&week=${tuan}&mssv=${mssv}`, "_blank");
     } else {
-      window.open(`${API_BASE_URL}/schedule/exams/export?ma_hocky=${hocKy}`, "_blank");
+      window.open(`${API_BASE_URL}/schedule/exams/export?ma_hocky=${hocKy}&mssv=${mssv}`, "_blank");
     }
   };
 
-  const hasApiClasses = apiWeekData && Object.values(apiWeekData).some(caList => caList.some(item => item !== null && item !== "span"));
-  const weekData = hasApiClasses ? apiWeekData : (apiWeekData || TKB_DATA[tuan] || {});
-  const examList = apiExamData || EXAM_DATA;
-
-  const curSemObj = filterList.find(f => f.ma_hocky === hocKy);
+  const defaultEmptyGrid: Record<number, TKBCell[]> = { 0: [null, null, null, null], 1: [null, null, null, null], 2: [null, null, null, null], 3: [null, null, null, null], 4: [null, null, null, null], 5: [null, null, null, null], 6: [null, null, null, null] };
+  const weekData = apiWeekData ?? defaultEmptyGrid;
+  const examList = apiExamData ?? [];
+  const hasClassesInWeek = Object.values(weekData).some(caList => caList.some(item => item !== null && item !== "span"));
 
   return (
     <div className="w-full space-y-4">
@@ -1949,15 +2113,26 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Năm học:</label>
-          <select value={namHoc} onChange={e => setNamHoc(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
+          <select 
+            value={namHoc} 
+            onChange={e => {
+              const newNam = e.target.value;
+              setNamHoc(newNam);
+              const firstSemInYear = filterList.find(f => f.namhoc === newNam);
+              if (firstSemInYear) setHocKy(firstSemInYear.ma_hocky);
+              setTuan(1);
+            }} 
+            className={selectCls} 
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
             {filterList.length > 0 ? (
               Array.from(new Set(filterList.map(f => f.namhoc).filter(Boolean))).map(y => (
                 <option key={y} value={y}>{y}</option>
               ))
             ) : (
               <>
-                <option value="2024-2025">2024-2025</option>
-                <option value="2025-2026">2025-2026</option>
+                <option value="24-25">24-25</option>
+                <option value="25-26">25-26</option>
               </>
             )}
           </select>
@@ -1965,16 +2140,26 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
 
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Học kỳ:</label>
-          <select value={hocKy} onChange={e => setHocKy(e.target.value)} className={selectCls} style={{ fontFamily: "'Inter', sans-serif" }}>
+          <select 
+            value={hocKy} 
+            onChange={e => {
+              setHocKy(e.target.value);
+              setTuan(1); // Reset về tuần 1 khi đổi học kỳ
+            }} 
+            className={selectCls} 
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
             {filterList.length > 0 ? (
-              filterList.map(f => (
-                <option key={f.ma_hocky} value={f.ma_hocky}>{f.ten_hocky || f.label}</option>
-              ))
+              filterList
+                .filter(f => !namHoc || f.namhoc === namHoc)
+                .map(f => (
+                  <option key={f.ma_hocky} value={f.ma_hocky}>{f.ten_hocky || f.label}</option>
+                ))
             ) : (
               <>
-                <option value="HK001">Học kỳ 1</option>
-                <option value="HK002">Học kỳ 2</option>
-                <option value="HK003">Học kỳ 3</option>
+                <option value="HK004">HK1</option>
+                <option value="HK005">HK2</option>
+                <option value="HK006">HK3</option>
               </>
             )}
           </select>
@@ -1983,14 +2168,14 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
         {tab === "tkb" && (
           <div className="flex items-center gap-2">
             <label className="text-xs font-semibold text-muted-foreground whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần:</label>
-            {/* Dropdown 52 tuần có thể cuộn lên cuộn xuống */}
+            {/* Dropdown 10 tuần */}
             <select 
               value={tuan} 
               onChange={e => setTuan(Number(e.target.value))} 
               className={selectCls} 
-              style={{ fontFamily: "'Inter', sans-serif", maxHeight: "200px" }}
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              {WEEKS_52.map(w => (
+              {WEEKS_10.map(w => (
                 <option key={w.week_number} value={w.week_number}>
                   {w.label}
                 </option>
@@ -2032,13 +2217,29 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
             <span className="text-white opacity-40 text-xs">|</span>
             <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Tuần {tuan}</span>
             <span className="text-white opacity-40 text-xs">|</span>
-            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{dates[0]} → {dates[dates.length - 1]}</span>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              {dates[0]} → {dates[dates.length - 1]}
+            </span>
           </div>
-          <TKBWeekGrid weekData={weekData} dates={dates} todayDay={TODAY_DAY} />
+
+          {loading ? (
+            <div className="py-16 text-center text-sm text-muted-foreground font-medium">
+              Đang tải thời khóa biểu tuần...
+            </div>
+          ) : (
+            <>
+              {!hasClassesInWeek && (
+                <div className="bg-slate-50 py-2 px-4 text-center text-xs text-muted-foreground border-b border-border">
+                  Không có tiết học nào trong Tuần {tuan}.
+                </div>
+              )}
+              <TKBWeekGrid weekData={weekData} dates={dates} todayDay={TODAY_DAY} />
+            </>
+          )}
         </div>
       )}
 
-      {/* ── Điều hướng tuần từ 1 đến 52 ── */}
+      {/* ── Nút điều hướng tuần (1..10) ── */}
       {tab === "tkb" && (
         <div className="flex items-center justify-between">
           <button 
@@ -2051,8 +2252,8 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
           </button>
           
           <button 
-            onClick={() => setTuan(t => Math.min(52, t + 1))} 
-            disabled={tuan >= 52}
+            onClick={() => setTuan(t => Math.min(10, t + 1))} 
+            disabled={tuan >= 10}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-semibold text-muted-foreground bg-white hover:border-primary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
@@ -2074,24 +2275,38 @@ export function ScheduleSection({ tab, setTab }: { tab: "tkb" | "thi"; setTab: (
                 </tr>
               </thead>
               <tbody>
-                {examList.map((ex, i) => (
-                  <tr key={i} className="hover:bg-blue-100/60 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
-                    <td className="px-3 py-3 border-b border-border text-center font-mono text-muted-foreground">{i + 1}</td>
-                    <td className="px-3 py-3 border-b border-border font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
-                    <td className="px-3 py-3 border-b border-border font-mono text-xs text-muted-foreground">{ex.maNhom}</td>
-                    <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.thu}</td>
-                    <td className="px-3 py-3 border-b border-border font-semibold text-foreground">{ex.ngayThi}</td>
-                    <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.gio}</td>
-                    <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.thoiGian}</td>
-                    <td className="px-3 py-3 border-b border-border">
-                      <span className="font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
-                    </td>
-                    <td className="px-3 py-3 border-b border-border">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap ${ex.hinhThuc === "Thực hành" ? "bg-green-50 text-green-700" : ex.hinhThuc === "Trắc nghiệm" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}
-                        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.hinhThuc}</span>
+                {loading ? (
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center text-muted-foreground text-sm">
+                      Đang tải lịch thi...
                     </td>
                   </tr>
-                ))}
+                ) : examList.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center text-muted-foreground text-sm">
+                      Chưa có lịch thi nào được công bố cho học kỳ này.
+                    </td>
+                  </tr>
+                ) : (
+                  examList.map((ex, i) => (
+                    <tr key={i} className="hover:bg-blue-100/60 transition-colors" style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
+                      <td className="px-3 py-3 border-b border-border text-center font-mono text-muted-foreground">{i + 1}</td>
+                      <td className="px-3 py-3 border-b border-border font-semibold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.tenMon}</td>
+                      <td className="px-3 py-3 border-b border-border font-mono text-xs text-muted-foreground">{ex.maNhom}</td>
+                      <td className="px-3 py-3 border-b border-border text-muted-foreground">{ex.thu}</td>
+                      <td className="px-3 py-3 border-b border-border font-semibold text-foreground">{ex.ngayThi}</td>
+                      <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.gio}</td>
+                      <td className="px-3 py-3 border-b border-border text-muted-foreground whitespace-nowrap">{ex.thoiGian}</td>
+                      <td className="px-3 py-3 border-b border-border">
+                        <span className="font-bold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.phong}</span>
+                      </td>
+                      <td className="px-3 py-3 border-b border-border">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap ${ex.hinhThuc === "Thực hành" ? "bg-green-50 text-green-700" : ex.hinhThuc === "Trắc nghiệm" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}
+                          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{ex.hinhThuc}</span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

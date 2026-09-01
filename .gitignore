@@ -5,7 +5,7 @@ node_modules/
 __pycache__/
 *.pyc
 .pytest_cache/
-
+campus.db
 # Build
 dist/
 build/
@@ -15,6 +15,7 @@ venv/
 .env
 .env.local
 .env.*.local
+*.env
 
 # Logs
 *.log
