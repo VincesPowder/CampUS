@@ -109,27 +109,27 @@ describe('Function 11: View Class/Exam Schedule (Frontend Unit)', () => {
         expect(thBadge.className).toContain('text-orange-600');
     });
 
-    // it('[TC_2.11_07]: Verify "Today" highlighting logic in the weekly grid', async () => {
-    //     // Chỉ mock đối tượng Date, giữ nguyên setTimeout/setInterval để waitFor hoạt động
-    //     vi.useFakeTimers({ toFake: ['Date'] });
-    //     vi.setSystemTime(new Date('2026-05-19T12:00:00+07:00')); // Múi giờ +7 đảm bảo chuẩn Thứ 3
+    it('[TC_2.11_07]: Verify "Today" highlighting logic in the weekly grid', async () => {
+        // Chỉ mock đối tượng Date, giữ nguyên setTimeout/setInterval để waitFor hoạt động
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date('2026-05-19T12:00:00+07:00')); // Múi giờ +7 đảm bảo chuẩn Thứ 3
 
-    //     render(<ScheduleWrapper tab="tkb" />);
+        render(<ScheduleWrapper tab="tkb" />);
 
-    //     await waitFor(() => {
-    //         const thubaElement = screen.getByText('Thứ ba');
+        await waitFor(() => {
+            const thubaElement = screen.getByText('Thứ ba');
             
-    //         // Tìm ngược lên thẻ chứa class bg-orange-50.
-    //         // Nếu không tìm thấy, fallback lấy thẻ th để báo lỗi in ra class chính xác
-    //         let highlightedContainer = thubaElement.closest('.bg-orange-50');
-    //         if (!highlightedContainer) {
-    //             highlightedContainer = thubaElement.closest('th') || thubaElement.parentElement;
-    //         }
+            // Tìm ngược lên thẻ chứa class bg-orange-50.
+            // Nếu không tìm thấy, fallback lấy thẻ th để báo lỗi in ra class chính xác
+            let highlightedContainer = thubaElement.closest('.bg-orange-50');
+            if (!highlightedContainer) {
+                highlightedContainer = thubaElement.closest('th') || thubaElement.parentElement;
+            }
             
-    //         expect(highlightedContainer?.className).toMatch(/bg-orange-50/);
-    //         expect(highlightedContainer?.className).toMatch(/text-orange-/);
-    //     });
-    // });
+            expect(highlightedContainer?.className).toMatch(/bg-orange-50/);
+            expect(highlightedContainer?.className).toMatch(/text-orange-/);
+        });
+    });
 
     it('[TC_2.11_08]: Verify data mapping in the "TKB Thi" (Exam Schedule) table', async () => {
         render(<ScheduleWrapper initialTab="thi" />);

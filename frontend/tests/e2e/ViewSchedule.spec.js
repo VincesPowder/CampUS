@@ -67,7 +67,7 @@ test.describe('Kiểm tra luồng Xem Thời Khóa Biểu - E2E (UC 2.11)', () =
         await expect(nextBtn).toBeDisabled();
     });
 
-    test('[Bổ sung]: Kiểm tra tính năng tải file Xuất Excel', async ({ page }) => {
+    test('[TC_2.11_09]: Kiểm tra tính năng tải file Xuất Excel', async ({ page }) => {
         const downloadPromise = page.waitForEvent('download');
         
         await page.getByRole('button', { name: 'Xuất Excel' }).click();
