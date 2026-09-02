@@ -2376,7 +2376,7 @@ const handleDeleteYearCourse = async (courseId: string) => {
         <table className="w-full text-xs" style={{ minWidth: 700 }}>
           <thead>
             <tr style={{ background: PRIMARY }}>
-              {["STT","MSSV","Họ và tên","CC (10%)","GK (30%)","CK (60%)","Tổng kết","Ghi chú",""].map(h => (
+              {["STT","MSSV","Họ và tên","GK","CK","Tổng kết","Ghi chú",""].map(h => (
                 <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
               ))}
             </tr>
@@ -2391,7 +2391,7 @@ const handleDeleteYearCourse = async (courseId: string) => {
                 <td className="pl-4 pr-3 py-2.5 text-muted-foreground">{i + 1}</td>
                 <td className="px-3 py-2.5 font-mono text-muted-foreground font-semibold">{g.mssv}</td>
                 <td className="px-3 py-2.5 font-medium text-foreground" style={PJS}>{g.hoTen}</td>
-                {scoreCell(g.diemCC)}{scoreCell(g.diemGK)}{scoreCell(g.diemCK)}
+                {scoreCell(g.diemGK)}{scoreCell(g.diemCK)}
                 <td className="px-3 py-2.5 text-center">
                   <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold"
                     style={{ background: g.diemTK !== null && g.diemTK >= 5 ? "#f0fdf4" : "#fef2f2", color: gradeColor(g.diemTK) }}>
@@ -2411,8 +2411,7 @@ const handleDeleteYearCourse = async (courseId: string) => {
             {filteredGrades.length > 0 && (
               <tr className="border-t-2 border-border bg-card">
                 <td colSpan={3} className="pl-4 pr-3 py-2.5 text-xs font-bold text-muted-foreground" style={PJS}>Trung bình lớp</td>
-                {[avg(filteredGrades.map(g => g.diemCC)), avg(filteredGrades.map(g => g.diemGK)), avg(filteredGrades.map(g => g.diemCK)), avg(filteredGrades.map(g => g.diemTK))].map((v, k) => (
-                  <td key={k} className="px-3 py-2.5 text-center text-sm font-bold" style={{ fontFamily: "'Inter', sans-serif", color: gradeColor(v) }}>{v !== null ? v.toFixed(1) : "—"}</td>
+                  {[avg(filteredGrades.map(g => g.diemGK)), avg(filteredGrades.map(g => g.diemCK)), avg(filteredGrades.map(g => g.diemTK))].map((v, k) => (                  <td key={k} className="px-3 py-2.5 text-center text-sm font-bold" style={{ fontFamily: "'Inter', sans-serif", color: gradeColor(v) }}>{v !== null ? v.toFixed(1) : "—"}</td>
                 ))}
                 <td colSpan={2} />
               </tr>
