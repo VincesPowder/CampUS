@@ -682,10 +682,21 @@ function StudentManagement() {
           {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
         </button>
         <div className="hidden sm:flex flex-1" />
-        <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        {/* Nút Xuất */}
+        <button 
+          onClick={handleExportCSV} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium transition-all text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Download className="w-4 h-4" /> Xuất
         </button>
-        <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+        {/* Nút Nhập */}
+        <button 
+          onClick={() => fileInputRef.current?.click()} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium transition-all text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Upload className="w-4 h-4" /> Nhập
         </button>
         <button onClick={() => setPermOpen(o => !o)}
