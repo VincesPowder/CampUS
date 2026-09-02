@@ -47,8 +47,15 @@ export default defineConfig({
   },
 
   // THÊM ĐOẠN NÀY: Cho phép Render truy cập vào server preview mà không bị chặn host
-  preview: {
+ preview: {
     allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'https://campus-backend-6b7t.onrender.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 
   // SỬA 3: Bổ sung các định dạng ảnh (.jpg, .png, .jpeg) vào assetsInclude 
