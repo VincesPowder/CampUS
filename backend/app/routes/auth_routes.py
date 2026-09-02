@@ -14,8 +14,19 @@ def ms_login():
     email = data.get('email', '').strip().lower()
     name = data.get('name', '')
 
-    if not email:
-        return jsonify({"status": "error", "message": "Email không được để trống."}), 400
+    if not email and data.get('token'):
+        try:
+            token_claims = jwt.decode(data['token'], options={"verify_signature": False})
+            email = (
+                token_claims.get('preferred_username') 
+                or token_claims.get('email') 
+                or token_claims.get('upn') 
+                or ''
+            ).strip().lower()
+            if not name:
+                name = token_claims.get('name', '')
+        except Exception as e:
+            pass
 
     secret_key = str(current_app.config.get('SECRET_KEY') or 'campus_secret_key_2026_hcmus_super_secret_key_32bytes')
 
