@@ -13,6 +13,7 @@ from app.models.tuition import HocPhi
 from app.models.notification import SvThongBao, ThongBao
 from app.services.schedule_service import ScheduleService
 from app.services.academic_service import AcademicService
+from app.models.schedule import LichHoc, LichThi
 
 student_bp = Blueprint('student', __name__)
 
@@ -42,30 +43,191 @@ def check_update_eligibility():
 @student_bp.route('/schedule/filters', methods=['GET'])
 @student_bp.route('/<mssv>/schedule/filters', methods=['GET'])
 def get_filters(mssv=None):
-    mssv_query = mssv or request.args.get('mssv', default='', type=str)
-    filters = ScheduleService.get_filter_options(mssv_query)
-    return jsonify({"status": "success", "data": filters}), 200
+    try:
+        # Lấy danh sách Học kỳ - Năm học trực tiếp từ bảng HOCKY_NAMHOC
+        hks = HocKyNamHoc.query.order_by(HocKyNamHoc.ma_hocky.desc()).all()
+        result = []
+        for hk in hks:
+            bd_str = hk.ngaybatdau.strftime('%Y-%m-%d') if (hasattr(hk, 'ngaybatdau') and hk.ngaybatdau) else "2024-09-16"
+            result.append({
+                "ma_hocky": hk.ma_hocky,
+                "ten_hocky": hk.ten_hocky,
+                "namhoc": hk.namhoc,
+                "label": f"{hk.ten_hocky} ({hk.namhoc})",
+                "ngaybatdau": bd_str
+            })
+        if result:
+            return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        print("Lỗi get_filters:", e)
+
+    # Fallback qua service nếu CSDL chưa có học kỳ
+    try:
+        mssv_query = mssv or request.args.get('mssv', default='', type=str)
+        filters = ScheduleService.get_filter_options(mssv_query)
+        return jsonify({"status": "success", "data": filters}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @student_bp.route('/schedule/weekly', methods=['GET'])
 @student_bp.route('/<mssv>/schedule/weekly', methods=['GET'])
 def get_weekly_schedule(mssv=None):
-    mssv_query = mssv or request.args.get('mssv', default='', type=str)
-    ma_hocky = request.args.get('ma_hocky', default='HK001', type=str)
-    week_number = request.args.get('week', default=1, type=int)
+    try:
+        mssv_query = mssv or request.args.get('mssv', default='', type=str)
+        ma_hocky = request.args.get('ma_hocky', default='', type=str)
+        week_param = request.args.get('week', default='1', type=str)
+        week_number = int(week_param) if str(week_param).isdigit() else 1
 
-    data = ScheduleService.get_weekly_schedule(mssv_query, ma_hocky, week_number)
-    return jsonify({"status": "success", "data": data}), 200
+        # Khởi tạo 7 ngày trong tuần (2: Thứ hai -> 8: Chủ nhật)
+        days_map = {str(d): [] for d in range(2, 9)}
+
+        query = LichHoc.query.join(LopHocPhan, LichHoc.malhp == LopHocPhan.malhp)\
+                             .join(MonHoc, LopHocPhan.mamh == MonHoc.mamh)
+
+        # Lọc theo học kỳ nếu có
+        if ma_hocky:
+            query = query.filter(LopHocPhan.ma_hocky == ma_hocky)
+
+        # Nếu sinh viên đã có môn trong bảng điểm thì lấy đúng môn sinh viên đó học
+        if mssv_query:
+            sv_lhps = [
+                r[0] for r in db.session.query(KetQuaHocTap.malhp)
+                .filter_by(mssv=mssv_query).all()
+            ]
+            if sv_lhps:
+                query = query.filter(LopHocPhan.malhp.in_(sv_lhps))
+
+        all_lich = query.all()
+
+        for lh in all_lich:
+            # Kiểm tra tuần học (hỗ trợ cả dạng số đơn '4' hoặc dải '1-10')
+            tuan_str = str(lh.tuan or '').strip()
+            match_week = False
+            if tuan_str.isdigit():
+                match_week = (int(tuan_str) == week_number)
+            elif '–' in tuan_str or '-' in tuan_str:
+                sep = '–' if '–' in tuan_str else '-'
+                parts = tuan_str.split(sep)
+                try:
+                    sw, ew = int(parts[0].strip()), int(parts.strip())
+                    match_week = (sw <= week_number <= ew)
+                except Exception:
+                    match_week = True
+            else:
+                match_week = True
+
+            if not match_week:
+                continue
+
+            lhp = lh.lophocphan
+            mh = lhp.monhoc if lhp else None
+
+            # Nhận diện Thứ trong tuần
+            day_key = "2"
+            thu_lower = (lh.thu or "").lower().strip()
+            if "ba" in thu_lower or "3" in thu_lower: day_key = "3"
+            elif "tư" in thu_lower or "tu" in thu_lower or "4" in thu_lower: day_key = "4"
+            elif "năm" in thu_lower or "nam" in thu_lower or "5" in thu_lower: day_key = "5"
+            elif "sáu" in thu_lower or "sau" in thu_lower or "6" in thu_lower: day_key = "6"
+            elif "bảy" in thu_lower or "bay" in thu_lower or "7" in thu_lower: day_key = "7"
+            elif "nhật" in thu_lower or "nhat" in thu_lower or "cn" in thu_lower or "8" in thu_lower: day_key = "8"
+
+            bd = lh.thoigian_bd.strftime('%H:%M') if (lh.thoigian_bd and hasattr(lh.thoigian_bd, 'strftime')) else str(lh.thoigian_bd or "07:30")[:5]
+            kt = lh.thoigian_kt.strftime('%H:%M') if (lh.thoigian_kt and hasattr(lh.thoigian_kt, 'strftime')) else str(lh.thoigian_kt or "11:10")[:5]
+
+            start_p = 1 if bd.startswith("07") else (4 if bd.startswith("09") or bd.startswith("10") else (6 if bd.startswith("12") or bd.startswith("13") else 8))
+            end_p = start_p + 3
+            ht_val = lh.hinhthuchoc or "Trực tiếp"
+            is_nghi = "nghỉ" in ht_val.lower()
+            days_map[day_key].append({
+                "tenmh": mh.tenmh if mh else (lhp.tenlop if lhp else "Môn học"),
+                "mamh": mh.mamh if mh else "",
+                "malhp": lhp.malhp if lhp else lh.malhp,
+                "tenlop": lhp.tenlop if lhp else "",
+                "start_period": start_p,
+                "end_period": end_p,
+                "tiet": f"{start_p}–{end_p}",
+                "start_time": bd,
+                "end_time": kt,
+                "time_range": f"{bd} – {kt}",
+                "gio": f"{bd} – {kt}",
+                "lecturer": lhp.tengv if lhp else "Chưa phân công",
+                "email": lhp.mailgv if lhp else "",
+                "room": lh.phonghoc or "Chưa xếp phòng",
+                "hinhthuchoc": "NGHỈ" if is_nghi else ht_val,
+                "format": "tiếng Việt",
+                "loai_tiet": "TH" if "thực hành" in (mh.tenmh if mh else "").lower() or "[th]" in (mh.tenmh if mh else "").lower() else "LT"
+            })
+
+        return jsonify({"status": "success", "data": {"week": week_number, "days": days_map}}), 200
+
+    except Exception as e:
+        print("Lỗi get_weekly_schedule:", e)
+        try:
+            data = ScheduleService.get_weekly_schedule(mssv_query, ma_hocky, week_number)
+            return jsonify({"status": "success", "data": data}), 200
+        except Exception:
+            return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @student_bp.route('/schedule/exams', methods=['GET'])
 @student_bp.route('/<mssv>/schedule/exams', methods=['GET'])
 def get_exam_schedule(mssv=None):
-    mssv_query = mssv or request.args.get('mssv', default='', type=str)
-    ma_hocky = request.args.get('ma_hocky', default='HK001', type=str)
+    try:
+        mssv_query = mssv or request.args.get('mssv', default='', type=str)
+        ma_hocky = request.args.get('ma_hocky', default='', type=str)
 
-    data = ScheduleService.get_exam_schedule(mssv_query, ma_hocky)
-    return jsonify({"status": "success", "data": data}), 200
+        query = LichThi.query.join(LopHocPhan, LichThi.malhp == LopHocPhan.malhp)\
+                             .join(MonHoc, LopHocPhan.mamh == MonHoc.mamh)
 
-# backend/app/routes/student_routes.py (Đoạn route xuất file)
+        if ma_hocky:
+            query = query.filter(LopHocPhan.ma_hocky == ma_hocky)
+
+        if mssv_query:
+            sv_lhps = [
+                r[0] for r in db.session.query(KetQuaHocTap.malhp)
+                .filter_by(mssv=mssv_query).all()
+            ]
+            if sv_lhps:
+                query = query.filter(LopHocPhan.malhp.in_(sv_lhps))
+
+        exams = query.all()
+        result = []
+        thu_names = ["Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy", "Chủ nhật"]
+
+        for idx, lt in enumerate(exams):
+            lhp = lt.lophocphan
+            mh = lhp.monhoc if lhp else None
+            ngay_str = lt.ngaythi.strftime('%d/%m/%Y') if lt.ngaythi else "—"
+            thu_str = thu_names[lt.ngaythi.weekday()] if lt.ngaythi else "Thứ hai"
+
+            gio_str = lt.giothi.strftime('%H:%M') if lt.giothi else "07:30"
+            ca_str = "Ca 1" if gio_str.startswith("07") else ("Ca 2" if gio_str.startswith("09") else "Ca 3")
+
+            result.append({
+                "tenmh": mh.tenmh if mh else (lhp.tenlop if lhp else "Môn thi"),
+                "malhp": lhp.malhp if lhp else lt.malhp,
+                "tenlop": lhp.tenlop if lhp else "",
+                "exam_date": ngay_str,
+                "day_name": thu_str,
+                "shift": ca_str,
+                "time_range": gio_str,
+                "thoiGian": f"{lt.thoigianlambai or 90} phút",
+                "room": lt.phongthi or "—",
+                "seat_number": lt.sothisinh or (idx + 1),
+                "exam_format": lt.hinhthucthi or "Tự luận"
+            })
+
+        return jsonify({"status": "success", "data": result}), 200
+    except Exception as e:
+        print("Lỗi get_exam_schedule:", e)
+        try:
+            data = ScheduleService.get_exam_schedule(mssv_query, ma_hocky)
+            return jsonify({"status": "success", "data": data}), 200
+        except Exception:
+            return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @student_bp.route('/schedule/weekly/export', methods=['GET'])
 @student_bp.route('/<mssv>/schedule/weekly/export', methods=['GET'])
