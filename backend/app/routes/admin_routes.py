@@ -150,6 +150,22 @@ def xac_dinh_ca_thi(giothi_val):
     else:                                 # Sau 17:30 -> Ca 5
         return "Ca 5"
 
+def get_faculty_lhp_ids(makhoa):
+    """
+    Lấy danh sách mã lớp học phần (Python list) mà sinh viên thuộc khoa đang theo học
+    """
+    if not makhoa:
+        return []
+    try:
+        rows = db.session.query(KetQuaHocTap.malhp)\
+            .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
+            .join(Nganh, SinhVien.manganh == Nganh.manganh)\
+            .filter(Nganh.makhoa == makhoa)\
+            .distinct().all()
+        return [r[0] for r in rows if r[0]]
+    except Exception as e:
+        print("Lỗi get_faculty_lhp_ids:", e)
+        return []
 # ══════════════════════════════════════════════════════════════════════════════
 # ─── 0. THÔNG TIN ADMIN HIỆN TẠI ──────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
@@ -681,6 +697,24 @@ def profile_edit_permission():
 # ─── 2. PHÂN HỆ QUẢN LÝ HỌC TẬP & ĐIỂM SỐ (ACADEMIC & GRADES) ────────────────
 # ══════════════════════════════════════════════════════════════════════════════
 
+#  Bảng ánh xạ Mã nhóm -> Tên nhóm học phần chuẩn ĐH KHTN
+MAP_TEN_NHOM_HP = {
+    "CN_CS": "Kiến thức cơ sở ngành",
+    "CN_NG": "Kiến thức bắt buộc ngành",
+    "CN_TC": "Kiến thức tự chọn ngành",
+    "CN_TD": "Kiến thức tự chọn tự do",
+    "CN_TN_BB": "Kiến thức tốt nghiệp BB",
+    "CN_TN_TC": "Kiến thức tốt nghiệp TC",
+    "GD_QP": "Giáo dục quốc phòng – An ninh",
+    "GD_TC": "Giáo dục thể chất",
+    "LL_CT": "Lý luận chính trị - Pháp luật",
+    "TH_BB": "Tin học",
+    "TN_BB": "Toán - KHTN - Công nghệ (Bắt buộc)",
+    "TN_TC1": "Toán - KHTN (Tự chọn 1)",
+    "TN_TC2": "Toán - KHTN (Tự chọn 2)",
+    "XH_TC": "Khoa học xã hội - Kinh tế - Kỹ năng",
+}
+
 @admin_bp.route('/academic/courses', methods=['GET'])
 @faculty_required
 def get_academic_courses():
@@ -693,21 +727,18 @@ def get_academic_courses():
 
         query = LopHocPhan.query.join(MonHoc).join(HocKyNamHoc)
         
-        # 🎯 CHỈ LẤY CÁC MÔN DO SINH VIÊN CỦA KHOA (MSSV) ĐĂNG KÝ HỌC:
-        # (Loại bỏ các lớp Tin học cơ sở của khoa khác không có SV CNTT học)
         if not g.is_super_admin and g.makhoa:
-            subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
-                .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
-                .join(Nganh, SinhVien.manganh == Nganh.manganh)\
-                .filter(Nganh.makhoa == g.makhoa)\
-                .distinct().subquery()
-                
-            query = query.filter(LopHocPhan.malhp.in_(subquery_lhp_sv))
+            valid_ids = get_faculty_lhp_ids(g.makhoa)
+            if valid_ids:
+                query = query.filter(
+                    (LopHocPhan.malhp.in_(valid_ids)) | 
+                    (MonHoc.mamh.like(f"{g.makhoa}%"))
+                )
+            else:
+                query = query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
 
         lhps = query.all()
         result = []
-
-        # Tên khoa quản lý (mặc định CNTT cho admin CSC)
         ten_khoa_admin = "CNTT" if g.makhoa == "CSC" else ("Toán - Tin" if g.makhoa == "MTH" else "CNTT")
 
         for lhp in lhps:
@@ -720,23 +751,48 @@ def get_academic_courses():
             elif hk and "HK2" in hk.ten_hocky: hk_so = 2
             elif hk and "HK3" in hk.ten_hocky: hk_so = 3
 
-            # Đếm số sinh viên của khoa đang học lớp này
+            # Đếm sinh viên
             if not g.is_super_admin and g.makhoa:
                 so_sv = KetQuaHocTap.query\
                     .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
                     .join(Nganh, SinhVien.manganh == Nganh.manganh)\
                     .filter(KetQuaHocTap.malhp == lhp.malhp, Nganh.makhoa == g.makhoa)\
                     .count()
+                if so_sv == 0:
+                    so_sv = KetQuaHocTap.query.filter_by(malhp=lhp.malhp).count()
             else:
                 so_sv = KetQuaHocTap.query.filter_by(malhp=lhp.malhp).count()
                 
             raw_tt = str(lhp.trangthai or "").strip().lower()
-            if "close" in raw_tt or "lock" in raw_tt or "khóa" in raw_tt:
-                st_val = "locked"
-            elif "open" in raw_tt or "upload" in raw_tt or "nộp" in raw_tt:
-                st_val = "uploaded"
-            else:
-                st_val = "pending"
+            st_val = "locked" if ("close" in raw_tt or "lock" in raw_tt or "khóa" in raw_tt) else ("uploaded" if ("open" in raw_tt or "upload" in raw_tt or "nộp" in raw_tt) else "pending")
+
+            # 1. LẤY MÃ NHÓM TỪ BẢNG MONHOC (Nếu DB đang để NULL thì nhận diện theo mã môn)
+            m_code = (mh.mamh or "").upper()
+            ma_nhom_db = getattr(mh, 'manhom', None)
+            
+            if not ma_nhom_db:
+                if m_code.startswith("CSC10") or m_code.startswith("CSC13") or m_code.startswith("CSC14"):
+                    ma_nhom_db = "CN_CS"
+                elif m_code.startswith("CSC10121"):
+                    ma_nhom_db = "CN_TD"
+                elif m_code.startswith("BAA0003") or "quốc phòng" in (mh.tenmh or "").lower():
+                    ma_nhom_db = "GD_QP"
+                elif m_code.startswith("BAA0002") or "thể dục" in (mh.tenmh or "").lower():
+                    ma_nhom_db = "GD_TC"
+                elif m_code.startswith("BAA001") or "triết" in (mh.tenmh or "").lower() or "chính trị" in (mh.tenmh or "").lower():
+                    ma_nhom_db = "LL_CT"
+                elif m_code.startswith("MTH") or m_code.startswith("PHY") or m_code.startswith("CHE"):
+                    ma_nhom_db = "TN_BB"
+                elif m_code.startswith("BAA0000"):
+                    ma_nhom_db = "XH_TC"
+                else:
+                    ma_nhom_db = "CN_CS"
+
+            # 🎯 2. LẤY TÊN NHÓM TƯƠNG ỨNG TỪ TỪ ĐIỂN
+            ten_nhom_db = MAP_TEN_NHOM_HP.get(ma_nhom_db, "Kiến thức cơ sở ngành")
+
+            # Số tiết học
+            so_tiet_val = mh.sotiet if (mh and mh.sotiet) else ((mh.sotc * 15) if (mh and mh.sotc) else 45)
 
             item = {
                 "id": lhp.malhp,
@@ -744,8 +800,8 @@ def get_academic_courses():
                 "tenMon": mh.tenmh if mh else "",
                 "lop": lhp.tenlop or "24C01",
                 "soTC": mh.sotc if mh else 3,
-                "soTiet": mh.sotiet if mh else 45,
-                "khoa": ten_khoa_admin,  # 👈 Hiển thị đồng nhất CNTT cho tất cả môn của SV CNTT
+                "soTiet": so_tiet_val,
+                "khoa": ten_khoa_admin,
                 "giangVien": lhp.tengv or "Chưa phân công",
                 "emailGV": lhp.mailgv or "",
                 "soSV": so_sv,
@@ -753,8 +809,8 @@ def get_academic_courses():
                 "ngayNopDiem": "20/07/2026" if lhp.trangthai in ["uploaded", "locked"] else None,
                 "hocKy": hk_so,
                 "namHoc": nh_val,
-                "maNhom": lhp.tenlop or "",
-                "tenNhom": "Nhóm 1"
+                "maNhom": ma_nhom_db,   # Trả về đúng mã nhóm: CN_CS, CN_TD, GD_QP...
+                "tenNhom": ten_nhom_db  # Trả về đúng tên nhóm: Kiến thức cơ sở ngành...
             }
 
             if nam_hoc and item["namHoc"] != nam_hoc: continue
@@ -772,7 +828,6 @@ def get_academic_courses():
         return jsonify({"status": "success", "data": result}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 @admin_bp.route('/academic/courses/<course_id>/grades', methods=['GET'])
 @faculty_required
@@ -921,6 +976,121 @@ def export_course_grades(course_id):
         return response
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+@admin_bp.route('/academic/courses/<course_id>/import-grades', methods=['POST'])
+@faculty_required
+def import_course_grades(course_id):
+    try:
+        lhp = LopHocPhan.query.filter_by(malhp=course_id).first()
+        if not lhp:
+            return jsonify({"status": "error", "message": "Không tìm thấy lớp học phần"}), 404
+
+        if lhp.trangthai == "locked":
+            return jsonify({"status": "error", "message": "Lớp học phần đã khóa điểm, không thể chỉnh sửa hoặc nhập thêm điểm mới"}), 400
+
+        if 'file' not in request.files:
+            return jsonify({"status": "error", "message": "Không tìm thấy file tải lên"}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"status": "error", "message": "Tên file không hợp lệ"}), 400
+
+        # Đọc dữ liệu file an toàn (hỗ trợ UTF-8 có BOM & không BOM)
+        raw_bytes = file.stream.read()
+        try:
+            content_str = raw_bytes.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            try:
+                content_str = raw_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                content_str = raw_bytes.decode("latin-1")
+                
+        stream = io.StringIO(content_str, newline=None)
+        first_line = content_str.splitlines()[0] if content_str.splitlines() else ""
+        delim = ';' if ';' in first_line and ',' not in first_line else ','
+        
+        csv_reader = csv.reader(stream, delimiter=delim)
+        header = next(csv_reader, None)  # Bỏ qua dòng tiêu đề
+        imported_count = 0
+
+        def get_col(r, idx, default_val=""):
+            if idx < len(r) and r[idx] is not None:
+                val = str(r[idx]).strip()
+                return val if val else default_val
+            return default_val
+
+        def to_score(val):
+            if not val or val in ['—', 'None', 'null', '']:
+                return None
+            try:
+                s = float(str(val).replace(',', '.'))
+                return min(10.0, max(0.0, s))
+            except ValueError:
+                return None
+
+        for row in csv_reader:
+            if not row or len(row) < 2:
+                continue
+
+            col0 = get_col(row, 0)
+            col1 = get_col(row, 1)
+
+            # Tự động nhận diện: Cột MSSV ở vị trí 1 (nếu có cột STT) hoặc ở vị trí 0
+            if len(col0) >= 7 and col0.isdigit():
+                mssv    = col0
+                cc_val  = to_score(get_col(row, 2))
+                gk_val  = to_score(get_col(row, 3))
+                ck_val  = to_score(get_col(row, 4))
+                ghi_chu = get_col(row, 8)
+            elif len(col1) >= 7 and col1.isdigit():
+                mssv    = col1
+                cc_val  = to_score(get_col(row, 3))
+                gk_val  = to_score(get_col(row, 4))
+                ck_val  = to_score(get_col(row, 5))
+                ghi_chu = get_col(row, 9)
+            else:
+                continue
+
+            # Phân quyền: Giáo vụ chỉ nhập điểm cho sinh viên thuộc Khoa mình
+            if not g.is_super_admin and g.makhoa:
+                sv = SinhVien.query.filter_by(mssv=mssv).first()
+                if sv and sv.nganh and sv.nganh.makhoa != g.makhoa:
+                    continue
+
+            kq = KetQuaHocTap.query.filter_by(malhp=course_id, mssv=mssv).first()
+            if not kq:
+                kq = KetQuaHocTap(malhp=course_id, mssv=mssv)
+                db.session.add(kq)
+
+            if cc_val is not None: kq.diemcc = cc_val
+            if gk_val is not None: kq.diemgk = gk_val
+            if ck_val is not None: kq.diemck = ck_val
+            if ghi_chu: kq.ghichu = ghi_chu
+
+            # Tự động tính điểm tổng kết và xếp loại Đạt / Không đạt
+            cc_calc = kq.diemcc if kq.diemcc is not None else 10.0
+            if kq.diemgk is not None and kq.diemck is not None:
+                tb = round(cc_calc * 0.1 + kq.diemgk * 0.3 + kq.diemck * 0.6, 1)
+                chu, tt = tinh_diem_chu(tb)
+                kq.diemtb_he10 = tb
+                kq.loaidiem_hechu = chu
+                kq.trangthai = tt
+
+            imported_count += 1
+
+        # Cập nhật trạng thái lớp học phần thành uploaded nếu đang là pending
+        if lhp.trangthai == "pending":
+            lhp.trangthai = "uploaded"
+
+        db.session.commit()
+        return jsonify({
+            "status": "success", 
+            "message": f"Đã nhập thành công điểm cho {imported_count} sinh viên!"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": f"Lỗi xử lý file điểm: {str(e)}"}), 500
 
 @admin_bp.route('/academic/years', methods=['GET'])
 def get_academic_years():
@@ -1124,17 +1294,29 @@ def update_class_schedule(id):
     try:
         data = request.get_json() or {}
         lh = LichHoc.query.filter_by(malichhoc=id).first()
-        if not lh: return jsonify({"status": "error", "message": "Không tìm thấy lịch học"}), 404
+        if not lh:
+            return jsonify({"status": "error", "message": "Không tìm thấy lịch học"}), 404
 
-        if not g.is_super_admin and g.makhoa:
-            if lh.lophocphan and lh.lophocphan.monhoc and not lh.lophocphan.monhoc.mamh.startswith(g.makhoa):
-                return jsonify({"status": "error", "message": "Không có quyền sửa lịch học của khoa khác"}), 403
+        lhp = lh.lophocphan
+        mh = lhp.monhoc if lhp else None
 
+        # Cập nhật thông tin lịch học
         if 'thu' in data: lh.thu = data['thu']
         if 'phong' in data: lh.phonghoc = data['phong']
-        if 'tuan' in data: lh.tuan = data['tuan']
+        if 'tuan' in data: lh.tuan = str(data['tuan'])
         if 'hinhThuc' in data: lh.hinhthuchoc = data['hinhThuc']
-        if 'gio' in data: lh.thoigian_bd = parse_time_val(data['gio'])
+
+        # Cập nhật giờ học
+        if 'gio' in data and data['gio']:
+            parts = str(data['gio']).replace('–', '-').split('-')
+            lh.thoigian_bd = parse_time_val(parts[0].strip())
+            if len(parts) > 1:
+                lh.thoigian_kt = parse_time_val(parts.strip())
+
+        # Cập nhật giảng viên và tên môn
+        if lhp and 'giangVien' in data: lhp.tengv = data['giangVien']
+        if lhp and 'lop' in data: lhp.tenlop = data['lop']
+        if mh and 'tenMon' in data: mh.tenmh = data['tenMon']
 
         db.session.commit()
         return jsonify({"status": "success", "message": "Cập nhật lịch học thành công"}), 200
@@ -2109,4 +2291,78 @@ def get_sidebar_badges():
             }
         }), 200
     except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+# API THÊM MÔN HỌC VÀO NĂM HỌC
+@admin_bp.route('/academic/courses', methods=['POST'])
+@faculty_required
+def create_academic_course():
+    try:
+        data = request.get_json() or {}
+        ma_mon = (data.get('maMon') or '').strip().upper()
+        ten_mon = (data.get('tenMon') or '').strip()
+        so_tc = int(data.get('soTC') or 3)
+        so_tiet = int(data.get('soTiet') or (so_tc * 15))
+        hoc_ky = int(data.get('hocKy') or 1)
+        nam_hoc = (data.get('namHoc') or '25-26').strip()
+        lop = data.get('lop') or data.get('maNhom') or '24C01'
+        gv = data.get('giangVien') or 'Chưa phân công'
+        khoa_ten = data.get('khoa') or 'CNTT'
+        
+        if not ma_mon or not ten_mon:
+            return jsonify({"status": "error", "message": "Mã môn và tên môn là bắt buộc"}), 400
+
+        # 1. Tạo hoặc cập nhật MonHoc
+        mh = MonHoc.query.filter_by(mamh=ma_mon).first()
+        if not mh:
+            mh = MonHoc(mamh=ma_mon, tenmh=ten_mon, sotc=so_tc, sotiet=so_tiet)
+            db.session.add(mh)
+        else:
+            mh.tenmh = ten_mon
+            mh.sotc = so_tc
+            mh.sotiet = so_tiet
+
+        # 2. Tạo hoặc gán HocKyNamHoc
+        ma_hk = f"HK{hoc_ky}_{nam_hoc}"
+        hk = HocKyNamHoc.query.filter_by(ma_hocky=ma_hk).first()
+        if not hk:
+            hk = HocKyNamHoc(ma_hocky=ma_hk, ten_hocky=f"Học kỳ {hoc_ky}", namhoc=nam_hoc, trangthai="open")
+            db.session.add(hk)
+
+        # 3. Tạo LopHocPhan
+        malhp = f"LHP_{ma_mon}_{lop}_{int(datetime.now().timestamp())}"
+        lhp = LopHocPhan(
+            malhp=malhp,
+            mamh=ma_mon,
+            ma_hocky=ma_hk,
+            tenlop=lop,
+            tengv=gv,
+            trangthai="pending"
+        )
+        db.session.add(lhp)
+        db.session.commit()
+
+        return jsonify({"status": "success", "message": "Thêm môn học vào năm học thành công"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# API XÓA MÔN HỌC KHỎI NĂM HỌC
+@admin_bp.route('/academic/courses/<course_id>', methods=['DELETE'])
+@faculty_required
+def delete_academic_course(course_id):
+    try:
+        lhp = LopHocPhan.query.filter_by(malhp=course_id).first()
+        if not lhp:
+            return jsonify({"status": "error", "message": "Không tìm thấy lớp học phần"}), 404
+        
+        KetQuaHocTap.query.filter_by(malhp=course_id).delete()
+        LichHoc.query.filter_by(malhp=course_id).delete()
+        LichThi.query.filter_by(malhp=course_id).delete()
+        HocPhi.query.filter_by(malhp=course_id).delete()
+        db.session.delete(lhp)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Đã xóa môn học thành công"}), 200
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500

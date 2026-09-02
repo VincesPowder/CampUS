@@ -2111,8 +2111,10 @@ export function ScheduleSection({
         }
       } catch (err) {
         console.warn("Lỗi kết nối API:", err);
-        setApiWeekData(TKB_DATA[tuan] || null);
-        setApiExamData(EXAM_DATA);
+        const emptyGrid: Record<number, TKBCell[]> = {};
+        for (let d = 0; d < 7; d++) emptyGrid[d] = [null, null, null, null];
+        setApiWeekData(emptyGrid);
+        setApiExamData([]);
       } finally {
         setLoading(false);
       }
