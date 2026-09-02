@@ -682,10 +682,21 @@ function StudentManagement() {
           {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
         </button>
         <div className="hidden sm:flex flex-1" />
-        <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        {/* Nút Xuất */}
+        <button 
+          onClick={handleExportCSV} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium transition-all text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Download className="w-4 h-4" /> Xuất
         </button>
-        <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+        {/* Nút Nhập */}
+        <button 
+          onClick={() => fileInputRef.current?.click()} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium transition-all text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Upload className="w-4 h-4" /> Nhập
         </button>
         <button onClick={() => setPermOpen(o => !o)}
@@ -2370,7 +2381,7 @@ function AdminNotificationsSection() {
     }
   };
 
-  const departments = ["all", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Kế hoạch Tài chính", "Khoa CNTT"];
+  const departments = ["all", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Kế hoạch Tài chính", "Khoa CNTT", "Khoa Toán - Tin",];
   const totalReads = notifications.reduce((acc, n) => acc + (n.readCount || 0), 0);
   const avgReadRate = notifications.length > 0 ? Math.round(notifications.reduce((acc, n) => acc + (n.readRate || 0), 0) / notifications.length) : 0;
 
@@ -2536,10 +2547,13 @@ function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; o
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
 
+  const adminEmail = getAdminEmail();
+  const defaultDept = adminEmail.includes("24127465") ? "Khoa Toán - Tin" : "Khoa CNTT";
+
   const isEdit = !!initial;
   const [title, setTitle] = useState(initial?.title || "");
   const [content, setContent] = useState(initial?.content || "");
-  const [department, setDepartment] = useState(initial?.department || "Khoa CNTT");
+  const [department, setDepartment] = useState(initial?.department || defaultDept);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSave = async () => {
@@ -2586,6 +2600,7 @@ function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; o
             <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Đơn vị phát hành</label>
             <select value={department} onChange={e => setDepartment(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" style={PJS}>
               <option value="Khoa CNTT">Khoa CNTT</option>
+              <option value="Khoa Toán - Tin">Khoa Toán - Tin</option>
               <option value="Phòng Đào tạo">Phòng Đào tạo</option>
               <option value="Phòng Công tác SV">Phòng Công tác SV</option>
               <option value="Phòng Kế hoạch Tài chính">Phòng Kế hoạch Tài chính</option>
@@ -2841,32 +2856,43 @@ function AdminTuitionSection() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {detailStudent.items.map((it: any) => (
-                    <tr key={it.malhp} className="hover:bg-muted/30">
-                      <td className="py-2.5">
-                        <div className="font-bold text-foreground" style={PJS}>{it.tenMon}</div>
-                        <div className="text-[11px] text-muted-foreground font-mono">{it.maMon} &middot; Lớp: {it.malhp}</div>
-                      </td>
-                      <td className="py-2.5 text-center text-muted-foreground">{it.soTc}</td>
-                      <td className="py-2.5 text-right font-mono text-muted-foreground">{formatVND(it.hocPhiGoc)}</td>
-                      <td className="py-2.5 text-right font-mono text-amber-600">{it.mucGiam > 0 ? formatVND(it.mucGiam) : "—"}</td>
-                      <td className="py-2.5 text-right font-mono font-bold text-primary">{formatVND(it.thucDong)}</td>
-                      <td className="py-2.5 text-center">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${it.trangThai === 'Đã thanh toán' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                          {it.trangThai}
-                        </span>
-                      </td>
-                      <td className="py-2.5 text-center">
-                        <button
-                          onClick={() => setEditItem({ mssv: detailStudent.mssv, item: it })}
-                          className="p-1 rounded text-muted-foreground hover:text-blue-600"
-                          title="Chỉnh sửa miễn giảm / học phí"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {detailStudent.items.map((it: any) => {
+                    const isPaid = (
+                      it.trangThai === 'Đã thanh toán' || 
+                      it.trangThai === 1 || 
+                      it.trangThai === '1' ||
+                      it.trangThai === true
+                    );
+
+                    return (
+                      <tr key={it.malhp} className="hover:bg-muted/30">
+                        <td className="py-2.5">
+                          <div className="font-bold text-foreground" style={PJS}>{it.tenMon}</div>
+                          <div className="text-[11px] text-muted-foreground font-mono">{it.maMon} &middot; Lớp: {it.malhp}</div>
+                        </td>
+                        <td className="py-2.5 text-center text-muted-foreground">{it.soTc}</td>
+                        <td className="py-2.5 text-right font-mono text-muted-foreground">{formatVND(it.hocPhiGoc)}</td>
+                        <td className="py-2.5 text-right font-mono text-amber-600">{it.mucGiam > 0 ? formatVND(it.mucGiam) : "—"}</td>
+                        <td className="py-2.5 text-right font-mono font-bold text-primary">{formatVND(it.thucDong)}</td>
+                        
+                        <td className="py-2.5 text-center">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                            {isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                          </span>
+                        </td>
+                        
+                        <td className="py-2.5 text-center">
+                          <button
+                            onClick={() => setEditItem({ mssv: detailStudent.mssv, item: it })}
+                            className="p-1 rounded text-muted-foreground hover:text-blue-600"
+                            title="Chỉnh sửa miễn giảm / học phí"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -2982,6 +3008,12 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
   const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const [badges, setBadges] = useState<Record<string, number>>({});
+
+  const currentEmail = adminProfile?.email || (adminProfile as any)?.mail || "";
+  if (currentEmail) {
+    localStorage.setItem("user_email", currentEmail);
+    (window as any).__CURRENT_ADMIN_EMAIL__ = currentEmail;
+  }
 
   useEffect(() => {
     const email = adminProfile?.email || (adminProfile as any)?.mail || "";
@@ -3175,7 +3207,7 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
             </button>
           </div>
         </header>
-        <main className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
+        <main key={currentEmail} className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
           {section === "students"      && <StudentManagement />}
           {section === "survey"        && <AdminSurveySection />}
           {section === "tuition"       && <AdminTuitionSection />}
