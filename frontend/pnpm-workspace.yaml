@@ -15,3 +15,4 @@ allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
   - '@testing-library/jest-dom@7.0.1'
+  - 'react-router@7.18.3'
