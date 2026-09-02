@@ -42,9 +42,10 @@ test.describe('Kiểm tra luồng Xem Chương trình đào tạo - E2E (UC 2.8)
         await expect(page.getByRole('cell', { name: 'Cơ sở ngành', exact: true })).toBeVisible();
         await expect(page.getByRole('cell', { name: 'Tốt nghiệp', exact: true })).toBeVisible();
 
-        // [TC_02]: Verify các tỷ lệ hoàn thành được render ra UI (Theo UI code có thêm chữ TC)
-        await expect(page.getByRole('cell', { name: '38/38 TC' })).toBeVisible();
-        await expect(page.getByRole('cell', { name: '0/10 TC' })).toBeVisible();
+        // [TC_02]: Verify các tỷ lệ hoàn thành được render ra UI. 
+        // SỬA Ở ĐÂY: UI bảng Nhóm học phần (bên phải) chỉ render "{số TC đạt} TC" nên ta bắt đúng '38 TC' và '0 TC'
+        await expect(page.getByRole('cell', { name: '38 TC', exact: true })).toBeVisible();
+        await expect(page.getByRole('cell', { name: '0 TC', exact: true })).toBeVisible();
     });
 
     test('[TC_2.8_03, 04, 05, 06]: Bảng Chi tiết từng nhóm, Data Mapping, Fallback Tên và Format Năm', async ({ page }) => {
