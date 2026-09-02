@@ -10,7 +10,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 @auth_bp.route('/ms-login', methods=['GET', 'POST'])
 @auth_bp.route('/ms-login/', methods=['GET', 'POST'])
 def ms_login():
-    data = request.get_json() or {}
+    data = request.get_json(silent=True, force=True) or {}
     email = data.get('email', '').strip().lower()
     name = data.get('name', '')
 
