@@ -21,7 +21,7 @@ export default defineConfig({
 
   use: {
     /* Base URL để dùng trong các lệnh await page.goto('') */
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://localhost:5173',
 
     /* Tái sử dụng file Cookie/Local Storage từ globalSetup cho mọi test case */
     storageState: 'auth.json',
