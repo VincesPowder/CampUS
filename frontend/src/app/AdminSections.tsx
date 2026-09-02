@@ -1076,62 +1076,88 @@ function AdminSurveySection() {
       </div>
 
       {/* Modal Thống kê kết quả */}
-      {resultModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setResultModal(null)}>
-          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
-              <div>
-                <h3 className="font-bold text-base" style={PJS}>{resultModal.title}</h3>
-                <p className="text-white/70 text-xs mt-0.5">Tỷ lệ hoàn thành: {resultModal.responseRate}% ({resultModal.submittedCount}/{resultModal.totalTarget} sinh viên)</p>
-              </div>
-              <button onClick={() => setResultModal(null)}><X className="w-4 h-4" /></button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1 space-y-6">
-              {detailLoading ? (
-                <p className="text-center py-8 text-muted-foreground text-sm">Đang tải thống kê...</p>
-              ) : !detailData || !detailData.questions || detailData.questions.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground text-sm">Chưa có câu hỏi hoặc dữ liệu phản hồi.</p>
-              ) : (
-                detailData.questions.map((q: any, qi: number) => (
-                  <div key={q.id} className="rounded-xl border border-border p-4 bg-muted/20">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-bold text-sm text-foreground" style={PJS}>
-                        {qi+1}. {q.content} {q.code !== '—' && <span className="text-xs text-muted-foreground font-normal">({q.code})</span>}
-                      </h4>
-                      <span className="text-base font-bold text-accent" style={PJS}>{q.averageRating} / 5.0 ⭐</span>
-                    </div>
+{resultModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setResultModal(null)}>
+    <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+        <div>
+          <h3 className="font-bold text-base" style={PJS}>{resultModal.title}</h3>
+          <p className="text-white/70 text-xs mt-0.5">Tỷ lệ hoàn thành: {resultModal.responseRate}% ({resultModal.submittedCount}/{resultModal.totalTarget} sinh viên)</p>
+        </div>
+        <button onClick={() => setResultModal(null)}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
+      </div>
 
-                    {/* Breakdown các mức sao 1 -> 5 */}
-                    <div className="space-y-1.5 mb-4">
-                      {q.ratingBreakdown && q.ratingBreakdown.map((b: any) => (
-                        <div key={b.star} className="flex items-center gap-3 text-xs">
-                          <span className="w-12 font-medium">{b.star} sao:</span>
-                          <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                            <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${b.percentage}%` }} />
-                          </div>
-                          <span className="w-14 text-right text-muted-foreground">{b.count} ({b.percentage}%)</span>
+      <div className="p-6 overflow-y-auto flex-1 space-y-5">
+        {detailLoading ? (
+          <p className="text-center py-8 text-muted-foreground text-sm">Đang tải thống kê từ CSDL...</p>
+        ) : !detailData || !detailData.questions || detailData.questions.length === 0 ? (
+          <p className="text-center py-8 text-muted-foreground text-sm">Chưa có câu hỏi hoặc dữ liệu phản hồi.</p>
+        ) : (
+          detailData.questions.map((q: any, qi: number) => {
+            // 🎯 Nhận diện câu hỏi Tự luận
+            const isEssay = q.isEssay || (q.code && q.code.toLowerCase().includes("tự luận")) || (q.type && q.type.toLowerCase().includes("tự luận"));
+
+            return (
+              <div key={q.id} className="rounded-xl border border-border p-4 bg-muted/20">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-bold text-sm text-foreground" style={PJS}>
+                    {qi + 1}. {q.content} {q.code && q.code !== '—' && <span className="text-xs text-muted-foreground font-normal">({q.code})</span>}
+                  </h4>
+                  
+                  {/* 🎯 Chỉ hiển thị điểm sao trung bình nếu KHÔNG PHẢI là câu tự luận */}
+                  {!isEssay && (
+                    <span className="text-base font-bold text-amber-600" style={PJS}>
+                      {q.averageRating} / 5.0 ⭐
+                    </span>
+                  )}
+                </div>
+
+                {/* 🎯 Chỉ hiện biểu đồ sao nếu là câu TRẮC NGHIỆM */}
+                {!isEssay && q.ratingBreakdown && (
+                  <div className="space-y-1.5 mb-4">
+                    {q.ratingBreakdown.map((b: any) => (
+                      <div key={b.star} className="flex items-center gap-3 text-xs">
+                        <span className="w-12 font-medium">{b.star} sao:</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${b.percentage}%` }} />
                         </div>
+                        <span className="w-16 text-right text-muted-foreground font-mono">{b.count} ({b.percentage}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Danh sách câu trả lời / Ý kiến góp ý */}
+                {q.textResponses && q.textResponses.length > 0 ? (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1.5">
+                      {isEssay ? `Ý kiến nhận xét (${q.textResponses.length}):` : `Góp ý thêm (${q.textResponses.length}):`}
+                    </p>
+                    <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                      {q.textResponses.map((txt: string, ti: number) => (
+                        <p key={ti} className="text-xs p-2.5 bg-card rounded-lg border border-border text-foreground leading-relaxed shadow-sm">
+                          {txt}
+                        </p>
                       ))}
                     </div>
-
-                    {/* Nhận xét bằng chữ của sinh viên */}
-                    {q.textResponses && q.textResponses.length > 0 && (
-                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground mb-1.5">Ý kiến nhận xét ({q.textResponses.length}):</p>
-                        <div className="space-y-1 max-h-32 overflow-y-auto">
-                          {q.textResponses.map((txt: string, ti: number) => (
-                            <p key={ti} className="text-xs p-2 bg-card rounded border border-border text-foreground leading-relaxed">{txt}</p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                ) : isEssay && (
+                  <p className="text-xs text-muted-foreground italic">Chưa có câu trả lời nào.</p>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="px-6 py-3 border-t border-border flex justify-end bg-card">
+        <button onClick={() => setResultModal(null)} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modal Tạo Khảo sát mới */}
       {createModal && (
@@ -1141,21 +1167,20 @@ function AdminSurveySection() {
   );
 }
 
-// Modal tạo khảo sát mới
 function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [deadline, setDeadline] = useState("2026-08-30");
+  const [deadline, setDeadline] = useState("2026-09-30");
   const [questions, setQuestions] = useState<any[]>([
-    { name: "Đánh giá chất lượng môn học và phương pháp giảng dạy", code: "Học phần 1" }
+    { name: "Đánh giá chất lượng giảng dạy giảng viên", type: "Trắc nghiệm" }
   ]);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleAddQuestion = () => {
-    setQuestions(prev => [...prev, { name: "", code: "" }]);
+  const handleAddQuestion = (type: "Trắc nghiệm" | "Tự luận") => {
+    setQuestions(prev => [...prev, { name: "", type }]);
   };
 
   const handleSave = async () => {
@@ -1186,8 +1211,9 @@ function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCrea
       <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
           <h3 className="font-bold text-base" style={PJS}>Tạo đợt khảo sát mới</h3>
-          <button onClick={onClose}><X className="w-4 h-4" /></button>
+          <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
         </div>
+        
         <div className="p-6 overflow-y-auto flex-1 space-y-4">
           <div>
             <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Tiêu đề khảo sát *</label>
@@ -1204,17 +1230,30 @@ function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCrea
 
           <div className="pt-3 border-t border-border">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase text-primary" style={PJS}>Danh sách mục khảo sát / câu hỏi</span>
-              <button type="button" onClick={handleAddQuestion} className="text-xs text-primary font-semibold hover:underline" style={PJS}>+ Thêm mục</button>
+              <span className="text-xs font-bold uppercase text-primary" style={PJS}>Danh sách câu hỏi</span>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => handleAddQuestion("Trắc nghiệm")} className="text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100" style={PJS}>+ Trắc nghiệm</button>
+                <button type="button" onClick={() => handleAddQuestion("Tự luận")} className="text-xs px-2.5 py-1 rounded bg-purple-50 text-purple-700 font-semibold hover:bg-purple-100" style={PJS}>+ Tự luận</button>
+              </div>
             </div>
+
             {questions.map((q, qi) => (
               <div key={qi} className="p-3 mb-2.5 border border-border rounded-lg bg-muted/20 space-y-2">
-                <input value={q.name} onChange={e => setQuestions(prev => prev.map((item, i) => i === qi ? { ...item, name: e.target.value } : item))} placeholder={`Tên mục / câu hỏi ${qi+1}...`} className="w-full border border-border rounded px-2.5 py-1.5 text-xs bg-background" />
-                <input value={q.code} onChange={e => setQuestions(prev => prev.map((item, i) => i === qi ? { ...item, code: e.target.value } : item))} placeholder="Mã môn học / phân loại (nếu có)..." className="w-full border border-border rounded px-2.5 py-1 text-xs bg-background" />
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-muted-foreground">Câu hỏi {qi + 1}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${q.type === 'Tự luận' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>{q.type}</span>
+                </div>
+                <input 
+                  value={q.name} 
+                  onChange={e => setQuestions(prev => prev.map((item, i) => i === qi ? { ...item, name: e.target.value } : item))} 
+                  placeholder="Nhập nội dung câu hỏi..." 
+                  className="w-full border border-border rounded px-2.5 py-1.5 text-xs bg-background" 
+                />
               </div>
             ))}
           </div>
         </div>
+
         <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-card">
           <button onClick={onClose} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>Hủy</button>
           <button onClick={handleSave} disabled={submitting} className="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:opacity-90 disabled:opacity-50" style={PJS}>
