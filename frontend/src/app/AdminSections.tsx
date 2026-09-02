@@ -471,7 +471,6 @@ function AddStudentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: a
     </div>
   );
 }
-
 // ─── Admin: Student Management ───────────────────────────────────────────────
 function StudentManagement() {
   const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -494,17 +493,19 @@ function StudentManagement() {
 
   // 1. Fetch danh sách sinh viên từ backend
   const fetchStudents = async () => {
-  setLoading(true);
-  try {
-    const res = await adminFetch('/api/admin/students'); // Thay fetch -> adminFetch
-    const data = await res.json();
-    if (data.status === 'success') setStudents(data.data);
-  } catch (e) {
-    console.error("Lỗi fetch sinh viên:", e);
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      const res = await adminFetch('/api/admin/students');
+      const data = await res.json();
+      if (data.status === 'success') {
+        setStudents(data.data);
+      }
+    } catch (e) {
+      console.error("Lỗi fetch sinh viên:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 2. Fetch trạng thái quyền chỉnh sửa hồ sơ
   const fetchPermission = async () => {
@@ -560,8 +561,8 @@ function StudentManagement() {
 
   // 5. Xuất file CSV
   const handleExportCSV = () => {
-  window.open(`/api/admin/students/export?admin_email=${encodeURIComponent(getAdminEmail())}`, '_blank');
-};
+    window.open(`/api/admin/students/export?admin_email=${encodeURIComponent(getAdminEmail())}`, '_blank');
+  };
 
   // 6. Nhập file CSV
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -612,7 +613,7 @@ function StudentManagement() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Hidden file input for CSV import */}
+      {/* Thẻ input ẩn phục vụ chọn file CSV */}
       <input
         type="file"
         ref={fileInputRef}
@@ -621,7 +622,7 @@ function StudentManagement() {
         className="hidden"
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Modal Xác nhận Xóa sinh viên */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
           <div className="bg-card rounded-2xl shadow-2xl px-8 py-7 w-full max-w-sm flex flex-col items-center text-center">
@@ -646,7 +647,7 @@ function StudentManagement() {
         </div>
       )}
 
-      {/* Student View / Edit Modal */}
+      {/* Modal Xem / Sửa chi tiết sinh viên */}
       {modal && (
         <StudentModal
           student={modal.student}
@@ -658,7 +659,7 @@ function StudentManagement() {
         />
       )}
 
-      {/* Add Student Modal */}
+      {/* Modal Thêm sinh viên mới */}
       {addOpen && (
         <AddStudentModal
           onClose={() => setAddOpen(false)}
@@ -666,40 +667,80 @@ function StudentManagement() {
         />
       )}
 
-      {/* Toolbar */}
+      {/* Thanh công cụ Toolbar */}
       <div className="flex flex-wrap items-center gap-3 mb-4 flex-shrink-0">
         <div className="flex-1 relative min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
+          <input 
+            value={search} 
+            onChange={e => setSearch(e.target.value)}
             placeholder="Tìm kiếm theo tên, MSSV, email..."
             className="w-full pl-9 pr-4 py-2 border border-border rounded-lg text-sm outline-none focus:border-primary transition-colors bg-card"
-            style={{ fontFamily: "'Inter', sans-serif" }} />
+            style={{ fontFamily: "'Inter', sans-serif" }} 
+          />
         </div>
-        <button onClick={() => setFilterOpen(o => !o)}
+
+        {/* Nút Bộ lọc */}
+        <button 
+          onClick={() => setFilterOpen(o => !o)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
-          style={{ borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", background: "#fff", color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          style={{ 
+            borderColor: filterOpen || activeFilters > 0 ? "#11284D" : "#e2e8f0", 
+            background: "#fff", 
+            color: filterOpen || activeFilters > 0 ? "#11284D" : "var(--muted-foreground)", 
+            fontFamily: "'Plus Jakarta Sans', sans-serif" 
+          }}
+        >
           <Filter className="w-4 h-4" /> Bộ lọc
           {activeFilters > 0 && <span className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold" style={{ background: "var(--accent)" }}>{activeFilters}</span>}
         </button>
+
         <div className="hidden sm:flex flex-1" />
-        <button onClick={handleExportCSV} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+        {/* 🎯 Nút Xuất Excel (Đã thêm hiệu ứng Hover chuẩn) */}
+        <button 
+          onClick={handleExportCSV} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium transition-all text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Download className="w-4 h-4" /> Xuất
         </button>
-        <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm font-medium transition-colors text-muted-foreground hover:bg-muted" style={{ background: "#fff", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+        {/* 🎯 Nút Nhập Excel (Đã thêm hiệu ứng Hover chuẩn) */}
+        <button 
+          onClick={() => fileInputRef.current?.click()} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-sm font-medium transition-all text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Upload className="w-4 h-4" /> Nhập
         </button>
-        <button onClick={() => setPermOpen(o => !o)}
+
+        {/* Nút Cài đặt quyền chỉnh sửa */}
+        <button 
+          onClick={() => setPermOpen(o => !o)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-semibold transition-colors"
-          style={{ borderColor: permOpen || globalPerm.enabled ? "var(--primary)" : "#e2e8f0", background: globalPerm.enabled ? "var(--primary)" : "#fff", color: globalPerm.enabled ? "#fff" : "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          style={{ 
+            borderColor: permOpen || globalPerm.enabled ? "var(--primary)" : "#e2e8f0", 
+            background: globalPerm.enabled ? "var(--primary)" : "#fff", 
+            color: globalPerm.enabled ? "#fff" : "var(--primary)", 
+            fontFamily: "'Plus Jakarta Sans', sans-serif" 
+          }}
+        >
           <Lock className="w-4 h-4" /> Quyền chỉnh sửa
           {globalPerm.enabled && <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />}
         </button>
-        <button onClick={() => setAddOpen(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+        {/* Nút Thêm sinh viên */}
+        <button 
+          onClick={() => setAddOpen(true)} 
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity" 
+          style={{ background: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
           <Plus className="w-4 h-4" /> Thêm
         </button>
       </div>
 
-      {/* Permission Section */}
+      {/* Khu vực Bật/Tắt đợt chỉnh sửa hồ sơ */}
       {permOpen && (
         <div className="mb-4 bg-card rounded-xl border border-border overflow-hidden flex-shrink-0">
           <div className="px-5 py-3 border-b border-border flex items-center justify-between" style={{ background: "var(--primary)" }}>
@@ -708,11 +749,15 @@ function StudentManagement() {
               <span className="text-white/70 text-xs" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {globalPerm.enabled ? "Đang bật" : "Đang tắt"}
               </span>
-              <button onClick={() => handleSavePermission({ ...globalPerm, enabled: !globalPerm.enabled })}
+              <button 
+                onClick={() => handleSavePermission({ ...globalPerm, enabled: !globalPerm.enabled })}
                 className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0"
-                style={{ background: globalPerm.enabled ? "#22c55e" : "rgba(255,255,255,0.3)" }}>
-                <span className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform"
-                  style={{ transform: globalPerm.enabled ? "translateX(18px)" : "translateX(2px)" }} />
+                style={{ background: globalPerm.enabled ? "#22c55e" : "rgba(255,255,255,0.3)" }}
+              >
+                <span 
+                  className="inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform"
+                  style={{ transform: globalPerm.enabled ? "translateX(18px)" : "translateX(2px)" }} 
+                />
               </button>
             </div>
           </div>
@@ -720,13 +765,21 @@ function StudentManagement() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Từ ngày</label>
-                <input type="date" value={globalPerm.from} onChange={e => handleSavePermission({ ...globalPerm, from: e.target.value })}
-                  className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" />
+                <input 
+                  type="date" 
+                  value={globalPerm.from} 
+                  onChange={e => handleSavePermission({ ...globalPerm, from: e.target.value })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" 
+                />
               </div>
               <div>
                 <label className="text-xs font-semibold text-muted-foreground block mb-1.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Đến ngày</label>
-                <input type="date" value={globalPerm.to} onChange={e => handleSavePermission({ ...globalPerm, to: e.target.value })}
-                  className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" />
+                <input 
+                  type="date" 
+                  value={globalPerm.to} 
+                  onChange={e => handleSavePermission({ ...globalPerm, to: e.target.value })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-background transition-colors" 
+                />
               </div>
             </div>
             {globalPerm.enabled && globalPerm.from && globalPerm.to && (
@@ -739,40 +792,54 @@ function StudentManagement() {
         </div>
       )}
 
-      {/* Filter Section */}
+      {/* Khu vực Bộ lọc chi tiết */}
       {filterOpen && (
         <div className="mb-4 bg-card rounded-xl border border-border px-5 py-4 flex flex-wrap gap-4 items-end flex-shrink-0">
           {[
-            { label: "Khoá",    key: "khoa"  as const, options: allKhoa  },
-            { label: "Khoa/Ngành", key: "nganh" as const, options: allNganh },
-            { label: "Bậc ĐT",  key: "bacDT" as const, options: allBac   },
-            { label: "Loại ĐT", key: "loaiDT"as const, options: allLoai  },
+            { label: "Khoá",       key: "khoa"   as const, options: allKhoa  },
+            { label: "Khoa/Ngành", key: "nganh"  as const, options: allNganh },
+            { label: "Bậc ĐT",     key: "bacDT"  as const, options: allBac   },
+            { label: "Loại ĐT",    key: "loaiDT" as const, options: allLoai  },
           ].map(f => (
             <div key={f.key} className="flex flex-col gap-1">
               <label className="text-xs font-semibold text-muted-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{f.label}</label>
-              <select value={filters[f.key]} onChange={e => setFilters(prev => ({ ...prev, [f.key]: e.target.value }))}
-                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}>
+              <select 
+                value={filters[f.key]} 
+                onChange={e => setFilters(prev => ({ ...prev, [f.key]: e.target.value }))}
+                className="border border-border rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary bg-card" 
+                style={{ fontFamily: "'Inter', sans-serif", color: "var(--foreground)" }}
+              >
                 <option value="">Tất cả</option>
                 {f.options.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
           ))}
           {activeFilters > 0 && (
-            <button onClick={clearFilters} className="px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-accent transition-colors border border-border hover:border-[#D5B370]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <button 
+              onClick={clearFilters} 
+              className="px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-accent transition-colors border border-border hover:border-[#D5B370]" 
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
               Xóa bộ lọc
             </button>
           )}
         </div>
       )}
 
-      {/* Table */}
+      {/* Bảng danh sách sinh viên */}
       <div className="flex-1 bg-card rounded-xl border border-border overflow-hidden min-h-0">
         <div className="overflow-auto h-full">
           <table className="w-full text-xs" style={{ fontFamily: "'Inter', sans-serif", borderCollapse: "collapse" }}>
             <thead className="sticky top-0 z-10">
               <tr style={{ background: "var(--primary)" }}>
-                {cols.map(c => <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c}</th>)}
-                <th className="px-3 py-2.5 w-16 text-center text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>Thao tác</th>
+                {cols.map(c => (
+                  <th key={c} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>
+                    {c}
+                  </th>
+                ))}
+                <th className="px-3 py-2.5 w-16 text-center text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>
+                  Thao tác
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -784,9 +851,12 @@ function StudentManagement() {
                 const now = new Date().toISOString().slice(0, 10);
                 const permActive = globalPerm.enabled && globalPerm.from <= now && now <= globalPerm.to;
                 return (
-                  <tr key={s.mssv} onClick={() => setModal({ student: s, mode: "view" })}
+                  <tr 
+                    key={s.mssv} 
+                    onClick={() => setModal({ student: s, mode: "view" })}
                     className="group hover:brightness-95 transition-all cursor-pointer"
-                    style={{ background: "var(--card)" }}>
+                    style={{ background: "var(--card)" }}
+                  >
                     <td className="px-3 py-2.5 font-medium text-foreground">
                       <div className="flex items-center gap-2">
                         {s.hoTen}
@@ -803,12 +873,18 @@ function StudentManagement() {
                     <td className="px-3 py-2.5 text-muted-foreground">{s.chuyenNganh || "—"}</td>
                     <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => setModal({ student: s, mode: "edit" })}
-                          className="p-1 rounded hover:bg-muted" title="Chỉnh sửa hồ sơ">
+                        <button 
+                          onClick={() => setModal({ student: s, mode: "edit" })}
+                          className="p-1 rounded hover:bg-muted" 
+                          title="Chỉnh sửa hồ sơ"
+                        >
                           <Pencil className="w-3.5 h-3.5" style={{ color: "var(--primary)" }} />
                         </button>
-                        <button onClick={() => setDeleteTarget(s)}
-                          className="p-1 rounded hover:bg-red-50 text-red-500" title="Xóa sinh viên">
+                        <button 
+                          onClick={() => setDeleteTarget(s)}
+                          className="p-1 rounded hover:bg-red-50 text-red-500" 
+                          title="Xóa sinh viên"
+                        >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -824,6 +900,7 @@ function StudentManagement() {
     </div>
   );
 }
+
 // ─── Admin: Survey Management (Khảo sát) ─────────────────────────────────────
 function AdminSurveySection() {
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -999,62 +1076,88 @@ function AdminSurveySection() {
       </div>
 
       {/* Modal Thống kê kết quả */}
-      {resultModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setResultModal(null)}>
-          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
-              <div>
-                <h3 className="font-bold text-base" style={PJS}>{resultModal.title}</h3>
-                <p className="text-white/70 text-xs mt-0.5">Tỷ lệ hoàn thành: {resultModal.responseRate}% ({resultModal.submittedCount}/{resultModal.totalTarget} sinh viên)</p>
-              </div>
-              <button onClick={() => setResultModal(null)}><X className="w-4 h-4" /></button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1 space-y-6">
-              {detailLoading ? (
-                <p className="text-center py-8 text-muted-foreground text-sm">Đang tải thống kê...</p>
-              ) : !detailData || !detailData.questions || detailData.questions.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground text-sm">Chưa có câu hỏi hoặc dữ liệu phản hồi.</p>
-              ) : (
-                detailData.questions.map((q: any, qi: number) => (
-                  <div key={q.id} className="rounded-xl border border-border p-4 bg-muted/20">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-bold text-sm text-foreground" style={PJS}>
-                        {qi+1}. {q.content} {q.code !== '—' && <span className="text-xs text-muted-foreground font-normal">({q.code})</span>}
-                      </h4>
-                      <span className="text-base font-bold text-accent" style={PJS}>{q.averageRating} / 5.0 ⭐</span>
-                    </div>
+{resultModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setResultModal(null)}>
+    <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
+        <div>
+          <h3 className="font-bold text-base" style={PJS}>{resultModal.title}</h3>
+          <p className="text-white/70 text-xs mt-0.5">Tỷ lệ hoàn thành: {resultModal.responseRate}% ({resultModal.submittedCount}/{resultModal.totalTarget} sinh viên)</p>
+        </div>
+        <button onClick={() => setResultModal(null)}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
+      </div>
 
-                    {/* Breakdown các mức sao 1 -> 5 */}
-                    <div className="space-y-1.5 mb-4">
-                      {q.ratingBreakdown && q.ratingBreakdown.map((b: any) => (
-                        <div key={b.star} className="flex items-center gap-3 text-xs">
-                          <span className="w-12 font-medium">{b.star} sao:</span>
-                          <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                            <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${b.percentage}%` }} />
-                          </div>
-                          <span className="w-14 text-right text-muted-foreground">{b.count} ({b.percentage}%)</span>
+      <div className="p-6 overflow-y-auto flex-1 space-y-5">
+        {detailLoading ? (
+          <p className="text-center py-8 text-muted-foreground text-sm">Đang tải thống kê từ CSDL...</p>
+        ) : !detailData || !detailData.questions || detailData.questions.length === 0 ? (
+          <p className="text-center py-8 text-muted-foreground text-sm">Chưa có câu hỏi hoặc dữ liệu phản hồi.</p>
+        ) : (
+          detailData.questions.map((q: any, qi: number) => {
+            // 🎯 Nhận diện câu hỏi Tự luận
+            const isEssay = q.isEssay || (q.code && q.code.toLowerCase().includes("tự luận")) || (q.type && q.type.toLowerCase().includes("tự luận"));
+
+            return (
+              <div key={q.id} className="rounded-xl border border-border p-4 bg-muted/20">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-bold text-sm text-foreground" style={PJS}>
+                    {qi + 1}. {q.content} {q.code && q.code !== '—' && <span className="text-xs text-muted-foreground font-normal">({q.code})</span>}
+                  </h4>
+                  
+                  {/* 🎯 Chỉ hiển thị điểm sao trung bình nếu KHÔNG PHẢI là câu tự luận */}
+                  {!isEssay && (
+                    <span className="text-base font-bold text-amber-600" style={PJS}>
+                      {q.averageRating} / 5.0 ⭐
+                    </span>
+                  )}
+                </div>
+
+                {/* 🎯 Chỉ hiện biểu đồ sao nếu là câu TRẮC NGHIỆM */}
+                {!isEssay && q.ratingBreakdown && (
+                  <div className="space-y-1.5 mb-4">
+                    {q.ratingBreakdown.map((b: any) => (
+                      <div key={b.star} className="flex items-center gap-3 text-xs">
+                        <span className="w-12 font-medium">{b.star} sao:</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                          <div className="bg-amber-500 h-full rounded-full transition-all" style={{ width: `${b.percentage}%` }} />
                         </div>
+                        <span className="w-16 text-right text-muted-foreground font-mono">{b.count} ({b.percentage}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Danh sách câu trả lời / Ý kiến góp ý */}
+                {q.textResponses && q.textResponses.length > 0 ? (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1.5">
+                      {isEssay ? `Ý kiến nhận xét (${q.textResponses.length}):` : `Góp ý thêm (${q.textResponses.length}):`}
+                    </p>
+                    <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                      {q.textResponses.map((txt: string, ti: number) => (
+                        <p key={ti} className="text-xs p-2.5 bg-card rounded-lg border border-border text-foreground leading-relaxed shadow-sm">
+                          {txt}
+                        </p>
                       ))}
                     </div>
-
-                    {/* Nhận xét bằng chữ của sinh viên */}
-                    {q.textResponses && q.textResponses.length > 0 && (
-                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground mb-1.5">Ý kiến nhận xét ({q.textResponses.length}):</p>
-                        <div className="space-y-1 max-h-32 overflow-y-auto">
-                          {q.textResponses.map((txt: string, ti: number) => (
-                            <p key={ti} className="text-xs p-2 bg-card rounded border border-border text-foreground leading-relaxed">{txt}</p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                ) : isEssay && (
+                  <p className="text-xs text-muted-foreground italic">Chưa có câu trả lời nào.</p>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="px-6 py-3 border-t border-border flex justify-end bg-card">
+        <button onClick={() => setResultModal(null)} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modal Tạo Khảo sát mới */}
       {createModal && (
@@ -1064,21 +1167,20 @@ function AdminSurveySection() {
   );
 }
 
-// Modal tạo khảo sát mới
 function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [deadline, setDeadline] = useState("2026-08-30");
+  const [deadline, setDeadline] = useState("2026-09-30");
   const [questions, setQuestions] = useState<any[]>([
-    { name: "Đánh giá chất lượng môn học và phương pháp giảng dạy", code: "Học phần 1" }
+    { name: "Đánh giá chất lượng giảng dạy giảng viên", type: "Trắc nghiệm" }
   ]);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleAddQuestion = () => {
-    setQuestions(prev => [...prev, { name: "", code: "" }]);
+  const handleAddQuestion = (type: "Trắc nghiệm" | "Tự luận") => {
+    setQuestions(prev => [...prev, { name: "", type }]);
   };
 
   const handleSave = async () => {
@@ -1109,8 +1211,9 @@ function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCrea
       <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-primary text-white">
           <h3 className="font-bold text-base" style={PJS}>Tạo đợt khảo sát mới</h3>
-          <button onClick={onClose}><X className="w-4 h-4" /></button>
+          <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
         </div>
+        
         <div className="p-6 overflow-y-auto flex-1 space-y-4">
           <div>
             <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Tiêu đề khảo sát *</label>
@@ -1127,17 +1230,30 @@ function CreateSurveyModal({ onClose, onCreated }: { onClose: () => void; onCrea
 
           <div className="pt-3 border-t border-border">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase text-primary" style={PJS}>Danh sách mục khảo sát / câu hỏi</span>
-              <button type="button" onClick={handleAddQuestion} className="text-xs text-primary font-semibold hover:underline" style={PJS}>+ Thêm mục</button>
+              <span className="text-xs font-bold uppercase text-primary" style={PJS}>Danh sách câu hỏi</span>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => handleAddQuestion("Trắc nghiệm")} className="text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100" style={PJS}>+ Trắc nghiệm</button>
+                <button type="button" onClick={() => handleAddQuestion("Tự luận")} className="text-xs px-2.5 py-1 rounded bg-purple-50 text-purple-700 font-semibold hover:bg-purple-100" style={PJS}>+ Tự luận</button>
+              </div>
             </div>
+
             {questions.map((q, qi) => (
               <div key={qi} className="p-3 mb-2.5 border border-border rounded-lg bg-muted/20 space-y-2">
-                <input value={q.name} onChange={e => setQuestions(prev => prev.map((item, i) => i === qi ? { ...item, name: e.target.value } : item))} placeholder={`Tên mục / câu hỏi ${qi+1}...`} className="w-full border border-border rounded px-2.5 py-1.5 text-xs bg-background" />
-                <input value={q.code} onChange={e => setQuestions(prev => prev.map((item, i) => i === qi ? { ...item, code: e.target.value } : item))} placeholder="Mã môn học / phân loại (nếu có)..." className="w-full border border-border rounded px-2.5 py-1 text-xs bg-background" />
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-muted-foreground">Câu hỏi {qi + 1}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${q.type === 'Tự luận' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>{q.type}</span>
+                </div>
+                <input 
+                  value={q.name} 
+                  onChange={e => setQuestions(prev => prev.map((item, i) => i === qi ? { ...item, name: e.target.value } : item))} 
+                  placeholder="Nhập nội dung câu hỏi..." 
+                  className="w-full border border-border rounded px-2.5 py-1.5 text-xs bg-background" 
+                />
               </div>
             ))}
           </div>
         </div>
+
         <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-card">
           <button onClick={onClose} className="px-4 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted" style={PJS}>Hủy</button>
           <button onClick={handleSave} disabled={submitting} className="px-5 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:opacity-90 disabled:opacity-50" style={PJS}>
@@ -1282,6 +1398,101 @@ function GradeEditModal({ student, courseId, onClose, onSave }: {
   );
 }
 
+function AddMonHocYearModal({ yearId, maxHK, initial, onClose, onSave }: {
+  yearId: string; 
+  maxHK: number;
+  initial?: AdminCourseItem | null;
+  onClose: () => void;
+  onSave: (course: AdminCourseItem) => void;
+}) {
+  const PJS = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+  const iCls = "w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary bg-card transition-colors";
+  const isEdit = !!initial;
+  const [maMon, setMaMon] = useState(initial?.maMon ?? "");
+  const [tenMon, setTenMon] = useState(initial?.tenMon ?? "");
+  const [soTC, setSoTC] = useState(initial?.soTC ?? 3);
+  const [soTiet, setSoTiet] = useState(initial?.soTiet ?? 45);
+  const [hocKy, setHocKy] = useState(initial?.hocKy ?? 1);
+  const [maNhom, setMaNhom] = useState(initial?.maNhom ?? "");
+  const [tenNhom, setTenNhom] = useState(initial?.tenNhom ?? "");
+  const [khoa, setKhoa] = useState(initial?.khoa ?? "CNTT");
+  const canSave = maMon.trim() && tenMon.trim();
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border" style={{ background: "var(--primary)" }}>
+          <p className="font-bold text-white text-sm" style={PJS}>{isEdit ? "Chỉnh sửa môn học" : "Thêm môn học vào năm học"}</p>
+          <button onClick={onClose}><X className="w-4 h-4 text-white/70 hover:text-white" /></button>
+        </div>
+        <div className="p-6 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Mã môn *</label>
+              <input value={maMon} onChange={e => setMaMon(e.target.value.toUpperCase())} placeholder="VD: CSC10006" className={iCls} disabled={isEdit} />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Học kỳ *</label>
+              <select value={hocKy} onChange={e => setHocKy(Number(e.target.value))} className={iCls} style={PJS}>
+                {Array.from({ length: maxHK || 3 }, (_, i) => i + 1).map(hk => (
+                  <option key={hk} value={hk}>Học kỳ {hk}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Tên môn học *</label>
+            <input value={tenMon} onChange={e => setTenMon(e.target.value)} placeholder="VD: Cơ sở dữ liệu" className={iCls} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Số TC</label>
+              <input type="number" value={soTC} min={1} max={8} onChange={e => setSoTC(Number(e.target.value))} className={iCls} />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Số tiết</label>
+              <input type="number" value={soTiet} min={1} onChange={e => setSoTiet(Number(e.target.value))} className={iCls} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Mã nhóm / Lớp</label>
+              <input value={maNhom} onChange={e => setMaNhom(e.target.value)} placeholder="VD: 24C07" className={iCls} />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Tên nhóm</label>
+              <input value={tenNhom} onChange={e => setTenNhom(e.target.value)} placeholder="VD: Nhóm 1" className={iCls} />
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1" style={PJS}>Khoa</label>
+            <input value={khoa} onChange={e => setKhoa(e.target.value)} placeholder="VD: CNTT" className={iCls} />
+          </div>
+        </div>
+        <div className="flex gap-3 px-6 py-4 border-t border-border">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors" style={PJS}>Huỷ</button>
+          <button disabled={!canSave} onClick={() => onSave({ 
+            ...(initial ?? { id: `LHP_${maMon}_${Date.now()}`, lop: maNhom || "24C01", giangVien: "Chưa phân công", emailGV: "", soSV: 0, status: "pending" as const }), 
+            maMon: maMon.trim(), 
+            tenMon: tenMon.trim(), 
+            soTC, 
+            soTiet, 
+            hocKy, 
+            maNhom: maNhom.trim(), 
+            tenNhom: tenNhom.trim(), 
+            khoa, 
+            namHoc: yearId 
+          })}
+            className="flex-1 py-2.5 rounded-lg text-white text-sm font-semibold transition-opacity disabled:opacity-40"
+            style={{ background: "var(--primary)", ...PJS }}>
+            {isEdit ? "Lưu thay đổi" : "Thêm môn học"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Modal: Thêm / Chỉnh sửa Năm học ──────────────────────────────────────────
 function AcademicYearModal({ year, onClose, onSave }: {
   year: AcademicYear | null;
@@ -1296,10 +1507,12 @@ function AcademicYearModal({ year, onClose, onSave }: {
   const [ngayBatDau, setNgayBatDau] = useState(year?.ngayBatDau ?? "");
   const [ngayKetThuc, setNgayKetThuc] = useState(year?.ngayKetThuc ?? "");
   const [status, setStatus] = useState<AcademicYear["status"]>(isYearOpen(year?.status) ? "open" : "closed");
+  
 
   const namKetThuc = namBatDau + 1;
   const shortId = `${String(namBatDau).slice(2)}-${String(namKetThuc).slice(2)}`;
   const label = `${namBatDau}–${namKetThuc}`;
+  
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={onClose}>
@@ -1396,7 +1609,77 @@ export function AdminAcademicSection() {
   const [confirmLock, setConfirmLock] = useState(false);
   const [gradeSearch, setGradeSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const gradeFileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedYear, setSelectedYear] = useState<AcademicYear | null>(null);
+  const [yearHkFilter, setYearHkFilter] = useState<number | "all">("all");
+  const [yearSearch, setYearSearch] = useState("");
+  const [addMonHocModal, setAddMonHocModal] = useState(false);
+  const [editYearCourse, setEditYearCourse] = useState<AdminCourseItem | null>(null);
 
+  // Xử lý lưu môn học phần vào DB
+const handleSaveYearCourse = async (courseData: AdminCourseItem) => {
+  try {
+    const res = await adminFetch('/api/admin/academic/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(courseData)
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      fetchCourses();
+    } else {
+      alert(data.message || "Lỗi lưu môn học");
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  setAddMonHocModal(false);
+  setEditYearCourse(null);
+};
+
+// Xử lý xóa môn học phần
+const handleDeleteYearCourse = async (courseId: string) => {
+  if (!confirm("Bạn có chắc muốn xóa môn học này khỏi năm học?")) return;
+  try {
+    const res = await adminFetch(`/api/admin/academic/courses/${courseId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.status === 'success') {
+      fetchCourses();
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+  const handleImportGrades = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file || !selectedCourse) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await adminFetch(`/api/admin/academic/courses/${selectedCourse.id}/import-grades`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      alert(data.message || "Nhập điểm thành công!");
+      // Tải lại ngay bảng điểm vừa cập nhật
+      openDetail(selectedCourse);
+      // Cập nhật lại danh sách môn học bên ngoài
+      fetchCourses();
+    } else {
+      alert(data.message || "Lỗi khi nhập file điểm.");
+    }
+  } catch (err) {
+    console.error("Lỗi import điểm:", err);
+    alert("Lỗi kết nối khi gửi file điểm.");
+  } finally {
+    if (gradeFileInputRef.current) gradeFileInputRef.current.value = "";
+  }
+};
   // 1. Fetch toàn bộ môn học phần trực tiếp từ Database
   const fetchCourses = async () => {
   setLoading(true);
@@ -1680,7 +1963,7 @@ export function AdminAcademicSection() {
               </select>
             </div>
 
-            {/* Course Table */}
+            {/* Bảng Môn học */}
             <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
               <table className="w-full text-xs" style={{ minWidth: 780 }}>
                 <thead>
@@ -1733,48 +2016,219 @@ export function AdminAcademicSection() {
             {yearModal !== null && (
               <AcademicYearModal year={yearModal === "new" ? null : yearModal} onClose={() => setYearModal(null)} onSave={saveYear} />
             )}
-            <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-3 flex-shrink-0">
-                {[
-                  { label: "Đang mở",  val: yOpen,   bg: "#f0fdf4", bord: "#bbf7d0", col: "#16a34a" },
-                  { label: "Đã đóng",  val: yClosed, bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280" },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl border px-4 py-3 flex items-center gap-3" style={{ background: s.bg, borderColor: s.bord }}>
-                    <span className="text-2xl font-bold" style={{ color: s.col, ...PJS }}>{s.val}</span>
-                    <span className="text-xs text-muted-foreground" style={PJS}>{s.label}</span>
+            {(addMonHocModal || editYearCourse) && selectedYear && (
+              <AddMonHocYearModal
+                yearId={selectedYear.id}
+                maxHK={selectedYear.soHocKy}
+                initial={editYearCourse}
+                onClose={() => { setAddMonHocModal(false); setEditYearCourse(null); }}
+                onSave={handleSaveYearCourse}
+              />
+            )}
+
+            {/* Nếu đã chọn 1 năm học -> Hiện chi tiết danh sách môn học của năm đó */}
+            {selectedYear ? (
+              <div className="flex-1 flex flex-col min-h-0 gap-4">
+                {/* Header năm học */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <button 
+                    onClick={() => setSelectedYear(null)}
+                    className="p-2 rounded-lg border border-border bg-white hover:bg-muted transition-colors text-muted-foreground shadow-sm"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5">
+                      <h3 className="font-bold text-lg text-foreground" style={PJS}>Năm học {selectedYear.label}</h3>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${selectedYear.status === "open" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${selectedYear.status === "open" ? "bg-green-500" : "bg-gray-400"}`} />
+                        {selectedYear.status === "open" ? "Mở" : "Đóng"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5" style={INTER}>
+                      {selectedYear.ngayBatDau || "—"} → {selectedYear.ngayKetThuc || "—"} · {selectedYear.soHocKy} học kỳ · {courses.filter(c => c.namHoc === selectedYear.id).length} môn học phần
+                    </p>
                   </div>
-                ))}
+
+                  {/* Nút Thêm môn học & Chỉnh sửa năm học */}
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setAddMonHocModal(true)}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-white text-xs font-semibold hover:opacity-90 transition-opacity bg-[#11284D] shadow-sm"
+                      style={PJS}
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Thêm môn học
+                    </button>
+                    <button 
+                      onClick={() => setYearModal(selectedYear)}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-white text-xs font-semibold text-muted-foreground hover:bg-muted transition-colors shadow-sm"
+                      style={PJS}
+                    >
+                      <Pencil className="w-3.5 h-3.5" /> Chỉnh sửa
+                    </button>
+                  </div>
+                </div>
+
+                {/* Thanh lọc học kỳ và tìm kiếm môn */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <select 
+                    value={String(yearHkFilter)}
+                    onChange={e => setYearHkFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
+                    className="border border-border rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" 
+                    style={PJS}
+                  >
+                    <option value="all">Tất cả học kỳ</option>
+                    <option value={1}>Học kỳ 1</option>
+                    <option value={2}>Học kỳ 2</option>
+                    <option value={3}>Học kỳ 3</option>
+                  </select>
+                  
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                    <input 
+                      value={yearSearch} 
+                      onChange={e => setYearSearch(e.target.value)}
+                      placeholder="Tìm môn học, mã môn..."
+                      className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" 
+                      style={INTER} 
+                    />
+                  </div>
+                  
+                  {(yearHkFilter !== "all" || yearSearch) && (
+                    <button 
+                      onClick={() => { setYearHkFilter("all"); setYearSearch(""); }}
+                      className="px-3 py-2 rounded-lg border border-border text-xs font-semibold text-muted-foreground bg-white hover:bg-muted transition-colors" 
+                      style={PJS}
+                    >
+                      Xóa lọc
+                    </button>
+                  )}
+                </div>
+
+                {/* Bảng danh sách môn học */}
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  {courses.filter(c => {
+                    if (c.namHoc !== selectedYear.id) return false;
+                    if (yearHkFilter !== "all" && c.hocKy !== yearHkFilter) return false;
+                    if (yearSearch.trim()) {
+                      const q = yearSearch.trim().toLowerCase();
+                      if (!c.tenMon.toLowerCase().includes(q) && !c.maMon.toLowerCase().includes(q)) return false;
+                    }
+                    return true;
+                  }).length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-3 bg-card rounded-xl border border-border">
+                      <BookOpen className="w-10 h-10 text-muted-foreground opacity-30" />
+                      <p className="text-sm font-semibold text-muted-foreground" style={PJS}>Chưa có môn học phần nào</p>
+                      <p className="text-xs text-muted-foreground" style={INTER}>Không có dữ liệu môn học cho bộ lọc này.</p>
+                    </div>
+                  ) : (
+                    <div className="bg-card rounded-xl border border-border overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs" style={{ minWidth: 720 }}>
+                          <thead>
+                            <tr style={{ background: "var(--primary)" }}>
+                              {["STT","Học kỳ","Mã MH","Tên môn học","TC","Số tiết","Mã nhóm","Tên nhóm","Khoa",""].map(h => (
+                                <th key={h} className="px-3 py-2.5 text-left font-semibold text-white whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {courses.filter(c => {
+                              if (c.namHoc !== selectedYear.id) return false;
+                              if (yearHkFilter !== "all" && c.hocKy !== yearHkFilter) return false;
+                              if (yearSearch.trim()) {
+                                const q = yearSearch.trim().toLowerCase();
+                                if (!c.tenMon.toLowerCase().includes(q) && !c.maMon.toLowerCase().includes(q)) return false;
+                              }
+                              return true;
+                            }).map((c, ci) => (
+                              <tr key={c.id} className="border-b border-border last:border-b-0 hover:brightness-[0.97] transition-all"
+                                style={{ background: ci % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                                <td className="pl-4 pr-3 py-2.5 text-muted-foreground">{ci + 1}</td>
+                                <td className="px-3 py-2.5 font-semibold text-primary" style={PJS}>HK{c.hocKy}</td>
+                                <td className="px-3 py-2.5 font-semibold text-foreground" style={PJS}>{c.maMon}</td>
+                                <td className="px-3 py-2.5 font-medium text-foreground max-w-[220px] truncate" style={PJS}>{c.tenMon}</td>
+                                <td className="px-3 py-2.5 text-center text-muted-foreground">{c.soTC}</td>
+                                <td className="px-3 py-2.5 text-center text-muted-foreground">{c.soTiet ?? "—"}</td>
+                                <td className="px-3 py-2.5 font-mono text-muted-foreground">{c.maNhom || "—"}</td>
+                                <td className="px-3 py-2.5 text-muted-foreground">{c.tenNhom || "—"}</td>
+                                <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{c.khoa}</td>
+                                <td className="px-3 py-2.5 text-right pr-4">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button onClick={() => setEditYearCourse(c)}
+                                      className="p-1.5 rounded-md hover:bg-blue-50 text-muted-foreground hover:text-blue-600 transition-colors" title="Chỉnh sửa">
+                                      <Pencil className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button onClick={() => handleDeleteYearCourse(c.id)}
+                                      className="p-1.5 rounded-md hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors" title="Xóa môn học">
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center justify-between flex-shrink-0">
-                <p className="text-xs text-muted-foreground" style={INTER}>{academicYears.length} năm học trong hệ thống</p>
-                <button onClick={() => setYearModal("new")}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                  style={{ background: "var(--primary)", ...PJS }}>
-                  <Plus className="w-4 h-4" /> Thêm năm học
-                </button>
-              </div>
-              <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
-                <table className="w-full text-xs" style={{ minWidth: 680 }}>
-                  <thead>
-                    <tr style={{ background: "var(--primary)" }}>
-                      {["Năm học", "Mã", "Ngày bắt đầu", "Ngày kết thúc", "Số HK", "Trạng thái", "Thao tác"].map(h => (
-                        <th key={h} className="px-4 py-3 text-left text-white font-semibold whitespace-nowrap" style={PJS}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {academicYears.length === 0 ? (
-                      <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">Chưa có năm học nào trong hệ thống.</td></tr>
-                    ) : (
-                      academicYears.map((y, i) => {
+            ) : (
+              /* DANH SÁCH CÁC NĂM HỌC BAN ĐẦU (Khi chưa click chọn năm) */
+              <div className="flex flex-col gap-4">
+                {/* Stat cards */}
+                <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+                  {[
+                    { label: "Đang mở",  val: yOpen,   bg: "#f0fdf4", bord: "#bbf7d0", col: "#16a34a" },
+                    { label: "Đã đóng",  val: yClosed, bg: "#f9fafb", bord: "#e5e7eb", col: "#6b7280" },
+                  ].map(s => (
+                    <div key={s.label} className="rounded-xl border px-4 py-3 flex items-center gap-3"
+                      style={{ background: s.bg, borderColor: s.bord }}>
+                      <span className="text-2xl font-bold" style={{ color: s.col, ...PJS }}>{s.val}</span>
+                      <span className="text-xs text-muted-foreground" style={PJS}>{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Toolbar */}
+                <div className="flex items-center justify-between flex-shrink-0">
+                  <p className="text-xs text-muted-foreground" style={INTER}>{academicYears.length} năm học trong hệ thống</p>
+                  <button onClick={() => setYearModal("new")}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition-opacity bg-primary"
+                    style={PJS}>
+                    <Plus className="w-4 h-4" /> Thêm năm học
+                  </button>
+                </div>
+
+                {/* Bảng danh sách năm học */}
+                <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
+                  <table className="w-full text-xs" style={{ minWidth: 680 }}>
+                    <thead>
+                      <tr style={{ background: "var(--primary)" }}>
+                        {["Năm học", "Mã", "Ngày bắt đầu", "Ngày kết thúc", "Số HK", "Môn học phần", "Trạng thái", ""].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-white font-semibold whitespace-nowrap" style={PJS}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {academicYears.map((y, i) => {
+                        const monCount = courses.filter(c => c.namHoc === y.id).length;
                         const isOpen = y.status === "open";
                         return (
-                          <tr key={y.id} className="border-b border-border hover:brightness-[0.97] transition-all" style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
+                          <tr key={y.id} 
+                            onClick={() => { setSelectedYear(y); setYearHkFilter("all"); setYearSearch(""); }}
+                            className="border-b border-border cursor-pointer hover:brightness-[0.97] transition-all"
+                            style={{ background: i % 2 === 1 ? "#dde4f5" : "var(--card)" }}>
                             <td className="px-4 py-3 font-bold text-foreground" style={PJS}>{y.label}</td>
                             <td className="px-4 py-3 font-mono text-muted-foreground">{y.id}</td>
                             <td className="px-4 py-3 text-muted-foreground">{y.ngayBatDau || "—"}</td>
                             <td className="px-4 py-3 text-muted-foreground">{y.ngayKetThuc || "—"}</td>
                             <td className="px-4 py-3 text-center text-muted-foreground">{y.soHocKy}</td>
+                            <td className="px-4 py-3 text-center font-semibold"
+                              style={{ color: monCount > 0 ? "var(--primary)" : "var(--muted-foreground)" }}>
+                              {monCount > 0 ? monCount : "—"}
+                            </td>
                             <td className="px-4 py-3">
                               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${isOpen ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? "bg-green-500" : "bg-gray-400"}`} />
@@ -1782,16 +2236,19 @@ export function AdminAcademicSection() {
                               </span>
                             </td>
                             <td className="px-4 py-3">
-                              <div className="flex items-center gap-1">
-                                <button onClick={() => setYearModal(y)} title="Chỉnh sửa" className="p-1.5 rounded-md hover:bg-muted text-muted-foreground">
+                              <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                <button onClick={() => setYearModal(y)} title="Chỉnh sửa"
+                                  className="p-1.5 rounded-md hover:bg-muted text-muted-foreground">
                                   <Pencil className="w-3.5 h-3.5" />
                                 </button>
                                 {!isOpen ? (
-                                  <button onClick={() => setCurrentYear(y.id)} title="Mở năm học" className="p-1.5 rounded-md hover:bg-green-50 text-green-600">
+                                  <button onClick={() => setCurrentYear(y.id)} title="Mở năm học"
+                                    className="p-1.5 rounded-md hover:bg-green-50 text-green-600">
                                     <CheckCircle2 className="w-3.5 h-3.5" />
                                   </button>
                                 ) : (
-                                  <button onClick={() => closeYear(y.id)} title="Đóng năm học" className="p-1.5 rounded-md hover:bg-muted text-gray-500">
+                                  <button onClick={() => closeYear(y.id)} title="Đóng năm học"
+                                    className="p-1.5 rounded-md hover:bg-muted text-gray-500">
                                     <Lock className="w-3.5 h-3.5" />
                                   </button>
                                 )}
@@ -1799,19 +2256,18 @@ export function AdminAcademicSection() {
                             </td>
                           </tr>
                         );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
     );
   }
-
-  // ══════════════════ VIEW CHI TIẾT BẢNG ĐIỂM ══════════════════
+// ══════════════════ VIEW CHI TIẾT BẢNG ĐIỂM ══════════════════
   const course = selectedCourse!;
   const isLocked = course.status === "locked";
   const filteredGrades = grades.filter(g => {
@@ -1825,6 +2281,16 @@ export function AdminAcademicSection() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
+      {/* Input ẩn phục vụ chọn file nhập điểm */}
+      <input
+        type="file"
+        ref={gradeFileInputRef}
+        onChange={handleImportGrades}
+        accept=".csv,text/csv"
+        className="hidden"
+      />
+
+      {/* Header môn học */}
       <div className="flex flex-col sm:flex-row items-start justify-between mb-5 gap-3">
         <div className="flex items-center gap-3">
           <button onClick={() => { setScreen("list"); setSelectedCourse(null); }}
@@ -1849,6 +2315,8 @@ export function AdminAcademicSection() {
           </div>
         )}
       </div>
+
+      {/* Thẻ thống kê */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
         {[
           { label: "Tổng sinh viên", val: String(grades.length), col: PRIMARY },
@@ -1862,13 +2330,48 @@ export function AdminAcademicSection() {
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-2 mb-3">
-        <div className="relative flex-1 max-w-xs">
+
+      {/* 🎯 HÀNG DUY NHẤT: Tìm kiếm (Bên trái) - Nhập & Xuất Excel (Bên phải, thẳng trên cột Ghi chú) */}
+      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <div className="relative w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <input value={gradeSearch} onChange={e => setGradeSearch(e.target.value)} placeholder="Tìm MSSV hoặc tên sinh viên..."
-            className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" style={INTER} />
+          <input 
+            value={gradeSearch} 
+            onChange={e => setGradeSearch(e.target.value)} 
+            placeholder="Tìm MSSV hoặc tên sinh viên..."
+            className="w-full pl-8 pr-3 py-2 text-xs border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white" 
+            style={INTER} 
+          />
+        </div>
+
+        {/* Cụm 2 nút luôn hiển thị ngang hàng bên phải */}
+        <div className="flex items-center gap-2">
+          <button 
+            disabled={isLocked}
+            onClick={() => !isLocked && gradeFileInputRef.current?.click()} 
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-border bg-white transition-all shadow-sm ${
+              isLocked 
+                ? "opacity-40 cursor-not-allowed text-muted-foreground pointer-events-none" 
+                : "text-muted-foreground hover:bg-slate-100 hover:text-primary hover:border-primary active:scale-95 cursor-pointer"
+            }`} 
+            style={PJS}
+            title={isLocked ? "Môn học đã khóa điểm, không thể nhập thêm điểm mới" : "Nhập bảng điểm từ file CSV/Excel"}
+          >
+            <Upload className="w-3.5 h-3.5" /> Nhập Excel
+          </button>
+          
+          <button 
+            onClick={handleExportGrades} 
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-border bg-white text-muted-foreground transition-all hover:bg-slate-100 hover:text-primary hover:border-primary shadow-sm active:scale-95" 
+            style={PJS}
+            title="Tải file bảng điểm CSV"
+          >
+            <Download className="w-3.5 h-3.5" /> Xuất Excel
+          </button>
         </div>
       </div>
+
+      {/* Bảng điểm */}
       <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-border">
         <table className="w-full text-xs" style={{ minWidth: 700 }}>
           <thead>
@@ -1917,11 +2420,8 @@ export function AdminAcademicSection() {
           </tbody>
         </table>
       </div>
-      <div className="flex justify-end mt-2 flex-shrink-0">
-        <button onClick={handleExportGrades} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs border border-border text-muted-foreground transition-colors hover:bg-muted" style={{ background: "#fff", ...PJS }}>
-          <Download className="w-3.5 h-3.5" /> Xuất Excel
-        </button>
-      </div>
+
+      {/* Modal Sửa điểm & Khóa điểm */}
       {editTarget && <GradeEditModal student={editTarget} courseId={course.id} onClose={() => setEditTarget(null)} onSave={updated => { handleSaveGrade(updated); setEditTarget(null); }} />}
       {confirmLock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }} onClick={() => setConfirmLock(false)}>
@@ -1950,6 +2450,7 @@ type AdminScheduleEntry = {
   lop: string;
   giangVien: string;
   thu: string;
+  ngay?: string;
   tiet: string;
   gio: string;
   phong: string;
@@ -1973,6 +2474,7 @@ function ScheduleModal({ item, onClose, onSave }: {
     lop: "24C07",
     giangVien: "Giảng viên",
     thu: "Thứ hai",
+    ngay: "16/09/2024 – 21/09/2024",
     tiet: "1–3",
     gio: "07:30 – 10:00",
     phong: "C.42",
@@ -1998,10 +2500,19 @@ function ScheduleModal({ item, onClose, onSave }: {
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Lớp</label><input value={form.lop} onChange={e => set("lop", e.target.value)} className={iCls} placeholder="VD: 24C07" /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Giảng viên</label><input value={form.giangVien} onChange={e => set("giangVien", e.target.value)} className={iCls} placeholder="Tên giảng viên..." /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Thứ</label><select value={form.thu} onChange={e => set("thu", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}>{thuOpts.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+          <div>
+            <label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Ngày học</label>
+            <input 
+              value={form.ngay || ""} 
+              onChange={e => set("ngay", e.target.value)} 
+              className={iCls} 
+              placeholder="VD: 30/09/2024 – 05/10/2024" 
+            />
+          </div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Giờ học</label><input value={form.gio} onChange={e => set("gio", e.target.value)} className={iCls} placeholder="VD: 07:30 – 10:00" /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Phòng học</label><input value={form.phong} onChange={e => set("phong", e.target.value)} className={iCls} placeholder="VD: C.42" /></div>
           <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Tuần học</label><input value={form.tuan} onChange={e => set("tuan", e.target.value)} className={iCls} placeholder="VD: 1–15" /></div>
-          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Hình thức</label><select value={form.hinhThuc} onChange={e => set("hinhThuc", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}><option value="Trực tiếp">Trực tiếp</option><option value="Trực tuyến">Trực tuyến</option></select></div>
+          <div><label className="text-[11px] text-muted-foreground block mb-1" style={PJS}>Hình thức</label><select value={form.hinhThuc} onChange={e => set("hinhThuc", e.target.value)} className={iCls} style={{ fontFamily: "'Inter', sans-serif" }}><option value="Trực tiếp">Trực tiếp</option><option value="Trực tuyến">Nghỉ</option></select></div>
         </div>
         <div className="flex gap-3 px-6 py-4 border-t border-border">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-card transition-colors" style={PJS}>Huỷ</button>
@@ -2235,7 +2746,7 @@ function AdminScheduleSection() {
           <table className="w-full text-xs" style={{ minWidth: 800 }}>
             <thead>
               <tr style={{ background: "var(--primary)" }}>
-                {["STT","Mã MH","Tên môn học","Lớp","Giảng viên","Thứ","Thời gian","Phòng","Tuần","Hình thức",""].map(h => (
+                {["STT","Mã MH","Tên môn học","Lớp","Giảng viên","Thứ","Ngày","Thời gian","Phòng","Tuần","Hình thức",""].map(h => (
                   <th key={h} className="px-3 py-3 text-left text-white font-semibold whitespace-nowrap first:pl-4" style={PJS}>{h}</th>
                 ))}
               </tr>
@@ -2253,6 +2764,9 @@ function AdminScheduleSection() {
                   <td className="px-3 py-2.5 text-muted-foreground">{c.lop}</td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.giangVien}</td>
                   <td className="px-3 py-2.5 font-semibold text-primary" style={PJS}>{c.thu}</td>
+                  <td className="px-3 py-2.5 font-mono text-muted-foreground whitespace-nowrap">
+                    {c.ngay || "23–29/09/2026"}
+                  </td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.gio}</td>
                   <td className="px-3 py-2.5 font-semibold text-foreground">{c.phong}</td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.tuan}</td>
@@ -2356,7 +2870,7 @@ function AdminNotificationsSection() {
     }
   };
 
-  const departments = ["all", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Kế hoạch Tài chính", "Khoa CNTT"];
+  const departments = ["all", "Phòng Đào tạo", "Phòng Công tác SV", "Phòng Kế hoạch Tài chính", "Khoa CNTT", "Khoa Toán - Tin",];
   const totalReads = notifications.reduce((acc, n) => acc + (n.readCount || 0), 0);
   const avgReadRate = notifications.length > 0 ? Math.round(notifications.reduce((acc, n) => acc + (n.readRate || 0), 0) / notifications.length) : 0;
 
@@ -2522,10 +3036,13 @@ function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; o
   const PJS: React.CSSProperties = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
   const INTER: React.CSSProperties = { fontFamily: "'Inter', sans-serif" };
 
+  const adminEmail = getAdminEmail();
+  const defaultDept = adminEmail.includes("24127465") ? "Khoa Toán - Tin" : "Khoa CNTT";
+
   const isEdit = !!initial;
   const [title, setTitle] = useState(initial?.title || "");
   const [content, setContent] = useState(initial?.content || "");
-  const [department, setDepartment] = useState(initial?.department || "Khoa CNTT");
+  const [department, setDepartment] = useState(initial?.department || defaultDept);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSave = async () => {
@@ -2572,6 +3089,7 @@ function NotificationFormModal({ initial, onClose, onSaved }: { initial?: any; o
             <label className="text-xs font-semibold text-muted-foreground block mb-1" style={PJS}>Đơn vị phát hành</label>
             <select value={department} onChange={e => setDepartment(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background" style={PJS}>
               <option value="Khoa CNTT">Khoa CNTT</option>
+              <option value="Khoa Toán - Tin">Khoa Toán - Tin</option>
               <option value="Phòng Đào tạo">Phòng Đào tạo</option>
               <option value="Phòng Công tác SV">Phòng Công tác SV</option>
               <option value="Phòng Kế hoạch Tài chính">Phòng Kế hoạch Tài chính</option>
@@ -2827,32 +3345,43 @@ function AdminTuitionSection() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {detailStudent.items.map((it: any) => (
-                    <tr key={it.malhp} className="hover:bg-muted/30">
-                      <td className="py-2.5">
-                        <div className="font-bold text-foreground" style={PJS}>{it.tenMon}</div>
-                        <div className="text-[11px] text-muted-foreground font-mono">{it.maMon} &middot; Lớp: {it.malhp}</div>
-                      </td>
-                      <td className="py-2.5 text-center text-muted-foreground">{it.soTc}</td>
-                      <td className="py-2.5 text-right font-mono text-muted-foreground">{formatVND(it.hocPhiGoc)}</td>
-                      <td className="py-2.5 text-right font-mono text-amber-600">{it.mucGiam > 0 ? formatVND(it.mucGiam) : "—"}</td>
-                      <td className="py-2.5 text-right font-mono font-bold text-primary">{formatVND(it.thucDong)}</td>
-                      <td className="py-2.5 text-center">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${it.trangThai === 'Đã thanh toán' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                          {it.trangThai}
-                        </span>
-                      </td>
-                      <td className="py-2.5 text-center">
-                        <button
-                          onClick={() => setEditItem({ mssv: detailStudent.mssv, item: it })}
-                          className="p-1 rounded text-muted-foreground hover:text-blue-600"
-                          title="Chỉnh sửa miễn giảm / học phí"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {detailStudent.items.map((it: any) => {
+                    const isPaid = (
+                      it.trangThai === 'Đã thanh toán' || 
+                      it.trangThai === 1 || 
+                      it.trangThai === '1' ||
+                      it.trangThai === true
+                    );
+
+                    return (
+                      <tr key={it.malhp} className="hover:bg-muted/30">
+                        <td className="py-2.5">
+                          <div className="font-bold text-foreground" style={PJS}>{it.tenMon}</div>
+                          <div className="text-[11px] text-muted-foreground font-mono">{it.maMon} &middot; Lớp: {it.malhp}</div>
+                        </td>
+                        <td className="py-2.5 text-center text-muted-foreground">{it.soTc}</td>
+                        <td className="py-2.5 text-right font-mono text-muted-foreground">{formatVND(it.hocPhiGoc)}</td>
+                        <td className="py-2.5 text-right font-mono text-amber-600">{it.mucGiam > 0 ? formatVND(it.mucGiam) : "—"}</td>
+                        <td className="py-2.5 text-right font-mono font-bold text-primary">{formatVND(it.thucDong)}</td>
+                        
+                        <td className="py-2.5 text-center">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                            {isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                          </span>
+                        </td>
+                        
+                        <td className="py-2.5 text-center">
+                          <button
+                            onClick={() => setEditItem({ mssv: detailStudent.mssv, item: it })}
+                            className="p-1 rounded text-muted-foreground hover:text-blue-600"
+                            title="Chỉnh sửa miễn giảm / học phí"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -2968,6 +3497,12 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
   const notifRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const [badges, setBadges] = useState<Record<string, number>>({});
+
+  const currentEmail = adminProfile?.email || (adminProfile as any)?.mail || "";
+  if (currentEmail) {
+    localStorage.setItem("user_email", currentEmail);
+    (window as any).__CURRENT_ADMIN_EMAIL__ = currentEmail;
+  }
 
   useEffect(() => {
     const email = adminProfile?.email || (adminProfile as any)?.mail || "";
@@ -3161,7 +3696,7 @@ export function AdminApp({ onLogout, HelpButton, adminProfile }: { onLogout: () 
             </button>
           </div>
         </header>
-        <main className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
+        <main key={currentEmail} className="flex-1 overflow-hidden p-3 sm:p-5 md:p-6 pb-20 md:pb-6 flex flex-col min-h-0">
           {section === "students"      && <StudentManagement />}
           {section === "survey"        && <AdminSurveySection />}
           {section === "tuition"       && <AdminTuitionSection />}

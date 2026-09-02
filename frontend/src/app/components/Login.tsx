@@ -11,7 +11,7 @@ type LoginProps = {
 // Hàm decode JWT an toàn hỗ trợ đầy đủ Unicode tiếng Việt
 function parseJwt(token: string) {
   try {
-    const base64Url = token.split('.');
+    const base64Url = token.split('.')[1];
     if (!base64Url) return null;
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
@@ -23,7 +23,7 @@ function parseJwt(token: string) {
     return JSON.parse(jsonPayload);
   } catch (e) {
     try {
-      const base64Url = token.split('.');
+      const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       return JSON.parse(window.atob(base64));
     } catch {
@@ -50,14 +50,22 @@ export default function Login({ onLogin }: LoginProps) {
       return;
     }
 
-    // 1. Tự động khôi phục phiên chính xác từ token
+    // 1. Tự động khôi phục phiên chính xác từ token đã lưu
     if (existingToken) {
       const decodedData = parseJwt(existingToken);
       if (decodedData) {
         // Kiểm tra token đã hết hạn chưa
         if (decodedData.exp && decodedData.exp * 1000 < Date.now()) {
           localStorage.removeItem('campus_token');
+          localStorage.removeItem('user_email');
           return;
+        }
+
+        // 🎯 Lưu ngay email của phiên khôi phục vào localStorage
+        const email = decodedData.email || decodedData.preferred_username || decodedData.upn || accounts[0]?.username || "";
+        if (email) {
+          localStorage.setItem('user_email', email);
+          (window as any).__CURRENT_ADMIN_EMAIL__ = email;
         }
 
         const userRole = (decodedData.role as "admin" | "student") || "student";
@@ -65,6 +73,7 @@ export default function Login({ onLogin }: LoginProps) {
         return;
       } else {
         localStorage.removeItem('campus_token');
+        localStorage.removeItem('user_email');
       }
       return;
     }
@@ -96,11 +105,19 @@ export default function Login({ onLogin }: LoginProps) {
           if (!backendRes.ok) {
             setError(resData.message || "Đăng nhập thất bại.");
             sessionStorage.removeItem('campus_is_logging_in');
+            localStorage.removeItem('campus_token');
+            localStorage.removeItem('user_email');
             await instance.logoutRedirect({ account: account, postLogoutRedirectUri: window.location.origin });
             return;
           }
 
+          // 🎯 Lưu token VÀ email chính thức của tài khoản vừa đăng nhập
+          const finalEmail = resData.data?.email || resData.email || userEmail;
           localStorage.setItem('campus_token', resData.token);
+          if (finalEmail) {
+            localStorage.setItem('user_email', finalEmail);
+            (window as any).__CURRENT_ADMIN_EMAIL__ = finalEmail;
+          }
           sessionStorage.removeItem('campus_is_logging_in'); 
 
           // Nhận đúng role (admin hoặc student) từ Backend

@@ -484,6 +484,24 @@ const DEFAULT_GROUP_REQ: Record<string, number> = {
   "GD_QP": 4,
 };
 
+const handleScoreChange = (val: string, setter: (v: string) => void, maxVal: number = 10) => {
+  if (val === "") {
+    setter("");
+    return;
+  }
+  const num = parseFloat(val);
+  if (isNaN(num)) return;
+  if (num < 0) {
+    setter("0");
+    return;
+  }
+  if (num > maxVal) {
+    setter(String(maxVal));
+    return;
+  }
+  setter(val);
+};
+
 export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
   const { accounts } = useMsal();
   const mssv = studentMssv || (accounts[0]?.username ? accounts[0].username.split("@")[0] : "24127158");
@@ -576,7 +594,7 @@ export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
   const ccNum = parseFloat(ccScore) || 0;
   const gkNum = parseFloat(gkScore) || 0;
   const ckNum = parseFloat(ckScore) || 0;
-  const bonusNum = Math.min(parseFloat(bonusScore) || 0, 1);
+  const bonusNum = Math.min(parseFloat(bonusScore) || 0, 10)/10;
 
   const hasAnyScore = ccScore !== "" || gkScore !== "" || ckScore !== "";
   const rawScore = hasAnyScore ? (ccNum * ccWeight + gkNum * gkWeight + ckNum * ckWeight) / 100 : null;
@@ -671,8 +689,11 @@ export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
                 return (
                   <tr key={g.code} style={{ background: i % 2 === 0 ? "#fff" : "#dde4f5" }}>
                     <td className="px-3 py-2 text-foreground border-b border-border leading-tight">{displayName}</td>
-                    <td className="px-3 py-2 border-b border-border text-right font-bold whitespace-nowrap" style={{ color: done ? "#22c55e" : "var(--primary)" }}>
-                      {g.done}/{reqCount} TC
+                    <td 
+                      className="px-3 py-2 border-b border-border text-right font-bold whitespace-nowrap" 
+                      style={{ color: g.done > 0 ? "#101A2C" : "var(--muted-foreground)" }}
+                    >
+                      {g.done} TC
                     </td>
                   </tr>
                 );
@@ -700,7 +721,7 @@ export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
                     <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: "#dde4f5" }}>
                       <span className="text-[12px] font-semibold" style={{ color: "var(--primary)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{g.name}</span>
                       <span className="text-[11px] font-medium" style={{ color: "var(--primary)", opacity: 0.8, fontFamily: "'Inter', sans-serif" }}>
-                        (Tích lũy: {g.done}/{reqCount} TC)
+                        (Đã tích lũy: {g.done} TC)
                       </span>
                     </div>
                     <table className="w-full" style={{ borderCollapse: "collapse", fontFamily: "'Inter', sans-serif" }}>
@@ -925,7 +946,7 @@ export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
                           </td>
                           <td className="px-3 py-2 text-center border-b border-l border-border">
                             <input type="number" min={0} max={10} step={0.1} value={row.score}
-                              onChange={e => row.setScore(e.target.value)}
+                              onChange={e => handleScoreChange(e.target.value, row.setScore, 10)}
                               placeholder={isPredicting ? "để trống" : "0–10"}
                               className={`w-20 border px-1.5 py-1 text-xs text-center focus:outline-none focus:border-primary bg-white ${isPredicting ? "border-dashed border-primary/50 text-muted-foreground" : "border-border"}`} />
                           </td>
@@ -944,8 +965,8 @@ export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
                       <td className="px-3 py-2 font-medium text-foreground border-b border-border">Điểm cộng</td>
                       <td className="px-3 py-2 text-center text-[10px] text-muted-foreground border-b border-l border-border">10%</td>
                       <td className="px-3 py-2 text-center border-b border-l border-border">
-                        <input type="number" min={0} max={1} step={0.1} value={bonusScore}
-                          onChange={e => setBonusScore(e.target.value)} placeholder="0–1"
+                        <input type="number" min={0} max={10} step={0.1} value={bonusScore}
+                          onChange={e => handleScoreChange(e.target.value, setBonusScore, 10)}
                           className="w-20 border border-border px-1.5 py-1 text-xs text-center focus:outline-none focus:border-primary bg-white" />
                       </td>
                       <td className="px-3 py-2 border-b border-l border-border" />
@@ -983,7 +1004,7 @@ export function ProgressSection({ studentMssv }: { studentMssv?: string }) {
                   <div className="flex items-center gap-2">
                     <label className="text-[10px] text-muted-foreground whitespace-nowrap">Mục tiêu:</label>
                     <input type="number" min={0} max={10} step={0.1} value={targetScoreStr}
-                      onChange={e => setTargetScoreStr(e.target.value)}
+                      onChange={e => handleScoreChange(e.target.value, setTargetScoreStr, 10)}
                       placeholder="0–10"
                       className="flex-1 border border-border px-2 py-1 text-xs text-center font-bold focus:outline-none focus:border-primary bg-white" style={{ color: "var(--primary)" }} />
                   </div>
@@ -1148,7 +1169,7 @@ export function AcademicSection({
                     { label: "Tổng kết (10)", cls: "w-20  text-center" },
                     { label: "Điểm chữ",     cls: "w-16  text-center" },
                     { label: "Hệ 4",         cls: "w-14  text-center" },
-                    { label: "Kết quả",      cls: "w-20  text-center" },
+                    { label: "Trạng thái",      cls: "w-20  text-center" },
                   ].map(c => (
                     <th key={c.label} className={`px-2 py-2.5 font-semibold text-white whitespace-nowrap ${c.cls}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 11 }}>{c.label}</th>
                   ))}
@@ -2036,11 +2057,17 @@ export function ScheduleSection({
                   const caIdx = it.start_period <= 2 ? 0 : it.start_period <= 5 ? 1 : it.start_period <= 8 ? 2 : 3;
                   const span = (it.end_period - it.start_period + 1) >= 4 ? 2 : 1;
 
+                  const startT = it.start_time || (it.thoigian_bd ? it.thoigian_bd.slice(0, 5) : "") || (it.start_period <= 5 ? "07:30" : "13:30");
+                  const endT = it.end_time || (it.thoigian_kt ? it.thoigian_kt.slice(0, 5) : "") || (it.start_period <= 5 ? "11:10" : "17:10");
+                  const gioStr = it.time_range || it.gio || `${startT} – ${endT}`;
+                  const tietStr = it.tiet || `${it.start_period}–${it.end_period}`;
+
                   const entry: TKBEntry = {
                     tenMon: it.tenmh,
                     maMon: it.mamh,
                     maNhom: it.tenlop || it.malhp,
                     tiet: `${it.start_period}–${it.end_period}`,
+                    gio: gioStr,
                     gv: it.lecturer || "",
                     email: it.email || "",
                     hinhThuc: it.hinhthuchoc || "TẬP TRUNG",
@@ -2084,8 +2111,10 @@ export function ScheduleSection({
         }
       } catch (err) {
         console.warn("Lỗi kết nối API:", err);
-        setApiWeekData(TKB_DATA[tuan] || null);
-        setApiExamData(EXAM_DATA);
+        const emptyGrid: Record<number, TKBCell[]> = {};
+        for (let d = 0; d < 7; d++) emptyGrid[d] = [null, null, null, null];
+        setApiWeekData(emptyGrid);
+        setApiExamData([]);
       } finally {
         setLoading(false);
       }
