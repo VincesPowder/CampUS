@@ -2,18 +2,20 @@
 Flask
 Flask-Cors
 Werkzeug
+gunicorn
 
-# Database
+# Database (PostgreSQL / Neon.tech)
 Flask-SQLAlchemy
 SQLAlchemy
+psycopg2-binary
 
-# # AI & Data Processing (Cho Chatbox & Recommender)
-google-generativeai==0.4.0
-
+# AI & Data Processing
+google-generativeai>=0.4.0
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
 
 # Utils & Security
 python-dotenv
 requests
 PyJWT
-
-
