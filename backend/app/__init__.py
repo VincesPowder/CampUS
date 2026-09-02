@@ -7,33 +7,46 @@ from dotenv import load_dotenv
 # 1. Đọc file .env
 load_dotenv()
 
+# 2. XỬ LÝ LỖI CHỮ HOA/CHỮ THƯỜNG CỦA POSTGRESQL (TỰ ĐỘNG CHUYỂN IDENTIFIER VỀ LOWERCASE)
+try:
+    from sqlalchemy.dialects.postgresql.base import PGIdentifierPreparer, PGDialect
+    from sqlalchemy.dialects.postgresql.psycopg2 import PGDialect_psycopg2
+
+    class CaseInsensitivePreparer(PGIdentifierPreparer):
+        def quote_identifier(self, value):
+            return f'"{str(value).lower()}"'
+
+        def quote(self, ident, force=None):
+            if ident:
+                return f'"{str(ident).lower()}"'
+            return '""'
+
+    PGDialect.preparer = CaseInsensitivePreparer
+    PGDialect_psycopg2.preparer = CaseInsensitivePreparer
+except Exception as e:
+    print(f"Warning patching preparer: {e}")
+
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
     
-    # 2. CẤU HÌNH SECRET KEY
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'campus_secret_key_2026_hcmus_super_secret')
     
-    # 3. CHO PHÉP CORS (Cả localhost và domain trên Render đều gọi API được)
+    # Cho phép CORS cho toàn bộ domain
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
     
-    # 4. KẾT NỐI DATABASE (ƯU TIÊN NEON.TECH, NẾU KHÔNG CÓ THÌ FALLBACK SQLITE)
+    # Kết nối Database Neon.tech
     database_url = os.getenv('DATABASE_URL')
     if database_url:
-        # Chuẩn hóa nếu link bắt đầu bằng postgres://
         if database_url.startswith("postgres://"):
             database_url = database_url.replace("postgres://", "postgresql://", 1)
-        # Bỏ đuôi channel_binding nếu có để tránh lỗi psycopg2
         database_url = database_url.replace("&channel_binding=require", "").replace("?channel_binding=require", "")
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-        print(f"👉 Đang kết nối tới PostgreSQL: {database_url[:35]}...")
     else:
-        # Fallback về SQLite ở máy local
         basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
         db_path = os.path.join(basedir, 'database', 'campus.db')
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-        print(f"👉 Đang kết nối tới SQLite cục bộ: {db_path}")
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
