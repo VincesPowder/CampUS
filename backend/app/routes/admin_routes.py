@@ -499,36 +499,61 @@ def import_students():
         file = request.files['file']
         if file.filename == '':
             return jsonify({"status": "error", "message": "Tên file không hợp lệ"}), 400
-            
-        stream = io.StringIO(file.stream.read().decode("utf-8-sig"), newline=None)
-        csv_reader = csv.reader(stream)
-        header = next(csv_reader, None)
+
+        # Đọc dữ liệu file an toàn
+        raw_bytes = file.stream.read()
+        try:
+            content_str = raw_bytes.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            try:
+                content_str = raw_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                content_str = raw_bytes.decode("latin-1")
+                
+        stream = io.StringIO(content_str, newline=None)
+        
+        # Tự động nhận diện dấu phẩy , hoặc dấu chấm phẩy ;
+        first_line = content_str.splitlines()[0] if content_str.splitlines() else ""
+        delim = ';' if ';' in first_line and ',' not in first_line else ','
+        
+        csv_reader = csv.reader(stream, delimiter=delim)
+        header = next(csv_reader, None)  # Bỏ qua dòng tiêu đề
         imported_count = 0
         
+        # Ngành mặc định theo Khoa của giáo vụ
         default_nganh = None
         if not g.is_super_admin and g.makhoa:
             ng = Nganh.query.filter_by(makhoa=g.makhoa).first()
             default_nganh = ng.manganh if ng else None
         else:
             default_nganh = resolve_manganh(None)
+
+        def get_col(r, idx, default_val=""):
+            if idx < len(r) and r[idx] is not None:
+                val = str(r[idx]).strip()
+                return val if val else default_val
+            return default_val
         
         for row in csv_reader:
             if not row or len(row) < 2:
                 continue
-            mssv = row[0].strip()
-            hoten = row.strip()
+                
+            # Lấy từng cột theo đúng chỉ mục số 0, 1, 2, 3, 4, 5, 6
+            mssv      = get_col(row, 0)
+            hoten     = get_col(row, 1)
+            
             if not mssv or not hoten:
                 continue
                 
-            email = row.strip() if len(row) > 2 and row.strip() else f"{mssv}@student.hcmus.edu.vn"
-            gioitinh = row.strip() if len(row) > 3 and row.strip() else "Nam"
-            nienkhoa = row[4].strip() if len(row) > 4 and row[4].strip() else "2024"
-            bacdaotao = row[5].strip() if len(row) > 5 and row[5].strip() else "Đại học"
-            loaidaotao = row[6].strip() if len(row) > 6 and row[6].strip() else "Chính quy"
+            email     = get_col(row, 2, f"{mssv}@student.hcmus.edu.vn")
+            gioitinh  = get_col(row, 3, "Nam")
+            nienkhoa  = get_col(row, 4, "2024")
+            bacdaotao = get_col(row, 5, "Đại học")
+            loaidaotao= get_col(row, 6, "Chính quy")
             
             existing = SinhVien.query.filter_by(mssv=mssv).first()
             if existing:
-                # Kiểm tra quyền nếu là giáo vụ khoa
+                # Nếu là giáo vụ khoa thì chỉ sửa sinh viên khoa mình
                 if not g.is_super_admin and g.makhoa:
                     if existing.nganh and existing.nganh.makhoa != g.makhoa:
                         continue
@@ -556,7 +581,7 @@ def import_students():
         return jsonify({"status": "success", "message": f"Đã nhập thành công {imported_count} sinh viên"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": f"Lỗi xử lý file: {str(e)}"}), 500
 
 @admin_bp.route('/students/export', methods=['GET'])
 @faculty_required
@@ -1164,10 +1189,10 @@ def get_admin_exams():
             if lt.ngaythi:
                 thu_str = thu_names[lt.ngaythi.weekday()]
 
-            # 🎯 1. Chỉ lấy giờ bắt đầu HH:MM từ DB
+            # 1. Chỉ lấy giờ bắt đầu HH:MM từ DB
             gio_str = lt.giothi.strftime('%H:%M') if lt.giothi else "07:30"
             
-            # 🎯 2. Tính ca thi chuẩn xác
+            # 2. Tính ca thi chuẩn xác
             ca_str = xac_dinh_ca_thi(lt.giothi)
 
             item = {
