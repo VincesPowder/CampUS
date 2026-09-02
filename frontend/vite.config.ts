@@ -46,6 +46,11 @@ export default defineConfig({
     }
   },
 
+  // THÊM ĐOẠN NÀY: Cho phép Render truy cập vào server preview mà không bị chặn host
+  preview: {
+    allowedHosts: true,
+  },
+
   // SỬA 3: Bổ sung các định dạng ảnh (.jpg, .png, .jpeg) vào assetsInclude 
   // để Vite chắc chắn load chúng như một tệp tĩnh (asset) không bị lỗi parse code.
   assetsInclude: ['**/*.svg', '**/*.csv', '**/*.jpg', '**/*.jpeg', '**/*.png'],
