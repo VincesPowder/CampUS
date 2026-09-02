@@ -70,14 +70,18 @@ test.describe('Kiểm tra luồng Dự đoán điểm số - E2E (UC 2.9)', () =
         await gkRow.locator('input').first().fill('30');
         await expect(ckRow.locator('span').first()).toHaveText('60%');
 
-        // Đặt điểm số: CC=8, GK=7, CK=9, Điểm cộng=0.5
+        // Đặt điểm số: CC=8, GK=7, CK=9
         await ccRow.locator('input').nth(1).fill('8');
         await gkRow.locator('input').nth(1).fill('7');
         await ckRow.locator('input').first().fill('9');
-        await bonusRow.locator('input').first().fill('0.5');
+
+        // NHỚ SỬA Ở ĐÂY: Nhập '5' để hệ thống tự lấy 10% của 5 = 0.5 điểm cộng
+        await bonusRow.locator('input').first().fill('5');
 
         // Kỳ vọng: 8*0.1 + 7*0.3 + 9*0.6 + 0.5 = 8.80
-        await expect(page.getByText('8.80').first()).toBeVisible();
+        // SỬA CÁCH BẮT ELEMENT ĐỂ TRÁNH LỖI TEXT
+        const totalScoreElement = page.locator('.text-3xl.font-bold').filter({ hasText: /8\.80/ });
+        await expect(totalScoreElement).toBeVisible();
     });
 
     test('[TC_2.9_05, 06, 07, 08]: Dự đoán điểm số và các trường hợp biên', async ({ page }) => {
