@@ -730,12 +730,13 @@ def get_academic_courses():
         if not g.is_super_admin and g.makhoa:
             valid_ids = get_faculty_lhp_ids(g.makhoa)
             if valid_ids:
-                query = query.filter(
-                    (LopHocPhan.malhp.in_(valid_ids)) | 
-                    (MonHoc.mamh.like(f"{g.makhoa}%"))
-                )
+                query = query.filter(LopHocPhan.malhp.in_(valid_ids))
             else:
                 query = query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
+                
+            # Loại trừ vĩnh viễn môn Tin học cơ sở đối với khoa CNTT
+            if g.makhoa == "CSC":
+                query = query.filter(MonHoc.mamh != 'CSC00003')
 
         lhps = query.all()
         result = []
@@ -1093,31 +1094,68 @@ def import_course_grades(course_id):
         return jsonify({"status": "error", "message": f"Lỗi xử lý file điểm: {str(e)}"}), 500
 
 @admin_bp.route('/academic/years', methods=['GET'])
+@faculty_required
 def get_academic_years():
     try:
-        hks = HocKyNamHoc.query.all()
-        years_map = {}
+        all_semesters = HocKyNamHoc.query.all()
         
-        for hk in hks:
-            nh = hk.namhoc or "25-26"
+        years_map = {}
+        for s in all_semesters:
+            nh = s.namhoc or "25-26"
             if nh not in years_map:
-                p1, p2 = nh.split("-") if "-" in nh else (nh, "")
-                label = f"20{p1}–20{p2}" if p2 else nh
-                years_map[nh] = {
-                    "id": nh,
-                    "label": label,
-                    "ngayBatDau": format_date(hk.ngaybatdau) or "01/09/2025",
-                    "ngayKetThuc": format_date(hk.ngayketthuc) or "31/08/2026",
-                    "soHocKy": 3,
-                    "status": hk.trangthai or "open"
-                }
+                years_map[nh] = []
+            years_map[nh].append(s)
 
-        if not years_map:
-            years_map["25-26"] = {"id": "25-26", "label": "2025–2026", "ngayBatDau": "01/09/2025", "ngayKetThuc": "31/08/2026", "soHocKy": 3, "status": "open"}
-            years_map["24-25"] = {"id": "24-25", "label": "2024–2025", "ngayBatDau": "01/09/2024", "ngayKetThuc": "31/08/2025", "soHocKy": 3, "status": "closed"}
+        result = []
+        sorted_years = sorted(years_map.keys(), reverse=True)
 
-        years_list = sorted(list(years_map.values()), key=lambda x: x["id"], reverse=True)
-        return jsonify({"status": "success", "data": years_list}), 200
+        for nh in sorted_years:
+            sems = years_map[nh]
+            
+            if '-' in nh:
+                p1, p2 = nh.split('-', 1)
+                start_y = f"20{p1}" if len(p1) == 2 else p1
+                end_y = f"20{p2}" if len(p2) == 2 else p2
+                label = f"{start_y}–{end_y}"
+            else:
+                label = nh
+
+            # Ngày bắt đầu từ HK1
+            hk1 = next((s for s in sems if "HK1" in (s.ten_hocky or "").upper()), None)
+            start_date_obj = hk1.ngaybatdau if (hk1 and hk1.ngaybatdau) else min((s.ngaybatdau for s in sems if s.ngaybatdau), default=None)
+
+            # Ngày kết thúc từ HK3
+            hk3 = next((s for s in sems if "HK3" in (s.ten_hocky or "").upper()), None)
+            end_date_obj = hk3.ngayketthuc if (hk3 and hk3.ngayketthuc) else max((s.ngayketthuc for s in sems if s.ngayketthuc), default=None)
+
+            # Format ngày ra DD/MM/YYYY an toàn
+            def fmt(d):
+                if not d: return "—"
+                if hasattr(d, 'strftime'): return d.strftime('%d/%m/%Y')
+                d_str = str(d).split(' ')[0]
+                if '-' in d_str:
+                    y, m, day = d_str.split('-')
+                    return f"{day}/{m}/{y}"
+                return d_str
+
+            # Trạng thái: Chỉ đóng khi tất cả HK đã Closed
+            has_open_sem = any(
+                str(s.trangthai or "").strip().lower() in ['open', 'mở', 'active', '1'] 
+                for s in sems
+            )
+            year_status = "open" if has_open_sem else "closed"
+
+            result.append({
+                "id": nh,
+                "label": label,
+                "namHoc": nh,
+                "ngayBatDau": fmt(start_date_obj),
+                "ngayKetThuc": fmt(end_date_obj),
+                "soHocKy": len(sems),
+                "status": year_status
+            })
+
+        return jsonify({"status": "success", "data": result}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -1151,21 +1189,30 @@ def create_academic_year():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @admin_bp.route('/academic/years/<year_id>', methods=['PUT'])
+@faculty_required
 def update_academic_year(year_id):
     try:
         data = request.get_json() or {}
-        status = data.get('status')
-        start_d = parse_date(data.get('ngayBatDau'))
-        end_d = parse_date(data.get('ngayKetThuc'))
+        new_status = data.get('status')
         
-        hks = HocKyNamHoc.query.filter_by(namhoc=year_id).all()
-        for hk in hks:
-            if status: hk.trangthai = status
-            if start_d: hk.ngaybatdau = start_d
-            if end_d: hk.ngayketthuc = end_d
+        # Nếu đổi trạng thái năm học:
+        if new_status:
+            st_db = "Open" if new_status == "open" else "Closed"
+            # Nếu đóng năm học -> Đóng tất cả các học kỳ trong năm học đó
+            if new_status == "closed":
+                HocKyNamHoc.query.filter_by(namhoc=year_id).update({"trangthai": "Closed"})
+            # Nếu mở năm học -> Mở học kỳ HK3 (hoặc học kỳ mới nhất)
+            elif new_status == "open":
+                hk3 = HocKyNamHoc.query.filter_by(namhoc=year_id, ten_hocky="HK3").first()
+                if hk3:
+                    hk3.trangthai = "Open"
+                else:
+                    last_hk = HocKyNamHoc.query.filter_by(namhoc=year_id).order_by(HocKyNamHoc.ma_hocky.desc()).first()
+                    if last_hk: last_hk.trangthai = "Open"
+
+            db.session.commit()
             
-        db.session.commit()
-        return jsonify({"status": "success", "message": f"Cập nhật năm học {year_id} thành công"}), 200
+        return jsonify({"status": "success", "message": "Cập nhật năm học thành công"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -1188,13 +1235,14 @@ def get_admin_classes():
         
         # 🎯 Chỉ lấy Lịch học của những lớp mà sinh viên CNTT theo học
         if not g.is_super_admin and g.makhoa:
-            subquery_lhp_sv = db.session.query(KetQuaHocTap.malhp)\
-                .join(SinhVien, KetQuaHocTap.mssv == SinhVien.mssv)\
-                .join(Nganh, SinhVien.manganh == Nganh.manganh)\
-                .filter(Nganh.makhoa == g.makhoa)\
-                .distinct().subquery()
+            valid_ids = get_faculty_lhp_ids(g.makhoa)
+            if valid_ids:
+                query = query.filter(LopHocPhan.malhp.in_(valid_ids))
+            else:
+                query = query.filter(MonHoc.mamh.like(f"{g.makhoa}%"))
                 
-            query = query.filter(LopHocPhan.malhp.in_(subquery_lhp_sv))
+            if g.makhoa == "CSC":
+                query = query.filter(MonHoc.mamh != 'CSC00003')
 
         lich_hocs = query.all()
         result = []
@@ -1942,10 +1990,12 @@ def delete_admin_notification(matb):
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# ─── 6. PHÂN HỆ QUẢN LÝ KHẢO SÁT (SURVEY MANAGEMENT) ─────────────────────────
-# ══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# SURVEY MANAGEMENT ROUTES (QUẢN LÝ KHẢO SÁT & KẾT QUẢ)
+# =============================================================================
+from app.models.survey import KhaoSat, CauHoiKhaoSat, SvKhaoSat, TraLoiKhaoSat
 
+# 1. Danh sách khảo sát
 @admin_bp.route('/surveys', methods=['GET'])
 @faculty_required
 def get_admin_surveys():
@@ -1956,50 +2006,49 @@ def get_admin_surveys():
         surveys = KhaoSat.query.all()
         total_students = SinhVien.query.count() or 1
         result = []
+        now = datetime.now()
 
         for ks in surveys:
             submitted_count = SvKhaoSat.query.filter_by(maks=ks.maks, trangthai_lam='1').count()
             target_count = SvKhaoSat.query.filter_by(maks=ks.maks).count() or total_students
             rate = round((submitted_count / target_count) * 100) if target_count > 0 else 0
 
+            # Kiểm tra hạn nộp chuẩn xác (hỗ trợ cả datetime và date string)
             is_active = True
             if ks.handon:
                 try:
-                    now = datetime.now()
-                    raw_handon = str(ks.handon).strip()
-                    
-                    # Thử parse các định dạng ngày giờ có thể có trong CSDL
+                    raw_str = str(ks.handon).strip()
                     parsed_dt = None
-                    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d', '%d/%m/%Y %H:%M:%S', '%d/%m/%Y'):
+                    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d'):
                         try:
-                            parsed_dt = datetime.strptime(raw_handon, fmt)
+                            parsed_dt = datetime.strptime(raw_str, fmt)
                             break
                         except ValueError:
                             pass
-                    
                     if parsed_dt:
                         is_active = (now <= parsed_dt)
                     else:
-                        # Fallback lấy 10 ký tự đầu YYYY-MM-DD
-                        d_part = raw_handon.split(' ')[0]
-                        deadline_date = datetime.strptime(d_part, '%Y-%m-%d').date()
-                        is_active = (now.date() <= deadline_date)
+                        d_part = raw_str.split(' ')[0]
+                        is_active = (now.date() <= datetime.strptime(d_part, '%Y-%m-%d').date())
                 except Exception:
                     is_active = False
 
             st_key = "active" if is_active else "closed"
+
+            # Đếm số câu hỏi
+            q_count = CauHoiKhaoSat.query.filter_by(maks=ks.maks).count()
 
             item = {
                 "id": ks.maks,
                 "maks": ks.maks,
                 "title": ks.tenks,
                 "description": ks.noidung or "",
-                "deadline": ks.handon or "2026-08-30",
+                "deadline": str(ks.handon) if ks.handon else "2026-09-05",
                 "status": st_key,
                 "totalTarget": target_count,
                 "submittedCount": submitted_count,
                 "responseRate": rate,
-                "questionsCount": len(ks.cauhois) if hasattr(ks, 'cauhois') else 0
+                "questionsCount": q_count
             }
 
             if status_filter != 'all' and item["status"] != status_filter:
@@ -2013,71 +2062,83 @@ def get_admin_surveys():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# 2. Chi tiết & Thống kê kết quả phản hồi của từng câu hỏi
 @admin_bp.route('/surveys/<maks>', methods=['GET'])
 @faculty_required
-def get_admin_survey_detail(maks):
+def get_survey_details(maks):
     try:
         ks = KhaoSat.query.filter_by(maks=maks).first()
         if not ks:
             return jsonify({"status": "error", "message": "Không tìm thấy khảo sát"}), 404
 
-        query_q = CauHoiKhaoSat.query.filter_by(maks=ks.maks)
-        
-        # Phân quyền câu hỏi theo Khoa
-        if not g.is_super_admin and g.makhoa:
-            query_q = query_q.filter(
-                (CauHoiKhaoSat.loai_cauhoi.like(f"{g.makhoa}%")) | 
-                (CauHoiKhaoSat.loai_cauhoi == 'Tự luận') |
-                (CauHoiKhaoSat.loai_cauhoi == 'Đánh giá')
-            )
+        questions = CauHoiKhaoSat.query.filter_by(maks=maks).order_by(CauHoiKhaoSat.thutu).all()
+        submitted_count = SvKhaoSat.query.filter_by(maks=maks, trangthai_lam='1').count()
+        total_target = SvKhaoSat.query.filter_by(maks=maks).count() or SinhVien.query.count() or 1
+        rate = round((submitted_count / total_target) * 100) if total_target > 0 else 0
 
-        questions = query_q.order_by(CauHoiKhaoSat.thutu).all()
-        questions_data = []
+        LETTER_TO_STAR = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'a': 5, 'b': 4, 'c': 3, 'd': 2, 'e': 1}
+        q_list = []
 
         for q in questions:
+            is_essay = "tự luận" in (q.loai_cauhoi or "").lower()
             answers = TraLoiKhaoSat.query.filter_by(mach=q.mach).all()
-            ratings_list = []
-            text_comments = []
-            rating_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            
+            star_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            text_responses = []
+            valid_ratings = []
 
-            for a in answers:
-                if a.noidung_traloi:
-                    match = re.search(r"Rating:\s*(\d+)\.\s*Comment:\s*(.*)", a.noidung_traloi, re.IGNORECASE | re.DOTALL)
+            for ans in answers:
+                txt = (ans.noidung_traloi or "").strip()
+                if not txt:
+                    continue
+
+                if is_essay:
+                    # Câu hỏi tự luận: Lưu toàn bộ câu trả lời dạng chữ
+                    text_responses.append(txt)
+                else:
+                    # Câu hỏi trắc nghiệm: Tách Rating và Comment
+                    rating_found = None
+                    comment_found = ""
+
+                    match = re.search(r"Rating:\s*(\d+)(?:\.\s*Comment:\s*(.*))?", txt, re.IGNORECASE | re.DOTALL)
                     if match:
-                        r_val = int(match.group(1))
-                        if 1 <= r_val <= 5:
-                            ratings_list.append(r_val)
-                            rating_counts[r_val] += 1
-                        cmt = match.group(2).strip()
-                        if cmt: text_comments.append(cmt)
+                        rating_found = int(match.group(1))
+                        comment_found = (match.group(2) or "").strip()
+                    elif txt in LETTER_TO_STAR:
+                        rating_found = LETTER_TO_STAR[txt]
+                    elif txt.isdigit() and 1 <= int(txt) <= 5:
+                        rating_found = int(txt)
                     else:
-                        text_comments.append(a.noidung_traloi)
+                        comment_found = txt
 
-            total_ratings = len(ratings_list)
-            avg_rating = round(sum(ratings_list) / total_ratings, 1) if total_ratings > 0 else 0
+                    if rating_found and 1 <= rating_found <= 5:
+                        star_counts[rating_found] += 1
+                        valid_ratings.append(rating_found)
 
-            rating_breakdown = []
-            for star in range(5, 0, -1):
-                count = rating_counts[star]
-                pct = round((count / total_ratings) * 100) if total_ratings > 0 else 0
-                rating_breakdown.append({
-                    "star": star,
-                    "count": count,
-                    "percentage": pct
-                })
+                    if comment_found:
+                        text_responses.append(comment_found)
 
-            questions_data.append({
+            total_ratings = len(valid_ratings)
+            avg_rating = round(sum(valid_ratings) / total_ratings, 1) if total_ratings > 0 else 0.0
+
+            breakdown = []
+            for s in range(5, 0, -1):
+                c = star_counts[s]
+                pct = round((c / total_ratings) * 100) if total_ratings > 0 else 0
+                breakdown.append({"star": s, "count": c, "percentage": pct})
+
+            q_list.append({
                 "id": q.mach,
-                "code": q.loai_cauhoi or "—",
                 "content": q.noidung_cauhoi,
+                "type": "Tự luận" if is_essay else "Trắc nghiệm",
+                "code": q.loai_cauhoi or ("Tự luận" if is_essay else "Trắc nghiệm"),
+                "isEssay": is_essay,
                 "averageRating": avg_rating,
                 "totalRatings": total_ratings,
-                "ratingBreakdown": rating_breakdown,
-                "textResponses": text_comments
+                "ratingBreakdown": breakdown,
+                "textResponses": text_responses
             })
-
-        total_submitted = SvKhaoSat.query.filter_by(maks=maks, trangthai_lam='1').count()
-        total_target = SvKhaoSat.query.filter_by(maks=maks).count() or 1
 
         return jsonify({
             "status": "success",
@@ -2085,79 +2146,105 @@ def get_admin_survey_detail(maks):
                 "id": ks.maks,
                 "title": ks.tenks,
                 "description": ks.noidung or "",
-                "deadline": ks.handon or "",
-                "submittedCount": total_submitted,
+                "deadline": str(ks.handon) if ks.handon else "",
+                "submittedCount": submitted_count,
                 "totalTarget": total_target,
-                "responseRate": round((total_submitted / total_target) * 100),
-                "questions": questions_data
+                "responseRate": rate,
+                "questions": q_list
             }
         }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# 3. Tạo khảo sát mới
 @admin_bp.route('/surveys', methods=['POST'])
 @faculty_required
 def create_admin_survey():
     try:
         data = request.get_json() or {}
-        maks = f"KS_{int(datetime.now().timestamp())}"
+        title = data.get('title') or 'Khảo sát mới'
+        desc = data.get('description') or ''
+        deadline = data.get('deadline') or '2026-09-30'
+        questions = data.get('questions', [])
 
-        ks = KhaoSat(
-            maks=maks,
-            tenks=data.get('title', 'Khảo sát mới'),
-            noidung=data.get('description', ''),
-            handon=data.get('deadline', '2026-08-30')
-        )
+        maks = f"KS_{int(datetime.now().timestamp())}"
+        ks = KhaoSat(maks=maks, tenks=title, noidung=desc, handon=deadline)
         db.session.add(ks)
 
-        questions = data.get('questions', [])
-        for idx, q in enumerate(questions):
-            mach = f"CH_{maks}_{idx+1}"
-            ch = CauHoiKhaoSat(
-                mach=mach,
-                maks=maks,
-                noidung_cauhoi=q.get('name') or q.get('content', f'Câu hỏi {idx+1}'),
-                loai_cauhoi=q.get('code') or q.get('type', 'Đánh giá'),
-                thutu=idx+1
-            )
+        for i, q in enumerate(questions):
+            q_name = q.get('name') or f'Câu hỏi {i+1}'
+            q_type = q.get('type') or ('Tự luận' if 'tự luận' in q_name.lower() else 'Trắc nghiệm')
+            mach = f"CH_{maks}_{i+1}"
+            ch = CauHoiKhaoSat(mach=mach, maks=maks, noidung_cauhoi=q_name, loai_cauhoi=q_type, thutu=i+1)
             db.session.add(ch)
 
-        if not g.is_super_admin and g.makhoa:
-            students = SinhVien.query.join(Nganh).filter(Nganh.makhoa == g.makhoa).all()
-        else:
-            students = SinhVien.query.all()
-
+        # Phân phối tới sinh viên
+        students = SinhVien.query.all()
         for sv in students:
             db.session.add(SvKhaoSat(mssv=sv.mssv, maks=maks, trangthai_lam='0'))
 
         db.session.commit()
-        return jsonify({"status": "success", "message": "Tạo khảo sát thành công", "id": maks}), 201
+        return jsonify({"status": "success", "message": "Tạo khảo sát thành công"}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# 4. Xóa khảo sát
 @admin_bp.route('/surveys/<maks>', methods=['DELETE'])
 @faculty_required
 def delete_admin_survey(maks):
     try:
-        ks = KhaoSat.query.filter_by(maks=maks).first()
-        if not ks:
-            return jsonify({"status": "error", "message": "Không tìm thấy khảo sát"}), 404
+        # Xóa câu trả lời, câu hỏi, phân phối và khảo sát
+        TraLoiKhaoSat.query.filter(TraLoiKhaoSat.mach.in_(
+            db.session.query(CauHoiKhaoSat.mach).filter_by(maks=maks)
+        )).delete(synchronize_session=False)
 
-        cauhois = CauHoiKhaoSat.query.filter_by(maks=maks).all()
-        for ch in cauhois:
-            TraLoiKhaoSat.query.filter_by(mach=ch.mach).delete()
-
-        SvKhaoSat.query.filter_by(maks=maks).delete()
         CauHoiKhaoSat.query.filter_by(maks=maks).delete()
-        db.session.delete(ks)
+        SvKhaoSat.query.filter_by(maks=maks).delete()
+        KhaoSat.query.filter_by(maks=maks).delete()
 
         db.session.commit()
-        return jsonify({"status": "success", "message": "Đã xóa khảo sát thành công"}), 200
+        return jsonify({"status": "success", "message": "Xóa khảo sát thành công"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# 5. Xuất kết quả khảo sát ra CSV
+@admin_bp.route('/surveys/<maks>/export', methods=['GET'])
+@faculty_required
+def export_survey_csv(maks):
+    try:
+        ks = KhaoSat.query.filter_by(maks=maks).first()
+        if not ks: return jsonify({"status": "error", "message": "Không tìm thấy khảo sát"}), 404
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["MSSV", "Mã câu hỏi", "Nội dung câu hỏi", "Loại câu hỏi", "Nội dung phản hồi", "Thời gian làm"])
+
+        answers = db.session.query(TraLoiKhaoSat, CauHoiKhaoSat)\
+            .join(CauHoiKhaoSat, TraLoiKhaoSat.mach == CauHoiKhaoSat.mach)\
+            .filter(CauHoiKhaoSat.maks == maks).all()
+
+        for ans, q in answers:
+            writer.writerow([
+                ans.mssv,
+                q.mach,
+                q.noidung_cauhoi,
+                q.loai_cauhoi,
+                ans.noidung_traloi,
+                ans.thoigian_traloi.strftime('%d/%m/%Y %H:%M') if ans.thoigian_traloi else ""
+            ])
+
+        res = make_response(output.getvalue())
+        res.headers["Content-Disposition"] = f"attachment; filename=ket_qua_khao_sat_{maks}.csv"
+        res.headers["Content-type"] = "text/csv; charset=utf-8-sig"
+        return res
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
 @admin_bp.route('/surveys/<maks>/export', methods=['GET'])
 @faculty_required
 def export_admin_survey(maks):
