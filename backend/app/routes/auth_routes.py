@@ -7,8 +7,8 @@ import jwt
 import datetime
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
-
-@auth_bp.route('/ms-login', methods=['POST'])
+@auth_bp.route('/ms-login', methods=['GET', 'POST'])
+@auth_bp.route('/ms-login/', methods=['GET', 'POST'])
 def ms_login():
     data = request.get_json() or {}
     email = data.get('email', '').strip().lower()
