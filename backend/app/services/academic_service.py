@@ -64,7 +64,7 @@ class AcademicService:
                     "ma_hocky": lhp.ma_hocky,
                     "ten_hocky": hk.ten_hocky if hk else lhp.ma_hocky,
                     "namhoc": hk.namhoc if hk else "",
-                    "diem_qt": r.diemgk,  # Điểm quá trình / GK
+                    "diem_qt": r.diemcc,
                     "diem_gk": r.diemgk,
                     "diem_ck": r.diemck,
                     "diem_tongket": diem_10,
