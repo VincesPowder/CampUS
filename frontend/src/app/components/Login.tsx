@@ -84,8 +84,15 @@ export default function Login({ onLogin }: LoginProps) {
         setIsProcessing(true);
         try {
           const account = accounts[0];
-          const userEmail = account.username || "";
+          const userEmail = 
+            account?.username || 
+            (account?.idTokenClaims as any)?.preferred_username || 
+            (account?.idTokenClaims as any)?.email || 
+            (account?.idTokenClaims as any)?.upn || 
+            "";
 
+          console.log("Email lấy được từ Microsoft:", userEmail);
+          console.log("Toàn bộ thông tin account:", account);
           const response = await instance.acquireTokenSilent({
             ...loginRequest,
             account: account
