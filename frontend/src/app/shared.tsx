@@ -267,31 +267,31 @@ export function getWeekDates(week: number): string[] {
     return `${String(day.getDate()).padStart(2, "0")}/${String(day.getMonth() + 1).padStart(2, "0")}`;
   });
 }
+// Trong frontend/src/app/shared.tsx
 
-export const HINH_THUC_STYLE: Record<HinhThuc, { bg: string; text: string; label: string }> = {
+export const HINH_THUC_STYLE: Record<string, { bg: string; text: string; label: string }> = {
   "TẬP TRUNG":          { bg: "bg-gray-100",  text: "text-gray-500",   label: "Tập trung" },
+  "TRỰC TIẾP":          { bg: "bg-gray-100",  text: "text-gray-500",   label: "Trực tiếp" },
   "TRỰC TUYẾN":         { bg: "bg-blue-50",   text: "text-blue-600",   label: "Trực tuyến" },
   "HỌC BÙ TRỰC TIẾP":  { bg: "bg-amber-50",  text: "text-amber-700",  label: "Học bù (TT)" },
   "HỌC BÙ TRỰC TUYẾN": { bg: "bg-purple-50", text: "text-purple-600", label: "Học bù (OL)" },
   "NGHỈ":               { bg: "bg-red-50",    text: "text-red-600",    label: "Nghỉ" },
 };
 
-// ─── THẺ MÔN HỌC TKB (ĐÃ CẬP NHẬT HIỂN THỊ GIỜ VÀ TIẾT HỌC) ──────────────────
-export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: string }) {
-  const isEn = entry.ngonNgu === "Tiếng Anh";
-  const isNghi = entry.hinhThuc === "NGHỈ";
-  const htStyle = HINH_THUC_STYLE[entry.hinhThuc];
-  const textColor = "rgba(0,0,0,0.9)";
-  
-  if (isNghi) {
-    return (
-      <div className="flex items-center justify-center h-full min-h-[80px]">
-        <span className="font-bold text-red-600 tracking-widest" style={{ fontSize: 15 }}>NGHỈ</span>
-      </div>
-    );
-  }
+// Trong frontend/src/app/shared.tsx
 
-  // Ưu tiên hiển thị: entry.gio -> caTime -> fallback
+export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: string }) {
+  if (!entry) return null;
+
+  const isEn = entry.ngonNgu === "Tiếng Anh";
+  const rawHt = (entry.hinhThuc || "").trim();
+  const isNghi = rawHt.toLowerCase().includes("nghỉ");
+  
+  const htStyle = HINH_THUC_STYLE[rawHt.toUpperCase()] || 
+                  HINH_THUC_STYLE[rawHt] || 
+                  { bg: "bg-gray-100", text: "text-gray-500", label: rawHt || "Trực tiếp" };
+  
+  const textColor = "rgba(0,0,0,0.9)";
   const displayTime = entry.gio || caTime || "07:30 – 11:10";
   const displayTiet = entry.tiet ? (entry.tiet.startsWith("Tiết") ? entry.tiet : `Tiết ${entry.tiet}`) : "";
 
@@ -322,9 +322,10 @@ export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: strin
         LHP: <span className="font-mono">{entry.maNhom}</span>
       </div>
 
+      {/* Giờ học & tiết học */}
       {(displayTime || displayTiet) && (
         <div className="text-[10px]" style={{ color: textColor }}>
-          {displayTime} {displayTiet && `(${displayTiet})`}
+          {displayTime}
         </div>
       )}
 
@@ -332,15 +333,19 @@ export function TKBCellCard({ entry, caTime }: { entry: TKBEntry; caTime?: strin
       {entry.gv && <div className="text-[10px] truncate" style={{ color: textColor }}>GV: {entry.gv}</div>}
       {entry.email && <div className="text-[10px] truncate" style={{ color: textColor }}>{entry.email}</div>}
 
-      {/* Hình thức & Ngôn ngữ */}
+      {/* 👇 HÌNH THỨC HỌC: HIỂN THỊ CHỮ NGHỈ MÀU ĐỎ NỔI BẬT 👇 */}
       <div className="text-[9px] pt-0.5 space-y-0.5" style={{ color: textColor }}>
-        <div>Hình thức học: {htStyle.label}</div>
-        <div>Ngôn ngữ: {entry.ngonNgu}</div>
+        <div>
+          Hình thức học:{" "}
+          <span className={isNghi ? "text-red-600 font-bold" : ""}>
+            {isNghi ? "Nghỉ" : (htStyle?.label || rawHt || "Trực tiếp")}
+          </span>
+        </div>
+        <div>Ngôn ngữ: {entry.ngonNgu || "tiếng Việt"}</div>
       </div>
     </div>
   );
 }
-
 // ─── LƯỚI THỜI KHÓA BIỂU TUẦN ─────────────────────────────────────────────────
 export function TKBWeekGrid({
   weekData,
