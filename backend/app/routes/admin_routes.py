@@ -29,7 +29,13 @@ def get_current_admin():
     admin_email = request.headers.get('X-Admin-Email') or request.args.get('admin_email')
     if not admin_email:
         return None
-    return AdminGiaoVu.query.filter_by(email=admin_email, trangthai=1).first()
+    admin = AdminGiaoVu.query.filter(func.lower(AdminGiaoVu.email) == str(admin_email).lower()).first()
+    if admin:
+        # Kiểm tra tài khoản không bị khóa (tránh so sánh trực tiếp số với chuỗi trong SQL)
+        if admin.trangthai and str(admin.trangthai).lower() in ['khóa', 'locked', 'inactive', '0']:
+            return None
+        return admin
+    return None
 
 def faculty_required(f):
     """
