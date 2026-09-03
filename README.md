@@ -127,8 +127,8 @@ VITE_MSAL_TENANT_ID=your_tenant_id_here
 
 **2. Thư mục `backend/` (Tạo file `.env`):**
 ```env
-FLASK_ENV=development
-SECRET_KEY=your_super_secret_key_campus
+SQLALCHEMY_DATABASE_URI=your_database_path_here
+DATABASE_URL=your_database_url_here
 
 # API Key cho các tính năng AI (Chatbox, Recommender)
 AI_API_KEY=your_google_gemini_api_key_here
