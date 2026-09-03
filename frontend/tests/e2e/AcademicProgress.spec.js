@@ -8,7 +8,7 @@ test.describe('Kiểm tra luồng Xem Tiến độ học tập - E2E (UC 2.7)', 
             await route.fulfill({ status: 200, json: { token: 'fake', role: 'student', user: { name: 'Duy' } } });
         });
 
-        await page.goto('http://127.0.0.1:5173/');
+        await page.goto('http://localhost:5173/');
         const loginBtn = page.getByRole('button', { name: /Đăng nhập/i });
         if (await loginBtn.isVisible({ timeout: 2000 })) await loginBtn.click();
 

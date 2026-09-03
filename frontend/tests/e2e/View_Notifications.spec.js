@@ -21,7 +21,7 @@ test.describe('Kiểm tra luồng Xem Thông Báo - E2E (UC 2.13)', () => {
             });
         });
 
-        await page.goto('http://127.0.0.1:5173/');
+        await page.goto('http://localhost:5173/');
 
         // 1. Thao tác click nút Đăng nhập trên màn hình Login để vào hệ thống
         const loginBtn = page.getByRole('button', { name: /Đăng nhập/i });

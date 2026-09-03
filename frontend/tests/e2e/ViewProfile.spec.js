@@ -17,7 +17,7 @@ test.describe('Kiểm tra chức năng Xem hồ sơ cá nhân - Frontend E2E', (
         });
 
         // 2. Đi tới trang chủ ứng dụng
-        await page.goto('http://127.0.0.1:5173/');
+        await page.goto('http://localhost:5173/');
 
         // 3. TỰ ĐỘNG CLICK NÚT ĐĂNG NHẬP (Bạn không cần nhập tay nữa)
         const msLoginBtn = page.getByRole('button', { name: /Đăng nhập với Microsoft/i });

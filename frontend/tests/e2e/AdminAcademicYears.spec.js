@@ -19,7 +19,7 @@ test.describe('Kiểm tra luồng Quản lý Năm học - E2E (UC 2.15)', () => 
             await route.fulfill({ status: 200, json: { status: 'success', data: [] } });
         });
 
-        await page.goto('http://127.0.0.1:5173/');
+        await page.goto('http://localhost:5173/');
         const loginBtn = page.getByRole('button', { name: /Đăng nhập/i });
         if (await loginBtn.isVisible({ timeout: 2000 })) await loginBtn.click();
 

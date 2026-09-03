@@ -4,7 +4,7 @@ test.describe('Kiểm tra chức năng Đăng nhập - Frontend E2E', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
     // Mở trang web trước mỗi test case để đảm bảo trạng thái luôn mới
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://127.0.0.1:5173/');
+        await page.goto('http://localhost:5173/');
     });
 
     test.skip('[TC_2.1_01]: Đăng nhập thành công với tài khoản Sinh viên', async ({ page }) => {
