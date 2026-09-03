@@ -8,6 +8,16 @@ from app.models.user import User
 @pytest.fixture
 def client():
     app = create_app()
+    
+    # 🎯 Khai báo dùng Database ảo trên RAM
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    
+    # 🎯 Ép SQLAlchemy quên file DB thật và khởi tạo lại với DB ảo
+    if 'sqlalchemy' in app.extensions:
+        del app.extensions['sqlalchemy']
+    db.init_app(app)
+
     with app.test_client() as client:
         with app.app_context():
             db.create_all()

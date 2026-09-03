@@ -7,13 +7,23 @@ import jwt
 @pytest.fixture
 def client():
     app = create_app()
+    
+    # 1. Khai báo dùng Database ảo trên RAM
+    app.config['TESTING'] = True
     app.config['SECRET_KEY'] = 'test_secret_key_must_be_at_least_32_bytes_long'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    
+    # 🎯 2. ĐÂY LÀ DÒNG "CỨU MẠNG": Ép SQLAlchemy quên file DB thật và khởi tạo lại với DB ảo
+    if 'sqlalchemy' in app.extensions:
+        del app.extensions['sqlalchemy']
+    db.init_app(app)
+
     with app.test_client() as client:
         with app.app_context():
-            db.create_all()
+            db.create_all()  # Tạo bảng trên RAM
             yield client
             db.session.remove()
-            db.drop_all()
+            db.drop_all()    # Xóa bảng trên RAM (An toàn tuyệt đối)
 
 def generate_valid_token(mssv="24127001", role="student"):
     """Tạo token giả lập sinh viên hợp lệ."""
@@ -46,7 +56,6 @@ def test_tc_2_26_06_ai_processing_and_db_save(mock_build_context, mock_ai_respon
         assert session is not None
         assert session.trangthai_giaiquyet == "Đã trả lời"
         
-        # Phiên này phải có 2 tin nhắn (1 user, 1 bot)
         messages = ChatMessage.query.filter_by(masession=session.masession).all()
         assert len(messages) == 2
         assert any(m.loai_tinnhan == 'user' and m.noidung_tinnhan == 'Học phí kỳ này bao nhiêu?' for m in messages)
@@ -63,10 +72,9 @@ def test_tc_2_26_07_backend_error_handling(mock_ai_response, client):
     assert response_empty.status_code == 400
     assert "Câu hỏi không được để trống" in response_empty.get_json()['message']
     
-    # Test 2: Bắt lỗi khi service AI sập (Quota exceeded / Network error)
+    # Test 2: Bắt lỗi khi service AI sập
     mock_ai_response.side_effect = Exception("Lỗi kết nối tới hệ thống AI.")
     response_crash = client.post('/api/chatbot/ask', json={'message': 'Hello'}, headers=headers)
     
     assert response_crash.status_code == 500
     assert response_crash.get_json()['status'] == 'error'
-    # Đảm bảo app không bị crash, vẫn trả về JSON thông báo đàng hoàng
