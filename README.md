@@ -104,11 +104,19 @@ pytest -v
 cd frontend
 
 # 1. Chạy Unit Test (Vitest) cho các components
+cd tests/unit
 pnpm vitest run
 
 # 2. Chạy End-to-End Test (Playwright) mô phỏng luồng người dùng
 # (Lưu ý: Chạy lệnh này trong lần đầu tiên để cài trình duyệt ảo: pnpm exec playwright install)
-pnpm exec playwright test
+
+pnpm exec playwright test --headed
+
+pnpm exec playwright test tests/e2e/AcademicProgress.spec.js
+pnpm exec playwright test tests/e2e/AdminSchedule.spec.js
+pnpm exec playwright test tests/e2e/GradePredictor.spec.js
+pnpm exec playwright test tests/e2e/AIChatbot.spec.js
+...
 ```
 
 ## Cấu hình Biến môi trường (.env)
