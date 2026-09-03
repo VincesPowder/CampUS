@@ -7,7 +7,7 @@ async function globalSetup() {
     const page = await context.newPage();
 
     console.log('Đang mở trình duyệt. Vui lòng thao tác đăng nhập Microsoft...');
-    await page.goto('http://127.0.0.1:5173/');
+    await page.goto('http://localhost:5173/');
 
     // Chờ bạn đăng nhập tay và web load vào giao diện bên trong
     await page.waitForSelector('nav button, aside button', { timeout: 0 });

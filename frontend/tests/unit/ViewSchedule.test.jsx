@@ -110,25 +110,26 @@ describe('Function 11: View Class/Exam Schedule (Frontend Unit)', () => {
     });
 
     it('[TC_2.11_07]: Verify "Today" highlighting logic in the weekly grid', async () => {
-        // Chỉ mock đối tượng Date, giữ nguyên setTimeout/setInterval để waitFor hoạt động
-        vi.useFakeTimers({ toFake: ['Date'] });
-        vi.setSystemTime(new Date('2026-05-19T12:00:00+07:00')); // Múi giờ +7 đảm bảo chuẩn Thứ 3
+        // Đánh tráo trực tiếp hàm getDay() để luôn trả về 3 (Thứ Tư)
+        const getDaySpy = vi.spyOn(global.Date.prototype, 'getDay').mockReturnValue(3);
 
         render(<ScheduleWrapper tab="tkb" />);
 
         await waitFor(() => {
-            const thubaElement = screen.getByText('Thứ ba');
+            // Tìm cột Thứ tư
+            const thutuElement = screen.getByText('Thứ tư');
             
-            // Tìm ngược lên thẻ chứa class bg-orange-50.
-            // Nếu không tìm thấy, fallback lấy thẻ th để báo lỗi in ra class chính xác
-            let highlightedContainer = thubaElement.closest('.bg-orange-50');
+            let highlightedContainer = thutuElement.closest('.bg-orange-50');
             if (!highlightedContainer) {
-                highlightedContainer = thubaElement.closest('th') || thubaElement.parentElement;
+                highlightedContainer = thutuElement.closest('th') || thutuElement.parentElement;
             }
             
             expect(highlightedContainer?.className).toMatch(/bg-orange-50/);
             expect(highlightedContainer?.className).toMatch(/text-orange-/);
         });
+
+        // Dọn dẹp spy sau khi test xong
+        getDaySpy.mockRestore();
     });
 
     it('[TC_2.11_08]: Verify data mapping in the "TKB Thi" (Exam Schedule) table', async () => {

@@ -17,6 +17,9 @@ venv/
 .env.*.local
 *.env
 
+.env
+backend/.env
+
 # Logs
 *.log
 npm-debug.log*
