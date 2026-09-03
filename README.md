@@ -64,7 +64,7 @@ python init_db.py
    ```bash
    python run.py
    ```
-   *Terminal sẽ hiện thông báo Backend đang chạy tại: `http://127.0.0.1:5000`*
+   *Terminal sẽ hiện thông báo Backend đang chạy tại: `localhost`*
 
 ### Phần 2: Thiết lập Frontend (React / Vite)
 
@@ -118,7 +118,7 @@ Nếu hệ thống yêu cầu kết nối với Microsoft MSAL (Login bằng ema
 **1. Thư mục `frontend/` (Tạo file `.env`):**
 ```env
 # URL kết nối Backend
-VITE_API_URL=http://127.0.0.1:5000/api
+VITE_API_URL=http://localhost:5173/api
 
 # Cấu hình MSAL (Microsoft Authentication)
 VITE_MSAL_CLIENT_ID=your_client_id_here
