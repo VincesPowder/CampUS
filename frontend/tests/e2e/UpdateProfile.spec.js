@@ -116,7 +116,7 @@ test.describe('Kiểm tra luồng Cập nhật Hồ sơ - E2E (UC 2.6)', () => {
             await route.continue();
         });
 
-        await page.goto('http://127.0.0.1:5173/');
+        await page.goto('http://localhost:5173/');
 
         await expect(page.getByText('Nguyễn Trần Lan Duy').first()).toBeVisible({ timeout: 15000 });
 
@@ -229,7 +229,7 @@ test.describe('Kiểm tra luồng Cập nhật Hồ sơ - E2E (UC 2.6)', () => {
         // LOAD APP
         // ============================================================
         await page.goto(
-            'http://127.0.0.1:5173/'
+            'http://localhost:5173/'
         );
 
 
