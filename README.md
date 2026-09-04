@@ -117,7 +117,7 @@ pnpm vitest run
 # (Lưu ý: Chạy lệnh này trong lần đầu tiên để cài trình duyệt ảo: pnpm exec playwright install)
 Đảm bảo bạn đang ở thư mục `frontend`
 
-**Các lệnh đăng nhập bằng account student 24127158**
+**Các lệnh kiểm thử cần đăng nhập bằng account student 24127158**
 ```bash
 pnpm exec playwright test tests/e2e/AcademicProgress.spec.js --headed
 pnpm exec playwright test tests/e2e/GradePredictor.spec.js --headed
@@ -131,7 +131,7 @@ pnpm exec playwright test tests/e2e/ViewSchedule.spec.js --headed
 pnpm exec playwright test tests/e2e/ViewTuition.spec.js --headed
 ```
 
-**Các lệnh đăng nhập bằng account admin 24127262**
+**Các lệnh kiểm thử cần đăng nhập bằng account admin 24127262**
 ```bash
 pnpm exec playwright test tests/e2e/AdminAcademicYears.spec.js --headed
 pnpm exec playwright test tests/e2e/AdminCourses.spec.js --headed
@@ -147,7 +147,7 @@ pnpm exec playwright test tests/e2e/ImportGrades.spec.js --headed
 pnpm exec playwright test tests/e2e/LockPublishGrades.spec.js --headed
 ```
 
-**Các lệnh có thể đăng nhập bằng cả 2 accounts**
+**Các lệnh kiểm thử có thể đăng nhập bằng cả 2 accounts**
 ```bash
 pnpm exec playwright test tests/e2e/HelpSupport.spec.js --headed
 pnpm exec playwright test tests/e2e/Login.spec.js --headed
