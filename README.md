@@ -80,6 +80,12 @@ python init_db.py
    ```bash
    pnpm dev
    ```
+   Nếu không chạy được bằng `pnpm` thì chạy bằng `npm`
+   ```bash
+   npm install
+   npm run dev
+   ```
+
    *Frontend sẽ sẵn sàng tại địa chỉ: `http://localhost:5173`*
 
 ---
@@ -106,16 +112,45 @@ cd frontend
 # 1. Chạy Unit Test (Vitest) cho các components
 cd tests/unit
 pnpm vitest run
-
+```
 # 2. Chạy End-to-End Test (Playwright) mô phỏng luồng người dùng (Đảm bảo đang ở thư mục frontend)
 # (Lưu ý: Chạy lệnh này trong lần đầu tiên để cài trình duyệt ảo: pnpm exec playwright install)
+Đảm bảo bạn đang ở thư mục `frontend`
 
-
+**Các lệnh đăng nhập bằng account student 24127158**
+```bash
 pnpm exec playwright test tests/e2e/AcademicProgress.spec.js --headed
-pnpm exec playwright test tests/e2e/AdminSchedule.spec.js --headed
 pnpm exec playwright test tests/e2e/GradePredictor.spec.js --headed
 pnpm exec playwright test tests/e2e/AIChatbot.spec.js --headed
-...
+pnpm exec playwright test tests/e2e/SurveySection.spec.js --headed
+pnpm exec playwright test tests/e2e/UpdateProfile.spec.js --headed
+pnpm exec playwright test tests/e2e/View_Notifications.spec.js --headed
+pnpm exec playwright test tests/e2e/ViewCurriculum.spec.js --headed
+pnpm exec playwright test tests/e2e/ViewProfile.spec.js --headed
+pnpm exec playwright test tests/e2e/ViewSchedule.spec.js --headed
+pnpm exec playwright test tests/e2e/ViewTuition.spec.js --headed
+```
+
+**Các lệnh đăng nhập bằng account admin 24127262**
+```bash
+pnpm exec playwright test tests/e2e/AdminAcademicYears.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminCourses.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminEditStudent.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminFacultiesMajors.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminNotifications.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminProfilePermission.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminSchedule.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminSearchStudent.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminSurvey.spec.js --headed
+pnpm exec playwright test tests/e2e/AdminTuition.spec.js --headed
+pnpm exec playwright test tests/e2e/ImportGrades.spec.js --headed
+pnpm exec playwright test tests/e2e/LockPublishGrades.spec.js --headed
+```
+
+**Các lệnh có thể đăng nhập bằng cả 2 accounts**
+```bash
+pnpm exec playwright test tests/e2e/HelpSupport.spec.js --headed
+pnpm exec playwright test tests/e2e/Login.spec.js --headed
 ```
 
 ## Cấu hình Biến môi trường (.env)
